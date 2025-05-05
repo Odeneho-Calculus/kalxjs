@@ -12,6 +12,8 @@ kalxjs is designed to empower developers to build dynamic, scalable, and high-pe
 - **Component-Based Architecture**: Create reusable and modular components
 - **Virtual DOM**: Optimize rendering performance
 - **Built-in Routing**: Handle navigation within single-page applications
+- **Single File Components**: Write components in .klx files with template, script, and style blocks
+- **First-Class Development Tools**: HMR, TypeScript support, and IDE features for .klx files
 - **State Management**: Centralized state management solution
 - **CLI Tool**: Streamline project setup and development
 - **Plugin System**: Extend functionality through plugins
@@ -34,35 +36,104 @@ kalxjs create my-project
 
 ## Quick Start
 
-```javascript
-import kalxjs from 'kalxjs';
+Create a new project:
 
-// Create a component
-const Counter = kalxjs.defineComponent({
-  data() {
-    return {
-      count: 0
-    };
-  },
-  methods: {
-    increment() {
-      this.count++;
-    }
-  },
-  render(h) {
-    return h('div', [
-      h('p', `Count: ${this.count}`),
-      h('button', { onClick: this.increment }, 'Increment')
-    ]);
-  }
-});
+```bash
+npm create kalx@latest my-klx-app
+cd my-klx-app
+npm install
+npm run dev
+```
 
-// Create and mount the app
-const app = kalxjs.createApp({
-  render(h) {
-    return h(Counter);
-  }
-}).mount('#app');
+Create a Single File Component (Counter.klx):
+
+```klx
+<template>
+  <div class="counter">
+    <h2>{{ title }}</h2>
+    <p>Count: {{ count }}</p>
+    <button @click="increment">Increment</button>
+  </div>
+</template>
+
+<script setup>
+import { ref } from 'kalxjs'
+
+const title = ref('Counter Component')
+const count = ref(0)
+
+function increment() {
+  count.value++
+}
+</script>
+
+<style scoped>
+.counter {
+  text-align: center;
+  padding: 20px;
+}
+
+button {
+  padding: 8px 16px;
+  background: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+</style>
+```
+
+Use components in your app (App.klx):
+
+```klx
+<template>
+  <div class="app">
+    <Counter />
+  </div>
+</template>
+
+<script setup>
+import Counter from './components/Counter.klx'
+</script>
+```
+
+## Development Tools
+
+KalxJS provides first-class tooling support:
+
+- **@kalx/compiler-sfc**: Compiles .klx files into JavaScript
+- **vite-plugin-klx**: First-class Vite integration
+- **@kalx/language-service**: TypeScript and IDE support
+- **klx-loader**: Webpack integration
+- **@kalx/devtools**: Browser devtools extension
+
+## Project Structure
+
+```
+my-klx-app/
+├── src/
+│   ├── components/
+│   │   └── Counter.klx
+│   ├── App.klx
+│   └── main.js
+├── vite.config.js
+└── package.json
+```
+
+## Project Setup
+
+Use our Vite-based template to get started quickly:
+
+```bash
+# npm
+npm create kalx@latest my-klx-app
+
+# yarn
+yarn create kalx my-klx-app
+
+# pnpm
+pnpm create kalx my-klx-app
 ```
 
 ## Documentation
@@ -74,9 +145,3 @@ For detailed documentation, visit:
 - [Tutorials](./docs/tutorials/README.md)
 
 ## Contributing
-
-We welcome contributions! Please read our [Contributing Guide](./CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
-
-## License
-
-kalxjs is [MIT licensed](./LICENSE).

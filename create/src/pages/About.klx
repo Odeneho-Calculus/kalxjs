@@ -1,0 +1,12 @@
+<template>
+    <div class="about">
+        <h1>About KalxJS</h1>
+        <p>A modern, lightweight JavaScript framework</p>
+    </div>
+</template>
+
+<script>
+export default {
+    name: 'AboutPage'
+}
+</script>

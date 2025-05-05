@@ -1,6 +1,27 @@
 // packages/core/src/vdom/vdom.js
 
 /**
+ * Flattens an array (polyfill for Array.prototype.flat)
+ * @private
+ * @param {Array} arr - Array to flatten
+ * @param {number} depth - Maximum recursion depth
+ * @returns {Array} Flattened array
+ */
+function flattenArray(arr, depth = 1) {
+    const result = [];
+
+    arr.forEach(item => {
+        if (Array.isArray(item) && depth > 0) {
+            result.push(...flattenArray(item, depth - 1));
+        } else {
+            result.push(item);
+        }
+    });
+
+    return result;
+}
+
+/**
  * Creates a virtual DOM node
  * @param {string} tag - HTML tag name
  * @param {Object} props - Node properties
@@ -10,7 +31,7 @@ export function h(tag, props = {}, children = []) {
     return {
         tag,
         props,
-        children: children.flat()
+        children: flattenArray(children)
     };
 }
 
