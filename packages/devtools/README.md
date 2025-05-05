@@ -1,68 +1,111 @@
 # kalxjs DevTools
 
-Developer Tools for debugging and inspecting kalxjs applications.
+Advanced development tools for debugging, profiling, and optimizing kalxjs applications.
 
 ## Features
 
-- Component inspection
-- State tracking
-- Performance monitoring
-- Event timeline
-- Network request inspection
-- Visual component hierarchy
+- Real-time Component Inspection
+- State Management Time Travel
+- Performance Profiling & Metrics
+- Component Render Timeline
+- Network Request Analysis
+- Visual Component Graph
+- Memory Usage Tracking
+- Signal Dependencies Graph
+- Hot Module Replacement
+- Custom Plugin Support
 
 ## Installation
 
 ```bash
-npm install @kalxjs/devtools
+# Using npm
+npm install @kalxjs-framework/devtools
+
+# Using pnpm
+pnpm add @kalxjs-framework/devtools
 ```
 
-## Usage
+## Modern Setup
 
-### Basic Setup
+```typescript
+import { createApp } from '@kalxjs-framework/runtime'
+import { DevTools } from '@kalxjs-framework/devtools'
+import type { DevToolsConfig } from '@kalxjs-framework/devtools'
 
-```javascript
-import kalxjs from 'kalxjs';
-import { DevToolsPlugin } from '@kalxjs/devtools';
-import App from './App';
+const config: DevToolsConfig = {
+  app: {
+    name: 'MyApp',
+    version: '1.0.0'
+  },
+  performance: {
+    cpu: true,
+    memory: true,
+    network: true
+  },
+  features: {
+    timeTravel: true,
+    componentInspector: true,
+    signalGraph: true
+  }
+}
 
-const app = kalxjs.createApp(App);
-
-// Register DevTools plugin
-app.use(DevToolsPlugin);
-
-app.mount('#app');
+const app = createApp(App)
+app.use(DevTools, config)
 ```
 
-### Manual Control
+## Advanced Features
 
-```javascript
-import kalxjs from 'kalxjs';
-import { createDevTools } from '@kalxjs/devtools';
-import App from './App';
+### Performance Profiling
 
-const app = kalxjs.createApp(App);
-const devtools = createDevTools(app);
+```typescript
+import { profile, measure } from '@kalxjs-framework/devtools'
 
-// Initialize manually
-devtools.init();
+// Component profiling
+@profile()
+class ProfiledComponent {
+  @measure()
+  expensiveOperation() {
+    // Performance tracked automatically
+  }
+}
 
-// Enable/disable as needed
-devtools.enable();
-devtools.disable();
-
-app.mount('#app');
+// Manual profiling
+const profiler = profile.start('CustomOperation')
+// ...operations
+profiler.end()
 ```
 
-## Configuration Options
+### Custom Plugins
 
-```javascript
-app.use(DevToolsPlugin, {
-  autoEnable: true, // Enable DevTools automatically
-  logLevel: 'info', // Log level (debug, info, warn, error)
-  trackComponents: true, // Track component updates
-  trackPerformance: true // Track performance metrics
-});
+```typescript
+import { defineDevToolsPlugin } from '@kalxjs-framework/devtools'
+
+export const CustomDebugger = defineDevToolsPlugin({
+  name: 'custom-debugger',
+  setup(context) {
+    return {
+      trackCustomMetric(name: string, value: number) {
+        context.addMetric({ name, value })
+      }
+    }
+  }
+})
+```
+
+### Integration with Bundlers
+
+```typescript
+// vite.config.ts
+import { kalxjsDevTools } from '@kalxjs-framework/devtools/vite'
+
+export default defineConfig({
+  plugins: [
+    kalxjsDevTools({
+      sourceMap: true,
+      componentGraph: true
+    })
+  ]
+})
 ```
 
 ## Browser Extension

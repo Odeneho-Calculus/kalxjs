@@ -1,51 +1,40 @@
 <!-- kalxjs/docs/guides/introduction.md -->
 # Introduction to kalxjs
 
-Welcome to kalxjs! This guide will introduce you to the core concepts and features of the framework.
+kalxjs is a progressive JavaScript framework designed for building modern web interfaces with focus on performance and developer experience.
 
-## What is kalxjs?
+## Core Concepts
 
-kalxjs is a progressive JavaScript framework for building user interfaces. Unlike monolithic frameworks, kalxjs is designed from the ground up to be incrementally adoptable. The core library focuses on the view layer only, making it easy to integrate with other libraries or existing projects.
-
-At the same time, kalxjs is perfectly capable of powering sophisticated Single-Page Applications when used in combination with modern tooling and supporting libraries.
-
-## Core Features
-
-### Reactive Data Binding
-
-At the heart of kalxjs is a reactive data binding system. When you modify your application's data, the view automatically updates to reflect those changes.
+### Reactivity System
+The foundation of kalxjs is its fine-grained reactivity system:
 
 ```javascript
-import { reactive } from 'kalxjs';
+import { ref, computed } from '@kalxjs-framework/runtime'
 
-const state = reactive({
-  message: 'Hello kalxjs'
-});
+const count = ref(0)
+const doubled = computed(() => count.value * 2)
 
-// Later, when this changes...
-state.message = 'Welcome to kalxjs';
-// ...the UI automatically updates!
+// Automatically tracks dependencies and updates
+watchEffect(() => {
+  console.log(`Count is: ${count.value}, doubled is: ${doubled.value}`)
+})
 ```
 
-### Component-Based Architecture
-
-kalxjs applications are built by composing components. Components encapsulate data, logic, and the user interface, making your code more maintainable and reusable.
+### Component Architecture
+Components are the building blocks of kalxjs applications:
 
 ```javascript
-import { defineComponent, h } from 'kalxjs';
+import { defineComponent } from '@kalxjs-framework/runtime'
 
-const Button = defineComponent({
+export default defineComponent({
   props: {
-    label: String,
-    primary: Boolean
+    message: String
   },
-  render() {
-    return h('button', {
-      class: this.primary ? 'btn-primary' : 'btn-default',
-      onClick: () => this.$emit('click')
-    }, this.label);
+  setup(props) {
+    const count = ref(0)
+    return { count }
   }
-});
+})
 ```
 
 ### Virtual DOM
@@ -86,6 +75,15 @@ const router = createRouter({
   ]
 });
 ```
+
+## Modern Features
+
+- Server Components
+- Suspense Boundaries
+- Error Boundaries
+- Automatic Batching
+- Concurrent Rendering
+- Static Site Generation
 
 ## Philosophy
 

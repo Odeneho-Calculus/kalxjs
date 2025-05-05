@@ -1,13 +1,12 @@
 <!-- kalxjs/docs/guides/README.md -->
 # kalxjs Guides
 
-This section contains comprehensive guides for working with kalxjs. Each guide focuses on a specific aspect of the framework.
+Comprehensive documentation for building modern applications with kalxjs 1.2.x.
 
-## Getting Started
-
-- [Introduction](./introduction.md) - Overview of kalxjs and its core concepts
-- [Installation](./installation.md) - How to install and set up kalxjs
-- [Application Structure](./application-structure.md) - Recommended project organization
+## Fundamentals 
+- [Quick Start](./quick-start.md) - Build your first kalxjs app in minutes
+- [Project Structure](./project-structure.md) - Modern application architecture
+- [TypeScript Setup](./typescript.md) - First-class TypeScript support
 
 ## Core Concepts
 
@@ -16,23 +15,33 @@ This section contains comprehensive guides for working with kalxjs. Each guide f
 - [Rendering](./rendering.md) - The rendering system and virtual DOM
 - [Lifecycle Hooks](./lifecycle-hooks.md) - Component lifecycle events
 
-## Advanced Features
+## Advanced Patterns
+- [Composition API](./composition-api.md) - Modern component composition
+- [Custom Renderers](./custom-renderers.md) - Build platform-specific renderers
+- [Error Boundaries](./error-boundaries.md) - Graceful error handling
+- [Suspense](./suspense.md) - Async data loading patterns
+- [Code Splitting](./code-splitting.md) - Dynamic imports and chunking
 
-- [State Management](./state-management.md) - Managing application state
-- [Routing](./routing.md) - Creating single-page applications
-- [Forms](./forms.md) - Form handling and validation
-- [Transitions](./transitions.md) - Adding animations and transitions
-- [Plugins](./plugins.md) - Extending kalxjs with plugins
-- [Testing](./testing.md) - Testing kalxjs applications
+## Performance
+- [Bundle Optimization](./bundle-optimization.md) - Reduce bundle sizes
+- [Rendering Optimization](./rendering.md) - Virtual DOM performance
+- [State Management](./state-management.md) - Efficient state updates
+- [Server Components](./server-components.md) - Hybrid rendering strategies
 
-## Tooling
+## Development Tools
+- [Vite Integration](./vite.md) - Modern development workflow
+- [Hot Module Replacement](./hmr.md) - Fast refresh capabilities
+- [DevTools](./devtools.md) - Debugging and profiling
+- [Testing Strategies](./testing.md) - Unit, component, and E2E testing
 
-- [CLI](./cli.md) - Using the kalxjs command-line interface
-- [DevTools](./devtools.md) - Development and debugging tools
-- [TypeScript](./typescript.md) - Using kalxjs with TypeScript
+## Deployment & CI/CD
+- [Build Optimization](./build.md) - Production build setup
+- [Docker Deployment](./docker.md) - Containerization guide
+- [Static Hosting](./static-hosting.md) - JAMstack deployment
+- [Monitoring](./monitoring.md) - Performance monitoring
 
-## Deployment
-
-- [Production Deployment](./deployment.md) - Preparing your app for production
-- [Performance Optimization](./performance.md) - Optimizing your kalxjs application
-- [Server-Side Rendering](./ssr.md) - Server-side rendering with kalxjs
+## Ecosystem
+- [UI Libraries](./ui-libraries.md) - Component libraries and design systems
+- [State Solutions](./state-solutions.md) - State management alternatives
+- [CLI Tooling](./cli.md) - Development workflow tools
+- [Community Plugins](./plugins.md) - Extending functionality

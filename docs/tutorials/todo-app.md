@@ -1,433 +1,240 @@
-# kalxjs/docs/tutorials/todo-app.md
+# Building a Modern Todo App with kalxjs
 
-# Building a Todo App with kalxjs
-
-This tutorial will guide you through building a complete Todo List application using kalxjs. You'll learn how to create components, manage state, handle events, and more.
+Learn how to build a full-featured Todo application using kalxjs's latest features.
 
 ## Project Setup
 
-First, set up a new kalxjs project using the CLI:
-
 ```bash
-# Install the CLI if you haven't already
-npm install -g @kalxjs/cli
+# Create new project with Vite
+npm create kalx@latest todo-app
 
-# Create a new project
-kalxjs create todo-app
-
-# Navigate to the project
-cd todo-app
+# Select features
+✔ Add TypeScript? Yes
+✔ Add Tailwind CSS? Yes
+✔ Add Testing? Yes
+✔ Add State Management? Yes
+✔ Add Animations? Yes
 ```
 
 ## Project Structure
-
-We'll use the following structure for our Todo app:
 
 ```
 todo-app/
 ├── src/
 │   ├── components/
-│   │   ├── TodoList.js
-│   │   ├── TodoItem.js
-│   │   ├── TodoForm.js
-│   │   └── TodoFilter.js
-│   ├── store.js
-│   ├── main.js
-│   └── styles.css
-└── index.html
+│   │   ├── todo/
+│   │   │   ├── TodoList.tsx
+│   │   │   ├── TodoItem.tsx
+│   │   │   ├── TodoForm.tsx
+│   │   │   └── TodoFilter.tsx
+│   │   └── ui/
+│   │       ├── Button.tsx
+│   │       └── Input.tsx
+│   ├── composables/
+│   │   └── useTodos.ts
+│   ├── stores/
+│   │   └── todos.ts
+│   └── types/
+│       └── todo.ts
 ```
 
-## Creating the Store
+## Type Definitions
 
-First, let's create a central store for our Todo state using kalxjs's state management:
+```typescript
+// src/types/todo.ts
+export interface Todo {
+  id: string
+  text: string
+  completed: boolean
+  createdAt: Date
+  sortOrder: number
+}
 
-```javascript
-// src/store.js
-import { createStore } from '@kalxjs/state';
+export type TodoFilter = 'all' | 'active' | 'completed'
+```
 
-export default createStore({
-  state: {
-    todos: [],
-    filter: 'all' // all, active, completed
-  },
-  
-  mutations: {
-    addTodo(state, text) {
-      state.todos.push({
-        id: Date.now(),
-        text,
-        completed: false
-      });
-    },
-    
-    toggleTodo(state, id) {
-      const todo = state.todos.find(todo => todo.id === id);
-      if (todo) {
-        todo.completed = !todo.completed;
+## Store Implementation
+
+```typescript
+// src/stores/todos.ts
+import { defineStore } from '@kalxjs-framework/runtime'
+
+export const useTodoStore = defineStore('todos', {
+  state: () => ({
+    items: [] as Todo[],
+    filter: 'all' as TodoFilter
+  }),
+
+  actions: {
+    async addTodo(text: string) {
+      try {
+        const todo = await todoService.create({
+          text,
+          completed: false,
+          sortOrder: this.items.length
+        })
+        this.items.push(todo)
+      } catch (error) {
+        errorHandler.capture(error)
+        throw error
       }
-    },
-    
-    removeTodo(state, id) {
-      const index = state.todos.findIndex(todo => todo.id === id);
-      if (index !== -1) {
-        state.todos.splice(index, 1);
-      }
-    },
-    
-    setFilter(state, filter) {
-      state.filter = filter;
-    },
-    
-    clearCompleted(state) {
-      state.todos = state.todos.filter(todo => !todo.completed);
-    }
-  },
-  
-  getters: {
-    filteredTodos(state) {
-      switch (state.filter) {
-        case 'active':
-          return state.todos.filter(todo => !todo.completed);
-        case 'completed':
-          return state.todos.filter(todo => todo.completed);
-        default:
-          return state.todos;
-      }
-    },
-    
-    remaining(state) {
-      return state.todos.filter(todo => !todo.completed).length;
-    },
-    
-    anyCompleted(state) {
-      return state.todos.some(todo => todo.completed);
     }
   }
-});
+})
 ```
 
-## Creating the Components
+## Composable Logic
 
-### TodoForm Component
+```typescript
+// src/composables/useTodos.ts
+import { useDraggable } from '@kalxjs/draggable'
 
-```javascript
-// src/components/TodoForm.js
-import { defineComponent, h, ref } from '@kalxjs/core';
-import store from '../store';
+export function useTodos() {
+  const store = useTodoStore()
+  const { isDragging, start, end } = useDraggable()
+
+  // Optimistic updates with error handling
+  async function toggleTodo(id: string) {
+    const todo = store.items.find(t => t.id === id)
+    if (!todo) return
+
+    const previous = { ...todo }
+    todo.completed = !todo.completed
+
+    try {
+      await todoService.update(id, { completed: todo.completed })
+    } catch {
+      Object.assign(todo, previous)
+    }
+  }
+
+  return {
+    todos: computed(() => store.filteredTodos),
+    isDragging,
+    toggleTodo
+  }
+}
+```
+
+## Modern Component Example
+
+```typescript
+// src/components/todo/TodoList.tsx
+import { TransitionGroup } from '@kalxjs-framework/runtime'
 
 export default defineComponent({
   setup() {
-    const input = ref('');
+    const { todos, isDragging, toggleTodo } = useTodos()
     
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      const text = input.value.trim();
-      if (text) {
-        store.commit('addTodo', text);
-        input.value = '';
-      }
-    };
-    
-    return { input, handleSubmit };
-  },
-  
-  render() {
-    return h('form', { class: 'todo-form', onSubmit: this.handleSubmit }, [
-      h('input', {
-        type: 'text',
-        placeholder: 'What needs to be done?',
-        value: this.input.value,
-        onInput: (e) => { this.input.value = e.target.value }
-      }),
-      h('button', { type: 'submit' }, 'Add')
-    ]);
-  }
-});
-```
-
-### TodoItem Component
-
-```javascript
-// src/components/TodoItem.js
-import { defineComponent, h } from '@kalxjs/core';
-import store from '../store';
-
-export default defineComponent({
-  props: {
-    todo: {
-      type: Object,
-      required: true
-    }
-  },
-  
-  render() {
-    const { id, text, completed } = this.todo;
-    
-    return h('li', { class: { 'todo-item': true, 'completed': completed } }, [
-      h('input', {
-        type: 'checkbox',
-        checked: completed,
-        onChange: () => store.commit('toggleTodo', id)
-      }),
-      h('span', { class: 'todo-text' }, text),
-      h('button', { 
-        class: 'delete-btn',
-        onClick: () => store.commit('removeTodo', id)
-      }, '×')
-    ]);
-  }
-});
-```
-
-### TodoFilter Component
-
-```javascript
-// src/components/TodoFilter.js
-import { defineComponent, h, computed } from '@kalxjs/core';
-import store from '../store';
-
-export default defineComponent({
-  setup() {
-    const remaining = computed(() => store.getters.remaining);
-    const anyCompleted = computed(() => store.getters.anyCompleted);
-    const filter = computed(() => store.state.filter);
-    
-    const setFilter = (newFilter) => {
-      store.commit('setFilter', newFilter);
-    };
-    
-    const clearCompleted = () => {
-      store.commit('clearCompleted');
-    };
-    
-    return { remaining, anyCompleted, filter, setFilter, clearCompleted };
-  },
-  
-  render() {
-    return h('div', { class: 'todo-filter' }, [
-      h('span', {}, `${this.remaining.value} items left`),
-      
-      h('div', { class: 'filter-buttons' }, [
-        h('button', { 
-          class: { active: this.filter.value === 'all' },
-          onClick: () => this.setFilter('all')
-        }, 'All'),
+    return () => (
+      <div class="todo-app">
+        <TodoForm />
         
-        h('button', { 
-          class: { active: this.filter.value === 'active' },
-          onClick: () => this.setFilter('active')
-        }, 'Active'),
-        
-        h('button', { 
-          class: { active: this.filter.value === 'completed' },
-          onClick: () => this.setFilter('completed')
-        }, 'Completed')
-      ]),
-      
-      this.anyCompleted.value ? h('button', {
-        class: 'clear-completed',
-        onClick: this.clearCompleted
-      }, 'Clear completed') : null
-    ]);
+        <TransitionGroup 
+          name="todo-list"
+          tag="ul"
+          class={['todo-list', { 'is-dragging': isDragging }]}
+        >
+          {todos.value.map(todo => (
+            <TodoItem
+              key={todo.id}
+              todo={todo}
+              onToggle={toggleTodo}
+            />
+          ))}
+        </TransitionGroup>
+
+        <TodoFilter />
+      </div>
+    )
   }
-});
+})
 ```
 
-### TodoList Component
-
-```javascript
-// src/components/TodoList.js
-import { defineComponent, h, computed } from '@kalxjs/core';
-import TodoItem from './TodoItem';
-import TodoForm from './TodoForm';
-import TodoFilter from './TodoFilter';
-import store from '../store';
-
-export default defineComponent({
-  setup() {
-    const filteredTodos = computed(() => store.getters.filteredTodos);
-    
-    return { filteredTodos };
-  },
-  
-  render() {
-    return h('div', { class: 'todo-app' }, [
-      h('h1', {}, 'Todo App'),
-      h(TodoForm),
-      
-      h('ul', { class: 'todo-list' }, 
-        this.filteredTodos.value.map(todo => 
-          h(TodoItem, { key: todo.id, todo })
-        )
-      ),
-      
-      h(TodoFilter)
-    ]);
-  }
-});
-```
-
-## Main Application
-
-```javascript
-// src/main.js
-import kalxjs from '@kalxjs/core';
-import TodoList from './components/TodoList';
-import './styles.css';
-
-const app = kalxjs.createApp({
-  render() {
-    return h(TodoList);
-  }
-});
-
-app.mount('#app');
-```
-
-## CSS Styling
-
-Let's add some basic styling:
+## Modern Styling
 
 ```css
-/* src/styles.css */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/* src/styles/todo.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-body {
-  font-family: 'Arial', sans-serif;
-  line-height: 1.4;
-  background-color: #f5f5f5;
-  color: #333;
-}
+@layer components {
+  .todo-list-move {
+    transition: transform 0.3s ease;
+  }
 
-.todo-app {
-  max-width: 600px;
-  margin: 40px auto;
-  background: #fff;
-  padding: 20px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
+  .todo-list-enter-active,
+  .todo-list-leave-active {
+    transition: all 0.3s ease;
+  }
 
-h1 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #2c3e50;
-}
-
-.todo-form {
-  display: flex;
-  margin-bottom: 20px;
-}
-
-.todo-form input {
-  flex: 1;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px 0 0 4px;
-  font-size: 16px;
-}
-
-.todo-form button {
-  padding: 10px 15px;
-  background: #42b983;
-  color: white;
-  border: none;
-  border-radius: 0 4px 4px 0;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.todo-list {
-  list-style: none;
-  margin-bottom: 20px;
-}
-
-.todo-item {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-}
-
-.todo-item.completed .todo-text {
-  text-decoration: line-through;
-  color: #888;
-}
-
-.todo-item input[type="checkbox"] {
-  margin-right: 10px;
-}
-
-.todo-text {
-  flex: 1;
-}
-
-.delete-btn {
-  background: transparent;
-  color: #ff5252;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-}
-
-.todo-filter {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: 15px;
-  border-top: 1px solid #eee;
-}
-
-.filter-buttons {
-  display: flex;
-  gap: 5px;
-}
-
-.filter-buttons button {
-  padding: 5px 10px;
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 3px;
-  cursor: pointer;
-}
-
-.filter-buttons button.active {
-  border-color: #42b983;
-  color: #42b983;
-}
-
-.clear-completed {
-  background: transparent;
-  border: none;
-  color: #888;
-  cursor: pointer;
-}
-
-.clear-completed:hover {
-  text-decoration: underline;
+  .todo-list-enter-from,
+  .todo-list-leave-to {
+    opacity: 0;
+    transform: translateX(30px);
+  }
 }
 ```
 
-## HTML Entry Point
+## Advanced Features
 
-```html
-<!-- index.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Todo App with kalxjs</title>
-</head>
-<body>
-  <div id="app"></div>
-  <script type="module" src="src/main.js"></script>
-</body>
-</html>
+### Persistence Layer
+
+```typescript
+// src/services/todoService.ts
+import { createClient } from '@kalxjs/storage'
+
+const storage = createClient({
+  prefix: 'todo-app',
+  storage: localStorage
+})
+
+export const todoService = {
+  async getAll() {
+    return storage.get<Todo[]>('todos') ?? []
+  },
+  
+  async save(todos: Todo[]) {
+    return storage.set('todos', todos)
+  }
+}
+```
+
+### Error Boundaries
+
+```typescript
+// src/components/ErrorBoundary.tsx
+export default defineComponent({
+  setup(_, { slots }) {
+    const error = ref<Error | null>(null)
+
+    onErrorCaptured((err) => {
+      error.value = err
+      return false
+    })
+
+    return () => error.value
+      ? <div class="error-screen">{error.value.message}</div>
+      : slots.default?.()
+  }
+})
+```
+
+## Testing Example
+
+```typescript
+// src/components/__tests__/TodoList.test.ts
+import { render, fireEvent } from '@kalxjs/testing'
+import TodoList from '../TodoList'
+
+test('adds new todo', async () => {
+  const { getByRole, findByText } = render(TodoList)
+  
+  await fireEvent.click(getByRole('button', { name: 'Add' }))
+  
+  expect(await findByText('New Todo')).toBeInTheDocument()
+})
 ```
 
 ## Running the Application
@@ -440,20 +247,25 @@ npm run dev
 
 ## Summary
 
-Congratulations! You've built a complete Todo application with kalxjs. This app demonstrates several key features:
+Congratulations! You've built a modern Todo application with kalxjs. This app demonstrates several advanced features:
 
+- TypeScript support
 - Component-based architecture
 - Centralized state management
 - Reactive updates
 - Event handling
 - Computed properties
 - Conditional rendering
+- Drag-and-drop functionality
+- Animations and transitions
+- Persistence layer
+- Error handling
 
 ## Next Steps
 
-- Add local storage persistence
-- Implement drag-and-drop reordering
-- Add animations for adding/removing todos
-- Create user accounts and backend synchronization
+- Add user accounts and backend synchronization
+- Implement advanced testing strategies
+- Explore server-side rendering (SSR) with kalxjs
+- Add more complex animations and interactions
 
 Feel free to enhance this application with additional features as you continue learning kalxjs.

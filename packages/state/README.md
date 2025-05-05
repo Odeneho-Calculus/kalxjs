@@ -1,142 +1,141 @@
 # kalxjs State
 
-Centralized state management solution for kalxjs applications, inspired by Vuex and Redux.
+Next-generation state management for kalxjs applications with composables, TypeScript, and optimized performance.
 
 ## Features
 
-- **Centralized Store**: Single source of truth for application state
-- **Predictable Mutations**: State changes are explicit and traceable
-- **Actions**: For handling asynchronous operations
-- **Getters**: Compute derived state based on store state
-- **Plugins**: Extend store functionality with plugins
+- **Composable State**: State composition with hooks
+- **Atomic Updates**: Fine-grained reactivity
+- **TypeScript Support**: Full type inference
+- **State Time Travel**: Undo/redo capabilities
+- **State Persistence**: Built-in storage adapters
+- **State Sync**: Real-time state synchronization
+- **DevTools Integration**: Advanced debugging
+- **Performance Optimizations**: Automatic batching
 
 ## Installation
 
 ```bash
-npm install @kalxjs/state
+npm install @kalxjs-framework/state
 ```
 
-## Basic Usage
+## Modern Usage
 
-```javascript
-import kalxjs from '@kalxjs/core';
-import { createStore } from '@kalxjs/state';
+```typescript
+import { defineStore } from '@kalxjs-framework/state'
+import type { State, Actions, Getters } from '@kalxjs-framework/state'
 
-// Create a store
-const store = createStore({
-  state: {
-    count: 0,
-    todos: []
-  },
-  
-  mutations: {
-    INCREMENT(state, amount = 1) {
-      state.count += amount;
-    },
-    ADD_TODO(state, todo) {
-      state.todos.push(todo);
-    }
-  },
-  
-  actions: {
-    incrementAsync({ commit }, amount) {
-      setTimeout(() => {
-        commit('INCREMENT', amount);
-      }, 1000);
-    },
-    addTodo({ commit }, text) {
-      commit('ADD_TODO', {
-        id: Date.now(),
-        text,
-        completed: false
-      });
-    }
-  },
-  
-  getters: {
-    doubleCount(state) {
-      return state.count * 2;
-    },
-    incompleteTodos(state) {
-      return state.todos.filter(todo => !todo.completed);
-    }
-  }
-});
-
-// Create a component using the store
-const Counter = kalxjs.defineComponent({
-  methods: {
-    increment() {
-      store.commit('INCREMENT');
-    },
-    incrementAsync() {
-      store.dispatch('incrementAsync', 1);
-    }
-  },
-  
-  render(h) {
-    return h('div', {}, [
-      h('p', {}, `Count: ${store.state.count}`),
-      h('p', {}, `Double Count: ${store.getters.doubleCount}`),
-      h('button', { onClick: this.increment }, 'Increment'),
-      h('button', { onClick: this.incrementAsync }, 'Increment Async')
-    ]);
-  }
-});
-
-// Create and mount the app
-const app = kalxjs.createApp({
-  render(h) {
-    return h(Counter);
-  }
-});
-
-// Use the store
-app.use(store);
-app.mount('#app');
-```
-
-## API Documentation
-
-### Store Creation
-
-- `createStore(options)`: Create a new store
-  - `options.state`: Object containing the state
-  - `options.mutations`: Object with state mutation functions
-  - `options.actions`: Object with action functions
-  - `options.getters`: Object with getter functions
-  - `options.plugins`: Array of plugins to use
-
-### Store Methods
-
-- `store.commit(type, payload?)`: Commit a mutation
-- `store.dispatch(type, payload?)`: Dispatch an action
-- `store.subscribe(callback)`: Subscribe to state changes
-- `store.registerModule(name, module)`: Register a dynamic module
-- `store.unregisterModule(name)`: Unregister a dynamic module
-
-### Plugins
-
-```javascript
-// Example plugin for persisting state to localStorage
-function persistStatePlugin(store) {
-  // Restore state from localStorage
-  const savedState = localStorage.getItem('kalxjs-state');
-  if (savedState) {
-    store.replaceState(JSON.parse(savedState));
-  }
-  
-  // Save state to localStorage on changes
-  store.subscribe((mutation, state) => {
-    localStorage.setItem('kalxjs-state', JSON.stringify(state));
-  });
+// Define store types
+interface TodoState {
+  items: Todo[]
+  filter: 'all' | 'active' | 'completed'
 }
 
-// Use the plugin
-const store = createStore({
-  // store options...
-  plugins: [persistStatePlugin]
-});
+// Create type-safe store
+const useTodoStore = defineStore<TodoState>({
+  id: 'todos',
+  
+  state: () => ({
+    items: [],
+    filter: 'all'
+  }),
+
+  actions: {
+    async addTodo(text: string) {
+      const todo = await api.createTodo({ text })
+      this.items.push(todo)
+    }
+  },
+
+  getters: {
+    filtered(): Todo[] {
+      return this.items.filter(todo => 
+        this.filter === 'all' || 
+        todo.completed === (this.filter === 'completed')
+      )
+    }
+  }
+})
+
+// Use in components
+const TodoList = defineComponent({
+  setup() {
+    const store = useTodoStore()
+    const todos = computed(() => store.filtered)
+    
+    return { todos }
+  }
+})
+```
+
+## Advanced Features
+
+### State Composition
+
+```typescript
+// Composable state logic
+function useAuth() {
+  const user = signal<User | null>(null)
+  const isLoggedIn = computed(() => !!user())
+  
+  async function login(credentials: Credentials) {
+    user.value = await api.login(credentials)
+  }
+  
+  return {
+    user,
+    isLoggedIn,
+    login
+  }
+}
+
+// Use in store
+const useAppStore = defineStore({
+  compose: () => {
+    const auth = useAuth()
+    const todos = useTodoStore()
+    
+    return {
+      auth,
+      todos
+    }
+  }
+})
+```
+
+### State Persistence
+
+```typescript
+import { persistence } from '@kalxjs-framework/state'
+
+const store = defineStore({
+  persist: {
+    storage: localStorage,
+    paths: ['user', 'settings'],
+    serializer: {
+      serialize: JSON.stringify,
+      deserialize: JSON.parse
+    }
+  }
+})
+```
+
+### Performance
+
+```typescript
+import { batch, transaction } from '@kalxjs-framework/state'
+
+// Batch multiple commits
+batch(() => {
+  store.commit('updateMany', items)
+  store.commit('updateStatus', 'done')
+})
+
+// Transactional updates
+transaction(async () => {
+  await store.dispatch('transferFunds')
+  await store.dispatch('updateBalance')
+})
 ```
 
 ## License

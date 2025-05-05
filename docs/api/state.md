@@ -1,14 +1,104 @@
-<!-- kalxjs/docs/api/state.md -->
 # State Management API
 
-kalxjs provides a centralized state management solution inspired by Vuex and Redux for handling application-level data.
+kalxjs provides a modern, reactive state management solution that combines the best features of Vuex, Redux and Recoil while maintaining simplicity and performance.
+
+## Import
+
+```javascript
+import { createStore } from '@kalxjs-framework/runtime'
+```
+
+## Key Features
+
+- **Composition API Integration**: Seamless integration with the Composition API
+- **Atomic Updates**: Fine-grained reactivity for better performance
+- **TypeScript Support**: Full type inference and safety
+- **DevTools Integration**: Built-in debugging capabilities
+- **Plugin System**: Extensible via plugins
+- **Middleware Support**: Custom middleware for state changes
+- **Time Travel Debugging**: Undo/redo state changes during development
+
+## Setup
+
+```javascript
+import { createStore } from '@kalxjs-framework/runtime'
+
+const store = createStore({
+  state: {
+    count: 0,
+    todos: [],
+    settings: {
+      theme: 'light',
+      notifications: true
+    }
+  },
+  mutations: {
+    increment(state, amount = 1) {
+      state.count += amount
+    },
+    addTodo(state, todo) {
+      state.todos.push({
+        id: Date.now(),
+        ...todo,
+        createdAt: new Date()
+      })
+    },
+    updateSettings(state, settings) {
+      state.settings = { ...state.settings, ...settings }
+    }
+  },
+  actions: {
+    async fetchInitialState({ commit }) {
+      const [todos, settings] = await Promise.all([
+        fetch('/api/todos').then(r => r.json()),
+        fetch('/api/settings').then(r => r.json())
+      ])
+      commit('setTodos', todos)
+      commit('updateSettings', settings)
+    },
+    async saveTodo({ commit }, todo) {
+      const response = await fetch('/api/todos', {
+        method: 'POST',
+        body: JSON.stringify(todo)
+      })
+      const savedTodo = await response.json()
+      commit('addTodo', savedTodo)
+    }
+  },
+  getters: {
+    completedTodos: state => state.todos.filter(todo => todo.completed),
+    pendingTodos: state => state.todos.filter(todo => !todo.completed),
+    todoCount: state => state.todos.length
+  },
+  plugins: [
+    store => {
+      // Example plugin for localStorage persistence
+      const savedState = localStorage.getItem('app-state')
+      if (savedState) {
+        store.replaceState(JSON.parse(savedState))
+      }
+      store.subscribe((mutation, state) => {
+        localStorage.setItem('app-state', JSON.stringify(state))
+      })
+    }
+  ]
+})
+
+// Use with app
+import { createApp } from '@kalxjs-framework/runtime'
+import App from './App.klx'
+
+const app = createApp(App)
+app.use(store)
+app.mount('#app')
+```
 
 ## createStore()
 
 Creates a new store instance for state management.
 
 ```javascript
-import { createStore } from 'kalxjs/state';
+import { createStore } from '@kalxjs-framework/runtime'
 
 const store = createStore({
   // Define initial state
@@ -20,37 +110,27 @@ const store = createStore({
   // Synchronous state changes
   mutations: {
     increment(state, amount = 1) {
-      state.count += amount;
+      state.count += amount
     },
     addTodo(state, todo) {
-      state.todos.push(todo);
+      state.todos.push(todo)
     }
   },
   
   // Asynchronous operations
   actions: {
     async fetchTodos({ commit }) {
-      const response = await fetch('/api/todos');
-      const todos = await response.json();
-      commit('setTodos', todos);
+      const response = await fetch('/api/todos')
+      const todos = await response.json()
+      commit('setTodos', todos)
     },
     incrementAsync({ commit }) {
       setTimeout(() => {
-        commit('increment');
-      }, 1000);
-    }
-  },
-  
-  // Computed state
-  getters: {
-    doubleCount(state) {
-      return state.count * 2;
-    },
-    incompleteTodos(state) {
-      return state.todos.filter(todo => !todo.completed);
+        commit('increment')
+      }, 1000)
     }
   }
-});
+})
 ```
 
 ### Arguments
@@ -59,10 +139,9 @@ const store = createStore({
 
 ### Options
 
-- `state` - Object containing the initial state
+- `state` - Object containing the initial state (will be made reactive)
 - `mutations` - Object with mutation functions to change state
 - `actions` - Object with action functions for async operations
-- `getters` - Object with getter functions for derived state
 
 ### Returns
 
@@ -72,19 +151,13 @@ const store = createStore({
 
 ### store.state
 
-Access the store's state (read-only).
+Access the store's reactive state.
 
 ```javascript
-console.log(store.state.count); // Access state
+console.log(store.state.count) // Access state
 ```
 
-### store.getters
-
-Access the store's computed properties.
-
-```javascript
-console.log(store.getters.doubleCount);
-```
+The state is reactive, so changes will automatically trigger UI updates.
 
 ## Store Instance Methods
 
@@ -94,10 +167,10 @@ Commit a mutation to change state.
 
 ```javascript
 // Commit a mutation
-store.commit('increment');
+store.commit('increment')
 
 // With payload
-store.commit('increment', 5);
+store.commit('increment', 5)
 ```
 
 ### store.dispatch()
@@ -106,64 +179,286 @@ Dispatch an action.
 
 ```javascript
 // Dispatch an action
-store.dispatch('fetchTodos');
+store.dispatch('fetchTodos')
 
 // With payload
-store.dispatch('addTodoAsync', { text: 'Learn kalxjs', completed: false });
+store.dispatch('addTodoAsync', { text: 'Learn kalxjs', completed: false })
 ```
 
-### store.subscribe()
+### store.watch()
 
-Subscribe to store mutations.
+Watch for state changes.
 
 ```javascript
-// Subscribe to all mutations
-const unsubscribe = store.subscribe((mutation, state) => {
-  console.log(`Mutation: ${mutation.type}`, mutation.payload);
-  console.log('New state:', state);
-});
-
-// Later, to unsubscribe
-unsubscribe();
+// Watch a specific state property
+store.watch(state => state.count, (newValue, oldValue) => {
+  console.log(`Count changed from ${oldValue} to ${newValue}`)
+})
 ```
 
-### store.registerModule()
+## Accessing the Store in Components
 
-Dynamically register a new module in the store.
+### Composition API
 
 ```javascript
-store.registerModule('user', {
+import { computed } from '@kalxjs-framework/runtime'
+
+export default {
+  setup() {
+    // Access store via injection
+    const store = inject('store')
+    
+    // Create computed properties from store state
+    const count = computed(() => store.state.count)
+    
+    // Methods that commit mutations
+    function increment() {
+      store.commit('increment')
+    }
+    
+    // Methods that dispatch actions
+    function incrementAsync() {
+      store.dispatch('incrementAsync')
+    }
+    
+    return {
+      count,
+      increment,
+      incrementAsync
+    }
+  }
+}
+```
+
+### Options API
+
+```javascript
+export default {
+  computed: {
+    // Map state to computed properties
+    count() {
+      return this.$store.state.count
+    }
+  },
+  methods: {
+    // Methods that commit mutations
+    increment() {
+      this.$store.commit('increment')
+    },
+    // Methods that dispatch actions
+    incrementAsync() {
+      this.$store.dispatch('incrementAsync')
+    }
+  }
+}
+```
+
+## Helper Functions
+
+### mapState()
+
+Map store state to component computed properties.
+
+```javascript
+import { mapState } from '@kalxjs-framework/runtime'
+
+export default {
+  computed: {
+    // Map state properties directly
+    ...mapState(['count', 'todos']),
+    
+    // Map with custom names
+    ...mapState({
+      counter: 'count',
+      todoList: 'todos'
+    }),
+    
+    // Map with functions
+    ...mapState({
+      countPlusOne: state => state.count + 1
+    })
+  }
+}
+```
+
+### mapGetters()
+
+Map store getters to component computed properties.
+
+```javascript
+import { mapGetters } from '@kalxjs-framework/runtime'
+
+export default {
+  computed: {
+    // Map getters directly
+    ...mapGetters(['doubleCount', 'incompleteTodos']),
+    
+    // Map with custom names
+    ...mapGetters({
+      doubled: 'doubleCount',
+      pending: 'incompleteTodos'
+    })
+  }
+}
+```
+
+## Modules
+
+For larger applications, you can organize your store into modules.
+
+```javascript
+const store = createStore({
+  modules: {
+    counter: {
+      state: {
+        count: 0
+      },
+      mutations: {
+        increment(state) {
+          state.count++
+        }
+      },
+      actions: {
+        incrementAsync({ commit }) {
+          setTimeout(() => {
+            commit('increment')
+          }, 1000)
+        }
+      }
+    },
+    todos: {
+      state: {
+        list: []
+      },
+      mutations: {
+        add(state, todo) {
+          state.list.push(todo)
+        }
+      }
+    }
+  }
+})
+
+// Access module state
+console.log(store.state.counter.count)
+console.log(store.state.todos.list)
+
+// Commit module mutations
+store.commit('counter/increment')
+store.commit('todos/add', { text: 'Learn kalxjs', completed: false })
+
+// Dispatch module actions
+store.dispatch('counter/incrementAsync')
+```
+
+## Advanced Features
+
+### Middleware Support
+
+Add custom middleware to intercept state changes:
+
+```javascript
+const loggingMiddleware = store => next => mutation => {
+  console.log('before mutation:', store.state)
+  next(mutation)
+  console.log('after mutation:', store.state)
+}
+
+const store = createStore({
+  // ...store config
+  middleware: [loggingMiddleware]
+})
+```
+
+### Time Travel
+
+During development, use time travel debugging:
+
+```javascript
+// In development
+store.enableTimeTravel()
+
+// Go back one step
+store.undo()
+
+// Go forward one step
+store.redo()
+
+// Go to specific state
+store.timeTravel(stateIndex)
+```
+
+### Hot Module Replacement
+
+Support for HMR in development:
+
+```javascript
+if (import.meta.hot) {
+  import.meta.hot.accept(['./store/mutations'], ([newMutations]) => {
+    store.hotUpdate({
+      mutations: newMutations
+    })
+  })
+}
+```
+
+### Subscription API
+
+Advanced subscription options:
+
+```javascript
+// Subscribe to specific mutation types
+store.subscribe('increment', (mutation, state) => {
+  analytics.track('Counter Incremented', { value: state.count })
+})
+
+// Subscribe with filters
+store.subscribe(
+  mutation => mutation.type.startsWith('todo/'),
+  (mutation, state) => {
+    syncTodos(state.todos)
+  }
+)
+```
+
+## Using with TypeScript
+
+The store supports TypeScript for type safety.
+
+```typescript
+// Define state interface
+interface State {
+  count: number
+  todos: Todo[]
+}
+
+interface Todo {
+  id: number
+  text: string
+  completed: boolean
+}
+
+// Create typed store
+const store = createStore<State>({
   state: {
-    profile: null
+    count: 0,
+    todos: []
   },
   mutations: {
-    setProfile(state, profile) {
-      state.profile = profile;
-    }
-  },
-  actions: {
-    async fetchProfile({ commit }) {
-      const profile = await fetchUserProfile();
-      commit('setProfile', profile);
+    increment(state) {
+      state.count++
+    },
+    addTodo(state, todo: Todo) {
+      state.todos.push(todo)
     }
   }
-});
+})
 ```
 
-## Integrating with Components
+## Best Practices
 
-```javascript
-import { defineComponent } from 'kalxjs';
-import store from './store';
-
-const Counter = defineComponent({
-  render() {
-    return h('div', [
-      h('p', `Count: ${store.state.count}`),
-      h('p', `Double: ${store.getters.doubleCount}`),
-      h('button', { onClick: () => store.commit('increment') }, 'Increment'),
-      h('button', { onClick: () => store.dispatch('incrementAsync') }, 'Increment Async')
-    ]);
-  }
-});
-```
+1. **State Mutations**: Always use mutations to change state, never modify state directly.
+2. **Async Operations**: Use actions for asynchronous operations, mutations for synchronous state changes.
+3. **Modules**: Use modules to organize your store for larger applications.
+4. **Composition API**: Use the Composition API for better type inference and code organization.
+5. **Reactivity**: Remember that the store state is reactive, so you can use it directly in computed properties.

@@ -1,38 +1,90 @@
 <!-- kalxjs/docs/api/vdom.md -->
 # Virtual DOM API
 
-kalxjs uses a virtual DOM (Document Object Model) system to efficiently update the actual DOM when your application's state changes.
+kalxjs's Virtual DOM system provides high-performance rendering with intelligent diffing and advanced features like fragments, portals, and suspense boundaries.
 
-## h()
+## Creating Virtual Nodes
 
-Creates virtual DOM nodes using a JSX-compatible syntax.
+### h() - Hyperscript Function
 
-```javascript
-import { h } from 'kalxjs';
+```typescript
+import { h, Fragment } from '@kalxjs-framework/runtime'
 
-// Create a simple element
-const vnode = h('div', { class: 'container' }, 'Hello World');
+// Basic elements
+const vnode = h('div', { class: 'container' }, 'Hello')
 
-// Create a more complex element with children
-const vnode2 = h('div', { class: 'container' }, [
-  h('h1', 'Title'),
-  h('p', 'Paragraph content'),
-  h('button', { onClick: () => alert('Clicked!') }, 'Click Me')
-]);
+// Fragments
+const fragment = h(Fragment, null, [
+  h('li', null, 'Item 1'),
+  h('li', null, 'Item 2')
+])
 
-// Use with components
-const vnode3 = h(MyComponent, { prop1: 'value', prop2: 123 });
+// Portals for rendering outside component tree
+const portal = h(Portal, { target: '#modal' }, [
+  h('div', { class: 'modal' }, 'Modal Content')
+])
+
+// Suspense boundaries
+const async = h(Suspense, { fallback: h('div', 'Loading...') }, [
+  h(AsyncComponent)
+])
 ```
 
-### Arguments
+## Advanced Features
 
-- `{string|Function} tag` - HTML tag name or component
-- `{Object} props` - Properties/attributes to apply to the element
-- `{Array|string} children` - Child elements or text content
+### Hydration API
 
-### Returns
+```typescript
+import { hydrate } from '@kalxjs-framework/runtime'
 
-- `{Object}` - Virtual DOM node
+// Hydrate server-rendered content
+hydrate(vnode, container, (el, vnode) => {
+  // Custom hydration hooks
+  console.log('Element hydrated:', el)
+})
+```
+
+### Server Component Integration
+
+```typescript
+import { renderToString, renderToStream } from '@kalxjs-framework/runtime'
+
+// Server-side rendering
+const html = await renderToString(vnode)
+
+// Streaming render
+const stream = renderToStream(vnode)
+```
+
+## Optimization Techniques
+
+### Static Hoisting
+
+```typescript
+// Automatically hoists static content
+const StaticComponent = defineComponent({
+  render() {
+    return h('div', [
+      // Static content hoisted out of render function
+      h('h1', 'Static Title'),
+      // Dynamic content properly tracked
+      h('p', this.dynamicContent)
+    ])
+  }
+})
+```
+
+### Partial Hydration
+
+```typescript
+import { markStatic } from '@kalxjs-framework/runtime'
+
+// Mark parts of the tree as static
+const vnode = h('div', [
+  markStatic(h('header', 'Static Header')),
+  h('main', 'Dynamic Content')
+])
+```
 
 ## createElement()
 

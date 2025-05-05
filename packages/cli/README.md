@@ -1,75 +1,118 @@
 # kalxjs CLI
 
-Command Line Interface for kalxjs framework, designed to help developers create, scaffold, and manage kalxjs applications.
+Modern CLI tooling for kalxjs development workflow.
 
 ## Installation
 
 ```bash
+# Using npm
 npm install -g @kalxjs/cli
+
+# Using yarn
+yarn global add @kalxjs/cli
+
+# Using pnpm
+pnpm add -g @kalxjs/cli
 ```
 
-## Usage
-
-### Create a new project
+## Quick Start
 
 ```bash
+# Create a new project with interactive prompts
 kalxjs create my-app
+
+✔ Select a template
+  › TypeScript + Vite
+  › JavaScript + Vite
+  › TypeScript + Webpack
+  › Pure JavaScript
+
+✔ Add features
+  ☑ Router
+  ☑ State Management
+  ☑ Testing
+  ☑ ESLint + Prettier
+  ☑ Tailwind CSS
+  ☑ PWA Support
 ```
 
-This will create a new kalxjs project in a directory called `my-app`.
+## Commands
 
-### Generate a component
+### Project Scaffolding
 
 ```bash
-kalxjs component MyComponent
+# Create component with TypeScript and tests
+kalxjs generate component MyComponent --typescript --test
+
+# Create view/page component
+kalxjs generate view Dashboard --layout default
+
+# Generate API service
+kalxjs generate service UserAPI --rest
+
+# Create store module
+kalxjs generate store user --typescript
 ```
 
-This will create a new component in the `src/components` directory.
-
-### Start development server
+### Development Workflow
 
 ```bash
-kalxjs serve
+# Start dev server with HMR
+kalxjs dev --port 3000 --open
+
+# Run unit tests
+kalxjs test unit
+
+# Run E2E tests
+kalxjs test e2e
+
+# Type check
+kalxjs type-check
 ```
 
-Starts a development server with hot-reload.
-
-### Build for production
+### Build & Deploy
 
 ```bash
-kalxjs build
+# Production build
+kalxjs build --modern --analyze
+
+# Deploy to various platforms
+kalxjs deploy --platform vercel
+kalxjs deploy --platform netlify
+kalxjs deploy --platform azure
 ```
 
-Compiles and minifies the application for production.
-
-## Options
-
-### Create
+### Container Support
 
 ```bash
-kalxjs create my-app [options]
+# Generate Docker configuration
+kalxjs docker init
+
+# Build container
+kalxjs docker build
+
+# Run containerized app
+kalxjs docker run
 ```
 
-Options:
-- `--skip-install`: Skip installing dependencies
+## Configuration
 
-### Serve
+Create `kalxjs.config.ts` in project root:
 
-```bash
-kalxjs serve [options]
+```typescript
+import { defineConfig } from '@kalxjs/cli'
+
+export default defineConfig({
+  plugins: ['@kalxjs/pwa'],
+  build: {
+    target: 'esnext',
+    minify: 'esbuild'
+  },
+  test: {
+    coverage: true
+  }
+})
 ```
-
-Options:
-- `--port <port-number>`: Specify port (default: 3000)
-
-### Component
-
-```bash
-kalxjs component MyComponent [options]
-```
-
-Options:
-- `--dir <directory>`: Specify directory for the component (default: src/components)
 
 ## Contributing
 

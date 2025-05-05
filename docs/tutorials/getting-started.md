@@ -1,54 +1,67 @@
-# kalxjs/docs/tutorials/getting-started.md
-
 # Getting Started with kalxjs
 
-This tutorial will guide you through setting up your first kalxjs application. We'll cover installation, project initialization, and building a simple "Hello World" application.
+Learn how to build modern web applications with kalxjs.
 
 ## Prerequisites
+- Node.js 16.x or later
+- npm 7.x or later
+- Basic JavaScript/TypeScript knowledge
 
-Before starting, ensure you have the following installed:
-- Node.js (version 14.x or higher)
-- npm (version 7.x or higher) or yarn
-
-## Installation
-
-You can install kalxjs using npm or yarn:
+## Project Setup
 
 ```bash
-# Using npm
-npm install kalxjs
+# Create new project with Vite
+npm create kalx@latest my-app
 
-# Using yarn
-yarn add kalxjs
+# Select features
+✔ Add TypeScript? Yes
+✔ Add JSX Support? Yes
+✔ Add Router? Yes
+✔ Add State Management? Yes
+✔ Add Testing? Yes
+✔ Add ESLint? Yes
+✔ Add Prettier? Yes
+✔ Add PWA Support? Yes
+✔ Add Cypress E2E? Yes
+✔ Add Tailwind CSS? Yes
 ```
 
-Alternatively, you can use the kalxjs CLI to create a new project:
+## Development Tools
 
-```bash
-# Install the CLI globally
-npm install -g kalxjs-cli
-
-# Create a new project
-kalxjs create my-app
-```
+- VS Code Extension with IntelliSense
+- Chrome/Firefox DevTools Extension
+- Performance Monitoring & Profiling
+- State Inspector with Time Travel
+- Component Explorer & Playground
+- Hot Module Replacement (HMR)
+- Fast Refresh Support
+- API Mocking Integration
 
 ## Project Structure
 
-A basic kalxjs project has the following structure:
+A modern kalxjs project follows this structure:
 
 ```
 my-app/
-├── node_modules/
-├── public/
-│   ├── favicon.ico
-│   └── index.html
 ├── src/
-│   ├── components/
-│   │   └── App.js
-│   ├── main.js
-│   └── style.css
-├── package.json
-└── README.md
+│   ├── components/     # Reusable UI components
+│   │   ├── common/    # Shared components
+│   │   └── features/  # Feature-specific components
+│   ├── composables/   # Shared composition functions
+│   ├── layouts/       # Page layouts
+│   ├── pages/         # Route pages
+│   ├── router/        # Routing configuration
+│   ├── store/         # State management
+│   │   ├── modules/   # Store modules
+│   │   └── plugins/   # Store plugins
+│   ├── styles/        # Global styles and themes
+│   ├── types/         # TypeScript declarations
+│   └── utils/         # Helper functions
+├── public/            # Static assets
+├── tests/             # Test files
+│   ├── e2e/          # End-to-end tests
+│   └── unit/         # Unit tests
+└── vite.config.ts    # Build configuration
 ```
 
 ## Creating Your First Component
@@ -131,11 +144,8 @@ To run your application:
 2. Or set up a development server using a bundler like Vite or Webpack.
 
 ## Next Steps
-
-Now that you've created your first kalxjs application, you might want to:
-
-- Learn about [reactivity in kalxjs](./reactivity.md)
-- Explore [component lifecycle hooks](./component-lifecycle.md)
-- Build a [Todo List application](./todo-app.md)
+- Explore [Component Composition](../guides/composition.md)
+- Learn about [State Management](../guides/state.md)
+- Understand [Performance Optimization](../guides/performance.md)
 
 Congratulations! You've built your first kalxjs application.

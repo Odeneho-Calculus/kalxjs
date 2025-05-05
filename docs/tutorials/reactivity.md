@@ -1,12 +1,50 @@
-# kalxjs/docs/tutorials/reactivity.md
-
 # Understanding Reactivity in kalxjs
 
-This tutorial explains kalxjs's reactivity system and how to use it effectively in your applications.
+Modern guide to kalxjs's reactivity system including signals, effect scopes, and performance optimizations.
 
-## What is Reactivity?
+## Core Reactivity Systems
 
-Reactivity is the system that allows kalxjs to automatically update the DOM when your data changes. When you modify reactive data, any part of the UI that depends on that data will automatically update.
+### Signal-Based Reactivity
+
+```typescript
+import { signal, computed, effect } from '@kalxjs-framework/runtime'
+
+// Create a signal
+const count = signal(0)
+const doubled = computed(() => count() * 2)
+
+// Effects automatically track dependencies
+effect(() => {
+  console.log(`Count is ${count()}, doubled is ${doubled()}`)
+})
+
+// Update signal value
+count.set(5) // Triggers effect: "Count is 5, doubled is 10"
+
+// Update with previous value
+count.update(prev => prev + 1)
+```
+
+### Effect Scopes
+
+```typescript
+import { effectScope } from '@kalxjs-framework/runtime'
+
+const scope = effectScope()
+
+scope.run(() => {
+  const counter = signal(0)
+  
+  // Effects are automatically cleaned up when scope is disposed
+  effect(() => console.log(counter()))
+  
+  // Nested scopes are also cleaned up
+  const childScope = effectScope()
+})
+
+// Clean up all effects in scope
+scope.stop()
+```
 
 ## Reactive Data
 
@@ -125,12 +163,67 @@ In this component:
 2. When the button is clicked, `count` is incremented
 3. The render function re-runs, updating the DOM with the new count
 
+## Advanced Patterns
+
+### Lazy Computation
+
+```typescript
+import { lazy } from '@kalxjs-framework/runtime'
+
+const expensive = lazy(() => {
+  // Only computed when accessed
+  return heavyCalculation()
+})
+
+// Triggers computation
+console.log(expensive())
+```
+
+### Batched Updates
+
+```typescript
+import { batch } from '@kalxjs-framework/runtime'
+
+batch(() => {
+  // Multiple updates are batched into one render
+  count.value++
+  title.value = 'Updated'
+  items.value.push(newItem)
+})
+```
+
+### Async Effects
+
+```typescript
+import { asyncEffect } from '@kalxjs-framework/runtime'
+
+asyncEffect(async () => {
+  const data = await fetchData(id.value)
+  results.value = data
+})
+```
+
+## Performance Optimization
+
+```typescript
+import { untrack, markRaw } from '@kalxjs-framework/runtime'
+
+// Prevent tracking
+const value = untrack(() => state.someValue)
+
+// Mark objects as non-reactive
+const rawObject = markRaw({ 
+  heavy: 'data' 
+})
+```
+
 ## Best Practices
 
-1. **Avoid directly modifying nested objects/arrays** - Always update reactive objects using their methods or properties.
-2. **Use computed properties** for derived values instead of methods.
-3. **Keep reactive data simple** - Complex nested structures can be harder to track.
-4. **Avoid unnecessary reactivity** - Not everything needs to be reactive.
+1. **Use Signals** for simpler reactivity when possible
+2. **Scope Effects** for automatic cleanup
+3. **Batch Updates** for better performance
+4. **Lazy Computation** for expensive calculations
+5. **Mark Raw** data that doesn't need reactivity
 
 ## Next Steps
 

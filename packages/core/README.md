@@ -1,81 +1,138 @@
 # kalxjs Core
 
-The core package of the kalxjs framework, providing the fundamental functionality for building modern web applications.
+Next-generation core package for building high-performance web applications with kalxjs.
 
 ## Features
 
-- **Reactive Data Binding**: Automatically updates the DOM when data changes
-- **Component-Based Architecture**: Create reusable and modular components
-- **Virtual DOM**: Optimize rendering performance with efficient DOM updates
-- **Lifecycle Hooks**: Control component behavior at different stages
+- **Signal-Based Reactivity**: Fine-grained reactivity with automatic dependency tracking
+- **Server Components**: First-class SSR support with hydration
+- **Typed Components**: Full TypeScript support with type inference
+- **Suspense Integration**: Async data loading and code splitting
+- **Error Boundaries**: Graceful error handling
+- **Static Analysis**: Tree-shakeable APIs and dead code elimination
+- **Concurrent Rendering**: Non-blocking UI updates
+- **Automatic Batching**: Smart update scheduling
 
 ## Installation
 
 ```bash
-npm install @kalxjs/core
+npm install @kalxjs-framework/runtime @kalxjs-framework/compiler
 ```
 
-## Basic Usage
+## Modern Usage
 
-```javascript
-import kalxjs from '@kalxjs/core';
+```typescript
+import { defineComponent, signal, computed } from '@kalxjs-framework/runtime'
 
-// Create a reactive object
-const state = kalxjs.reactive({
-  count: 0
-});
+// Create signals for reactive state
+const count = signal(0)
+const doubled = computed(() => count() * 2)
 
-// Create a component
-const Counter = kalxjs.defineComponent({
-  data() {
-    return {
-      message: 'Counter Example'
-    };
+// Modern component with TypeScript
+const Counter = defineComponent<{
+  initial: number
+  onChange?: (value: number) => void
+}>({
+  props: {
+    initial: { type: Number, required: true },
+    onChange: Function
   },
-  
-  methods: {
-    increment() {
-      state.count++;
+
+  setup(props, { emit }) {
+    const count = signal(props.initial)
+    
+    function increment() {
+      count.update(n => n + 1)
+      emit('onChange', count())
     }
+
+    return () => (
+      <div class="counter">
+        <h1>Counter Example</h1>
+        <p>Count: {count()}</p>
+        <p>Doubled: {doubled()}</p>
+        <button onClick={increment}>Increment</button>
+      </div>
+    )
+  }
+})
+```
+
+## Advanced Features
+
+### Server Components
+
+```typescript
+// Server Component
+const AsyncData = defineServerComponent(async () => {
+  const data = await fetchData()
+  return <DataDisplay data={data} />
+})
+
+// Client Entry
+const App = () => (
+  <Suspense fallback={<Loading />}>
+    <AsyncData />
+  </Suspense>
+)
+```
+
+### Performance Optimizations
+
+```typescript
+import { lazy, memo, useTransition } from '@kalxjs-framework/runtime'
+
+// Lazy loading
+const LazyComponent = lazy(() => import('./Heavy'))
+
+// Memoization
+const Pure = memo(({ data }) => <div>{data}</div>)
+
+// Concurrent updates
+const [isPending, startTransition] = useTransition()
+startTransition(() => {
+  // Non-blocking update
+  heavyOperation()
+})
+```
+
+## Type System
+
+```typescript
+import { Component, PropType } from '@kalxjs-framework/runtime'
+
+interface Props {
+  items: string[]
+  onSelect: (item: string) => void
+}
+
+const List: Component<Props> = defineComponent({
+  props: {
+    items: Array as PropType<string[]>,
+    onSelect: Function as PropType<(item: string) => void>
   },
-  
-  render(h) {
-    return h('div', { class: 'counter' }, [
-      h('h1', {}, this.message),
-      h('p', {}, `Count: ${state.count}`),
-      h('button', { onClick: this.increment }, 'Increment')
-    ]);
-  }
-});
-
-// Create and mount the app
-const app = kalxjs.createApp({
-  render(h) {
-    return h(Counter);
-  }
-});
-
-app.mount('#app');
+  // ...
+})
 ```
 
 ## API Documentation
 
 ### Reactivity
 
-- `reactive(obj)`: Create a reactive object
-- `ref(value)`: Create a reactive reference
-- `computed(getter, setter?)`: Create a computed property
+- `signal(value)`: Create a reactive signal
+- `computed(getter)`: Create a computed signal
 - `effect(fn)`: Run a function reactively
 
 ### Component System
 
 - `defineComponent(options)`: Define a component
-- `createComponent(options)`: Create a component instance
+- `defineServerComponent(factory)`: Define a server component
 
 ### Rendering
 
 - `h(type, props, ...children)`: Create virtual DOM nodes
-- `createElement(tag, props, children)`: Low-level element creation
+- `lazy(factory)`: Lazy load a component
+- `memo(component)`: Memoize a component
 
 ### Application
 

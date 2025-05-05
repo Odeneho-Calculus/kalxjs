@@ -1,116 +1,111 @@
 # kalxjs Router
 
-Official router for kalxjs framework, providing powerful routing capabilities for single-page applications.
+Next-generation routing for kalxjs applications with TypeScript support, view transitions, and code splitting.
 
 ## Features
 
-- **Hash Mode & History Mode**: Support for different routing strategies
-- **Dynamic Route Matching**: Route parameters and patterns
-- **Nested Routes**: Create complex route hierarchies
-- **Route Guards**: Control access to routes
-- **Route Meta Fields**: Attach metadata to routes
-- **Programmatic Navigation**: Navigate between routes programmatically
+- **View Transitions API**: Smooth page transitions
+- **Lazy Loading**: Automatic code splitting
+- **Type Safe Routes**: Full TypeScript support
+- **Middleware System**: Powerful route middleware
+- **Persistent Layout**: Nested layouts support
+- **Dynamic Routes**: Pattern matching and parameters
+- **Navigation API**: History and scroll management
+- **Dev Tools**: Built-in debugging support
 
 ## Installation
 
 ```bash
-npm install @kalxjs/router
+npm install @kalxjs-framework/router
 ```
 
-## Basic Usage
+## Modern Usage
 
-```javascript
-import kalxjs from '@kalxjs/core';
-import { createRouter, RouterView, RouterLink } from '@kalxjs/router';
+```typescript
+import { createRouter, defineRoute } from '@kalxjs-framework/router'
+import type { RouteDefinition } from '@kalxjs-framework/router'
 
-// Define your components
-const Home = kalxjs.defineComponent({
-  render(h) {
-    return h('div', {}, 'Home Page');
-  }
-});
+// Type-safe route definitions
+const routes: RouteDefinition[] = [
+  defineRoute({
+    path: '/',
+    component: () => import('./pages/Home.vue'),
+    meta: { transition: 'slide' }
+  }),
+  defineRoute({
+    path: '/users/:id',
+    component: () => import('./pages/User.vue'),
+    props: route => ({ 
+      id: parseInt(route.params.id) 
+    }),
+    middleware: ['auth']
+  })
+]
 
-const About = kalxjs.defineComponent({
-  render(h) {
-    return h('div', {}, 'About Page');
-  }
-});
-
-// Create the router
 const router = createRouter({
-  mode: 'hash', // 'hash' or 'history'
-  routes: [
-    { path: '/', component: Home },
-    { path: '/about', component: About }
-  ]
-});
-
-// Create the app with router integration
-const app = kalxjs.createApp({
-  render(h) {
-    return h('div', {}, [
-      h('nav', {}, [
-        h(RouterLink, { to: '/' }, 'Home'),
-        ' | ',
-        h(RouterLink, { to: '/about' }, 'About')
-      ]),
-      h(RouterView)
-    ]);
+  history: createWebHistory(),
+  routes,
+  scrollBehavior(to, from, saved) {
+    if (saved) return saved
+    return { top: 0 }
   }
-});
-
-// Use the router
-app.use(router);
-app.mount('#app');
+})
 ```
 
-## API Documentation
+## Advanced Features
 
-### Router Creation
+### View Transitions
 
-- `createRouter(options)`: Create a new router instance
-  - `options.routes`: Array of route definitions
-  - `options.mode`: 'hash' or 'history'
-  - `options.base`: Base URL for history mode
+```typescript
+import { useViewTransition } from '@kalxjs-framework/router'
 
-### Route Navigation
-
-- `router.push(location)`: Navigate to a new route
-- `router.replace(location)`: Replace current route
-- `router.go(n)`: Navigate through history
-
-### Components
-
-- `RouterView`: Component to display the matched route component
-- `RouterLink`: Component for navigation between routes
-
-### Route Guards
-
-```javascript
-// Global guards
-router.beforeEach((to, from, next) => {
-  // Check authentication or other conditions
-  if (isAuthenticated || to.path === '/login') {
-    next(); // Allow navigation
-  } else {
-    next('/login'); // Redirect
-  }
-});
-
-// Route-specific guards in route definition
-const routes = [
-  {
-    path: '/admin',
-    component: Admin,
-    beforeEnter: (to, from, next) => {
-      if (isAdmin) {
-        next();
-      } else {
-        next('/forbidden');
-      }
+const router = createRouter({
+  transitions: {
+    default: {
+      enter: 'slide-in',
+      leave: 'slide-out'
+    },
+    modal: {
+      enter: 'fade-in',
+      leave: 'fade-out'
     }
   }
-];
+})
+
+// In component
+const { isTransitioning } = useViewTransition()
+```
+
+### Middleware System
+
+```typescript
+import { defineMiddleware } from '@kalxjs-framework/router'
+
+const authMiddleware = defineMiddleware(async (to, from) => {
+  const auth = useAuth()
+  
+  if (!auth.isLoggedIn) {
+    return { path: '/login', query: { redirect: to.fullPath } }
+  }
+})
+
+router.middleware('auth', authMiddleware)
+```
+
+### TypeScript Support
+
+```typescript
+// Route params typing
+interface UserParams {
+  id: string
+  tab?: 'profile' | 'settings'
+}
+
+const UserRoute = defineRoute<UserParams>({
+  path: '/users/:id/:tab?',
+  component: UserView,
+  validate: params => /^\d+$/.test(params.id)
+})
 ```
 
 ## License
