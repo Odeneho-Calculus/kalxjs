@@ -35,15 +35,54 @@ kalxjs empowers developers to build fast, maintainable applications using modern
 
 ## Installation
 
+### Prerequisites
+- Node.js v16.0.0 or higher
+- Git
+- npm v7.0.0 or higher (or yarn/pnpm)
+
+### Option 1: Direct Clone
+
 ```bash
-# Create a new project with npm
+# Clone the repository
+git clone https://github.com/Odeneho-Calculus/kalxjs.git
+
+# Navigate to project
+cd kalxjs
+
+# Install dependencies
+npm install
+
+# Build the framework
+npm run build
+
+# Create a new project using local build
+npm run create my-app
+```
+
+### Option 2: Package Managers
+
+```bash
+# Using npm
 npm create kalx@latest my-klx-app
 
-# Create a new project with yarn
+# Using yarn
 yarn create kalx my-klx-app
 
-# Create a new project with pnpm
+# Using pnpm
 pnpm create kalx my-klx-app
+```
+
+### Troubleshooting Installation
+
+```bash
+# Clear package manager cache
+npm cache clean --force
+
+# Verify node version
+node --version
+
+# Update npm
+npm install -g npm@latest
 ```
 
 ## Quick Start
@@ -160,7 +199,7 @@ We welcome contributions of all sizes! Here's how you can help:
 
 ```bash
 # Clone repository
-git clone https://github.com/your-username/kaljs.git
+git clone https://github.com/Odeneho-Calculus/kalxjs.git
 
 # Install dependencies
 pnpm install
@@ -189,10 +228,10 @@ pnpm build
 
 ## Community
 
-- [Discord Server](https://discord.gg/kaljs)
-- [Twitter](https://twitter.com/kaljs)
-- [Blog](https://blog.kaljs.org)
-- [Stack Overflow](https://stackoverflow.com/questions/tagged/kaljs)
+- [Discord Server](https://discord.gg/kalxjs)
+- [Twitter](https://twitter.com/kalxjs)
+- [Blog](https://blog.kalxjs.org)
+- [Stack Overflow](https://stackoverflow.com/questions/tagged/kalxjs)
 
 ## License
 
