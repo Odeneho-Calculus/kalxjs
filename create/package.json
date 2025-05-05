@@ -12,6 +12,6 @@
     "@kalxjs-framework/compiler-sfc": "^0.1.5"
   },
   "devDependencies": {
-    "vite": "^4.5.1"
+    "vite": "^6.3.5"
   }
 }
