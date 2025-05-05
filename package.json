@@ -1,0 +1,74 @@
+{
+    "name": "kalxjs-monorepo",
+    "version": "0.1.0",
+    "workspaces": [
+        "packages/*"
+    ],
+    "private": true,
+    "publishConfig": {
+        "access": "public"
+    },
+    "workspaces:publish": true,
+    "type": "module",
+    "description": "A versatile JavaScript framework for modern web development",
+    "main": "packages/core/src/index.js",
+    "scripts": {
+        "postinstall": "lerna run --stream --sort --concurrency 1 prepare",
+        "build": "lerna run build --stream --sort",
+        "build:core": "cd packages/core && npm run build",
+        "build:router": "cd packages/router && npm run build",
+        "build:state": "cd packages/state && npm run build",
+        "test": "jest",
+        "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+        "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+        "lint": "eslint packages/*/src --ext .js",
+        "clean": "lerna clean -y && rm -rf node_modules",
+        "clear-jest-cache": "node --experimental-vm-modules node_modules/jest/bin/jest.js --clearCache",
+        "publish": "lerna publish",
+        "docs:dev": "vuepress dev docs",
+        "docs:build": "vuepress build docs",
+        "dev": "lerna run dev --parallel"
+    },
+    "keywords": [
+        "javascript",
+        "framework",
+        "frontend",
+        "reactive",
+        "component",
+        "web",
+        "components"
+    ],
+    "author": "kalxjs Team",
+    "license": "MIT",
+    "devDependencies": {
+        "@babel/core": "^7.22.5",
+        "@babel/preset-env": "^7.22.5",
+        "@jest/globals": "^29.7.0",
+        "@rollup/plugin-node-resolve": "^13.0.0",
+        "@rollup/plugin-terser": "^0.4.4",
+        "@types/jest": "^29.5.14",
+        "babel-jest": "^29.7.0",
+        "eslint": "^8.36.0",
+        "jest": "^29.5.0",
+        "jest-environment-jsdom": "^29.7.0",
+        "jest-serializer": "^27.5.1",
+        "lerna": "^8.2.2",
+        "prettier": "^2.8.4",
+        "rollup": "^2.79.1",
+        "rollup-plugin-terser": "^7.0.2",
+        "vuepress": "^2.0.0-beta.61"
+    },
+    "directories": {
+        "doc": "docs",
+        "example": "examples",
+        "test": "tests"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Odeneho-Calculus/kalxjs.git"
+    },
+    "bugs": {
+        "url": "https://github.com/Odeneho-Calculus/kalxjs/issues"
+    },
+    "homepage": "https://github.com/Odeneho-Calculus/kalxjs#readme"
+}

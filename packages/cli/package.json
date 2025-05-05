@@ -1,0 +1,59 @@
+{
+    "name": "@kalxjs/cli",
+    "version": "1.2.24",
+    "description": "Command Line Interface for KalxJs framework",
+    "type": "commonjs",
+    "bin": {
+        "kalxjs": "./bin/kalxjs.js"
+    },
+    "files": [
+        "bin",
+        "src",
+        "templates"
+    ],
+    "scripts": {
+        "test": "jest",
+        "prepublishOnly": "npm run build",
+        "build": "node scripts/build.js",
+        "clean": "node scripts/clean.js",
+        "dev": "vite"
+    },
+    "dependencies": {
+        "chalk": "^4.1.2",
+        "commander": "^8.3.0",
+        "inquirer": "^8.2.0",
+        "ora": "^5.4.1",
+        "fs-extra": "^10.0.0",
+        "detect-port": "^1.5.1",
+        "minimist": "^1.2.8",
+        "validate-npm-package-name": "^5.0.0",
+        "execa": "^5.1.1",
+        "deepmerge": "^4.3.1",
+        "core-js": "^3.30.0"
+    },
+    "devDependencies": {
+        "rimraf": "^5.0.0",
+        "jest": "^29.5.0",
+        "glob": "^10.3.10",
+        "execa": "^5.1.1"
+    },
+    "engines": {
+        "node": ">=14.0.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "browserslist": {
+        "production": [
+            ">0.2%",
+            "not dead",
+            "not op_mini all"
+        ],
+        "development": [
+            "last 1 chrome version",
+            "last 1 firefox version",
+            "last 1 safari version",
+            "ie 11"
+        ]
+    }
+}

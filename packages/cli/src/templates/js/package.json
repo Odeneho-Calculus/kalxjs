@@ -1,0 +1,19 @@
+{
+    "name": "{{projectName}}",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@kalxjs/core": "^1.2.2",
+        "@kalxjs/router": "^1.2.2",
+        "@kalxjs/state": "^1.2.2"
+    },
+    "devDependencies": {
+        "vite": "^2.9.18"
+    }
+}
