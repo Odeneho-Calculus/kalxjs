@@ -1,7 +1,7 @@
 <!-- kalxjs/docs/api/README.md -->
 # kalxjs API Reference
 
-Comprehensive API documentation for kalxjs v1.2.5.
+Comprehensive API documentation for kalxjs v1.2.7.
 
 ## Runtime Package (@kalxjs-framework/runtime)
 

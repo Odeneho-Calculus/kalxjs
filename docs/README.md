@@ -22,7 +22,7 @@ kalxjs is built around several core concepts:
 The reactivity system automatically updates the UI when the underlying data changes. kalxjs uses a fine-grained reactivity system with functions like `ref()`, `reactive()`, and `computed()` to make your data reactive.
 
 ```javascript
-import { ref } from '@kalxjs-framework/runtime'
+import { ref } from '@kalxjs/core'
 
 const count = ref(0)
 // When count.value changes, the UI automatically updates
@@ -38,7 +38,7 @@ kalxjs uses .klx files for single file components, combining template, script, a
 </template>
 
 <script>
-import { ref } from '@kalxjs-framework/runtime'
+import { ref } from '@kalxjs/core'
 
 export default {
   setup() {
@@ -60,7 +60,7 @@ div {
 The Composition API provides a way to organize component logic by feature rather than by options. It uses the `setup()` function to expose reactive state and functions to the template.
 
 ```javascript
-import { ref, computed } from '@kalxjs-framework/runtime'
+import { ref, computed } from '@kalxjs/core'
 
 export default {
   setup() {
@@ -89,7 +89,7 @@ kalxjs uses a virtual DOM to optimize rendering performance. Instead of directly
 The routing system enables navigation in single-page applications without page reloads:
 
 ```javascript
-import { createRouter } from '@kalxjs-framework/runtime'
+import { createRouter } from '@kalxjs/router'
 
 const router = createRouter({
   routes: [
@@ -104,7 +104,7 @@ const router = createRouter({
 For larger applications, kalxjs provides a centralized state management solution:
 
 ```javascript
-import { createStore } from '@kalxjs-framework/runtime'
+import { createStore } from '@kalxjs/state'
 
 const store = createStore({
   state: {
