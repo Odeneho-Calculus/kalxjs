@@ -32,3 +32,4 @@ export function compileKLX(source, options = {}) {
 export { parse } from './parser.js';
 export { compile } from './compiler.js';
 export { generateCode } from './codegen.js';
+export { default as vitePlugin } from './vite-plugin.js';

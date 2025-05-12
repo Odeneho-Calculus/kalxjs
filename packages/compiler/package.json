@@ -29,7 +29,8 @@
   },
   "files": [
     "dist",
-    "src"
+    "src",
+    "vite-plugin"
   ],
   "scripts": {
     "build": "rollup -c ../../rollup.config.js",
