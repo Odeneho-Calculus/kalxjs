@@ -15,8 +15,8 @@ npm run publish
 
 ### Installation
 
-npm install @kalxjs/core@1.2.7
-npm install @kalxjs/cli@1.2.28
-npm install @kalxjs/router@1.2.7
-npm install @kalxjs/state@1.2.7
-npm install @kalxjs/devtools@1.2.8
+npm install @kalxjs/core@1.2.8
+npm install @kalxjs/cli@1.2.29
+npm install @kalxjs/router@1.2.8
+npm install @kalxjs/state@1.2.8
+npm install @kalxjs/devtools@1.2.9

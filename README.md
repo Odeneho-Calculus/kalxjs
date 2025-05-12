@@ -75,19 +75,19 @@ pnpm create kalx my-klx-app
 ### Option 3: Individual Packages
 
 ```bash
-# Core package (v1.2.7)
+# Core package (v1.2.8)
 npm install @kalxjs/core
 
-# CLI tools (v1.2.28)
+# CLI tools (v1.2.29)
 npm install @kalxjs/cli
 
-# Router (v1.2.7)
+# Router (v1.2.8)
 npm install @kalxjs/router
 
-# State management (v1.2.7)
+# State management (v1.2.8)
 npm install @kalxjs/state
 
-# Developer tools (v1.2.8)
+# Developer tools (v1.2.9)
 npm install @kalxjs/devtools
 ```
 
@@ -196,11 +196,11 @@ packages/
 
 kalxjs provides first-class tooling support:
 
-- **@kalxjs/core** (v1.2.7): Core runtime library for reactivity and rendering
-- **@kalxjs/cli** (v1.2.28): Command-line interface for project scaffolding
-- **@kalxjs/router** (v1.2.7): Routing system for single-page applications
-- **@kalxjs/state** (v1.2.7): State management for complex applications
-- **@kalxjs/devtools** (v1.2.8): Browser extension for debugging and profiling
+- **@kalxjs/core** (v1.2.8): Core runtime library for reactivity and rendering
+- **@kalxjs/cli** (v1.2.29): Command-line interface for project scaffolding
+- **@kalxjs/router** (v1.2.8): Routing system for single-page applications
+- **@kalxjs/state** (v1.2.8): State management for complex applications
+- **@kalxjs/devtools** (v1.2.9): Browser extension for debugging and profiling
 - **vite-plugin-kalx**: First-class Vite integration for fast development
 - **kalxjs-language-service**: IDE support for .klx files
 

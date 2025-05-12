@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/core",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "A modern JavaScript framework for building user interfaces",
   "type": "module",
   "author": "kalxjs Team",
@@ -44,10 +44,10 @@
     "@kalxjs/state": "^1.2.7"
   },
   "suggests": {
-    "@kalxjs/router": "^1.2.6",
-    "@kalxjs/state": "^1.2.6",
-    "@kalxjs/devtools": "^1.2.7",
-    "@kalxjs/cli": "^1.2.27"
+    "@kalxjs/router": "^1.2.7",
+    "@kalxjs/state": "^1.2.7",
+    "@kalxjs/devtools": "^1.2.8",
+    "@kalxjs/cli": "^1.2.28"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.0.0",
