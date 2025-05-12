@@ -30,15 +30,21 @@
   "module": "dist/kalxjs.esm.js",
   "unpkg": "dist/kalxjs.iife.min.js",
   "jsdelivr": "dist/kalxjs.iife.min.js",
+  "browser": "dist/browser.esm.js",
   "exports": {
     ".": {
-      "import": "./dist/kalxjs.esm.js",
-      "require": "./dist/kalxjs.umd.js",
-      "browser": "./dist/kalxjs.iife.min.js"
+      "import": {
+        "browser": "./dist/browser.esm.js",
+        "default": "./dist/kalxjs.esm.js"
+      },
+      "require": "./dist/kalxjs.umd.js"
     },
     "./composition": {
       "import": "./src/composition/index.js",
       "require": "./src/composition/index.js"
+    },
+    "./browser": {
+      "import": "./dist/browser.esm.js"
     }
   },
   "files": [

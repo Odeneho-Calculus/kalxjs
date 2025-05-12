@@ -28,6 +28,19 @@ export default [
             nodeResolve()
         ]
     },
+    // Browser-specific build with all exports
+    {
+        input: 'src/browser.js',
+        output: {
+            file: 'dist/browser.esm.js',
+            format: 'es',
+            sourcemap: true,
+            exports: 'named'
+        },
+        plugins: [
+            nodeResolve()
+        ]
+    },
     // ESM production build (minified)
     {
         input: 'src/index.js',
