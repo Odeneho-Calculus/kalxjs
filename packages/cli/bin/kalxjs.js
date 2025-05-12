@@ -2,11 +2,32 @@
 
 const { program } = require('commander');
 const { create, component, serve, build } = require('../src/commands');
+const path = require('path');
+const fs = require('fs');
+
+// Get the correct version from the CLI's own package.json
+const packageJsonPath = path.resolve(__dirname, '../package.json');
+const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
 // Initialize CLI
 program
-    .version(require('../package.json').version)
+    .version(packageJson.version, '-V, --version', 'Output the version number')
     .description('kalxjs CLI - A development toolkit for kalxjs framework');
+
+// Add support for lowercase -v flag
+program
+    .option('-v', 'Output the version number (alias for -V)', () => {
+        console.log(packageJson.version);
+        process.exit(0);
+    });
+
+// Add explicit version command
+program
+    .command('version')
+    .description('Display CLI version')
+    .action(() => {
+        console.log(`KalxJS CLI version: ${packageJson.version}`);
+    });
 
 // Create new project
 program
