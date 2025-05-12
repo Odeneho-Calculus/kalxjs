@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/state",
-  "version": "1.2.10",
+  "version": "1.2.11",
   "description": "State management for KalxJs framework",
   "type": "module",
   "author": "kalxjs Team",
