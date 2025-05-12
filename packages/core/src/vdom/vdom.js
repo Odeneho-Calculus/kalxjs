@@ -1,5 +1,8 @@
 // packages/core/src/vdom/vdom.js
 
+// Import the new diffing algorithm
+import { patch } from './diff';
+
 /**
  * Flattens an array (polyfill for Array.prototype.flat)
  * @private
@@ -99,40 +102,11 @@ export function createElement(vnode) {
  * @param {HTMLElement} element - DOM element to update
  * @param {Object} oldVNode - Previous virtual DOM node
  * @param {Object} newVNode - New virtual DOM node
+ * @returns {HTMLElement} Updated DOM element
  */
 export function updateElement(element, oldVNode, newVNode) {
-    // Handle text nodes
-    if (typeof oldVNode === 'string' || typeof newVNode === 'string') {
-        if (oldVNode !== newVNode) {
-            const newElement = createElement(newVNode);
-            element.parentNode.replaceChild(newElement, element);
-        }
-        return;
-    }
-
-    // If tags are different, replace the entire element
-    if (oldVNode.tag !== newVNode.tag) {
-        const newElement = createElement(newVNode);
-        element.parentNode.replaceChild(newElement, element);
-        return;
-    }
-
-    // Update properties
-    updateProps(element, oldVNode.props || {}, newVNode.props || {});
-
-    // Update children
-    const oldChildren = oldVNode.children || [];
-    const newChildren = newVNode.children || [];
-    const maxLength = Math.max(oldChildren.length, newChildren.length);
-
-    for (let i = 0; i < maxLength; i++) {
-        updateChild(
-            element,
-            oldChildren[i],
-            newChildren[i],
-            i
-        );
-    }
+    // Use the new diffing algorithm
+    return patch(element, oldVNode, newVNode);
 }
 
 /**

@@ -20,3 +20,8 @@ npm install @kalxjs/cli@1.2.29
 npm install @kalxjs/router@1.2.8
 npm install @kalxjs/state@1.2.8
 npm install @kalxjs/devtools@1.2.9
+
+
+
+
+http://localhost:3000

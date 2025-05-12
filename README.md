@@ -1,37 +1,47 @@
-# kalxjs
+# KalxJS
 
-A cutting-edge JavaScript framework for building modern web applications with exceptional performance, developer experience, and scalability.
+A cutting-edge JavaScript framework for building modern web applications with exceptional performance, developer experience, and scalability. Inspired by Vue.js but with its own unique features and improvements.
 
 ## Overview
 
-kalxjs empowers developers to build fast, maintainable applications using modern patterns like:
-- Signal-based reactivity
-- Server components
-- Atomic state management
-- Hybrid rendering strategies
-- Type-safe development
+KalxJS empowers developers to build fast, maintainable applications using modern patterns like:
+- Proxy-based reactivity system
+- Composition API for better code organization
+- Single-file components with `.klx` files
+- Virtual DOM for efficient rendering
+- Progressive framework design
 
 ## Core Features
 
-### Runtime
-- **Signal-Based Reactivity**: Fine-grained updates with automatic dependency tracking
-- **Effect System**: Automatic cleanup and batched updates
-- **Server Components**: First-class SSR with streaming
-- **Suspense Integration**: Built-in data loading patterns
+### Reactivity System
+- **Proxy-Based Reactivity**: Fine-grained updates with automatic dependency tracking using JavaScript Proxies
+- **Composition API**: Functional approach to organizing component logic
+- **Ref and Reactive**: Flexible ways to create reactive state
+- **Computed Properties**: Derived state that updates automatically
+- **Watch API**: React to state changes with custom logic
 
-### Development Experience
-- **Hot Module Replacement**: Fast refresh with state preservation
-- **TypeScript First**: Complete type inference and safety
-- **DevTools**: Advanced debugging and profiling
-- **Error Boundaries**: Graceful error handling
-- **Time Travel Debugging**: State and action replay
+### Component System
+- **Single-File Components**: Combine template, script, and style in `.klx` files
+- **Options API**: Familiar object-based component definition
+- **Composition API**: Alternative functional approach for complex components
+- **Lifecycle Hooks**: Control component behavior throughout its lifecycle
+- **Props and Events**: Clean parent-child component communication
 
 ### Performance
-- **Virtual DOM**: Intelligent diffing with static analysis
-- **Automatic Batching**: Smart update scheduling
+- **Virtual DOM**: Intelligent diffing with optimized updates
+- **Efficient Rendering**: Only update what changed
+- **Lazy Loading**: Load components only when needed
 - **Tree Shaking**: Dead code elimination
-- **Code Splitting**: Automatic chunk optimization
-- **Static Hoisting**: Compile-time optimizations
+- **Compiler Optimizations**: Static analysis for better performance
+
+### Unique Features (v2.0.0)
+- **Built-in AI Capabilities**: AI-powered components for text and image generation
+- **Native Mobile Bridge**: Native capabilities for hybrid apps
+- **Built-in Testing Framework**: Comprehensive testing utilities
+- **Server-Side Rendering**: SSR with hydration for better performance and SEO
+- **Advanced Animation System**: Timeline-based animations with physics support
+- **Built-in State Management**: No need for external state libraries
+- **Automatic API Integration**: Simplified data fetching with caching
 
 ## Installation
 
@@ -49,46 +59,35 @@ git clone https://github.com/Odeneho-Calculus/kalxjs.git
 # Navigate to project
 cd kalxjs
 
-# Install dependencies
+# Install dependencies and build (Windows)
+install.bat
+
+# Or on Unix systems
 npm install
-
-# Build the framework
-npm run build
-
-# Create a new project using local build
-npm run create my-app
+./build.sh
 ```
 
 ### Option 2: Package Managers
 
 ```bash
 # Using npm
-npm create kalx@latest my-klx-app
+npm install @kalxjs/core@2.0.0
 
 # Using yarn
-yarn create kalx my-klx-app
+yarn add @kalxjs/core@2.0.0
 
 # Using pnpm
-pnpm create kalx my-klx-app
+pnpm add @kalxjs/core@2.0.0
 ```
 
-### Option 3: Individual Packages
+### Option 3: CDN
 
-```bash
-# Core package (v1.2.8)
-npm install @kalxjs/core
+```html
+<!-- Development version -->
+<script src="https://unpkg.com/@kalxjs/core@2.0.0/dist/kalxjs.iife.js"></script>
 
-# CLI tools (v1.2.29)
-npm install @kalxjs/cli
-
-# Router (v1.2.8)
-npm install @kalxjs/router
-
-# State management (v1.2.8)
-npm install @kalxjs/state
-
-# Developer tools (v1.2.9)
-npm install @kalxjs/devtools
+<!-- Production version -->
+<script src="https://unpkg.com/@kalxjs/core@2.0.0/dist/kalxjs.iife.min.js"></script>
 ```
 
 ### Troubleshooting Installation
@@ -106,27 +105,99 @@ npm install -g npm@latest
 
 ## Quick Start
 
-```bash
-# Create new project
-npm create kalx@latest my-app
+### Basic Usage
 
-# Select features
-✔ Add TypeScript
-✔ Add Router
-✔ Add State Management
-✔ Add Testing
-✔ Add ESLint
-✔ Add Prettier
-✔ Add PWA Support
+```js
+import { createApp, ref, computed } from '@kalxjs/core';
+
+const app = createApp({
+  setup() {
+    // Reactive state
+    const count = ref(0);
+    
+    // Computed property
+    const doubleCount = computed(() => count.value * 2);
+    
+    // Method
+    function increment() {
+      count.value++;
+    }
+    
+    // Expose to template
+    return {
+      count,
+      doubleCount,
+      increment
+    };
+  },
+  render() {
+    return h('div', {}, [
+      h('h1', {}, ['Counter']),
+      h('p', {}, [`Count: ${this.count.value}`]),
+      h('p', {}, [`Double Count: ${this.doubleCount.value}`]),
+      h('button', { onClick: this.increment }, ['Increment'])
+    ]);
+  }
+});
+
+app.mount('#app');
 ```
 
-```bash
-# Navigate and install dependencies
-cd my-app
-npm install
+### Using AI Features
 
-# Start development server
-npm run dev
+```js
+import { createApp, useAI } from '@kalxjs/core';
+
+export default {
+  setup() {
+    const ai = useAI({
+      apiKeys: {
+        openai: 'your-api-key'
+      }
+    });
+    
+    const prompt = ref('');
+    const result = ref('');
+    
+    async function generateText() {
+      result.value = await ai.generateText({
+        prompt: prompt.value,
+        model: 'gpt-3.5-turbo'
+      });
+    }
+    
+    return {
+      prompt,
+      result,
+      generateText
+    };
+  }
+};
+```
+
+### Using the Animation System
+
+```js
+import { createTimeline, createTrack, EASING } from '@kalxjs/core';
+
+// Create a timeline
+const timeline = createTimeline({
+  duration: 1000,
+  easing: EASING.EASE_IN_OUT
+});
+
+// Add animation tracks
+timeline.add(createTrack(
+  element.style,
+  'transform',
+  [
+    { time: 0, value: 'translateX(0)' },
+    { time: 1, value: 'translateX(200px)' }
+  ]
+));
+
+// Play the animation
+timeline.play();
 ```
 
 ## Single File Components

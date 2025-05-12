@@ -1,5 +1,6 @@
 import { h, createElement, updateElement } from '../vdom/vdom';
 import { reactive, effect } from '../reactivity/reactive';
+import { processSetup } from './setup';
 
 /**
  * Helper function to create DOM elements from virtual DOM
@@ -49,9 +50,20 @@ function createComponent(options) {
     // Set options
     instance.$options = options;
 
+    // Initialize props
+    instance.props = options.props || {};
+
     // Call beforeCreate lifecycle hook
     if (options.beforeCreate) {
         options.beforeCreate.call(instance);
+    }
+
+    // Process setup function if it exists
+    const setupResult = processSetup(instance, options);
+
+    // Merge setup result with instance
+    for (const key in setupResult) {
+        instance[key] = setupResult[key];
     }
 
     // Initialize data
@@ -61,6 +73,9 @@ function createComponent(options) {
 
         // Setup getters/setters for data properties
         for (const key in instance.$data) {
+            // Skip if property already defined by setup
+            if (key in setupResult) continue;
+
             Object.defineProperty(instance, key, {
                 get() {
                     return instance.$data[key];
@@ -69,19 +84,18 @@ function createComponent(options) {
                     // Skip if value hasn't changed
                     if (instance.$data[key] === newValue) return;
 
-                    console.log(`Setting ${key} to`, newValue); // Debug
-
                     // Store the new value
                     instance.$data[key] = newValue;
 
                     // Update component
                     if (instance.$el) {
-                        console.log('Triggering update from setter'); // Debug
-
-                        // Call beforeUpdate hook
+                        // Call beforeUpdate hooks
                         if (options.beforeUpdate) {
                             options.beforeUpdate.call(instance);
                         }
+
+                        // Call composition API beforeUpdate hooks
+                        instance.beforeUpdate.forEach(hook => hook());
 
                         // Get new virtual DOM tree
                         const newVdom = instance.render();
@@ -89,10 +103,7 @@ function createComponent(options) {
 
                         // Update the DOM if parent exists
                         if (parentNode) {
-                            console.log('Updating DOM with new value', newVdom); // Debug
-
                             // Update the contents of the element rather than replacing it
-                            // This is the main fix for the integration tests
                             if (instance._vnode) {
                                 // Clear the element first
                                 while (instance.$el.firstChild) {
@@ -105,10 +116,13 @@ function createComponent(options) {
                             }
                         }
 
-                        // Call updated hook
+                        // Call updated hooks
                         if (options.updated) {
                             options.updated.call(instance);
                         }
+
+                        // Call composition API updated hooks
+                        instance.updated.forEach(hook => hook());
                     }
                 }
             });
@@ -118,6 +132,9 @@ function createComponent(options) {
     // Initialize methods
     if (options.methods) {
         for (const key in options.methods) {
+            // Skip if property already defined by setup
+            if (key in setupResult) continue;
+
             instance[key] = options.methods[key].bind(instance);
         }
     }
@@ -125,6 +142,9 @@ function createComponent(options) {
     // Initialize computed properties
     if (options.computed) {
         for (const key in options.computed) {
+            // Skip if property already defined by setup
+            if (key in setupResult) continue;
+
             Object.defineProperty(instance, key, {
                 get: options.computed[key].bind(instance)
             });
@@ -134,10 +154,12 @@ function createComponent(options) {
     // Store initial render result for future updates
     instance._vnode = null;
 
-    // Add render method
-    instance.render = function () {
-        return options.render ? options.render.call(instance) : null;
-    };
+    // Add render method (if not already defined by setup)
+    if (!instance.render) {
+        instance.render = function () {
+            return options.render ? options.render.call(instance) : null;
+        };
+    }
 
     // Mount method
     instance.$mount = function (el) {
@@ -169,9 +191,14 @@ function createComponent(options) {
         const dom = createDOMElement(vnode);
         el.appendChild(dom);
 
-        // Call mounted hook
+        // Call mounted hooks
         if (options.mounted) {
             options.mounted.call(instance);
+        }
+
+        // Call composition API mounted hooks
+        if (instance.mounted && Array.isArray(instance.mounted)) {
+            instance.mounted.forEach(hook => hook());
         }
 
         return this;
@@ -184,21 +211,21 @@ function createComponent(options) {
             return;
         }
 
-        console.log('$update called'); // Debug
-
-        // Call beforeUpdate lifecycle hook
+        // Call beforeUpdate lifecycle hooks
         if (options.beforeUpdate) {
             options.beforeUpdate.call(instance);
+        }
+
+        // Call composition API beforeUpdate hooks
+        if (instance.beforeUpdate && Array.isArray(instance.beforeUpdate)) {
+            instance.beforeUpdate.forEach(hook => hook());
         }
 
         // Re-render and update the DOM
         const newVdom = this.render();
 
         if (this.$el) {
-            console.log('Updating in $update'); // Debug
-
             // Clear the element first then append the new content
-            // This is the fix for the manual $update method
             while (this.$el.firstChild) {
                 this.$el.removeChild(this.$el.firstChild);
             }
@@ -209,9 +236,41 @@ function createComponent(options) {
             this._vnode = newVdom;
         }
 
-        // Call updated lifecycle hook
+        // Call updated lifecycle hooks
         if (options.updated) {
             options.updated.call(instance);
+        }
+
+        // Call composition API updated hooks
+        if (instance.updated && Array.isArray(instance.updated)) {
+            instance.updated.forEach(hook => hook());
+        }
+    };
+
+    // Add unmount functionality
+    instance.$unmount = function () {
+        if (!this.$el) {
+            return;
+        }
+
+        // Call beforeUnmount hook
+        if (options.beforeUnmount) {
+            options.beforeUnmount.call(instance);
+        }
+
+        // Remove element from DOM
+        if (this.$el.parentNode) {
+            this.$el.parentNode.removeChild(this.$el);
+        }
+
+        // Call unmounted hooks
+        if (options.unmounted) {
+            options.unmounted.call(instance);
+        }
+
+        // Call composition API unmounted hooks
+        if (instance.unmounted && Array.isArray(instance.unmounted)) {
+            instance.unmounted.forEach(hook => hook());
         }
     };
 

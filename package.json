@@ -1,6 +1,6 @@
 {
     "name": "kalxjs-monorepo",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "workspaces": [
         "packages/*"
     ],
@@ -10,7 +10,7 @@
     },
     "workspaces:publish": true,
     "type": "module",
-    "description": "A versatile JavaScript framework for modern web development",
+    "description": "A versatile JavaScript framework for modern web development with reactive state, composition API, and built-in performance optimizations",
     "main": "packages/core/src/index.js",
     "scripts": {
         "postinstall": "lerna run --stream --sort --concurrency 1 prepare",
@@ -36,7 +36,13 @@
         "reactive",
         "component",
         "web",
-        "components"
+        "components",
+        "composition-api",
+        "state-management",
+        "api-integration",
+        "performance",
+        "virtual-dom",
+        "single-file-components"
     ],
     "author": "kalxjs Team",
     "license": "MIT",

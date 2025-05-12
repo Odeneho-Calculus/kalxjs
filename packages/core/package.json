@@ -1,7 +1,7 @@
 {
   "name": "@kalxjs/core",
-  "version": "1.2.9",
-  "description": "A modern JavaScript framework for building user interfaces",
+  "version": "2.0.0",
+  "description": "A modern JavaScript framework for building user interfaces with reactive state, composition API, and built-in performance optimizations",
   "type": "module",
   "author": "kalxjs Team",
   "license": "MIT",
@@ -9,7 +9,14 @@
     "kalxjs",
     "framework",
     "javascript",
-    "ui"
+    "ui",
+    "reactive",
+    "composition-api",
+    "state-management",
+    "api-integration",
+    "performance",
+    "virtual-dom",
+    "single-file-components"
   ],
   "repository": {
     "type": "git",
@@ -19,12 +26,15 @@
     "url": "https://github.com/Odeneho-Calculus/kalxjs/issues"
   },
   "homepage": "https://github.com/Odeneho-Calculus/kalxjs#readme",
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
+  "main": "dist/kalxjs.umd.js",
+  "module": "dist/kalxjs.esm.js",
+  "unpkg": "dist/kalxjs.iife.min.js",
+  "jsdelivr": "dist/kalxjs.iife.min.js",
   "exports": {
     ".": {
-      "import": "./dist/index.esm.js",
-      "require": "./dist/index.cjs.js"
+      "import": "./dist/kalxjs.esm.js",
+      "require": "./dist/kalxjs.umd.js",
+      "browser": "./dist/kalxjs.iife.min.js"
     }
   },
   "files": [
@@ -32,8 +42,8 @@
     "src"
   ],
   "scripts": {
-    "build": "rollup -c ../../rollup.config.js",
-    "dev": "rollup -c ../../rollup.config.js -w",
+    "build": "rollup -c rollup.config.js",
+    "dev": "rollup -c rollup.config.js -w",
     "test": "jest",
     "prepublishOnly": "npm run build"
   },

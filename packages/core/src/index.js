@@ -2,6 +2,90 @@
 import { reactive, ref, computed, effect } from './reactivity/reactive';
 import { h, createElement, updateElement } from './vdom/vdom';
 import { createComponent, defineComponent, createApp } from './component/component';
+import {
+    useReactive,
+    useRef,
+    useComputed,
+    watch,
+    onMounted,
+    onUnmounted,
+    onBeforeUpdate,
+    onUpdated,
+    getCurrentInstance
+} from './composition';
+import {
+    onCreated,
+    onBeforeMount,
+    onBeforeUnmount,
+    onErrorCaptured
+} from './composition/lifecycle';
+import {
+    customRef,
+    readonly,
+    writableComputed,
+    useLocalStorage,
+    useDebounce,
+    useThrottle,
+    useMouse
+} from './composition/utils';
+import { createPlugin, PluginManager } from './plugin';
+import {
+    createStore,
+    createModule,
+    createStorePlugin,
+    createPersistedState,
+    defineStore
+} from './store';
+import {
+    createApi,
+    useApi,
+    createApiPlugin
+} from './api';
+import {
+    memoize,
+    memo,
+    lazy,
+    deferRender,
+    createVirtualList,
+    createPerformancePlugin
+} from './performance';
+import {
+    createAIManager,
+    useAI,
+    createAIPlugin,
+    AI_MODEL_TYPES
+} from './ai';
+import {
+    createNativeBridge,
+    useNative,
+    createNativePlugin,
+    NATIVE_PLATFORMS,
+    NATIVE_FEATURES
+} from './native';
+import {
+    createTestRunner,
+    createComponentTest,
+    createAssertions,
+    createTestingPlugin,
+    describe,
+    test,
+    it
+} from './testing';
+import {
+    createServerRenderer,
+    createClientHydration,
+    createSSRPlugin
+} from './ssr';
+import {
+    createTimeline,
+    createTrack,
+    createSpring,
+    createPhysics,
+    createAnimationPlugin,
+    EASING,
+    DIRECTION,
+    FILL_MODE
+} from './animation';
 
 /**
  * Main entry point for kalxjs framework
@@ -39,8 +123,94 @@ const kalxjs = {
     createComponent,
     defineComponent,
 
+    // Composition API
+    useReactive,
+    useRef,
+    useComputed,
+    watch,
+    onMounted,
+    onUnmounted,
+    onBeforeUpdate,
+    onUpdated,
+    getCurrentInstance,
+
+    // Additional lifecycle hooks
+    onCreated,
+    onBeforeMount,
+    onBeforeUnmount,
+    onErrorCaptured,
+
+    // Utility functions
+    customRef,
+    readonly,
+    writableComputed,
+    useLocalStorage,
+    useDebounce,
+    useThrottle,
+    useMouse,
+
+    // Plugin system
+    createPlugin,
+
+    // State management
+    createStore,
+    createModule,
+    createStorePlugin,
+    createPersistedState,
+    defineStore,
+
+    // API integration
+    createApi,
+    useApi,
+    createApiPlugin,
+
+    // Performance optimizations
+    memoize,
+    memo,
+    lazy,
+    deferRender,
+    createVirtualList,
+    createPerformancePlugin,
+
+    // AI capabilities
+    createAIManager,
+    useAI,
+    createAIPlugin,
+    AI_MODEL_TYPES,
+
+    // Native bridge
+    createNativeBridge,
+    useNative,
+    createNativePlugin,
+    NATIVE_PLATFORMS,
+    NATIVE_FEATURES,
+
+    // Testing framework
+    createTestRunner,
+    createComponentTest,
+    createAssertions,
+    createTestingPlugin,
+    describe,
+    test,
+    it,
+
+    // Server-side rendering
+    createServerRenderer,
+    createClientHydration,
+    createSSRPlugin,
+
+    // Animation system
+    createTimeline,
+    createTrack,
+    createSpring,
+    createPhysics,
+    createAnimationPlugin,
+    EASING,
+    DIRECTION,
+    FILL_MODE,
+
     // Version
-    version: '0.1.0',
+    version: '2.0.0',
 
     /**
      * Creates a new kalxjs application
@@ -70,7 +240,94 @@ export {
     // Component
     createComponent,
     defineComponent,
-    createAppInstance as createApp
+    createAppInstance as createApp,
+
+    // Composition API
+    useReactive,
+    useRef,
+    useComputed,
+    watch,
+    onMounted,
+    onUnmounted,
+    onBeforeUpdate,
+    onUpdated,
+    getCurrentInstance,
+
+    // Additional lifecycle hooks
+    onCreated,
+    onBeforeMount,
+    onBeforeUnmount,
+    onErrorCaptured,
+
+    // Utility functions
+    customRef,
+    readonly,
+    writableComputed,
+    useLocalStorage,
+    useDebounce,
+    useThrottle,
+    useMouse,
+
+    // Plugin system
+    createPlugin,
+    PluginManager,
+
+    // State management
+    createStore,
+    createModule,
+    createStorePlugin,
+    createPersistedState,
+    defineStore,
+
+    // API integration
+    createApi,
+    useApi,
+    createApiPlugin,
+
+    // Performance optimizations
+    memoize,
+    memo,
+    lazy,
+    deferRender,
+    createVirtualList,
+    createPerformancePlugin,
+
+    // AI capabilities
+    createAIManager,
+    useAI,
+    createAIPlugin,
+    AI_MODEL_TYPES,
+
+    // Native bridge
+    createNativeBridge,
+    useNative,
+    createNativePlugin,
+    NATIVE_PLATFORMS,
+    NATIVE_FEATURES,
+
+    // Testing framework
+    createTestRunner,
+    createComponentTest,
+    createAssertions,
+    createTestingPlugin,
+    describe,
+    test,
+    it,
+
+    // Server-side rendering
+    createServerRenderer,
+    createClientHydration,
+    createSSRPlugin,
+
+    // Animation system
+    createTimeline,
+    createTrack,
+    createSpring,
+    createPhysics,
+    createAnimationPlugin,
+    EASING,
+    DIRECTION,
+    FILL_MODE
 };
 
 // Additional exports
@@ -78,3 +335,15 @@ export * from './component';
 export * from './vdom';
 export * from './lifecycle';
 export * from './reactivity';
+export * from './composition';
+export * from './composition/lifecycle';
+export * from './composition/utils';
+export * from './plugin';
+export * from './store';
+export * from './api';
+export * from './performance';
+export * from './ai';
+export * from './native';
+export * from './testing';
+export * from './ssr';
+export * from './animation';
