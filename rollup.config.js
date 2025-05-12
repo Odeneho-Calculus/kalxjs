@@ -48,5 +48,10 @@ export default [
     'packages/router',
     'packages/state',
     'packages/devtools',
-    'packages/compiler'
+    'packages/compiler',
+    'packages/ai',
+    'packages/api',
+    'packages/composition',
+    'packages/performance',
+    'packages/plugins'
 ].map(pkgPath => createConfig(pkgPath));
