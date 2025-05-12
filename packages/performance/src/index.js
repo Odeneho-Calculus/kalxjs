@@ -1,4 +1,5 @@
-import { h, defineComponent, ref, onMounted, onUnmounted } from '@kalxjs/core';
+import { h, defineComponent, ref } from '@kalxjs/core';
+import { onMounted, onUnmounted } from '@kalxjs/core/composition';
 
 /**
  * Lazy load a component only when it's needed

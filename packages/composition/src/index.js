@@ -1,4 +1,5 @@
-import { ref, reactive, computed, onMounted, onUnmounted, watch } from '@kalxjs/core';
+import { ref, reactive, computed } from '@kalxjs/core';
+import { onMounted, onUnmounted, watch } from '@kalxjs/core/composition';
 
 /**
  * Composition API hook for tracking window size
