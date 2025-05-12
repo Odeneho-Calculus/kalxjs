@@ -1655,6 +1655,8 @@ async function installDependencies(targetDir, config) {
     pkg.dependencies["@kalxjs/compiler"] = "^1.2.2";
     pkg.devDependencies["@kalxjs/compiler-plugin"] = "^1.2.2";
   }
+
+  // Add the newly created packages
   if (config.features.ai) {
     pkg.dependencies["@kalxjs/ai"] = "^1.2.2";
   }
