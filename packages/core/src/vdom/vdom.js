@@ -8,6 +8,11 @@
  * @returns {Array} Flattened array
  */
 function flattenArray(arr, depth = 1) {
+    // Ensure arr is always an array
+    if (!Array.isArray(arr)) {
+        return arr ? [arr] : [];
+    }
+
     const result = [];
 
     arr.forEach(item => {
@@ -28,10 +33,19 @@ function flattenArray(arr, depth = 1) {
  * @param {Array} children - Child nodes
  */
 export function h(tag, props = {}, children = []) {
+    // Handle null or undefined tag
+    if (!tag) {
+        console.warn('Invalid tag provided to h function');
+        return null;
+    }
+
+    // Ensure children is always an array
+    const childArray = Array.isArray(children) ? children : (children ? [children] : []);
+
     return {
         tag,
-        props,
-        children: flattenArray(children)
+        props: props || {},
+        children: flattenArray(childArray)
     };
 }
 
@@ -41,8 +55,20 @@ export function h(tag, props = {}, children = []) {
  * @returns {HTMLElement} Real DOM element
  */
 export function createElement(vnode) {
+    // Handle primitive values (string, number, etc.)
     if (typeof vnode === 'string' || typeof vnode === 'number') {
         return document.createTextNode(vnode);
+    }
+
+    // Handle null or undefined
+    if (!vnode) {
+        return document.createComment('empty node');
+    }
+
+    // Handle case where vnode might not be a proper virtual node object
+    if (!vnode.tag) {
+        console.warn('Invalid vnode:', vnode);
+        return document.createComment('invalid node');
     }
 
     const element = document.createElement(vnode.tag);
@@ -58,8 +84,11 @@ export function createElement(vnode) {
     }
 
     // Create and append children
-    (vnode.children || []).forEach(child => {
-        element.appendChild(createElement(child));
+    const children = Array.isArray(vnode.children) ? vnode.children : (vnode.children ? [vnode.children] : []);
+    children.forEach(child => {
+        if (child !== null && child !== undefined) {
+            element.appendChild(createElement(child));
+        }
     });
 
     return element;

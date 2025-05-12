@@ -1,8 +1,18 @@
 {
     "name": "@kalxjs/router",
-    "version": "1.2.5",
+    "version": "1.2.6",
     "description": "Router package for KalxJs framework",
     "type": "module",
+    "author": "kalxjs Team",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Odeneho-Calculus/kalxjs.git"
+    },
+    "bugs": {
+        "url": "https://github.com/Odeneho-Calculus/kalxjs/issues"
+    },
+    "homepage": "https://github.com/Odeneho-Calculus/kalxjs#readme",
     "main": "dist/index.cjs.js",
     "module": "dist/index.esm.js",
     "exports": {
@@ -18,13 +28,14 @@
     "scripts": {
         "build": "rollup -c ../../rollup.config.js",
         "dev": "rollup -c ../../rollup.config.js -w",
-        "test": "jest"
+        "test": "jest",
+        "prepublishOnly": "npm run build"
     },
     "dependencies": {
-        "@kalxjs/core": "^1.2.2"
+        "@kalxjs/core": "^1.2.6"
     },
     "peerDependencies": {
-        "@kalxjs/core": "^1.2.2"
+        "@kalxjs/core": "^1.2.6"
     },
     "devDependencies": {
         "@rollup/plugin-node-resolve": "^13.0.0",

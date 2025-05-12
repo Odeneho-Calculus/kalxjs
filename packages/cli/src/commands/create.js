@@ -135,11 +135,110 @@ async function generateProject(targetDir, config) {
 
   // Create base files
   const files = {
+    'public/.gitkeep': '',
+    'src/assets/.gitkeep': '',
+    'src/components/.gitkeep': '',
+    'src/components/Button.js': `import { defineComponent, h } from '@kalxjs/core';
+
+export default defineComponent({
+  name: 'Button',
+  props: {
+    text: String,
+    primary: Boolean,
+    onClick: Function
+  },
+  setup(props) {
+    const getStyle = () => {
+      const baseStyle = 'padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem;';
+      const colorStyle = props.primary 
+        ? 'background-color: #4299e1; color: white;' 
+        : 'background-color: #e2e8f0; color: #4a5568;';
+      return baseStyle + colorStyle;
+    };
+    
+    return { getStyle };
+  },
+  render() {
+    return h('button', {
+      style: this.getStyle(),
+      onclick: this.onClick
+    }, this.text || this.$slots.default);
+  }
+});`,
+    '.gitignore': `# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+`,
+    'README.md': `# ${config.projectName}
+
+A modern web application built with KalxJS.
+
+## Getting Started
+
+\`\`\`bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+\`\`\`
+
+## Features
+
+${config.features.router ? '- Router for navigation\n' : ''}${config.features.state ? '- State management\n' : ''}${config.features.scss ? '- SCSS styling\n' : ''}${config.features.testing ? '- Testing setup\n' : ''}${config.features.linting ? '- ESLint for code quality\n' : ''}
+
+## Project Structure
+
+\`\`\`
+${config.projectName}/
+├── public/          # Static assets
+├── src/             # Source code
+│   ├── assets/      # Project assets
+│   ├── components/  # UI components
+${config.features.router ? '│   ├── views/       # Page components\n│   ├── router/      # Router configuration\n' : ''}${config.features.state ? '│   ├── store/       # State management\n' : ''}${config.features.scss ? '│   ├── styles/      # SCSS styles\n' : ''}│   ├── App.js       # Root component
+│   └── main.js      # Application entry point
+├── index.html       # HTML template
+└── vite.config.js   # Vite configuration
+\`\`\`
+
+## License
+
+MIT
+`,
     'index.html': `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>" />
   <title>${config.projectName}</title>
 </head>
 <body>
@@ -154,20 +253,45 @@ ${config.features.router ? "import router from './router';" : ''}
 ${config.features.state ? "import store from './store';" : ''}
 ${config.features.scss ? "import './styles/main.scss';" : ''}
 
-const app = createApp(App);
-${config.features.router ? 'app.use(router);' : ''}
-${config.features.state ? 'app.use(store);' : ''}
-
-app.mount('#app');`,
+try {
+  const app = createApp(App);
+  ${config.features.router ? 'app.use(router);' : ''}
+  ${config.features.state ? 'app.use(store);' : ''}
+  
+  app.mount('#app');
+  console.log('Application successfully mounted');
+} catch (error) {
+  console.error('Error initializing app:', error);
+  
+  // Fallback rendering in case of error
+  document.getElementById('app').innerHTML = \`
+    <div class="app" style="padding: 2rem; text-align: center;">
+      <h1>Welcome to KalxJS</h1>
+      <p>There was an error initializing the application.</p>
+      <pre style="text-align: left; background: #f5f5f5; padding: 1rem; border-radius: 4px;">\${error.message}</pre>
+    </div>
+  \`;
+}`,
 
     'src/App.js': `import { defineComponent, h } from '@kalxjs/core';
 
 export default defineComponent({
   name: 'App',
+  setup() {
+    console.log('App component setup called');
+    return {};
+  },
   render() {
-    return h('div', { class: 'app' }, [
-      h('h1', null, 'Welcome to KalxJS'),
-      ${config.features.router ? 'h("router-view")' : 'h("p", null, "Edit src/App.js to get started")'}
+    console.log('App component render called');
+    return h('div', { class: 'app', style: 'padding: 2rem; text-align: center;' }, [
+      h('h1', { style: 'color: #333;' }, 'Welcome to KalxJS'),
+      ${config.features.router ?
+        `h("nav", { style: "margin: 1rem 0; padding: 0.5rem; background-color: #f8f9fa; border-radius: 4px;" }, [
+        h("a", { href: "/", style: "margin-right: 1rem; color: #4299e1; text-decoration: none;" }, "Home"),
+        h("a", { href: "/about", style: "color: #4299e1; text-decoration: none;" }, "About")
+      ]),
+      h("div", { style: "padding: 1rem; margin-top: 1rem; border-radius: 8px; background-color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1);" }, [h("router-view")])` :
+        'h("p", { style: "margin-top: 1rem;" }, "Edit src/App.js to get started")'}
     ]);
   }
 });`,
@@ -176,7 +300,17 @@ export default defineComponent({
 
 export default defineConfig({
   server: {
-    port: 3000
+    port: 3000,
+    open: true,
+    cors: true
+  },
+  build: {
+    outDir: 'dist',
+    minify: 'terser',
+    sourcemap: true
+  },
+  optimizeDeps: {
+    include: ['@kalxjs/core', ${config.features.router ? "'@kalxjs/router'," : ''} ${config.features.state ? "'@kalxjs/state'," : ''}]
   }
 });`
   };
@@ -184,7 +318,35 @@ export default defineConfig({
   // Add feature-specific files
   if (config.features.router) {
     files['src/router/index.js'] = `import { createRouter } from '@kalxjs/router';
+import { h } from '@kalxjs/core';
 import Home from '../views/Home.js';
+
+// Create an About page component
+const About = {
+  name: 'About',
+  render() {
+    return h('div', { class: 'about', style: 'padding: 1rem;' }, [
+      h('h2', { style: 'color: #4a5568;' }, 'About Page'),
+      h('p', null, 'This is the about page content.'),
+      h('p', null, 'KalxJS is a modern JavaScript framework for building user interfaces.')
+    ]);
+  }
+};
+
+// Create a NotFound page component
+const NotFound = {
+  name: 'NotFound',
+  render() {
+    return h('div', { class: 'not-found', style: 'padding: 1rem; text-align: center;' }, [
+      h('h2', { style: 'color: #e53e3e;' }, '404 - Page Not Found'),
+      h('p', null, 'The page you are looking for does not exist.'),
+      h('a', { 
+        href: '/', 
+        style: 'color: #4299e1; text-decoration: none;'
+      }, 'Go back to home')
+    ]);
+  }
+};
 
 export default createRouter({
   mode: 'history',
@@ -192,17 +354,43 @@ export default createRouter({
     {
       path: '/',
       component: Home
+    },
+    {
+      path: '/about',
+      component: About
+    },
+    {
+      path: '*',
+      component: NotFound
     }
   ]
 });`;
 
     files['src/views/Home.js'] = `import { defineComponent, h } from '@kalxjs/core';
+import Button from '../components/Button.js';
 
 export default defineComponent({
   name: 'Home',
+  setup() {
+    console.log('Home component setup called');
+    
+    const handleClick = () => {
+      console.log('Button clicked!');
+      alert('Button clicked!');
+    };
+    
+    return { handleClick };
+  },
   render() {
-    return h('div', { class: 'home' }, [
-      h('h2', null, 'Home Page')
+    console.log('Home component render called');
+    return h('div', { class: 'home', style: 'padding: 1rem;' }, [
+      h('h2', { style: 'color: #4a5568;' }, 'Home Page'),
+      h('p', null, 'This is the home page content.'),
+      h(Button, { 
+        primary: true,
+        text: 'Click me!',
+        onClick: this.handleClick
+      })
     ]);
   }
 });`;
@@ -213,25 +401,121 @@ export default defineComponent({
 
 export default createStore({
   state: {
-    count: 0
+    count: 0,
+    todos: [],
+    loading: false,
+    error: null
   },
   mutations: {
     increment(state) {
       state.count++;
+    },
+    decrement(state) {
+      state.count--;
+    },
+    setCount(state, value) {
+      state.count = value;
+    },
+    addTodo(state, todo) {
+      state.todos.push(todo);
+    },
+    removeTodo(state, id) {
+      state.todos = state.todos.filter(todo => todo.id !== id);
+    },
+    toggleTodo(state, id) {
+      const todo = state.todos.find(todo => todo.id === id);
+      if (todo) {
+        todo.completed = !todo.completed;
+      }
+    },
+    setLoading(state, status) {
+      state.loading = status;
+    },
+    setError(state, error) {
+      state.error = error;
+    }
+  },
+  actions: {
+    async fetchData({ commit }) {
+      commit('setLoading', true);
+      commit('setError', null);
+      
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        commit('setCount', 42);
+      } catch (error) {
+        commit('setError', error.message);
+      } finally {
+        commit('setLoading', false);
+      }
     }
   }
 });`;
   }
 
   if (config.features.scss) {
-    files['src/styles/main.scss'] = `body {
+    files['src/styles/main.scss'] = `/* Base styles */
+body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #f7f8fa;
+  color: #333;
+  line-height: 1.6;
 }
 
+/* Layout */
 .app {
   padding: 2rem;
   text-align: center;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.home {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  margin-top: 1rem;
+}
+
+/* Typography */
+h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #2d3748;
+}
+
+h2 {
+  font-size: 1.8rem;
+  margin-bottom: 0.8rem;
+  color: #4a5568;
+}
+
+p {
+  margin-bottom: 1.5rem;
+  color: #4a5568;
+}
+
+/* Buttons */
+button {
+  background-color: #4299e1;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #3182ce;
+}
+
+button:active {
+  background-color: #2b6cb0;
 }`;
   }
 

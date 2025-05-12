@@ -1,9 +1,9 @@
 {
     "name": "@kalxjs/core",
-    "version": "1.2.5",
+    "version": "1.2.6",
     "description": "A modern JavaScript framework for building user interfaces",
     "type": "module",
-    "author": "Your Name",
+    "author": "kalxjs Team",
     "license": "MIT",
     "keywords": [
         "kalxjs",
@@ -40,16 +40,16 @@
     "dependencies": {},
     "peerDependencies": {},
     "optionalDependencies": {
-        "@kalxjs/router": "^1.2.2",
-        "@kalxjs/state": "^1.2.2",
-        "@kalxjs/devtools": "^1.2.2",
-        "@kalxjs/cli": "^1.2.10"
+        "@kalxjs/router": "^1.2.6",
+        "@kalxjs/state": "^1.2.6",
+        "@kalxjs/devtools": "^1.2.7",
+        "@kalxjs/cli": "^1.2.27"
     },
     "suggests": {
-        "@kalxjs/router": "^1.2.2",
-        "@kalxjs/state": "^1.2.2",
-        "@kalxjs/devtools": "^1.2.2",
-        "@kalxjs/cli": "^1.2.10"
+        "@kalxjs/router": "^1.2.6",
+        "@kalxjs/state": "^1.2.6",
+        "@kalxjs/devtools": "^1.2.7",
+        "@kalxjs/cli": "^1.2.27"
     },
     "devDependencies": {
         "@rollup/plugin-node-resolve": "^13.0.0",

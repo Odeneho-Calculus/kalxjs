@@ -103,7 +103,8 @@ export function effect(fn, options = {}) {
 const targetMap = new WeakMap();
 
 function track(target, key) {
-    if (activeEffect) {
+    // Only track if we have an active effect and a valid target
+    if (activeEffect && target) {
         let depsMap = targetMap.get(target);
         if (!depsMap) {
             targetMap.set(target, (depsMap = new Map()));
@@ -117,12 +118,17 @@ function track(target, key) {
 }
 
 function trigger(target, key) {
+    // Check if target is valid
+    if (!target) return;
+
     const depsMap = targetMap.get(target);
     if (!depsMap) return;
 
     const effects = depsMap.get(key);
     if (effects) {
-        effects.forEach(effect => {
+        // Create a new set to avoid infinite loops if an effect triggers itself
+        const effectsToRun = new Set(effects);
+        effectsToRun.forEach(effect => {
             if (effect.scheduler) {
                 effect.scheduler();
             } else {
@@ -143,7 +149,8 @@ function createReactiveEffect(fn, options) {
                 return fn();
             } finally {
                 effectStack.pop();
-                activeEffect = effectStack[effectStack.length - 1];
+                // Set activeEffect to the previous effect in the stack or null if empty
+                activeEffect = effectStack.length > 0 ? effectStack[effectStack.length - 1] : null;
             }
         }
     };

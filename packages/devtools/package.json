@@ -1,8 +1,18 @@
 {
     "name": "@kalxjs/devtools",
-    "version": "1.2.6",
+    "version": "1.2.7",
     "description": "Developer Tools for KalxJs framework",
     "type": "module",
+    "author": "kalxjs Team",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Odeneho-Calculus/kalxjs.git"
+    },
+    "bugs": {
+        "url": "https://github.com/Odeneho-Calculus/kalxjs/issues"
+    },
+    "homepage": "https://github.com/Odeneho-Calculus/kalxjs#readme",
     "main": "dist/index.cjs.js",
     "module": "dist/index.esm.js",
     "exports": {
@@ -11,6 +21,10 @@
             "require": "./dist/index.cjs.js"
         }
     },
+    "files": [
+        "dist",
+        "src"
+    ],
     "scripts": {
         "build": "rollup -c rollup.config.js",
         "dev": "rollup -c rollup.config.js -w",

@@ -5,8 +5,20 @@ import { reactive, effect } from '../reactivity/reactive';
  * Helper function to create DOM elements from virtual DOM
  */
 function createDOMElement(vnode) {
-    if (typeof vnode === 'string') {
+    // Handle primitive values (string, number, etc.)
+    if (typeof vnode === 'string' || typeof vnode === 'number') {
         return document.createTextNode(vnode);
+    }
+
+    // Handle null or undefined
+    if (!vnode) {
+        return document.createComment('empty node');
+    }
+
+    // Handle case where vnode might not be a proper virtual node object
+    if (!vnode.tag) {
+        console.warn('Invalid vnode:', vnode);
+        return document.createComment('invalid node');
     }
 
     const element = document.createElement(vnode.tag);
@@ -23,7 +35,9 @@ function createDOMElement(vnode) {
 
     // Create and append children
     (vnode.children || []).forEach(child => {
-        element.appendChild(createDOMElement(child));
+        if (child !== null && child !== undefined) {
+            element.appendChild(createDOMElement(child));
+        }
     });
 
     return element;
