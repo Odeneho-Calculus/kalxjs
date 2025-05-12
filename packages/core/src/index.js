@@ -14,10 +14,19 @@ import {
     onBeforeUpdate,
     onUpdated,
     getCurrentInstance,
+    setCurrentInstance
+} from './composition';
+
+// Import additional lifecycle hooks
+import {
     onCreated,
     onBeforeMount,
     onBeforeUnmount,
-    onErrorCaptured,
+    onErrorCaptured
+} from './composition/lifecycle';
+
+// Import utility functions
+import {
     customRef,
     readonly,
     writableComputed,
@@ -25,7 +34,7 @@ import {
     useDebounce,
     useThrottle,
     useMouse
-} from './composition';
+} from './composition/utils';
 import { createPlugin, PluginManager } from './plugin';
 import {
     createStore,
@@ -131,6 +140,7 @@ const kalxjs = {
     onBeforeUpdate,
     onUpdated,
     getCurrentInstance,
+    setCurrentInstance,
 
     // Additional lifecycle hooks
     onCreated,
@@ -250,6 +260,7 @@ export {
     onBeforeUpdate,
     onUpdated,
     getCurrentInstance,
+    setCurrentInstance,
 
     // Additional lifecycle hooks
     onCreated,
