@@ -8,7 +8,21 @@ export default [
         output: {
             file: 'dist/kalxjs.esm.js',
             format: 'es',
-            sourcemap: true
+            sourcemap: true,
+            exports: 'named'
+        },
+        plugins: [
+            nodeResolve()
+        ]
+    },
+    // ESM index build for direct imports
+    {
+        input: 'src/index.js',
+        output: {
+            file: 'dist/index.esm.js',
+            format: 'es',
+            sourcemap: true,
+            exports: 'named'
         },
         plugins: [
             nodeResolve()

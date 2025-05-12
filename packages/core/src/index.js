@@ -2,6 +2,8 @@
 import { reactive, ref, computed, effect } from './reactivity/reactive';
 import { h, createElement, updateElement } from './vdom/vdom';
 import { createComponent, defineComponent, createApp } from './component/component';
+
+// Import all composition API from a single file to avoid circular dependencies
 import {
     useReactive,
     useRef,
@@ -11,15 +13,11 @@ import {
     onUnmounted,
     onBeforeUpdate,
     onUpdated,
-    getCurrentInstance
-} from './composition';
-import {
+    getCurrentInstance,
     onCreated,
     onBeforeMount,
     onBeforeUnmount,
-    onErrorCaptured
-} from './composition/lifecycle';
-import {
+    onErrorCaptured,
     customRef,
     readonly,
     writableComputed,
@@ -27,7 +25,7 @@ import {
     useDebounce,
     useThrottle,
     useMouse
-} from './composition/utils';
+} from './composition';
 import { createPlugin, PluginManager } from './plugin';
 import {
     createStore,

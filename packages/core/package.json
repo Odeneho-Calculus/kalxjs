@@ -35,6 +35,10 @@
       "import": "./dist/kalxjs.esm.js",
       "require": "./dist/kalxjs.umd.js",
       "browser": "./dist/kalxjs.iife.min.js"
+    },
+    "./composition": {
+      "import": "./src/composition/index.js",
+      "require": "./src/composition/index.js"
     }
   },
   "files": [
