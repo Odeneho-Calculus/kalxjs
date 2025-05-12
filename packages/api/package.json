@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/api",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "API integration utilities for KalxJs framework",
   "type": "module",
   "author": "kalxjs Team",
