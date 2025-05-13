@@ -326,7 +326,17 @@ export function createApp(component) {
         _component: typeof component === 'function' ? component() : component,
         _context: {},
         _plugins: new Set(),
+        _router: null,
+        _store: null,
+        _renderer: null,
+        _useCustomRenderer: true,
 
+        /**
+         * Registers a plugin with the application
+         * @param {Object|Function} plugin - Plugin to register
+         * @param {Object} options - Plugin options
+         * @returns {Object} Application instance
+         */
         use(plugin, options = {}) {
             if (!this._plugins.has(plugin)) {
                 if (plugin && typeof plugin.install === 'function') {
@@ -335,15 +345,43 @@ export function createApp(component) {
                     plugin(this, options);
                 }
                 this._plugins.add(plugin);
+                
+                // Check if this is a router or store plugin
+                if (plugin.name === 'router' && options.router) {
+                    this._router = options.router;
+                } else if (plugin.name === 'store' && options.store) {
+                    this._store = options.store;
+                }
             }
             return this;
         },
 
+        /**
+         * Provides a value to the application context
+         * @param {string} key - Context key
+         * @param {*} value - Context value
+         * @returns {Object} Application instance
+         */
         provide(key, value) {
             this._context[key] = value;
             return this;
         },
+        
+        /**
+         * Sets whether to use the custom renderer
+         * @param {boolean} value - Whether to use the custom renderer
+         * @returns {Object} Application instance
+         */
+        useCustomRenderer(value = true) {
+            this._useCustomRenderer = value;
+            return this;
+        },
 
+        /**
+         * Mounts the application to a DOM element
+         * @param {string|HTMLElement} selector - Element or selector
+         * @returns {Object} Component instance
+         */
         mount(selector) {
             const container = typeof selector === 'string'
                 ? document.querySelector(selector)
@@ -356,7 +394,52 @@ export function createApp(component) {
 
             // Clear container
             container.innerHTML = '';
-
+            
+            // Try to use the custom renderer if available and enabled
+            try {
+                if (this._useCustomRenderer) {
+                    // Import the renderer dynamically to avoid circular dependencies
+                    import('../renderer').then(({ createRenderer }) => {
+                        this._renderer = createRenderer({
+                            router: this._router,
+                            store: this._store,
+                            useCustomRenderer: true
+                        });
+                        
+                        if (this._renderer && this._renderer.init) {
+                            // Initialize the renderer with the container
+                            this._renderer.init(container);
+                            console.log('Using custom renderer');
+                        } else {
+                            // Fall back to the default rendering if custom renderer fails
+                            this._mountWithDefaultRenderer(container);
+                        }
+                    }).catch(error => {
+                        console.error('Error loading custom renderer:', error);
+                        this._mountWithDefaultRenderer(container);
+                    });
+                } else {
+                    // Use the default rendering
+                    this._mountWithDefaultRenderer(container);
+                }
+            } catch (error) {
+                console.error('Error during mount:', error);
+                // Fall back to the default rendering
+                this._mountWithDefaultRenderer(container);
+            }
+            
+            return this;
+        },
+        
+        /**
+         * Mounts the application using the default renderer
+         * @private
+         * @param {HTMLElement} container - Container element
+         * @returns {Object} Component instance
+         */
+        _mountWithDefaultRenderer(container) {
+            console.log('Using default renderer');
+            
             const instance = createComponent(this._component);
 
             // Inject app context and plugins
@@ -365,7 +448,7 @@ export function createApp(component) {
 
             // Mount the component
             instance.$mount(container);
-
+            
             return instance;
         }
     };

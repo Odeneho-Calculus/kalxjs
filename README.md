@@ -34,7 +34,8 @@ KalxJS empowers developers to build fast, maintainable applications using modern
 - **Tree Shaking**: Dead code elimination
 - **Compiler Optimizations**: Static analysis for better performance
 
-### Unique Features (v2.0.0)
+### Unique Features (v2.1.0)
+- **Custom Rendering System**: Template-based rendering with native DOM APIs for improved reliability
 - **Built-in AI Capabilities**: AI-powered components for text and image generation
 - **Native Mobile Bridge**: Native capabilities for hybrid apps
 - **Built-in Testing Framework**: Comprehensive testing utilities
@@ -173,6 +174,39 @@ export default {
     };
   }
 };
+```
+
+### Using the Custom Rendering System
+
+```js
+import { createRouter } from '@kalxjs/router';
+import { createStore } from '@kalxjs/state';
+import { createCustomRenderer } from '@kalxjs/core/renderer';
+
+// Create router
+const router = createRouter({
+  mode: 'hash',
+  routes: [
+    { path: '/', component: 'home' },
+    { path: '/counter', component: 'counter' }
+  ]
+});
+
+// Create store
+const store = createStore({
+  state: {
+    count: 0
+  },
+  mutations: {
+    increment(state) {
+      state.count++;
+    }
+  }
+});
+
+// Create and initialize the custom renderer
+const renderer = createCustomRenderer(router, store);
+renderer.init('#router-view');
 ```
 
 ### Using the Animation System

@@ -3,6 +3,12 @@ import { reactive, ref, computed, effect } from './reactivity/reactive';
 import { h, createElement, updateElement } from './vdom/vdom';
 import { createComponent, defineComponent, createApp } from './component/component';
 
+// Import template-based component system
+import { createTemplateComponent, defineTemplateComponent } from './template';
+
+// Import custom renderer
+import { createRenderer, createCustomRenderer } from './renderer';
+
 // Import all composition API from a single file to avoid circular dependencies
 import {
     useReactive,
@@ -132,6 +138,14 @@ const kalxjs = {
     createComponent,
     defineComponent,
 
+    // Template-based component system
+    createTemplateComponent,
+    defineTemplateComponent,
+
+    // Custom renderer
+    createRenderer,
+    createCustomRenderer,
+
     // Composition API
     useReactive,
     useRef,
@@ -247,6 +261,14 @@ export {
     defineComponent,
     createAppInstance as createApp,
 
+    // Template-based component system
+    createTemplateComponent,
+    defineTemplateComponent,
+
+    // Custom renderer
+    createRenderer,
+    createCustomRenderer,
+
     // Composition API
     useReactive,
     useRef,
@@ -348,3 +370,5 @@ export * from './native';
 export * from './testing';
 export * from './ssr';
 export * from './animation';
+export * from './template';
+export * from './renderer';

@@ -50,7 +50,8 @@ async function create(projectName, options = {}) {
       api: true,
       composition: true,
       performance: true,
-      plugins: true
+      plugins: true,
+      customRenderer: true  // Always enabled by default
     } : await inquirer.prompt([
       {
         type: 'confirm',
@@ -117,6 +118,12 @@ async function create(projectName, options = {}) {
         name: 'linting',
         message: 'Add ESLint setup?',
         default: true
+      },
+      {
+        type: 'confirm',
+        name: 'customRenderer',
+        message: 'Add Custom Renderer support?',
+        default: true
       }
     ]);
 
@@ -178,7 +185,8 @@ async function generateProject(targetDir, config) {
     config.features.api && 'src/api',
     config.features.composition && 'src/composables',
     config.features.performance && 'src/utils/performance',
-    config.features.plugins && 'src/plugins'
+    config.features.plugins && 'src/plugins',
+    config.features.customRenderer && 'src/templates'
   ].filter(Boolean);
 
   for (const dir of dirs) {
@@ -195,7 +203,8 @@ async function generateProject(targetDir, config) {
     ...(config.features.api ? { 'src/api/.gitkeep': '' } : {}),
     ...(config.features.composition ? { 'src/composables/.gitkeep': '' } : {}),
     ...(config.features.performance ? { 'src/utils/performance/.gitkeep': '' } : {}),
-    ...(config.features.plugins ? { 'src/plugins/.gitkeep': '' } : {})
+    ...(config.features.plugins ? { 'src/plugins/.gitkeep': '' } : {}),
+    ...(config.features.customRenderer ? { 'src/templates/.gitkeep': '' } : {})
   };
 
   // Add API integration example if enabled
@@ -374,6 +383,40 @@ export function useApi(options = {}) {
     abort,
     abortAll
   };
+}`;
+  }
+
+  // Add Custom Renderer example if enabled
+  if (config.features.customRenderer) {
+    files['src/templates/counter.html'] = `<div class="counter-container">
+  <h2>Counter Example</h2>
+  <div class="counter-value" id="counter-value">0</div>
+  <div class="counter-info">
+    Double: <span id="double-count">0</span>
+  </div>
+  <div>
+    <button id="decrement-button">-</button>
+    <button id="increment-button">+</button>
+  </div>
+</div>`;
+
+    files['src/renderer/index.js'] = `import { createCustomRenderer } from '@kalxjs/core/renderer';
+
+/**
+ * Initialize the custom renderer
+ * @param {Object} router - Router instance
+ * @param {Object} store - Store instance
+ * @param {string} selector - Container selector
+ * @returns {Object} Renderer instance
+ */
+export function initRenderer(router, store, selector = '#app') {
+  // Create the custom renderer
+  const renderer = createCustomRenderer(router, store);
+  
+  // Initialize the renderer with the container
+  renderer.init(selector);
+  
+  return renderer;
 }`;
   }
 

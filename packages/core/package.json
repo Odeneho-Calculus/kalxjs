@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/core",
-  "version": "2.0.20",
+  "version": "2.1.0",
   "description": "A modern JavaScript framework for building user interfaces with reactive state, composition API, and built-in performance optimizations",
   "type": "module",
   "author": "kalxjs Team",
@@ -45,6 +45,14 @@
     },
     "./browser": {
       "import": "./dist/browser.esm.js"
+    },
+    "./renderer": {
+      "import": "./src/renderer/index.js",
+      "require": "./src/renderer/index.js"
+    },
+    "./template": {
+      "import": "./src/template/index.js",
+      "require": "./src/template/index.js"
     }
   },
   "files": [
