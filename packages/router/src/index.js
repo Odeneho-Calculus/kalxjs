@@ -127,7 +127,7 @@ export function createMemoryHistory(initialPath = '/') {
  */
 export function createRouter(options = {}) {
     const routes = options.routes || [];
-    const mode = options.mode || 'hash';
+    let mode = options.mode || 'hash'; // Changed from const to let to allow reassignment
     const base = options.base || '';
     const scrollBehavior = options.scrollBehavior;
     const caseSensitive = options.caseSensitive || false;
