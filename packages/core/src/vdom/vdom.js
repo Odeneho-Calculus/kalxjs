@@ -65,23 +65,47 @@ export function createElement(vnode) {
 
     // Handle null or undefined
     if (!vnode) {
+        console.warn('Attempted to create element from null/undefined vnode');
         return document.createComment('empty node');
+    }
+
+    // Handle case where vnode might be a function (component)
+    if (typeof vnode === 'function') {
+        try {
+            const result = vnode();
+            return createElement(result);
+        } catch (error) {
+            console.error('Error rendering component function:', error);
+            return document.createComment('component error');
+        }
     }
 
     // Handle case where vnode might not be a proper virtual node object
     if (!vnode.tag) {
-        console.warn('Invalid vnode:', vnode);
+        console.warn('Invalid vnode (missing tag):', vnode);
         return document.createComment('invalid node');
     }
 
+    // Create the DOM element
     const element = document.createElement(vnode.tag);
 
     // Set properties
     for (const [key, value] of Object.entries(vnode.props || {})) {
         if (key.startsWith('on')) {
+            // Handle both camelCase (onClick) and lowercase (onclick) event handlers
             const eventName = key.slice(2).toLowerCase();
             element.addEventListener(eventName, value);
+        } else if (key === 'style' && typeof value === 'object') {
+            // Handle style objects
+            Object.assign(element.style, value);
+        } else if (key === 'class' || key === 'className') {
+            // Handle class names
+            element.className = value;
+        } else if (key === 'dangerouslySetInnerHTML') {
+            // Handle innerHTML
+            element.innerHTML = value.__html;
         } else {
+            // Handle regular attributes
             element.setAttribute(key, value);
         }
     }
@@ -90,7 +114,15 @@ export function createElement(vnode) {
     const children = Array.isArray(vnode.children) ? vnode.children : (vnode.children ? [vnode.children] : []);
     children.forEach(child => {
         if (child !== null && child !== undefined) {
-            element.appendChild(createElement(child));
+            try {
+                const childElement = createElement(child);
+                if (childElement) {
+                    element.appendChild(childElement);
+                }
+            } catch (error) {
+                console.error('Error creating child element:', error);
+                element.appendChild(document.createComment('child error'));
+            }
         }
     });
 

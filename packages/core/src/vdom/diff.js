@@ -151,6 +151,7 @@ function updateAttributes(domNode, oldAttrs, newAttrs) {
     for (const key in newAttrs) {
         if (oldAttrs[key] !== newAttrs[key]) {
             if (key.startsWith('on')) {
+                // Handle both camelCase (onClick) and lowercase (onclick) event handlers
                 const eventName = key.slice(2).toLowerCase();
                 if (oldAttrs[key]) {
                     domNode.removeEventListener(eventName, oldAttrs[key]);

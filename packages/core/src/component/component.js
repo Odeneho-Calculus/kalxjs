@@ -105,11 +105,11 @@ function createComponent(options) {
                         if (parentNode) {
                             // Update the contents of the element rather than replacing it
                             if (instance._vnode) {
-                                // Clear the element first
-                                while (instance.$el.firstChild) {
-                                    instance.$el.removeChild(instance.$el.firstChild);
-                                }
-                                // Create and append the new DOM
+                                // Use the updateElement function from vdom to properly update the DOM
+                                updateElement(instance.$el, instance._vnode, newVdom);
+                                instance._vnode = newVdom;
+                            } else {
+                                // First render, create and append the new DOM
                                 const newElement = createDOMElement(newVdom);
                                 instance.$el.appendChild(newElement);
                                 instance._vnode = newVdom;
@@ -182,14 +182,28 @@ function createComponent(options) {
 
         // Render the component
         const vnode = this.render();
+
+        // Log the render process for debugging
+        console.log('Component render called:', vnode);
+
+        // Store the vnode for future updates
         this._vnode = vnode;
 
         // Clear the element before mounting
         el.innerHTML = '';
 
         // Create real DOM from virtual DOM and append to element
-        const dom = createDOMElement(vnode);
-        el.appendChild(dom);
+        if (vnode) {
+            const dom = createDOMElement(vnode);
+            if (dom) {
+                el.appendChild(dom);
+                console.log('DOM element created and appended:', dom);
+            } else {
+                console.warn('Failed to create DOM element from vnode:', vnode);
+            }
+        } else {
+            console.warn('Component render returned null or undefined');
+        }
 
         // Call mounted hooks
         if (options.mounted) {
@@ -225,14 +239,14 @@ function createComponent(options) {
         const newVdom = this.render();
 
         if (this.$el) {
-            // Clear the element first then append the new content
-            while (this.$el.firstChild) {
-                this.$el.removeChild(this.$el.firstChild);
+            // Use the updateElement function from vdom to properly update the DOM
+            if (this._vnode) {
+                updateElement(this.$el, this._vnode, newVdom);
+            } else {
+                // First render, create and append the new DOM
+                const newElement = createDOMElement(newVdom);
+                this.$el.appendChild(newElement);
             }
-
-            // Create and append the new DOM
-            const newElement = createDOMElement(newVdom);
-            this.$el.appendChild(newElement);
             this._vnode = newVdom;
         }
 

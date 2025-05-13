@@ -366,11 +366,42 @@ export function useRouter() {
 
 // Create a Router View component that renders the matched route component
 export function RouterView(props = {}) {
-    // This is a placeholder - the actual implementation would depend on integration with the core component system
+    // Get the current router instance and route
+    const { router, route } = useRouter();
+
+    if (!router || !route.value) {
+        console.warn('RouterView: No active router found');
+        return {
+            tag: 'div',
+            props: { class: 'kal-router-view' },
+            children: ['No router found']
+        };
+    }
+
+    // Get the matched route component
+    const matchedRoute = route.value.matched[0];
+
+    if (!matchedRoute || !matchedRoute.component) {
+        return {
+            tag: 'div',
+            props: { class: 'kal-router-view' },
+            children: ['No matching route found']
+        };
+    }
+
+    // Render the matched component
+    const Component = matchedRoute.component;
+
+    // If Component is a function, call it with props
+    if (typeof Component === 'function') {
+        return Component(props);
+    }
+
+    // Otherwise, create a new component instance
     return {
         tag: 'div',
         props: { class: 'kal-router-view' },
-        children: []
+        children: [Component]
     };
 }
 

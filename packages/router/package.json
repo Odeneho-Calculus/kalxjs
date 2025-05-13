@@ -32,10 +32,10 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@kalxjs/core": "^1.2.9"
+    "@kalxjs/core": "^2.0.17"
   },
   "peerDependencies": {
-    "@kalxjs/core": "^1.2.8"
+    "@kalxjs/core": "^2.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.0.0",
