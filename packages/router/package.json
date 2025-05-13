@@ -40,7 +40,7 @@
     "build": "rollup -c ../../rollup.config.js",
     "dev": "rollup -c ../../rollup.config.js -w",
     "test": "jest",
-    "docs": "typedoc --out docs/api src/index.js",
+    "docs": "typedoc",
     "prepublishOnly": "npm run build && npm run docs"
   },
   "dependencies": {
@@ -58,5 +58,5 @@
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "gitHead": "fbf879495879979f9e165e77328a0293b37a7f93"
+  "gitHead": "e8875b385f32325a1838b9ebd94d023fa84525e3"
 }
