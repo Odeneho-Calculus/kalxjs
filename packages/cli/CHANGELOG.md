@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.8](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/cli@1.3.6...@kalxjs/cli@1.3.8) (2025-05-13)
+
+**Note:** Version bump only for package @kalxjs/cli
+
 ## [1.3.7](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/cli@1.3.6...@kalxjs/cli@1.3.7) (2025-05-20)
 
 ### Features
