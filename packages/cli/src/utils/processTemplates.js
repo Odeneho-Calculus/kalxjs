@@ -23,9 +23,22 @@ async function processTemplates(targetDir, config) {
 }
 
 function processTemplateContent(content, config) {
-    return content.replace(/\{\{(\w+)\}\}/g, (match, key) => {
-        return config[key] || match;
+    // Process simple variable replacements
+    let processed = content.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+        return config[key] !== undefined ? config[key] : match;
     });
+
+    // Process if conditions
+    processed = processed.replace(/\{\{#if (\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g, (match, key, block) => {
+        return config[key] ? block : '';
+    });
+
+    // Process if-else conditions
+    processed = processed.replace(/\{\{#if (\w+)\}\}([\s\S]*?)\{\{else\}\}([\s\S]*?)\{\{\/if\}\}/g, (match, key, ifBlock, elseBlock) => {
+        return config[key] ? ifBlock : elseBlock;
+    });
+
+    return processed;
 }
 
 module.exports = processTemplates;

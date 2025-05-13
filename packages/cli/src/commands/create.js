@@ -186,7 +186,9 @@ async function generateProject(targetDir, config) {
     config.features.composition && 'src/composables',
     config.features.performance && 'src/utils/performance',
     config.features.plugins && 'src/plugins',
-    config.features.customRenderer && 'src/templates'
+    config.features.customRenderer && 'src/templates',
+    config.features.customRenderer && 'src/renderer',
+    config.features.customRenderer && 'src/utils'
   ].filter(Boolean);
 
   for (const dir of dirs) {
@@ -204,7 +206,11 @@ async function generateProject(targetDir, config) {
     ...(config.features.composition ? { 'src/composables/.gitkeep': '' } : {}),
     ...(config.features.performance ? { 'src/utils/performance/.gitkeep': '' } : {}),
     ...(config.features.plugins ? { 'src/plugins/.gitkeep': '' } : {}),
-    ...(config.features.customRenderer ? { 'src/templates/.gitkeep': '' } : {})
+    ...(config.features.customRenderer ? {
+      'src/templates/.gitkeep': '',
+      'src/renderer/.gitkeep': '',
+      'src/utils/.gitkeep': ''
+    } : {})
   };
 
   // Add API integration example if enabled
@@ -388,35 +394,681 @@ export function useApi(options = {}) {
 
   // Add Custom Renderer example if enabled
   if (config.features.customRenderer) {
-    files['src/templates/counter.html'] = `<div class="counter-container">
-  <h2>Counter Example</h2>
-  <div class="counter-value" id="counter-value">0</div>
-  <div class="counter-info">
-    Double: <span id="double-count">0</span>
+    files['src/templates/counter.html'] = `<div class="counter-page">
+  <h1>Counter Example</h1>
+  
+  <div class="counter-container">
+    <div class="counter-display">
+      <div class="counter-value" id="counter-value">0</div>
+      <div class="counter-label">Current Count</div>
+    </div>
+    
+    <div class="counter-controls">
+      <button id="decrement-button" class="counter-button decrement">-</button>
+      <button id="reset-button" class="counter-button reset">Reset</button>
+      <button id="increment-button" class="counter-button increment">+</button>
+    </div>
+    
+    <div class="counter-stats">
+      <div class="stat-item">
+        <div class="stat-label">Double Count:</div>
+        <div class="stat-value" id="double-count">0</div>
+      </div>
+      
+      <div class="stat-item">
+        <div class="stat-label">Is Even:</div>
+        <div class="stat-value" id="is-even">Yes</div>
+      </div>
+    </div>
   </div>
-  <div>
-    <button id="decrement-button">-</button>
-    <button id="increment-button">+</button>
+  
+  <div class="counter-actions">
+    <a href="#/" class="nav-link">Back to Home</a>
   </div>
 </div>`;
 
-    files['src/renderer/index.js'] = `import { createCustomRenderer } from '@kalxjs/core/renderer';
+    files['src/templates/welcome.html'] = `<div class="welcome-container">
+  <div class="welcome-header">
+    <img src="/logo.svg" alt="KalxJS Logo" class="welcome-logo" />
+    <h1>Welcome to <span class="brand-name">KalxJS</span></h1>
+  </div>
+  
+  <div class="welcome-content">
+    <p class="welcome-message">
+      Congratulations! You've successfully created a new KalxJS project using the Custom Renderer.
+    </p>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>📝 Template-Based Rendering</h3>
+        <p>Use HTML templates directly with no virtual DOM overhead</p>
+      </div>
+      
+      <div class="feature-card">
+        <h3>⚡ Reactive State</h3>
+        <p>Powerful state management with automatic DOM updates</p>
+      </div>
+      
+      <div class="feature-card">
+        <h3>🧩 Component System</h3>
+        <p>Create reusable components with clean APIs</p>
+      </div>
+      
+      <div class="feature-card">
+        <h3>🔄 Routing</h3>
+        <p>Seamless navigation between different views</p>
+      </div>
+    </div>
+    
+    <div class="counter-demo">
+      <h2>Try the Counter Demo</h2>
+      <div class="counter-value" id="counter-value">0</div>
+      <div class="counter-buttons">
+        <button id="decrement-button" class="counter-button">-</button>
+        <button id="increment-button" class="counter-button">+</button>
+      </div>
+      <div class="counter-info">
+        Double value: <span id="double-count">0</span>
+      </div>
+    </div>
+    
+    <div class="next-steps">
+      <h2>Next Steps</h2>
+      <ul>
+        <li>Edit <code>src/templates/welcome.html</code> to modify this page</li>
+        <li>Check out <code>src/templates/</code> for more template examples</li>
+        <li>Explore the documentation to learn more</li>
+        <li>Start building your awesome application!</li>
+      </ul>
+    </div>
+  </div>
+  
+  <footer class="welcome-footer">
+    <p>Made with ❤️ by the KalxJS Team</p>
+    <p class="version-info">KalxJS v2.1.0</p>
+  </footer>
+</div>`;
+
+    files['src/utils/template-loader.js'] = `/**
+ * Template loader utility
+ * Loads HTML templates from files and injects them into the DOM
+ */
+
+/**
+ * Loads a template from a file and injects it into a template element
+ * @param {string} templateId - ID of the template element
+ * @param {string} templatePath - Path to the template file
+ * @returns {Promise<void>}
+ */
+export async function loadTemplate(templateId, templatePath) {
+  try {
+    // Fetch the template content
+    const response = await fetch(templatePath);
+    
+    if (!response.ok) {
+      throw new Error(\`Failed to load template: \${response.status} \${response.statusText}\`);
+    }
+    
+    // Get the template content
+    const templateContent = await response.text();
+    
+    // Find the template element
+    const templateElement = document.getElementById(templateId);
+    
+    if (!templateElement) {
+      throw new Error(\`Template element not found: \${templateId}\`);
+    }
+    
+    // Set the template content
+    templateElement.innerHTML = templateContent;
+    
+    console.log(\`Template loaded: \${templateId}\`);
+  } catch (error) {
+    console.error(\`Error loading template \${templateId}:\`, error);
+  }
+}
+
+/**
+ * Loads all templates
+ * @returns {Promise<void>}
+ */
+export async function loadAllTemplates() {
+  // Define templates to load
+  const templates = [
+    { id: 'welcome-template', path: '/src/templates/welcome.html' },
+    { id: 'counter-template', path: '/src/templates/counter.html' }
+  ];
+  
+  // Load all templates in parallel
+  await Promise.all(templates.map(template => 
+    loadTemplate(template.id, template.path)
+  ));
+  
+  console.log('All templates loaded');
+}`;
+
+    files['src/styles/welcome.scss'] = `// Welcome page styles
+
+.welcome-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Arial', sans-serif;
+  color: #333;
+}
+
+.welcome-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.welcome-logo {
+  width: 120px;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+.brand-name {
+  color: #42b883;
+  font-weight: bold;
+}
+
+.welcome-content {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-message {
+  font-size: 1.2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #555;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.feature-card {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+}
+
+.feature-card h3 {
+  color: #42b883;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.counter-demo {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 3rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.counter-value {
+  font-size: 4rem;
+  font-weight: bold;
+  color: #42b883;
+  margin: 1rem 0;
+}
+
+.counter-buttons {
+  margin: 1rem 0;
+}
+
+.counter-button {
+  background-color: #42b883;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.5rem;
+  width: 50px;
+  height: 50px;
+  margin: 0 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.counter-button:hover {
+  background-color: #3aa876;
+}
+
+.counter-info {
+  margin-top: 1rem;
+  color: #666;
+}
+
+.next-steps {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.next-steps h2 {
+  color: #42b883;
+  margin-top: 0;
+}
+
+.next-steps ul {
+  padding-left: 1.5rem;
+}
+
+.next-steps li {
+  margin-bottom: 0.5rem;
+}
+
+.next-steps code {
+  background-color: #f0f0f0;
+  padding: 0.2rem 0.4rem;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+.next-steps a {
+  color: #42b883;
+  text-decoration: none;
+}
+
+.next-steps a:hover {
+  text-decoration: underline;
+}
+
+.welcome-footer {
+  text-align: center;
+  margin-top: 3rem;
+  color: #888;
+}
+
+.version-info {
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .welcome-container {
+    padding: 1rem;
+  }
+  
+  .welcome-content {
+    padding: 1.5rem;
+  }
+}`;
+
+    files['src/styles/counter.scss'] = `// Counter page styles
+
+.counter-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.counter-page h1 {
+  color: #35495e;
+  margin-bottom: 2rem;
+}
+
+.counter-container {
+  background-color: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.counter-display {
+  margin-bottom: 2rem;
+}
+
+.counter-value {
+  font-size: 6rem;
+  font-weight: bold;
+  color: #42b883;
+  line-height: 1;
+  transition: all 0.3s ease;
+}
+
+.counter-label {
+  color: #666;
+  margin-top: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.counter-controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.counter-button {
+  width: 60px;
+  height: 60px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.counter-button.increment {
+  background-color: #42b883;
+  color: white;
+}
+
+.counter-button.increment:hover {
+  background-color: #3aa876;
+  transform: scale(1.05);
+}
+
+.counter-button.decrement {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.counter-button.decrement:hover {
+  background-color: #c0392b;
+  transform: scale(1.05);
+}
+
+.counter-button.reset {
+  background-color: #7f8c8d;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.counter-button.reset:hover {
+  background-color: #6c7a7a;
+  transform: scale(1.05);
+}
+
+.counter-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #35495e;
+}
+
+.counter-actions {
+  margin-top: 2rem;
+}
+
+.nav-link {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: #f8f8fa;
+  color: #42b883;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  background-color: #e9ecef;
+  transform: translateY(-2px);
+}
+
+// Animations
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.counter-value.updated {
+  animation: pulse 0.3s ease;
+}`;
+
+    files['public/logo.svg'] = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="100" cy="100" r="90" fill="#42b883" opacity="0.2"/>
+  <path d="M100 20L180 140H20L100 20Z" fill="#42b883"/>
+  <path d="M100 60L140 140H60L100 60Z" fill="#35495e"/>
+  <circle cx="100" cy="100" r="15" fill="#35495e"/>
+</svg>`;
+
+    files['src/renderer/index.js'] = `// Custom renderer initialization and setup
+
+/**
+ * Sets up the counter component
+ * @param {DocumentFragment} content - Component content
+ * @param {Object} store - Store instance
+ */
+export function setupCounterComponent(content, store) {
+  if (!store) return;
+  
+  // Get elements
+  const counterValue = content.querySelector('#counter-value');
+  const doubleCount = content.querySelector('#double-count');
+  const isEven = content.querySelector('#is-even');
+  
+  // Set up initial values
+  if (counterValue) {
+    counterValue.textContent = store.state.count;
+  }
+  
+  if (doubleCount && store.getters && store.getters.doubleCount) {
+    doubleCount.textContent = store.getters.doubleCount;
+  }
+  
+  if (isEven) {
+    isEven.textContent = store.state.count % 2 === 0 ? 'Yes' : 'No';
+  }
+  
+  // Set up event listeners
+  const incrementBtn = content.querySelector('#increment-button');
+  if (incrementBtn) {
+    incrementBtn.addEventListener('click', () => {
+      store.commit('increment');
+      updateCounter(store);
+    });
+  }
+  
+  const decrementBtn = content.querySelector('#decrement-button');
+  if (decrementBtn) {
+    decrementBtn.addEventListener('click', () => {
+      store.commit('decrement');
+      updateCounter(store);
+    });
+  }
+  
+  const resetBtn = content.querySelector('#reset-button');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      store.commit('setCount', 0);
+      updateCounter(store);
+    });
+  }
+}
+
+/**
+ * Updates the counter display
+ * @param {Object} store - Store instance
+ */
+export function updateCounter(store) {
+  // Get elements
+  const counterValue = document.querySelector('#counter-value');
+  const doubleCount = document.querySelector('#double-count');
+  const isEven = document.querySelector('#is-even');
+  
+  // Update values
+  if (counterValue) {
+    counterValue.textContent = store.state.count;
+    
+    // Add animation class
+    counterValue.classList.add('updated');
+    
+    // Remove animation class after animation completes
+    setTimeout(() => {
+      counterValue.classList.remove('updated');
+    }, 300);
+  }
+  
+  if (doubleCount && store.getters && store.getters.doubleCount) {
+    doubleCount.textContent = store.getters.doubleCount;
+  }
+  
+  if (isEven) {
+    isEven.textContent = store.state.count % 2 === 0 ? 'Yes' : 'No';
+  }
+}
+
+/**
+ * Sets up the welcome component
+ * @param {DocumentFragment} content - Component content
+ * @param {Object} store - Store instance
+ */
+export function setupWelcomeComponent(content, store) {
+  if (!store) return;
+  
+  // Set up counter in the welcome page
+  const counterValue = content.querySelector('#counter-value');
+  const doubleCount = content.querySelector('#double-count');
+  
+  // Set up initial values
+  if (counterValue) {
+    counterValue.textContent = store.state.count;
+  }
+  
+  if (doubleCount && store.getters && store.getters.doubleCount) {
+    doubleCount.textContent = store.getters.doubleCount;
+  }
+  
+  // Set up event listeners
+  const incrementBtn = content.querySelector('#increment-button');
+  if (incrementBtn) {
+    incrementBtn.addEventListener('click', () => {
+      store.commit('increment');
+      updateWelcomeCounter(store);
+    });
+  }
+  
+  const decrementBtn = content.querySelector('#decrement-button');
+  if (decrementBtn) {
+    decrementBtn.addEventListener('click', () => {
+      store.commit('decrement');
+      updateWelcomeCounter(store);
+    });
+  }
+}
+
+/**
+ * Updates the welcome page counter
+ * @param {Object} store - Store instance
+ */
+export function updateWelcomeCounter(store) {
+  // Get elements
+  const counterValue = document.querySelector('#counter-value');
+  const doubleCount = document.querySelector('#double-count');
+  
+  // Update values
+  if (counterValue) {
+    counterValue.textContent = store.state.count;
+  }
+  
+  if (doubleCount && store.getters && store.getters.doubleCount) {
+    doubleCount.textContent = store.getters.doubleCount;
+  }
+}
+
+/**
+ * Extends the custom renderer with additional component setup
+ * @param {Object} renderer - Custom renderer instance
+ * @param {Object} store - Store instance
+ */
+export function extendRenderer(renderer, store) {
+  // Store the original setupComponent method
+  const originalSetupComponent = renderer.setupComponent;
+  
+  // Override the setupComponent method
+  renderer.setupComponent = function(name, content) {
+    // Call the original method first
+    if (originalSetupComponent) {
+      originalSetupComponent.call(this, name, content);
+    }
+    
+    // Add custom component setup
+    switch (name) {
+      case 'welcome':
+        setupWelcomeComponent(content, store);
+        break;
+      case 'counter':
+        setupCounterComponent(content, store);
+        break;
+    }
+  };
+  
+  return renderer;
+}
 
 /**
  * Initialize the custom renderer
  * @param {Object} router - Router instance
  * @param {Object} store - Store instance
  * @param {string} selector - Container selector
- * @returns {Object} Renderer instance
+ * @returns {Promise<Object>} Extended renderer instance
  */
 export function initRenderer(router, store, selector = '#app') {
-  // Create the custom renderer
-  const renderer = createCustomRenderer(router, store);
-  
-  // Initialize the renderer with the container
-  renderer.init(selector);
-  
-  return renderer;
+  // Import the custom renderer dynamically
+  return import('@kalxjs/core/renderer').then(({ createCustomRenderer }) => {
+    // Create the custom renderer
+    const renderer = createCustomRenderer(router, store);
+    
+    // Extend the renderer with custom functionality
+    const extendedRenderer = extendRenderer(renderer, store);
+    
+    // Initialize the renderer with the container
+    extendedRenderer.init(selector);
+    
+    return extendedRenderer;
+  });
 }`;
   }
 
