@@ -6,6 +6,7 @@ const ora = require('ora');
 const inquirer = require('inquirer');
 const deepmerge = require('deepmerge');
 const execa = require('execa');
+const https = require('https');
 
 async function create(projectName, options = {}) {
   // Validate project name
@@ -144,7 +145,7 @@ async function create(projectName, options = {}) {
 
     // Install dependencies
     if (!options.skipInstall) {
-      spinner.text = 'Installing dependencies...';
+      spinner.text = 'Checking for latest package versions...';
       await installDependencies(targetDir, projectConfig);
     }
 
@@ -3006,6 +3007,9 @@ button:active {
 }
 
 async function installDependencies(targetDir, config) {
+  // Get the latest versions of all packages
+  const latestVersions = await getLatestPackageVersions();
+
   const pkg = {
     name: config.projectName,
     version: '0.1.0',
@@ -3017,43 +3021,51 @@ async function installDependencies(targetDir, config) {
       "preview": "vite preview"
     },
     dependencies: {
-      "@kalxjs/core": "^1.2.2"
+      "@kalxjs/core": latestVersions["@kalxjs/core"] || "^2.1.12" // Fallback to current version
     },
     devDependencies: {
       "vite": "^5.0.0"
     }
   };
 
-  // Add feature-specific dependencies
-  if (config.features.router) pkg.dependencies["@kalxjs/router"] = "^1.2.14";
-  if (config.features.state) pkg.dependencies["@kalxjs/state"] = "^1.2.2";
+  // Add feature-specific dependencies with latest versions
+  if (config.features.router) pkg.dependencies["@kalxjs/router"] = latestVersions["@kalxjs/router"] || "^1.2.30";
+  if (config.features.state) pkg.dependencies["@kalxjs/state"] = latestVersions["@kalxjs/state"] || "^1.2.26";
   if (config.features.scss) pkg.devDependencies["sass"] = "^1.69.0";
   if (config.features.sfc) {
-    pkg.dependencies["@kalxjs/compiler"] = "^1.2.2";
-    pkg.devDependencies["@kalxjs/compiler-plugin"] = "^1.2.2";
+    pkg.dependencies["@kalxjs/compiler"] = latestVersions["@kalxjs/compiler"] || "^1.2.2";
+    pkg.devDependencies["@kalxjs/compiler-plugin"] = latestVersions["@kalxjs/compiler-plugin"] || "^1.2.2";
   }
 
-  // Add the newly created packages
+  // Add the newly created packages with latest versions
   if (config.features.ai) {
-    pkg.dependencies["@kalxjs/ai"] = "^1.2.2";
+    pkg.dependencies["@kalxjs/ai"] = latestVersions["@kalxjs/ai"] || "^1.2.2";
   }
   if (config.features.api) {
-    pkg.dependencies["@kalxjs/api"] = "^1.2.2";
+    pkg.dependencies["@kalxjs/api"] = latestVersions["@kalxjs/api"] || "^1.2.2";
   }
   if (config.features.composition) {
-    pkg.dependencies["@kalxjs/composition"] = "^1.2.2";
+    pkg.dependencies["@kalxjs/composition"] = latestVersions["@kalxjs/composition"] || "^1.2.2";
   }
   if (config.features.performance) {
-    pkg.dependencies["@kalxjs/performance"] = "^1.2.2";
+    pkg.dependencies["@kalxjs/performance"] = latestVersions["@kalxjs/performance"] || "^1.2.2";
   }
   if (config.features.plugins) {
-    pkg.dependencies["@kalxjs/plugins"] = "^1.2.2";
+    pkg.dependencies["@kalxjs/plugins"] = latestVersions["@kalxjs/plugins"] || "^1.2.2";
   }
 
   // Write package.json
   await fs.writeJSON(path.join(targetDir, 'package.json'), pkg, { spaces: 2 });
 
+  // Log the versions being used
+  console.log('\n' + chalk.cyan('Using the following package versions:'));
+  Object.entries(pkg.dependencies).forEach(([name, version]) => {
+    console.log(`  ${chalk.green(name)}: ${version}`);
+  });
+
   try {
+    console.log('\n' + chalk.cyan('Installing dependencies...'));
+
     // Use child_process instead of execa
     const { execSync } = require('child_process');
     execSync('npm install', {
@@ -3064,6 +3076,63 @@ async function installDependencies(targetDir, config) {
   } catch (err) {
     throw new Error('Failed to install dependencies: ' + err.message);
   }
+}
+
+/**
+ * Fetches the latest versions of KalxJS packages from npm
+ * @returns {Promise<Object>} Object with package names as keys and version strings as values
+ */
+async function getLatestPackageVersions() {
+  const packages = [
+    '@kalxjs/core',
+    '@kalxjs/router',
+    '@kalxjs/state',
+    '@kalxjs/compiler',
+    '@kalxjs/compiler-plugin',
+    '@kalxjs/ai',
+    '@kalxjs/api',
+    '@kalxjs/composition',
+    '@kalxjs/performance',
+    '@kalxjs/plugins',
+    '@kalxjs/devtools',
+    '@kalxjs/cli'
+  ];
+
+  const versions = {};
+
+  // Create a promise for each package
+  const promises = packages.map(pkg => {
+    return new Promise((resolve) => {
+      https.get(`https://registry.npmjs.org/${pkg}/latest`, (res) => {
+        if (res.statusCode !== 200) {
+          // If we can't get the latest version, resolve with null
+          console.warn(chalk.yellow(`Could not fetch latest version for ${pkg}`));
+          resolve();
+          return;
+        }
+
+        let data = '';
+        res.on('data', chunk => { data += chunk; });
+        res.on('end', () => {
+          try {
+            const pkgData = JSON.parse(data);
+            versions[pkg] = `^${pkgData.version}`;
+            resolve();
+          } catch (err) {
+            console.warn(chalk.yellow(`Error parsing version data for ${pkg}: ${err.message}`));
+            resolve();
+          }
+        });
+      }).on('error', (err) => {
+        console.warn(chalk.yellow(`Network error fetching version for ${pkg}: ${err.message}`));
+        resolve();
+      });
+    });
+  });
+
+  // Wait for all requests to complete
+  await Promise.all(promises);
+  return versions;
 }
 
 /**

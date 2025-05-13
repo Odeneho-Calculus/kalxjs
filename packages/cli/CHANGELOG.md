@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.3.7](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/cli@1.3.6...@kalxjs/cli@1.3.7) (2025-05-20)
+
+### Features
+
+- **cli:** Add automatic detection of latest package versions
+  - The CLI now fetches the latest versions of all KalxJS packages from npm
+  - New projects use the most recent compatible versions of all packages
+  - Improved user feedback during project creation with version information
+
+### Bug Fixes
+
+- **cli:** Fixed issue where new projects were always created with outdated package versions
+  - Projects now use the most recent compatible versions of all KalxJS packages
+  - Added fallback versions in case npm registry is unavailable
+  - Improved error handling during package installation
+
 ## [1.3.6](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/cli@1.3.5...@kalxjs/cli@1.3.6) (2025-05-13)
 
 **Note:** Version bump only for package @kalxjs/cli
