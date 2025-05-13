@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/state",
-  "version": "1.2.33",
+  "version": "1.2.34",
   "description": "State management for KalxJs framework",
   "type": "module",
   "author": "kalxjs Team",
@@ -32,7 +32,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@kalxjs/core": "^2.1.19"
+    "@kalxjs/core": "^2.1.20"
   },
   "peerDependencies": {
     "@kalxjs/core": "^2.0.0"
