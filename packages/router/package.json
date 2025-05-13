@@ -1,7 +1,7 @@
 {
   "name": "@kalxjs/router",
-  "version": "1.2.34",
-  "description": "Router package for KalxJs framework",
+  "version": "2.0.0",
+  "description": "Advanced router package for KalxJs framework with features that surpass Vue Router",
   "type": "module",
   "author": "kalxjs Team",
   "license": "MIT",
@@ -13,6 +13,16 @@
     "url": "https://github.com/Odeneho-Calculus/kalxjs/issues"
   },
   "homepage": "https://github.com/Odeneho-Calculus/kalxjs#readme",
+  "keywords": [
+    "kalxjs",
+    "router",
+    "spa",
+    "single-page-application",
+    "navigation",
+    "history",
+    "vue-router-alternative",
+    "advanced-routing"
+  ],
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",
   "exports": {
@@ -23,13 +33,15 @@
   },
   "files": [
     "dist",
-    "src"
+    "src",
+    "docs"
   ],
   "scripts": {
     "build": "rollup -c ../../rollup.config.js",
     "dev": "rollup -c ../../rollup.config.js -w",
     "test": "jest",
-    "prepublishOnly": "npm run build"
+    "docs": "typedoc --out docs/api src/index.js",
+    "prepublishOnly": "npm run build && npm run docs"
   },
   "dependencies": {
     "@kalxjs/core": "^2.1.16"

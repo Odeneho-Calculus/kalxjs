@@ -61,71 +61,160 @@ export function parse(source) {
  * @returns {Object} Template AST
  */
 export function parseTemplate(template) {
-    // This is a simplified version - a real implementation would use a proper HTML parser
-    const ast = {
-        type: 'Template',
-        children: []
-    };
+    try {
+        // This is a simplified version - a real implementation would use a proper HTML parser
+        const ast = {
+            type: 'Template',
+            children: []
+        };
 
-    // Simple regex-based parsing for demonstration
-    // In a real implementation, use a proper HTML parser
-    const tagRegex = /<([a-z0-9-]+)(?:\s+([^>]*))?(?:\/>|>([\s\S]*?)<\/\1>)/gi;
+        // Improved regex-based parsing
+        // First, let's handle the root element
+        const rootElementRegex = /<([a-z0-9-]+)(?:\s+([^>]*))?>([\s\S]*?)<\/\1>/i;
+        const rootMatch = rootElementRegex.exec(template);
+
+        if (!rootMatch) {
+            // If no root element is found, create a fallback div
+            console.warn('No root element found in template, creating fallback div');
+            ast.children.push({
+                type: 'Element',
+                tag: 'div',
+                attrs: {},
+                children: [{ type: 'Text', content: template }]
+            });
+            return ast;
+        }
+
+        const [, rootTag, rootAttrs, rootContent] = rootMatch;
+
+        // Create the root element node
+        const rootNode = {
+            type: 'Element',
+            tag: rootTag,
+            attrs: parseAttributes(rootAttrs || ''),
+            children: []
+        };
+
+        // Parse the content of the root element
+        parseContent(rootContent, rootNode.children);
+
+        // Add the root node to the AST
+        ast.children.push(rootNode);
+
+        return ast;
+    } catch (error) {
+        console.error('Error parsing template:', error);
+        // Return a minimal AST with an error message
+        return {
+            type: 'Template',
+            children: [{
+                type: 'Element',
+                tag: 'div',
+                attrs: { style: 'color: red; border: 1px solid red; padding: 10px;' },
+                children: [{ type: 'Text', content: `Template parsing error: ${error.message}` }]
+            }]
+        };
+    }
+}
+
+/**
+ * Parses the content of an element
+ * @private
+ * @param {string} content - Element content
+ * @param {Array} children - Array to store child nodes
+ */
+function parseContent(content, children) {
+    // Handle elements
+    const elementRegex = /<([a-z0-9-]+)(?:\s+([^>]*))?(?:\/>|>([\s\S]*?)<\/\1>)/gi;
+    let lastIndex = 0;
     let match;
 
-    while ((match = tagRegex.exec(template))) {
-        const [, tag, attrs, content] = match;
+    // Keep track of processed content to avoid infinite loops
+    const processedContent = new Set();
 
-        const node = {
+    while ((match = elementRegex.exec(content))) {
+        const [fullMatch, tag, attrs, elementContent] = match;
+        const matchIndex = match.index;
+
+        // Check if we've already processed this match
+        if (processedContent.has(matchIndex)) {
+            continue;
+        }
+        processedContent.add(matchIndex);
+
+        // Add text before the element
+        if (matchIndex > lastIndex) {
+            const textBefore = content.substring(lastIndex, matchIndex);
+            parseTextContent(textBefore, children);
+        }
+
+        // Create the element node
+        const elementNode = {
             type: 'Element',
             tag,
             attrs: parseAttributes(attrs || ''),
-            children: content ? parseTemplate(content).children : []
+            children: []
         };
 
-        ast.children.push(node);
-    }
-
-    // Handle text nodes
-    const textRegex = /{{([^}]+)}}/g;
-    const textNodes = template.split(tagRegex).filter(Boolean);
-
-    for (const text of textNodes) {
-        if (text.trim()) {
-            let lastIndex = 0;
-            let textMatch;
-
-            while ((textMatch = textRegex.exec(text))) {
-                const [fullMatch, expression] = textMatch;
-                const index = textMatch.index;
-
-                // Add text before the expression
-                if (index > lastIndex) {
-                    ast.children.push({
-                        type: 'Text',
-                        content: text.slice(lastIndex, index)
-                    });
-                }
-
-                // Add the expression
-                ast.children.push({
-                    type: 'Expression',
-                    content: expression.trim()
-                });
-
-                lastIndex = index + fullMatch.length;
-            }
-
-            // Add remaining text
-            if (lastIndex < text.length) {
-                ast.children.push({
-                    type: 'Text',
-                    content: text.slice(lastIndex)
-                });
-            }
+        // Parse the content of the element if it's not self-closing
+        if (elementContent !== undefined) {
+            parseContent(elementContent, elementNode.children);
         }
+
+        // Add the element node to the children
+        children.push(elementNode);
+
+        lastIndex = matchIndex + fullMatch.length;
     }
 
-    return ast;
+    // Add any remaining text
+    if (lastIndex < content.length) {
+        const remainingText = content.substring(lastIndex);
+        parseTextContent(remainingText, children);
+    }
+}
+
+/**
+ * Parses text content, handling expressions
+ * @private
+ * @param {string} text - Text content
+ * @param {Array} children - Array to store child nodes
+ */
+function parseTextContent(text, children) {
+    if (!text.trim()) return;
+
+    const expressionRegex = /{{([^}]+)}}/g;
+    let lastIndex = 0;
+    let match;
+
+    while ((match = expressionRegex.exec(text))) {
+        const [fullMatch, expression] = match;
+        const matchIndex = match.index;
+
+        // Add text before the expression
+        if (matchIndex > lastIndex) {
+            children.push({
+                type: 'Text',
+                content: text.substring(lastIndex, matchIndex)
+            });
+        }
+
+        // Add the expression
+        children.push({
+            type: 'Expression',
+            content: expression.trim()
+        });
+
+        lastIndex = matchIndex + fullMatch.length;
+    }
+
+    // Add any remaining text
+    if (lastIndex < text.length) {
+        children.push({
+            type: 'Text',
+            content: text.substring(lastIndex)
+        });
+    }
 }
 
 /**
@@ -136,12 +225,32 @@ export function parseTemplate(template) {
  */
 function parseAttributes(attrs) {
     const result = {};
-    const attrRegex = /([a-z0-9-:@]+)(?:=["']([^"']*)["'])?/gi;
+
+    if (!attrs) return result;
+
+    // Improved attribute regex that handles quotes better
+    const attrRegex = /([a-z0-9-:@\.]+)(?:=(?:["']([^"']*)["']|([^\s>]*))?)?/gi;
     let match;
 
     while ((match = attrRegex.exec(attrs))) {
-        const [, name, value] = match;
-        result[name] = value || true;
+        const [, name, quotedValue, unquotedValue] = match;
+        const value = quotedValue !== undefined ? quotedValue : (unquotedValue || true);
+
+        // Handle special attributes
+        if (name.startsWith('@')) {
+            // Event binding (@click -> onClick)
+            const eventName = name.slice(1);
+            result[`on${eventName.charAt(0).toUpperCase() + eventName.slice(1)}`] = value;
+        } else if (name.startsWith(':')) {
+            // Prop binding (:prop -> prop)
+            result[name.slice(1)] = value;
+        } else if (name.startsWith('v-')) {
+            // Directives (v-if, v-for, etc.)
+            result[name] = value;
+        } else {
+            // Regular attributes
+            result[name] = value;
+        }
     }
 
     return result;

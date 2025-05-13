@@ -2434,33 +2434,235 @@ export default defineComponent({
 });`;
   }
 
-  files['src/components/Button.js'] = `import { defineComponent, h } from '@kalxjs/core';
+  files['src/components/Button.klx'] = `<template>
+  <button 
+    :class="[
+      'button', 
+      primary ? 'primary' : 'secondary',
+      size,
+      { 'full-width': fullWidth, 'icon-only': iconOnly }
+    ]" 
+    @click="handleClick"
+    :disabled="disabled || loading"
+    :type="type"
+  >
+    <span v-if="loading" class="spinner"></span>
+    <span v-else-if="icon" class="icon">{{ icon }}</span>
+    <span v-if="!iconOnly" class="text">{{ text }}</span>
+    <slot></slot>
+  </button>
+</template>
+
+<script>
+<template>
+  <button 
+    :class="[
+      'button', 
+      primary ? 'primary' : 'secondary',
+      size,
+      { 'full-width': fullWidth, 'icon-only': iconOnly }
+    ]" 
+    @click="handleClick"
+    :disabled="disabled || loading"
+    :type="type"
+  >
+    <span v-if="loading" class="spinner"></span>
+    <span v-else-if="icon" class="icon">{{ icon }}</span>
+    <span v-if="!iconOnly" class="text">{{ text }}</span>
+    <slot></slot>
+  </button>
+</template>
+
+<script>
+<template>
+  <button 
+    :class="[
+      'button', 
+      primary ? 'primary' : 'secondary',
+      size,
+      { 'full-width': fullWidth, 'icon-only': iconOnly }
+    ]" 
+    @click="handleClick"
+    :disabled="disabled || loading"
+    :type="type"
+  >
+    <span v-if="loading" class="spinner"></span>
+    <span v-else-if="icon" class="icon">{{ icon }}</span>
+    <span v-if="!iconOnly" class="text">{{ text }}</span>
+    <slot></slot>
+  </button>
+</template>
+
+<script>
+import { defineComponent } from '@kalxjs/core';
 
 export default defineComponent({
   name: 'Button',
   props: {
-    text: String,
-    primary: Boolean,
-    onClick: Function
+    text: {
+      type: String,
+      default: ''
+    },
+    primary: {
+      type: Boolean,
+      default: false
+    },
+    secondary: {
+      type: Boolean,
+      default: false
+    },
+    size: {
+      type: String,
+      default: 'medium',
+      validator: (value) => ['small', 'medium', 'large'].includes(value)
+    },
+    fullWidth: {
+      type: Boolean,
+      default: false
+    },
+    icon: {
+      type: String,
+      default: ''
+    },
+    iconOnly: {
+      type: Boolean,
+      default: false
+    },
+    loading: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    type: {
+      type: String,
+      default: 'button',
+      validator: (value) => ['button', 'submit', 'reset'].includes(value)
+    }
   },
-  setup(props) {
-    const getStyle = () => {
-      const baseStyle = 'padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem;';
-      const colorStyle = props.primary
-        ? 'background-color: #4299e1; color: white;'
-        : 'background-color: #e2e8f0; color: #4a5568;';
-      return baseStyle + colorStyle;
+  
+  setup(props, { emit }) {
+    const handleClick = (event) => {
+      if (!props.disabled && !props.loading) {
+        emit('click', event);
+      }
     };
 
-    return { getStyle };
-  },
-  render() {
-    return h('button', {
-      style: this.getStyle(),
-      onclick: this.onClick
-    }, this.text || this.$slots.default);
+    return { handleClick };
   }
-});`;
+});
+</script>
+
+<style>
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
+.button.disabled, .button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Sizes */
+.button.small {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.button.medium {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+}
+
+.button.large {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.125rem;
+}
+
+/* Variants */
+.button.primary {
+  background-color: #4299e1;
+  color: white;
+}
+
+.button.primary:hover:not(:disabled):not(.disabled) {
+  background-color: #3182ce;
+}
+
+.button.secondary {
+  background-color: #e2e8f0;
+  color: #4a5568;
+}
+
+.button.secondary:hover:not(:disabled):not(.disabled) {
+  background-color: #cbd5e0;
+}
+
+/* Full width */
+.button.full-width {
+  width: 100%;
+}
+
+/* Icon styles */
+.button .icon {
+  margin-right: 0.5rem;
+}
+
+.button.icon-only {
+  padding: 0.5rem;
+  border-radius: 50%;
+}
+
+.button.icon-only.small {
+  padding: 0.25rem;
+}
+
+.button.icon-only.large {
+  padding: 0.75rem;
+}
+
+/* Loading spinner */
+.spinner {
+  width: 1em;
+  height: 1em;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.8s linear infinite;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.button.secondary .spinner {
+  border-color: rgba(74, 85, 104, 0.3);
+  border-top-color: #4a5568;
+}
+</style>
+`;
 
   files['.gitignore'] = `# Logs
 logs
@@ -2519,7 +2721,7 @@ ${config.projectName}/
 ├── src/             # Source code
 │   ├── assets/      # Project assets
 │   ├── components/  # UI components
-${config.features.router ? '│   ├── views/       # Page components\n│   ├── router/      # Router configuration\n' : ''}${config.features.state ? '│   ├── store/       # State management\n' : ''}${config.features.scss ? '│   ├── styles/      # SCSS styles\n' : ''}│   ├── App.js       # Root component
+${config.features.router ? '│   ├── views/       # Page components\n│   ├── router/      # Router configuration\n' : ''}${config.features.state ? '│   ├── store/       # State management\n' : ''}${config.features.scss ? '│   ├── styles/      # SCSS styles\n' : ''}│   ├── App.klx      # Root component (Single File Component)
 │   └── main.js      # Application entry point
 ├── index.html       # HTML template
 └── vite.config.js   # Vite configuration
@@ -2545,18 +2747,48 @@ MIT`;
 </html>`;
 
   files['src/main.js'] = `import { createApp } from '@kalxjs/core';
-import App from './App.js';
+import App from './App.klx';
 ${config.features.router ? "import router from './router';" : ''}
 ${config.features.state ? "import store from './store';" : ''}
 ${config.features.scss ? "import './styles/main.scss';" : ''}
 
+// Application configuration
+const appConfig = {
+  name: '${config.projectName}',
+  version: '1.0.0',
+  debug: import.meta.env.DEV,
+  apiUrl: import.meta.env.VITE_API_URL || 'https://api.example.com'
+};
+
 try {
+  // Create application instance
   const app = createApp(App);
+
+  // Register plugins
   ${config.features.router ? 'app.use(router);' : ''}
   ${config.features.state ? 'app.use(store);' : ''}
 
-  app.mount('#app');
-  console.log('Application successfully mounted');
+  // Add global properties to the app context
+  app.provide('appConfig', appConfig);
+
+  // Performance monitoring
+  if (appConfig.debug) {
+    const startTime = performance.now();
+
+    // Mount the application
+    app.mount('#app');
+
+    const endTime = performance.now();
+    console.log(\`Application mounted in \${(endTime - startTime).toFixed(2)}ms\`);
+  } else {
+    // Production mount
+    app.mount('#app');
+  }
+
+  console.log(\`\${appConfig.name} v\${appConfig.version} initialized successfully\`);
+
+  // Make app globally accessible for debugging
+  window.$app = app;
 } catch (error) {
   console.error('Error initializing app:', error);
 
@@ -2565,13 +2797,67 @@ try {
     <div class="app" style="padding: 2rem; text-align: center;">
       <h1>Welcome to KalxJS</h1>
       <p>There was an error initializing the application.</p>
-      <pre style="text-align: left; background: #f5f5f5; padding: 1rem; border-radius: 4px;">\${error.message}</pre>
+      <pre style="text-align: left; background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow: auto;">\${error.message}</pre>
+      <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background-color: #4299e1; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        Reload Application
+      </button>
     </div>
   \`;
 }`;
 
-  files['src/App.js'] = `import { defineComponent, h } from '@kalxjs/core';
-${config.features.router ? "import { useRouter } from '@kalxjs/router';" : ''}
+
+  files['src/App.klx'] = `<template>
+  <div class="app">
+    <header class="app-header">
+      <h1>Welcome to KalxJS</h1>
+
+      <!-- Navigation if router is enabled -->
+      ${config.features.router ? `<nav class="app-nav">
+        <RouterLink to="/" active-class="active" exact-active-class="exact-active">Home</RouterLink>
+        <RouterLink to="/about" active-class="active" exact-active-class="exact-active">About</RouterLink>
+        <RouterLink to="/user/1" active-class="active" exact-active-class="exact-active">User Profile</RouterLink>
+      </nav>` : ''}
+    </header>
+
+    <main class="app-main">
+      <!-- Feature information section -->
+      <section class="features-section">
+        <h2>Enabled Features:</h2>
+        <ul class="features-list">
+          ${config.features.router ? `<li class="feature-item router">✓ Advanced Router (v2.0)</li>` : ''}
+          ${config.features.state ? `<li class="feature-item state">✓ State Management</li>` : ''}
+          ${config.features.scss ? `<li class="feature-item scss">✓ SCSS Support</li>` : ''}
+          ${config.features.sfc ? `<li class="feature-item sfc">✓ Single File Components (.klx)</li>` : ''}
+          ${config.features.api ? `<li class="feature-item api">✓ API Integration</li>` : ''}
+          ${config.features.composition ? `<li class="feature-item composition">✓ Composition API</li>` : ''}
+          ${config.features.performance ? `<li class="feature-item performance">✓ Performance Utilities</li>` : ''}
+          ${config.features.plugins ? `<li class="feature-item plugins">✓ Plugin System</li>` : ''}
+          ${config.features.ai ? `<li class="feature-item ai">✓ AI Features</li>` : ''}
+          ${config.features.testing ? `<li class="feature-item testing">✓ Testing</li>` : ''}
+          ${config.features.linting ? `<li class="feature-item linting">✓ Linting</li>` : ''}
+        </ul>
+      </section>
+
+      <!-- Router view if router is enabled -->
+      ${config.features.router ?
+      `<section class="router-view-container">
+        <!-- Use transition for smooth page transitions -->
+        <Transition name="fade" mode="out-in">
+          <RouterView />
+        </Transition>
+      </section>` :
+      '<p class="edit-prompt">Edit src/App.klx to get started</p>'}
+    </main>
+
+    <footer class="app-footer">
+      <p>Powered by KalxJS - More powerful than Vue</p>
+    </footer>
+  </div>
+</template>
+
+<script>
+import { defineComponent, onMounted } from '@kalxjs/core';
+${config.features.router ? "import { useRouter, RouterLink, RouterView } from '@kalxjs/router';" : ''}
 ${config.features.state ? "import { useStore } from './store/useStore';" : ''}
 ${config.features.api ? "import { useApi } from './api/useApi';" : ''}
 ${config.features.composition ? "import { useWindowSize } from './composables/useWindowSize';" : ''}
@@ -2581,68 +2867,310 @@ ${config.features.ai ? "import { aiManager, generateText, useAI } from './ai/aiM
 
 export default defineComponent({
   name: 'App',
+
+  // Register components
+  components: {
+    ${config.features.router ? 'RouterLink,\n    RouterView,' : ''}
+  },
+
+  // Component setup with composition API
   setup() {
     console.log('App component setup called');
 
     // Initialize features based on configuration
-    ${config.features.router ? `const router = useRouter();` : ''}
+    ${config.features.router ? `const { route, meta, beforeEach } = useRouter();
+
+    // Set page title based on route meta
+    beforeEach((to, from, next) => {
+      // You can add global navigation guards here
+      console.log(\`Navigating from \${from.path} to \${to.path}\`);
+      next();
+    });` : ''}
+
     ${config.features.state ? `const store = useStore();` : ''}
+
     ${config.features.api ? `const api = useApi({
       baseUrl: 'https://api.example.com'
     });` : ''}
+
     ${config.features.composition ? `const { width, height, isMobile } = useWindowSize();` : ''}
+
     ${config.features.plugins ? `// Register plugins
     plugins.register('logger', {
       install: () => console.log('Logger plugin installed')
     });` : ''}
 
+    // Lifecycle hooks
+    onMounted(() => {
+      console.log('App component mounted');
+    });
+
     return {
-      ${config.features.router ? 'router,' : ''}
+      ${config.features.router ? 'route,\n      meta,' : ''}
       ${config.features.state ? 'store,' : ''}
       ${config.features.api ? 'api,' : ''}
       ${config.features.composition ? 'width, height, isMobile,' : ''}
     };
-  },
-  render() {
-    console.log('App component render called');
-    return h('div', { class: 'app', style: 'padding: 2rem; text-align: center;' }, [
-      h('h1', { style: 'color: #333;' }, 'Welcome to KalxJS'),
-
-      // Navigation if router is enabled
-      ${config.features.router ?
-      `h("nav", { style: "margin: 1rem 0; padding: 0.5rem; background-color: #f8f9fa; border-radius: 4px;" }, [
-        h("a", { href: "/", style: "margin-right: 1rem; color: #4299e1; text-decoration: none;" }, "Home"),
-        h("a", { href: "/about", style: "color: #4299e1; text-decoration: none;" }, "About")
-      ]),` : ''}
-
-      // Feature information section
-      h('div', { style: 'margin-top: 1rem; padding: 1rem; background-color: #f8f9fa; border-radius: 8px; text-align: left;' }, [
-        h('h2', { style: 'margin-top: 0; color: #2d3748;' }, 'Enabled Features:'),
-        h('ul', { style: 'list-style-type: none; padding-left: 0;' }, [
-          ${config.features.router ? `h('li', { style: 'margin: 0.5rem 0; padding: 0.5rem; background-color: #ebf8ff; border-radius: 4px;' }, '✓ Router')` : ''},
-          ${config.features.state ? `h('li', { style: 'margin: 0.5rem 0; padding: 0.5rem; background-color: #ebf8ff; border-radius: 4px;' }, '✓ State Management')` : ''},
-          ${config.features.scss ? `h('li', { style: 'margin: 0.5rem 0; padding: 0.5rem; background-color: #ebf8ff; border-radius: 4px;' }, '✓ SCSS Support')` : ''},
-          ${config.features.sfc ? `h('li', { style: 'margin: 0.5rem 0; padding: 0.5rem; background-color: #ebf8ff; border-radius: 4px;' }, '✓ Single File Components (.klx)')` : ''},
-          ${config.features.api ? `h('li', { style: 'margin: 0.5rem 0; padding: 0.5rem; background-color: #ebf8ff; border-radius: 4px;' }, '✓ API Integration')` : ''},
-          ${config.features.composition ? `h('li', { style: 'margin: 0.5rem 0; padding: 0.5rem; background-color: #ebf8ff; border-radius: 4px;' }, '✓ Composition API')` : ''},
-          ${config.features.performance ? `h('li', { style: 'margin: 0.5rem 0; padding: 0.5rem; background-color: #ebf8ff; border-radius: 4px;' }, '✓ Performance Utilities')` : ''},
-          ${config.features.plugins ? `h('li', { style: 'margin: 0.5rem 0; padding: 0.5rem; background-color: #ebf8ff; border-radius: 4px;' }, '✓ Plugin System')` : ''},
-          ${config.features.ai ? `h('li', { style: 'margin: 0.5rem 0; padding: 0.5rem; background-color: #ebf8ff; border-radius: 4px;' }, '✓ AI Features')` : ''},
-          ${config.features.testing ? `h('li', { style: 'margin: 0.5rem 0; padding: 0.5rem; background-color: #ebf8ff; border-radius: 4px;' }, '✓ Testing')` : ''},
-          ${config.features.linting ? `h('li', { style: 'margin: 0.5rem 0; padding: 0.5rem; background-color: #ebf8ff; border-radius: 4px;' }, '✓ Linting')` : ''}
-        ])
-      ]),
-
-      // Router view if router is enabled
-      ${config.features.router ?
-      `h("div", { style: "padding: 1rem; margin-top: 1rem; border-radius: 8px; background-color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1);" }, [h("router-view")])` :
-      'h("p", { style: "margin-top: 1rem;" }, "Edit src/App.js to get started")'}
-    ]);
   }
-});`;
+});
+</script>
+
+<style${config.features.scss ? ' lang="scss"' : ''}>
+/* Global styles */
+:root {
+  --primary-color: #4299e1;
+  --secondary-color: #2d3748;
+  --background-color: #f8f9fa;
+  --text-color: #333;
+  --border-radius: 8px;
+  --box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  --transition-duration: 0.3s;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: #f5f7fa;
+}
+
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+
+  &-header {
+    text-align: center;
+    margin-bottom: 2rem;
+
+    h1 {
+      color: var(--secondary-color);
+      margin-bottom: 1rem;
+      font-size: 2.5rem;
+    }
+  }
+
+  &-nav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1rem 0;
+    padding: 0.5rem;
+    background-color: var(--background-color);
+    border-radius: var(--border-radius);
+
+    a {
+      color: var(--primary-color);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      transition: background-color var(--transition-duration);
+
+      &:hover {
+        background-color: rgba(66, 153, 225, 0.1);
+      }
+
+      &.active {
+        background-color: rgba(66, 153, 225, 0.2);
+      }
+
+      &.exact-active {
+        background-color: var(--primary-color);
+        color: white;
+      }
+    }
+  }
+
+  &-main {
+    margin-bottom: 2rem;
+  }
+
+  &-footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+    color: #718096;
+    font-size: 0.875rem;
+  }
+}
+
+.features-section {
+  margin-top: 1rem;
+  padding: 1.5rem;
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+
+  h2 {
+    margin-top: 0;
+    color: var(--secondary-color);
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+  }
+}
+
+.features-list {
+  list-style-type: none;
+  padding-left: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.feature-item {
+  margin: 0.5rem 0;
+  padding: 1rem;
+  background-color: #ebf8ff;
+  border-radius: 4px;
+  transition: transform var(--transition-duration);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  &.router { background-color: #ebf8ff; }
+  &.state { background-color: #e6fffa; }
+  &.scss { background-color: #fefcbf; }
+  &.sfc { background-color: #feebc8; }
+  &.api { background-color: #fed7d7; }
+  &.composition { background-color: #e9d8fd; }
+  &.performance { background-color: #c6f6d5; }
+  &.plugins { background-color: #bee3f8; }
+  &.ai { background-color: #fbd38d; }
+  &.testing { background-color: #b2f5ea; }
+  &.linting { background-color: #d6bcfa; }
+}
+
+.router-view-container {
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  border-radius: var(--border-radius);
+  background-color: white;
+  box-shadow: var(--box-shadow);
+}
+
+.edit-prompt {
+  margin-top: 1rem;
+  text-align: center;
+  color: #718096;
+}
+
+/* Transition animations */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity var(--transition-duration);
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
+
+<!-- Advanced features section -->
+<script setup>
+import { onMounted, onUnmounted, ref, watch } from '@kalxjs/core';
+
+// Component-specific state
+const darkMode = ref(false);
+
+// Toggle dark mode function
+function toggleDarkMode() {
+  darkMode.value = !darkMode.value;
+  document.body.classList.toggle('dark-theme', darkMode.value);
+}
+
+// Lifecycle hooks
+onMounted(() => {
+  // Check user preference
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (prefersDark) {
+    darkMode.value = true;
+    document.body.classList.add('dark-theme');
+  }
+
+  // Add event listener for theme changes
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    darkMode.value = e.matches;
+    document.body.classList.toggle('dark-theme', e.matches);
+  });
+});
+
+onUnmounted(() => {
+  // Clean up event listeners
+  window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', () => {});
+});
+
+// Watch for changes
+watch(darkMode, (newValue) => {
+  console.log(\`Dark mode is now \${newValue ? 'enabled' : 'disabled'}\`);
+});
+</script>
+
+<!-- Custom blocks - KalxJS specific features that surpass Vue -->
+<i18n>
+{
+  "en": {
+    "welcome": "Welcome to KalxJS",
+    "features": "Enabled Features",
+    "footer": "Powered by KalxJS - More powerful than Vue"
+  },
+  "es": {
+    "welcome": "Bienvenido a KalxJS",
+    "features": "Características habilitadas",
+    "footer": "Desarrollado con KalxJS - Más potente que Vue"
+  }
+}
+</i18n>
+
+<documentation>
+# App Component
+
+This is the root component of the application. It demonstrates the following features:
+
+- Single File Component (.klx) structure
+- Template with conditional rendering
+- Script with component definition
+- Style with CSS/SCSS
+- Script setup for composition API
+- i18n for internationalization
+- Documentation block for component documentation
+
+## Usage
+
+This component is automatically imported and used in main.js.
+</documentation>
+
+<tests>
+import { mount } from '@kalxjs/test-utils';
+import App from './App.klx';
+
+describe('App.klx', () => {
+  test('renders correctly', () => {
+    const wrapper = mount(App);
+    expect(wrapper.find('h1').text()).toBe('Welcome to KalxJS');
+  });
+
+  test('toggles dark mode', async () => {
+    const wrapper = mount(App);
+    await wrapper.vm.toggleDarkMode();
+    expect(document.body.classList.contains('dark-theme')).toBe(true);
+  });
+});
+</tests>`;
+
 
   files['vite.config.js'] = `import { defineConfig } from 'vite';
-${config.features.sfc ? "import kalxSFC from '@kalxjs/compiler/vite-plugin';" : ''}
+import kalxSFC from '@kalxjs/compiler/vite-plugin';
+import path from 'path';
 
 export default defineConfig({
   server: {
@@ -2655,191 +3183,899 @@ export default defineConfig({
     minify: 'terser',
     sourcemap: true
   },
-  ${config.features.sfc ? `plugins: [
+  plugins: [
     kalxSFC() // Add support for .klx single file components
-  ],` : ''}
+  ],
   optimizeDeps: {
     include: [
       '@kalxjs/core',
+      '@kalxjs/compiler',
       ${config.features.router ? "'@kalxjs/router'," : ''}
       ${config.features.state ? "'@kalxjs/state'," : ''}
-      ${config.features.sfc ? "'@kalxjs/compiler'," : ''}
       ${config.features.ai ? "'@kalxjs/ai'," : ''}
       ${config.features.api ? "'@kalxjs/api'," : ''}
       ${config.features.composition ? "'@kalxjs/composition'," : ''}
       ${config.features.performance ? "'@kalxjs/performance'," : ''}
       ${config.features.plugins ? "'@kalxjs/plugins'," : ''}
     ]
+  },
+  // Add .klx files to assetsInclude to prevent Vite from trying to process them as JS
+  assetsInclude: ['**/*.klx'],
+  // Custom handling for .klx files
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    }
   }
 });`;
 
+
   // Add feature-specific files
   if (config.features.router) {
-    files['src/router/index.js'] = `import { createRouter } from '@kalxjs/router';
+    files['src/router/index.js'] = `import { createRouter, useRouter } from '@kalxjs/router';
 import { h } from '@kalxjs/core';
-import Home from '../views/Home.js';
-import About from '../views/About.js';
-import User from '../views/User.js';
-import NotFound from '../views/NotFound.js';
 
-// Create and export the router instance
-export default createRouter({
-  mode: 'history',
+// Import views - using lazy loading for better performance
+const Home = () => import('../views/Home.klx');
+const About = () => import('../views/About.klx');
+const User = () => import('../views/User.klx');
+const NotFound = () => import('../views/NotFound.klx');
+
+// Create router instance
+const router = createRouter({
+  // Use hash-based routing mode
+  mode: 'hash',
+
+  // Define routes with advanced matching capabilities
   routes: [
     {
       path: '/',
-      component: Home
+      name: 'home',
+      component: Home,
+      meta: {
+        title: 'Home'
+      }
     },
     {
       path: '/about',
-      component: About
+      name: 'about',
+      component: About,
+      meta: {
+        title: 'About'
+      }
     },
     {
-      path: '/user/:id',
-      component: User
+      path: '/user/:id(\\d+)', // Only match numeric IDs
+      name: 'user',
+      component: User,
+      props: true, // Pass route params as component props
+      meta: {
+        title: 'User Profile'
+      }
     },
     {
-      path: '*',
-      component: NotFound
+      // Catch-all route for 404 page with named parameter
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: NotFound,
+      meta: {
+        title: 'Page Not Found'
+      }
     }
-  ]
+  ],
+
+  // Custom scroll behavior
+  scrollBehavior(to, from, savedPosition) {
+    // Return to saved position for back/forward navigation
+    if (savedPosition) {
+      return savedPosition;
+    }
+
+    // Scroll to anchor if hash is present
+    if (to.hash) {
+      return {
+        el: to.hash,
+        behavior: 'smooth'
+      };
+    }
+
+    // Otherwise scroll to top
+    return { top: 0 };
+  }
 });
+
+// Set page title based on route meta
+// We'll handle this in the main.js file instead
+
+export default router;
 
 // Export the useRouter function for easy access in components
 export { useRouter } from '@kalxjs/router';`;
 
-    files['src/views/About.js'] = `import { defineComponent, h } from '@kalxjs/core';
+    files['src/views/About.klx'] = `<template>
+  <div class="about">
+    <h2>About Page</h2>
+    <p>This is the about page content.</p>
+    <p>KalxJS is a modern JavaScript framework for building user interfaces.</p>
+    
+    <div class="about-features">
+      <h3>Why Choose KalxJS?</h3>
+      <ul>
+        <li>Powerful component system</li>
+        <li>Reactive state management</li>
+        <li>Single File Components (.klx)</li>
+        <li>Performance optimizations</li>
+        <li>Advanced routing capabilities</li>
+      </ul>
+    </div>
+    
+    <div class="about-actions">
+      <RouterLink to="/" class="back-link">Back to Home</RouterLink>
+    </div>
+  </div>
+</template>
+
+<script>
+import { defineComponent } from '@kalxjs/core';
+import { RouterLink } from '@kalxjs/router';
 
 export default defineComponent({
   name: 'About',
-  render() {
-    return h('div', { class: 'about', style: 'padding: 1rem;' }, [
-      h('h2', { style: 'color: #4a5568;' }, 'About Page'),
-      h('p', null, 'This is the about page content.'),
-      h('p', null, 'KalxJS is a modern JavaScript framework for building user interfaces.')
-    ]);
+  components: {
+    RouterLink
   }
-});`;
+});
+</script>
 
-    files['src/views/NotFound.js'] = `import { defineComponent, h } from '@kalxjs/core';
-import { useRouter } from '@kalxjs/router';
+<style>
+.about {
+  padding: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+h2 {
+  color: #4a5568;
+  margin-bottom: 1rem;
+}
+
+p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.about-features {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #f7fafc;
+  border-radius: 8px;
+}
+
+h3 {
+  color: #2d3748;
+  margin-bottom: 1rem;
+}
+
+ul {
+  padding-left: 1.5rem;
+}
+
+li {
+  margin-bottom: 0.5rem;
+}
+
+.about-actions {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.back-link {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: #4299e1;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.back-link:hover {
+  background-color: #3182ce;
+}
+</style>
+`;
+
+    files['src/views/NotFound.klx'] = `<template>
+  <div class="not-found">
+    <div class="error-container">
+      <div class="error-code">404</div>
+      <h2>Page Not Found</h2>
+      <p>The page you are looking for does not exist or has been moved.</p>
+      
+      <div class="actions">
+        <RouterLink to="/" class="home-link">Go back to home</RouterLink>
+        <button @click="goBack" class="back-button">Go back</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { defineComponent } from '@kalxjs/core';
+import { useRouter, RouterLink } from '@kalxjs/router';
 
 export default defineComponent({
   name: 'NotFound',
+  components: {
+    RouterLink
+  },
   setup() {
     const { push } = useRouter();
 
-    const goHome = (e) => {
-      e.preventDefault();
+    const goHome = () => {
       push('/');
     };
+    
+    const goBack = () => {
+      window.history.back();
+    };
 
-    return { goHome };
-  },
-  render() {
-    return h('div', { class: 'not-found', style: 'padding: 1rem; text-align: center;' }, [
-      h('h2', { style: 'color: #e53e3e;' }, '404 - Page Not Found'),
-      h('p', null, 'The page you are looking for does not exist.'),
-      h('a', {
-        href: '/',
-        style: 'color: #4299e1; text-decoration: none;',
-        onClick: this.goHome
-      }, 'Go back to home')
-    ]);
+    return { 
+      goHome,
+      goBack
+    };
   }
-});`;
+});
+</script>
 
-    files['src/views/User.js'] = `import { defineComponent, h } from '@kalxjs/core';
-import { useRouter } from '@kalxjs/router';
+<style>
+.not-found {
+  padding: 2rem;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+}
+
+.error-container {
+  max-width: 500px;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.error-code {
+  font-size: 6rem;
+  font-weight: bold;
+  color: #e53e3e;
+  line-height: 1;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  color: #4a5568;
+  margin-bottom: 1rem;
+}
+
+p {
+  color: #718096;
+  margin-bottom: 2rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.home-link, .back-button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.home-link {
+  background-color: #4299e1;
+  color: white;
+  text-decoration: none;
+}
+
+.home-link:hover {
+  background-color: #3182ce;
+}
+
+.back-button {
+  background-color: #edf2f7;
+  color: #4a5568;
+  border: none;
+}
+
+.back-button:hover {
+  background-color: #e2e8f0;
+}
+</style>
+`;
+
+    files['src/views/User.klx'] = `<template>
+  <div class="user">
+    <!-- Loading state -->
+    <div v-if="loading" class="loading-state">
+      <h2>Loading User Data...</h2>
+      <div class="loading-indicator">
+        <div class="spinner"></div>
+        <span>Please wait...</span>
+      </div>
+    </div>
+    
+    <!-- Error state -->
+    <div v-else-if="error" class="error-state">
+      <h2>Error</h2>
+      <p class="error-message">{{ error }}</p>
+      <button class="primary-button" @click="goBack">Back to Home</button>
+    </div>
+    
+    <!-- User profile -->
+    <div v-else class="user-profile">
+      <h2>{{ pageTitle }}</h2>
+      
+      <!-- User info card -->
+      <div class="user-card">
+        <div class="user-header">
+          <div class="user-avatar">{{ user?.name?.charAt(0) || 'U' }}</div>
+          <div class="user-info">
+            <h3>{{ user?.name }}</h3>
+            <p>{{ user?.email }}</p>
+          </div>
+        </div>
+        
+        <div class="user-details">
+          <p>
+            <strong>User ID: </strong>
+            <span>{{ userId }}</span>
+          </p>
+          <p>
+            <strong>Role: </strong>
+            <span class="role-badge" :class="user?.role.toLowerCase()">{{ user?.role }}</span>
+          </p>
+        </div>
+      </div>
+      
+      <!-- Navigation buttons -->
+      <div class="action-buttons">
+        <button class="primary-button" @click="goBack">
+          <span>Back to Home</span>
+          <span v-if="isHomeActive" class="status-badge">Active</span>
+        </button>
+        
+        <button class="success-button" @click="goToNextUser">Next User</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { defineComponent, ref, computed, onMounted, watch } from '@kalxjs/core';
+import { useRouter, RouterLink } from '@kalxjs/router';
 
 export default defineComponent({
   name: 'User',
-  setup() {
-    // Use the router composition function to access route params
-    const { params, push } = useRouter();
+  components: {
+    RouterLink
+  },
+  
+  // Accept route params as props (enabled by props: true in router config)
+  props: {
+    id: {
+      type: String,
+      required: true
+    }
+  },
+  
+  setup(props) {
+    // Use the enhanced router composition API
+    const { 
+      params,           // Route params (reactive)
+      query,            // Query parameters (reactive)
+      meta,             // Route meta data (reactive)
+      push,             // Navigation method (returns Promise)
+      replace,          // Replace navigation method (returns Promise)
+      isActive,         // Check if route is active (non-exact)
+      isExactActive     // Check if route is exactly active
+    } = useRouter();
+    
+    // Local state
+    const user = ref(null);
+    const loading = ref(true);
+    const error = ref(null);
+    
+    // Computed properties
+    const userId = computed(() => props.id || params.value.id);
+    const pageTitle = computed(() => meta.value.title || 'User Profile');
+    const isHomeActive = computed(() => isActive('/'));
+    
+    // Methods
+    const goBack = async () => {
+      try {
+        // Promise-based navigation
+        await push('/');
+        console.log('Navigation to home successful');
+      } catch (err) {
+        console.error('Navigation failed:', err);
+      }
+    };
+    
+    const goToNextUser = async () => {
+      const nextId = parseInt(userId.value) + 1;
+      try {
+        // Navigate to another user with replace (doesn't add to history)
+        await replace(\`/user/\${nextId}\`);
+      } catch (err) {
+        console.error('Navigation failed:', err);
+      }
+    };
+    
+    // Simulate fetching user data
+    const fetchUserData = async (id) => {
+      loading.value = true;
+      error.value = null;
+      
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Mock user data
+        user.value = {
+          id,
+          name: \`User \${id}\`,
+          email: \`user\${id}@example.com\`,
+          role: id % 2 === 0 ? 'Admin' : 'User'
+        };
+      } catch (err) {
+        error.value = 'Failed to load user data';
+        console.error(err);
+      } finally {
+        loading.value = false;
+      }
+    };
+    
+    // Watch for changes to user ID (for navigation between users)
+    onMounted(() => {
+      fetchUserData(userId.value);
+    });
+    
+    // Watch for route param changes to reload data when navigating between users
+    watch(() => userId.value, (newId) => {
+      fetchUserData(newId);
+    });
+    
+    return { 
+      user, 
+      loading, 
+      error, 
+      userId, 
+      pageTitle,
+      isHomeActive,
+      goBack, 
+      goToNextUser 
+    };
+  }
+});
+</script>
 
-    const goBack = () => {
-      push('/');
+<style>
+.user {
+  padding: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+h2 {
+  color: #4a5568;
+  margin-bottom: 1.5rem;
+}
+
+.loading-state, .error-state {
+  text-align: center;
+  padding: 2rem;
+}
+
+.loading-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(66, 153, 225, 0.2);
+  border-radius: 50%;
+  border-top-color: #4299e1;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-message {
+  color: #e53e3e;
+  margin-bottom: 1.5rem;
+}
+
+.user-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.user-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.user-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 30px;
+  background-color: #4299e1;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.5rem;
+  margin-right: 1rem;
+}
+
+.user-info h3 {
+  margin: 0;
+  color: #2d3748;
+  font-size: 1.25rem;
+}
+
+.user-info p {
+  margin: 0.25rem 0 0;
+  color: #718096;
+}
+
+.user-details {
+  margin: 1rem 0;
+  padding: 0.75rem 0;
+  border-top: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.user-details p {
+  margin: 0.5rem 0;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.role-badge.admin {
+  background-color: #ebf8ff;
+  color: #3182ce;
+}
+
+.role-badge.user {
+  background-color: #f0fff4;
+  color: #38a169;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.primary-button, .success-button {
+  padding: 0.75rem 1.25rem;
+  border-radius: 4px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+}
+
+.primary-button {
+  background-color: #4299e1;
+  color: white;
+}
+
+.primary-button:hover {
+  background-color: #3182ce;
+}
+
+.success-button {
+  background-color: #48bb78;
+  color: white;
+}
+
+.success-button:hover {
+  background-color: #38a169;
+}
+
+.status-badge {
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 9999px;
+  background-color: #3182ce;
+  color: white;
+}
+
+@media (max-width: 640px) {
+  .action-buttons {
+    flex-direction: column;
+  }
+  
+  .user-header {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .user-avatar {
+    margin-right: 0;
+    margin-bottom: 1rem;
+  }
+}
+</style>
+`;
+
+    files['src/views/Home.klx'] = `<template>
+  <div class="home">
+    <section class="hero">
+      <h1>Welcome to KalxJS</h1>
+      <p class="subtitle">A powerful JavaScript framework for building modern web applications</p>
+      
+      <div class="cta-buttons">
+        <Button primary text="Get Started" @click="handleClick" />
+        <RouterLink to="/about" class="learn-more-link">Learn More</RouterLink>
+      </div>
+    </section>
+    
+    <section class="features">
+      <h2>Key Features</h2>
+      
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🚀</div>
+          <h3>Performance</h3>
+          <p>Optimized rendering and reactivity system for blazing fast applications</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">🧩</div>
+          <h3>Components</h3>
+          <p>Build your UI with reusable, composable components</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">🔄</div>
+          <h3>Reactivity</h3>
+          <p>Automatic UI updates when your data changes</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h3>Responsive</h3>
+          <p>Create applications that work on any device</p>
+        </div>
+      </div>
+    </section>
+    
+    <section class="getting-started">
+      <h2>Getting Started</h2>
+      <div class="code-block">
+        <pre><code>npm create kalxjs@latest my-project</code></pre>
+        <button class="copy-button" @click="copyCommand">Copy</button>
+      </div>
+      <p>Run this command to create a new KalxJS project with all the features you need.</p>
+    </section>
+  </div>
+</template>
+
+<script>
+import { defineComponent, ref } from '@kalxjs/core';
+import { useRouter, RouterLink } from '@kalxjs/router';
+import Button from '../components/Button.klx';
+
+export default defineComponent({
+  name: 'Home',
+  components: {
+    Button,
+    RouterLink
+  },
+  setup() {
+    console.log('Home component setup called');
+    const copied = ref(false);
+
+    // Get router functionality using the composition API
+    const { push } = useRouter();
+
+    const handleClick = () => {
+      console.log('Get Started button clicked!');
+      push('/about');
     };
 
-    return { params, goBack };
-  },
-  render() {
-    return h('div', { class: 'user', style: 'padding: 1rem;' }, [
-      h('h2', { style: 'color: #4a5568;' }, 'User Profile'),
-      h('p', null, \`User ID: \${this.params.value.id}\`),
-      h('button', {
-        style: 'background-color: #4299e1; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;',
-        onClick: this.goBack
-      }, 'Back to Home')
-    ]);
+    const copyCommand = () => {
+      navigator.clipboard.writeText('npm create kalxjs@latest my-project');
+      copied.value = true;
+      setTimeout(() => {
+        copied.value = false;
+      }, 2000);
+    };
+
+    return {
+      handleClick,
+      copyCommand,
+      copied
+    };
   }
-});`;
+});
+</script>
 
-    files['src/views/Home.js'] = `import { defineComponent, h } from '@kalxjs/core';
-    import Button from '../components/Button.js';
-    import { useRouter } from '@kalxjs/router';
+<style>
+.home {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
-    export default defineComponent({
-      name: 'Home',
-      setup() {
-        console.log('Home component setup called');
+.hero {
+  text-align: center;
+  padding: 3rem 1rem;
+  margin-bottom: 3rem;
+  background: linear-gradient(135deg, #f6f9fc 0%, #edf2f7 100%);
+  border-radius: 8px;
+}
 
-        // Get router functionality using the composition API
-        const { push, path } = useRouter();
+h1 {
+  font-size: 2.5rem;
+  color: #2d3748;
+  margin-bottom: 1rem;
+}
 
-        const handleClick = () => {
-          console.log('Button clicked!');
-          alert('Button clicked!');
-        };
+.subtitle {
+  font-size: 1.25rem;
+  color: #4a5568;
+  margin-bottom: 2rem;
+}
 
-        const navigateTo = (route) => {
-          push(route);
-        };
+.cta-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
 
-        return {
-          handleClick,
-          navigateTo,
-          currentPath: path
-        };
-      },
-      render() {
-        console.log('Home component render called');
+.learn-more-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: transparent;
+  border: 1px solid #4299e1;
+  color: #4299e1;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
 
-        // Navigation styles
-        const navStyle = 'display: flex; gap: 1rem; margin-bottom: 1.5rem;';
-        const linkStyle = 'padding: 0.5rem 1rem; background-color: #edf2f7; border-radius: 4px; cursor: pointer; color: #4a5568; text-decoration: none;';
-        const activeLinkStyle = linkStyle + ' background-color: #4299e1; color: white;';
+.learn-more-link:hover {
+  background-color: rgba(66, 153, 225, 0.1);
+}
 
-        return h('div', { class: 'home', style: 'padding: 1rem;' }, [
-          // Navigation
-          h('nav', { style: navStyle }, [
-            h('a', {
-              style: this.currentPath.value === '/' ? activeLinkStyle : linkStyle,
-              onClick: () => this.navigateTo('/')
-            }, 'Home'),
-            h('a', {
-              style: this.currentPath.value === '/about' ? activeLinkStyle : linkStyle,
-              onClick: () => this.navigateTo('/about')
-            }, 'About'),
-            h('a', {
-              style: this.currentPath.value === '/user/123' ? activeLinkStyle : linkStyle,
-              onClick: () => this.navigateTo('/user/123')
-            }, 'User Profile')
-          ]),
+.features {
+  margin-bottom: 3rem;
+}
 
-          // Content
-          h('h2', { style: 'color: #4a5568;' }, 'Home Page'),
-          h('p', null, 'This is the home page content.'),
-          h('p', null, 'Try clicking the navigation links above to see the router in action.'),
-          h(Button, {
-            primary: true,
-            text: 'Click me!',
-            onClick: this.handleClick
-          })
-        ]);
-      }
-    }); `;
+h2 {
+  font-size: 1.75rem;
+  color: #2d3748;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.feature-card {
+  padding: 1.5rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+h3 {
+  font-size: 1.25rem;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.getting-started {
+  padding: 2rem;
+  background-color: #f7fafc;
+  border-radius: 8px;
+}
+
+.code-block {
+  position: relative;
+  margin: 1.5rem 0;
+}
+
+pre {
+  background-color: #2d3748;
+  color: #e2e8f0;
+  padding: 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+code {
+  font-family: 'Fira Code', monospace;
+}
+
+.copy-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.copy-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 2rem 1rem;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+`;
   }
 
   if (config.features.state) {
@@ -3029,13 +4265,13 @@ async function installDependencies(targetDir, config) {
   };
 
   // Add feature-specific dependencies with latest versions
-  if (config.features.router) pkg.dependencies["@kalxjs/router"] = latestVersions["@kalxjs/router"] || "^1.2.30";
+  if (config.features.router) pkg.dependencies["@kalxjs/router"] = latestVersions["@kalxjs/router"] || "^2.0.0";
   if (config.features.state) pkg.dependencies["@kalxjs/state"] = latestVersions["@kalxjs/state"] || "^1.2.26";
   if (config.features.scss) pkg.devDependencies["sass"] = "^1.69.0";
-  if (config.features.sfc) {
-    pkg.dependencies["@kalxjs/compiler"] = latestVersions["@kalxjs/compiler"] || "^1.2.2";
-    pkg.devDependencies["@kalxjs/compiler-plugin"] = latestVersions["@kalxjs/compiler-plugin"] || "^1.2.2";
-  }
+
+  // Always include compiler for .klx files since we're using App.klx
+  pkg.dependencies["@kalxjs/compiler"] = latestVersions["@kalxjs/compiler"] || "^1.2.2";
+  pkg.devDependencies["@kalxjs/compiler-plugin"] = latestVersions["@kalxjs/compiler-plugin"] || "^1.2.2";
 
   // Add the newly created packages with latest versions
   if (config.features.ai) {

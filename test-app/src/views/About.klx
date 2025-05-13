@@ -1,0 +1,91 @@
+<template>
+  <div class="about">
+    <h2>About Page</h2>
+    <p>This is the about page content.</p>
+    <p>KalxJS is a modern JavaScript framework for building user interfaces.</p>
+    
+    <div class="about-features">
+      <h3>Why Choose KalxJS?</h3>
+      <ul>
+        <li>Powerful component system</li>
+        <li>Reactive state management</li>
+        <li>Single File Components (.klx)</li>
+        <li>Performance optimizations</li>
+        <li>Advanced routing capabilities</li>
+      </ul>
+    </div>
+    
+    <div class="about-actions">
+      <RouterLink to="/" class="back-link">Back to Home</RouterLink>
+    </div>
+  </div>
+</template>
+
+<script>
+import { defineComponent } from '@kalxjs/core';
+import { RouterLink } from '@kalxjs/router';
+
+export default defineComponent({
+  name: 'About',
+  components: {
+    RouterLink
+  }
+});
+</script>
+
+<style>
+.about {
+  padding: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+h2 {
+  color: #4a5568;
+  margin-bottom: 1rem;
+}
+
+p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.about-features {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #f7fafc;
+  border-radius: 8px;
+}
+
+h3 {
+  color: #2d3748;
+  margin-bottom: 1rem;
+}
+
+ul {
+  padding-left: 1.5rem;
+}
+
+li {
+  margin-bottom: 0.5rem;
+}
+
+.about-actions {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.back-link {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: #4299e1;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.back-link:hover {
+  background-color: #3182ce;
+}
+</style>

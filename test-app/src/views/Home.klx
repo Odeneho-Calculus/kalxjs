@@ -1,0 +1,237 @@
+<template>
+  <div class="home">
+    <section class="hero">
+      <h1>Welcome to KalxJS</h1>
+      <p class="subtitle">A powerful JavaScript framework for building modern web applications</p>
+      
+      <div class="cta-buttons">
+        <Button primary text="Get Started" @click="handleClick" />
+        <RouterLink to="/about" class="learn-more-link">Learn More</RouterLink>
+      </div>
+    </section>
+    
+    <section class="features">
+      <h2>Key Features</h2>
+      
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🚀</div>
+          <h3>Performance</h3>
+          <p>Optimized rendering and reactivity system for blazing fast applications</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">🧩</div>
+          <h3>Components</h3>
+          <p>Build your UI with reusable, composable components</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">🔄</div>
+          <h3>Reactivity</h3>
+          <p>Automatic UI updates when your data changes</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h3>Responsive</h3>
+          <p>Create applications that work on any device</p>
+        </div>
+      </div>
+    </section>
+    
+    <section class="getting-started">
+      <h2>Getting Started</h2>
+      <div class="code-block">
+        <pre><code>npm create kalxjs@latest my-project</code></pre>
+        <button class="copy-button" @click="copyCommand">Copy</button>
+      </div>
+      <p>Run this command to create a new KalxJS project with all the features you need.</p>
+    </section>
+  </div>
+</template>
+
+<script>
+import { defineComponent, ref } from '@kalxjs/core';
+import { useRouter, RouterLink } from '@kalxjs/router';
+import Button from '../components/Button.klx';
+
+export default defineComponent({
+  name: 'Home',
+  components: {
+    Button,
+    RouterLink
+  },
+  setup() {
+    console.log('Home component setup called');
+    const copied = ref(false);
+
+    // Get router functionality using the composition API
+    const { push } = useRouter();
+
+    const handleClick = () => {
+      console.log('Get Started button clicked!');
+      push('/about');
+    };
+
+    const copyCommand = () => {
+      navigator.clipboard.writeText('npm create kalxjs@latest my-project');
+      copied.value = true;
+      setTimeout(() => {
+        copied.value = false;
+      }, 2000);
+    };
+
+    return {
+      handleClick,
+      copyCommand,
+      copied
+    };
+  }
+});
+</script>
+
+<style>
+.home {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.hero {
+  text-align: center;
+  padding: 3rem 1rem;
+  margin-bottom: 3rem;
+  background: linear-gradient(135deg, #f6f9fc 0%, #edf2f7 100%);
+  border-radius: 8px;
+}
+
+h1 {
+  font-size: 2.5rem;
+  color: #2d3748;
+  margin-bottom: 1rem;
+}
+
+.subtitle {
+  font-size: 1.25rem;
+  color: #4a5568;
+  margin-bottom: 2rem;
+}
+
+.cta-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.learn-more-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: transparent;
+  border: 1px solid #4299e1;
+  color: #4299e1;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.learn-more-link:hover {
+  background-color: rgba(66, 153, 225, 0.1);
+}
+
+.features {
+  margin-bottom: 3rem;
+}
+
+h2 {
+  font-size: 1.75rem;
+  color: #2d3748;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.feature-card {
+  padding: 1.5rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+h3 {
+  font-size: 1.25rem;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.getting-started {
+  padding: 2rem;
+  background-color: #f7fafc;
+  border-radius: 8px;
+}
+
+.code-block {
+  position: relative;
+  margin: 1.5rem 0;
+}
+
+pre {
+  background-color: #2d3748;
+  color: #e2e8f0;
+  padding: 1rem;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+code {
+  font-family: 'Fira Code', monospace;
+}
+
+.copy-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.copy-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 2rem 1rem;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+  
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
