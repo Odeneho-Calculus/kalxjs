@@ -1,7 +1,7 @@
 <!-- kalxjs/docs/README.md -->
 # kalxjs Documentation
 
-Welcome to the kalxjs documentation. Here you'll find everything you need to know about building applications with kalxjs, a modern JavaScript framework for building user interfaces.
+Welcome to the kalxjs documentation. Here you'll find everything you need to know about building applications with kalxjs v2.1.14, a modern JavaScript framework for building user interfaces with exceptional performance, developer experience, and scalability.
 
 ## Contents
 
@@ -117,5 +117,98 @@ const store = createStore({
   }
 })
 ```
+
+### AI Capabilities
+
+KalxJS includes powerful AI capabilities for text generation, sentiment analysis, and entity extraction:
+
+```javascript
+import { useAI } from '@kalxjs/core/ai'
+
+export default {
+  setup() {
+    const ai = useAI({
+      apiKeys: {
+        openai: 'your-api-key'
+      }
+    })
+    
+    const prompt = ref('')
+    const result = ref('')
+    
+    async function generateText() {
+      result.value = await ai.generateText({
+        prompt: prompt.value,
+        model: 'gpt-3.5-turbo'
+      })
+    }
+    
+    // Additional AI capabilities
+    async function analyzeSentiment(text) {
+      return ai.analyzeSentiment(text);
+    }
+    
+    async function extractEntities(text) {
+      return ai.extractEntities(text);
+    }
+    
+    async function summarizeText(text) {
+      return ai.summarize(text, { maxLength: 100 });
+    }
+    
+    return {
+      prompt,
+      result,
+      generateText,
+      analyzeSentiment,
+      extractEntities,
+      summarizeText
+    }
+  }
+}
+```
+
+### Custom Rendering System
+
+KalxJS provides a template-based rendering system with native DOM APIs for improved reliability and performance:
+
+```javascript
+import { createRouter } from '@kalxjs/router'
+import { createStore } from '@kalxjs/state'
+import { createCustomRenderer } from '@kalxjs/core/renderer'
+
+// Create router
+const router = createRouter({
+  mode: 'hash',
+  routes: [
+    { path: '/', component: 'home' },
+    { path: '/counter', component: 'counter' }
+  ]
+})
+
+// Create store
+const store = createStore({
+  state: {
+    count: 0
+  },
+  mutations: {
+    increment(state) {
+      state.count++
+    }
+  }
+})
+
+// Create and initialize the custom renderer
+const renderer = createCustomRenderer(router, store)
+renderer.init('#app')
+```
+
+The Custom Renderer works by:
+1. Using HTML templates directly from your project
+2. Binding data from your store to the DOM
+3. Setting up event listeners for user interactions
+4. Updating the DOM when state changes
+
+This approach can provide better performance in certain scenarios and offers a more direct way to work with the DOM.
 
 Understanding these core concepts will help you make the most of kalxjs in your applications.

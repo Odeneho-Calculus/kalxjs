@@ -1,4 +1,4 @@
-# Understanding Reactivity in kalxjs
+# Understanding Reactivity in kalxjs v2.1.14
 
 Modern guide to kalxjs's reactivity system including signals, effect scopes, and performance optimizations.
 
@@ -7,7 +7,7 @@ Modern guide to kalxjs's reactivity system including signals, effect scopes, and
 ### Signal-Based Reactivity
 
 ```typescript
-import { signal, computed, effect } from '@kalxjs-framework/runtime'
+import { signal, computed, effect } from '@kalxjs/core/reactivity'
 
 // Create a signal
 const count = signal(0)
@@ -28,7 +28,7 @@ count.update(prev => prev + 1)
 ### Effect Scopes
 
 ```typescript
-import { effectScope } from '@kalxjs-framework/runtime'
+import { effectScope } from '@kalxjs/core/reactivity'
 
 const scope = effectScope()
 
@@ -55,7 +55,7 @@ kalxjs offers several ways to create reactive data:
 The `reactive()` function creates a reactive object:
 
 ```javascript
-import { reactive } from 'kalxjs';
+import { reactive } from '@kalxjs/core';
 
 const state = reactive({
   count: 0,
@@ -74,7 +74,7 @@ Reactive objects track all property access and modifications, keeping everything
 For simple values, you can use `ref()`:
 
 ```javascript
-import { ref } from 'kalxjs';
+import { ref } from '@kalxjs/core';
 
 const count = ref(0);
 
@@ -92,7 +92,7 @@ Note that you always need to use `.value` to access or modify the value of a ref
 Computed properties are values that depend on other reactive values. They're automatically recalculated when their dependencies change:
 
 ```javascript
-import { reactive, computed } from 'kalxjs';
+import { reactive, computed } from '@kalxjs/core';
 
 const state = reactive({
   firstName: 'John',
@@ -115,7 +115,7 @@ console.log(fullName.value); // "John Smith"
 You can use the `effect()` function to run side effects when reactive data changes:
 
 ```javascript
-import { reactive, effect } from 'kalxjs';
+import { reactive, effect } from '@kalxjs/core';
 
 const state = reactive({
   count: 0
@@ -134,7 +134,7 @@ state.count = 5; // Console: "Count changed: 5"
 kalxjs components automatically integrate with the reactivity system:
 
 ```javascript
-import { defineComponent, reactive, h } from 'kalxjs';
+import { defineComponent, reactive, h } from '@kalxjs/core';
 
 export default defineComponent({
   data() {
@@ -168,7 +168,7 @@ In this component:
 ### Lazy Computation
 
 ```typescript
-import { lazy } from '@kalxjs-framework/runtime'
+import { lazy } from '@kalxjs/core/performance'
 
 const expensive = lazy(() => {
   // Only computed when accessed
@@ -182,7 +182,7 @@ console.log(expensive())
 ### Batched Updates
 
 ```typescript
-import { batch } from '@kalxjs-framework/runtime'
+import { batch } from '@kalxjs/core/reactivity'
 
 batch(() => {
   // Multiple updates are batched into one render

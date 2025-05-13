@@ -2,23 +2,103 @@
 
 ## Overview
 
-The Custom Renderer API provides a template-based rendering system that works directly with the DOM instead of using a virtual DOM. This API is available in KalxJS 2.1.0 and later.
+The Custom Renderer API in KalxJS v2.1.14 provides a template-based rendering system that works directly with the DOM instead of using a virtual DOM. This approach can offer better performance in certain scenarios and provides a fallback rendering mechanism when needed.
 
 ## Importing
 
 ```js
-// Import the custom renderer
-import { createCustomRenderer } from '@kalxjs/core/renderer';
+// Import the custom renderer functions
+import { createElement, renderToDOM, createSimpleComponent } from '@kalxjs/core/renderer';
 
-// Import template component system
-import { createTemplateComponent, defineTemplateComponent } from '@kalxjs/core/template';
+// Import the custom renderer factory
+import { createCustomRenderer } from '@kalxjs/core/renderer';
 ```
 
-## Core API
+## Core Functions
+
+### createElement
+
+Creates a DOM element from a virtual DOM node.
+
+```js
+const element = createElement(vnode);
+```
+
+**Parameters:**
+- `vnode` (Object|String|Number): Virtual DOM node, string, or number
+  - If `vnode` is a string or number, a text node is created
+  - If `vnode` is an object, it should have the following structure:
+    - `tag` (String): HTML tag name
+    - `props` (Object): Element properties and attributes
+    - `children` (Array|String|Number): Child nodes
+
+**Returns:**
+- (HTMLElement): Created DOM element
+
+**Example:**
+```js
+const vnode = {
+  tag: 'div',
+  props: { 
+    class: 'container',
+    style: 'color: blue'
+  },
+  children: ['Hello World']
+};
+
+const element = createElement(vnode);
+document.body.appendChild(element);
+```
+
+### renderToDOM
+
+Renders a virtual DOM node to a DOM container.
+
+```js
+renderToDOM(vnode, container);
+```
+
+**Parameters:**
+- `vnode` (Object|String|Number): Virtual DOM node to render
+- `container` (HTMLElement): DOM container to render into
+
+**Example:**
+```js
+const vnode = {
+  tag: 'div',
+  props: { class: 'greeting' },
+  children: ['Hello World']
+};
+
+renderToDOM(vnode, document.getElementById('app'));
+```
+
+### createSimpleComponent
+
+Creates a simple component with the given content.
+
+```js
+const component = createSimpleComponent(title, message);
+```
+
+**Parameters:**
+- `title` (String): Component title
+- `message` (String): Component message
+
+**Returns:**
+- (Object): Virtual DOM node representing the component
+
+**Example:**
+```js
+const component = createSimpleComponent('Welcome', 'Hello to KalxJS!');
+renderToDOM(component, document.getElementById('app'));
+```
+
+## Custom Renderer Factory
 
 ### createCustomRenderer
 
-Creates a new custom renderer instance.
+Creates a new custom renderer instance that integrates with KalxJS router and state management.
 
 ```js
 const renderer = createCustomRenderer(router, store);
@@ -26,31 +106,41 @@ const renderer = createCustomRenderer(router, store);
 
 **Parameters:**
 - `router` (Object): KalxJS router instance
-- `store` (Object): KalxJS store instance
+- `store` (Object): KalxJS state store instance
 
 **Returns:**
-- (Object): Custom renderer instance
+- (Object): Custom renderer instance with methods for rendering components
 
-### createRenderer
-
-Creates a renderer based on the provided options.
-
+**Example:**
 ```js
-const renderer = createRenderer({
-  router,
-  store,
-  useCustomRenderer: true
+import { createRouter } from '@kalxjs/router';
+import { createStore } from '@kalxjs/state';
+import { createCustomRenderer } from '@kalxjs/core/renderer';
+
+// Create router
+const router = createRouter({
+  routes: [
+    { path: '/', component: 'home' },
+    { path: '/about', component: 'about' }
+  ]
 });
+
+// Create store
+const store = createStore({
+  state: {
+    count: 0
+  },
+  mutations: {
+    increment(state) {
+      state.count++;
+    }
+  }
+});
+
+// Create and initialize the custom renderer
+const renderer = createCustomRenderer(router, store);
+renderer.init('#app');
 ```
-
-**Parameters:**
-- `options` (Object): Renderer options
-  - `router` (Object): KalxJS router instance
-  - `store` (Object): KalxJS store instance
-  - `useCustomRenderer` (boolean): Whether to use the custom renderer (default: true)
-
-**Returns:**
-- (Object): Renderer instance (either custom or default)
 
 ## CustomRenderer Methods
 
@@ -59,278 +149,150 @@ const renderer = createRenderer({
 Initializes the renderer with a container element.
 
 ```js
+renderer.init(selector);
+```
+
+**Parameters:**
+- `selector` (String|HTMLElement): CSS selector or DOM element for the router view
+
+**Example:**
+```js
 renderer.init('#app');
 ```
 
-**Parameters:**
-- `routerViewSelector` (string|HTMLElement): Selector or element for the router view
+## Error Handling
 
-### setupRouterListeners
+The Custom Renderer includes robust error handling to prevent application crashes:
 
-Sets up router event listeners.
+### Error Types Handled
+
+1. **Invalid Virtual Node**: When a virtual node is missing required properties
+2. **Component Function Errors**: When a component function throws an error
+3. **Invalid Tag Names**: When trying to create an element with an invalid tag
+4. **Property Setting Errors**: When setting properties on an element fails
+5. **Child Creation Errors**: When creating child elements fails
+
+### Error Display
+
+When an error occurs, the Custom Renderer will display a fallback error message instead of crashing:
 
 ```js
-renderer.setupRouterListeners();
+// This happens automatically when an error occurs
+container.innerHTML = `
+  <div style="padding: 20px; border: 1px solid #d9534f; background-color: #f2dede; color: #a94442; border-radius: 4px; margin: 20px;">
+    <h3>Custom Renderer Fallback</h3>
+    <p>The custom renderer encountered an issue while rendering content.</p>
+    <p>This is a fallback message to ensure you see something instead of a blank page.</p>
+    <div style="margin-top: 15px; padding: 10px; background: #f8f8f8; border-radius: 4px;">
+      <h4>Error Details:</h4>
+      <pre style="overflow: auto; max-height: 200px;">${error.message}</pre>
+    </div>
+  </div>
+`;
 ```
 
-### setupNavigation
+## Working with Virtual DOM Nodes
 
-Sets up navigation elements.
+### Virtual DOM Node Structure
+
+A virtual DOM node is an object with the following structure:
 
 ```js
-renderer.setupNavigation();
+{
+  tag: 'div',           // HTML tag name (required)
+  props: {              // Properties and attributes (optional)
+    class: 'container',
+    style: 'color: blue',
+    onClick: () => alert('Clicked!')
+  },
+  children: [           // Child nodes (optional)
+    'Text content',
+    {
+      tag: 'span',
+      props: { class: 'highlight' },
+      children: ['Nested content']
+    }
+  ]
+}
 ```
 
-### updateNavigation
+### Special Properties
 
-Updates navigation elements based on the current route.
+The Custom Renderer handles several special properties:
 
+1. **Event Handlers**: Properties starting with `on` (e.g., `onClick`) are treated as event listeners
+2. **Style Objects**: The `style` property can be an object with CSS properties
+3. **Class Names**: Both `class` and `className` properties are supported
+4. **Inner HTML**: The `dangerouslySetInnerHTML` property can be used to set raw HTML
+
+Example:
 ```js
-renderer.updateNavigation();
+const vnode = {
+  tag: 'div',
+  props: {
+    class: 'container',
+    style: { color: 'blue', fontSize: '16px' },
+    onClick: () => console.log('Clicked!'),
+    dangerouslySetInnerHTML: { __html: '<strong>Bold text</strong>' }
+  },
+  children: []
+};
 ```
 
-### renderCurrentRoute
+## Integration with KalxJS
 
-Renders the current route.
+### Using with Router and State
 
-```js
-renderer.renderCurrentRoute();
-```
-
-### renderNamedComponent
-
-Renders a component by name.
+The Custom Renderer is designed to work seamlessly with KalxJS router and state management:
 
 ```js
-renderer.renderNamedComponent('home');
-```
+import { createRouter } from '@kalxjs/router';
+import { createStore } from '@kalxjs/state';
+import { createCustomRenderer } from '@kalxjs/core/renderer';
 
-**Parameters:**
-- `name` (string): Component name
+// Create router
+const router = createRouter({
+  mode: 'hash',
+  routes: [
+    { path: '/', component: 'home' },
+    { path: '/counter', component: 'counter' }
+  ]
+});
 
-### renderFunctionComponent
+// Create store
+const store = createStore({
+  state: {
+    count: 0
+  },
+  mutations: {
+    increment(state) {
+      state.count++;
+    }
+  }
+});
 
-Renders a function component.
+// Create and initialize the custom renderer
+const renderer = createCustomRenderer(router, store);
+renderer.init('#app');
 
-```js
-renderer.renderFunctionComponent(HomeComponent);
-```
-
-**Parameters:**
-- `component` (Function): Component function
-
-### renderObjectComponent
-
-Renders an object component.
-
-```js
-renderer.renderObjectComponent({
-  render() {
-    return '<div>Hello World</div>';
+// Update the DOM when state changes
+store.subscribe((mutation, state) => {
+  if (mutation.type === 'increment') {
+    document.getElementById('counter-value').textContent = state.count;
   }
 });
 ```
 
-**Parameters:**
-- `component` (Object): Component object
+## Performance Considerations
 
-### setupComponent
+The Custom Renderer can provide better performance in certain scenarios:
 
-Sets up a component.
+- Applications with simple DOM structures
+- When you need direct DOM manipulation
+- When you want to avoid the overhead of virtual DOM diffing
 
-```js
-renderer.setupComponent('counter', content);
-```
+However, for complex applications with frequent updates to many elements, the virtual DOM approach might still be more efficient.
 
-**Parameters:**
-- `name` (string): Component name
-- `content` (DocumentFragment): Component content
+## Browser Support
 
-### renderNotFound
-
-Renders a not found page.
-
-```js
-renderer.renderNotFound();
-```
-
-### renderError
-
-Renders an error message.
-
-```js
-renderer.renderError(new Error('Something went wrong'));
-```
-
-**Parameters:**
-- `error` (Error): Error object
-
-### cleanup
-
-Cleans up the renderer.
-
-```js
-renderer.cleanup();
-```
-
-## Template Component API
-
-### createTemplateComponent
-
-Creates a template-based component.
-
-```js
-const component = createTemplateComponent({
-  template: '<div>{{ message }}</div>',
-  data() {
-    return {
-      message: 'Hello World'
-    };
-  }
-});
-```
-
-**Parameters:**
-- `options` (Object): Component options
-  - `template` (string): HTML template
-  - `name` (string): Component name
-  - `props` (Object): Component props
-  - `data` (Function): Data function
-  - `methods` (Object): Component methods
-  - `computed` (Object): Computed properties
-  - `watch` (Object): Watch handlers
-  - `beforeCreate` (Function): Lifecycle hook
-  - `created` (Function): Lifecycle hook
-  - `beforeMount` (Function): Lifecycle hook
-  - `mounted` (Function): Lifecycle hook
-  - `beforeUpdate` (Function): Lifecycle hook
-  - `updated` (Function): Lifecycle hook
-  - `beforeUnmount` (Function): Lifecycle hook
-  - `unmounted` (Function): Lifecycle hook
-
-**Returns:**
-- (Object): Component instance
-
-### defineTemplateComponent
-
-Defines a template component factory.
-
-```js
-const Counter = defineTemplateComponent({
-  template: '<div>{{ count }}</div>',
-  data() {
-    return {
-      count: 0
-    };
-  }
-});
-
-// Create an instance
-const counter = Counter({ initialCount: 10 });
-```
-
-**Parameters:**
-- `options` (Object): Component options (same as createTemplateComponent)
-
-**Returns:**
-- (Function): Component factory function
-
-## Template Component Instance Methods
-
-### init
-
-Initializes the component.
-
-```js
-component.init({ title: 'My Component' });
-```
-
-**Parameters:**
-- `props` (Object): Component props
-
-**Returns:**
-- (Object): Component instance
-
-### mount
-
-Mounts the component to an element.
-
-```js
-component.mount('#container');
-```
-
-**Parameters:**
-- `el` (string|HTMLElement): Element or selector
-
-**Returns:**
-- (Object): Component instance
-
-### render
-
-Renders the component.
-
-```js
-component.render();
-```
-
-**Returns:**
-- (Object): Component instance
-
-### setState
-
-Updates the component state.
-
-```js
-component.setState({ count: 10 });
-```
-
-**Parameters:**
-- `newState` (Object): New state
-
-**Returns:**
-- (Object): Component instance
-
-### getState
-
-Gets a state value.
-
-```js
-const count = component.getState('count');
-```
-
-**Parameters:**
-- `key` (string): State key
-
-**Returns:**
-- (any): State value
-
-### unmount
-
-Unmounts the component.
-
-```js
-component.unmount();
-```
-
-**Returns:**
-- (Object): Component instance
-
-## Application Integration
-
-### useCustomRenderer
-
-Enables or disables the custom renderer for an application.
-
-```js
-import { createApp } from '@kalxjs/core';
-
-const app = createApp(App);
-app.useCustomRenderer(true);
-app.mount('#app');
-```
-
-**Parameters:**
-- `value` (boolean): Whether to use the custom renderer (default: true)
-
-**Returns:**
-- (Object): Application instance
+The Custom Renderer supports all modern browsers. For older browsers, you may need to include appropriate polyfills for modern JavaScript features.

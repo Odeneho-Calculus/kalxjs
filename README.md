@@ -1,4 +1,4 @@
-# KalxJS
+# KalxJS v2.1.14
 
 A cutting-edge JavaScript framework for building modern web applications with exceptional performance, developer experience, and scalability. Inspired by Vue.js but with its own unique features and improvements.
 
@@ -47,9 +47,9 @@ KalxJS empowers developers to build fast, maintainable applications using modern
 ## Installation
 
 ### Prerequisites
-- Node.js v16.0.0 or higher
+- Node.js v16.0.0 or higher (Node.js 18+ recommended)
 - Git
-- npm v7.0.0 or higher (or yarn/pnpm)
+- npm v7.0.0 or higher (npm 9+ recommended, or yarn/pnpm)
 
 ### Option 1: Direct Clone
 
@@ -72,23 +72,23 @@ npm install
 
 ```bash
 # Using npm
-npm install @kalxjs/core@2.0.0
+npm install @kalxjs/core@2.1.14
 
 # Using yarn
-yarn add @kalxjs/core@2.0.0
+yarn add @kalxjs/core@2.1.14
 
 # Using pnpm
-pnpm add @kalxjs/core@2.0.0
+pnpm add @kalxjs/core@2.1.14
 ```
 
 ### Option 3: CDN
 
 ```html
 <!-- Development version -->
-<script src="https://unpkg.com/@kalxjs/core@2.0.0/dist/kalxjs.iife.js"></script>
+<script src="https://unpkg.com/@kalxjs/core@2.1.14/dist/kalxjs.iife.js"></script>
 
 <!-- Production version -->
-<script src="https://unpkg.com/@kalxjs/core@2.0.0/dist/kalxjs.iife.min.js"></script>
+<script src="https://unpkg.com/@kalxjs/core@2.1.14/dist/kalxjs.iife.min.js"></script>
 ```
 
 ### Troubleshooting Installation
@@ -301,11 +301,12 @@ packages/
 
 kalxjs provides first-class tooling support:
 
-- **@kalxjs/core** (v1.2.8): Core runtime library for reactivity and rendering
-- **@kalxjs/cli** (v1.2.29): Command-line interface for project scaffolding
-- **@kalxjs/router** (v1.2.8): Routing system for single-page applications
-- **@kalxjs/state** (v1.2.8): State management for complex applications
-- **@kalxjs/devtools** (v1.2.9): Browser extension for debugging and profiling
+- **@kalxjs/core** (v2.1.14): Core runtime library for reactivity and rendering
+- **@kalxjs/cli** (v1.3.9): Command-line interface for project scaffolding
+- **@kalxjs/router** (v1.2.32): Routing system for single-page applications
+- **@kalxjs/state** (v1.2.28): State management for complex applications
+- **@kalxjs/devtools** (v1.3.1): Browser extension for debugging and profiling
+- **@kalxjs/ai** (v1.2.8): AI integration utilities for text and image generation
 - **vite-plugin-kalx**: First-class Vite integration for fast development
 - **kalxjs-language-service**: IDE support for .klx files
 

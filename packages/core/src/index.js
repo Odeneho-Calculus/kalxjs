@@ -219,7 +219,7 @@ const kalxjs = {
     FILL_MODE,
 
     // Version
-    version: '2.1.0',
+    version: '2.1.14',
 
     /**
      * Creates a new kalxjs application

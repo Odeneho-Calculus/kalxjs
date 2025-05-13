@@ -1,7 +1,7 @@
 <!-- kalxjs/docs/guides/README.md -->
 # kalxjs Guides
 
-Comprehensive documentation for building modern applications with kalxjs 1.2.x.
+Comprehensive documentation for building modern applications with kalxjs 2.1.14.
 
 ## Fundamentals 
 - [Quick Start](./quick-start.md) - Build your first kalxjs app in minutes
@@ -39,6 +39,11 @@ Comprehensive documentation for building modern applications with kalxjs 1.2.x.
 - [Docker Deployment](./docker.md) - Containerization guide
 - [Static Hosting](./static-hosting.md) - JAMstack deployment
 - [Monitoring](./monitoring.md) - Performance monitoring
+
+## AI Integration
+- [AI Capabilities](./ai-capabilities.md) - Integrating AI features into your applications
+- [Text Generation](./ai-text-generation.md) - Working with language models
+- [Image Generation](./ai-image-generation.md) - Creating images with AI
 
 ## Ecosystem
 - [UI Libraries](./ui-libraries.md) - Component libraries and design systems

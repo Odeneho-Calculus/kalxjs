@@ -1,19 +1,19 @@
 # Composition API Guide
 
-The Composition API is a set of functions that allows you to organize component logic in a more flexible and reusable way. It's an alternative to the Options API and is especially useful for complex components.
+The Composition API in KalxJS v2.1.14 is a set of functions that allows you to organize component logic in a more flexible and reusable way. It's an alternative to the Options API and is especially useful for complex components.
 
 ## Basic Usage
 
 ```js
-import { useRef, useComputed, onMounted } from '@kalxjs/core';
+import { ref, computed, onMounted } from '@kalxjs/core';
 
 export default {
   setup() {
     // Reactive state
-    const count = useRef(0);
+    const count = ref(0);
     
     // Computed property
-    const doubleCount = useComputed(() => count.value * 2);
+    const doubleCount = computed(() => count.value * 2);
     
     // Method
     function increment() {
@@ -37,27 +37,27 @@ export default {
 
 ## Reactivity
 
-### useRef
+### ref
 
 Creates a reactive reference to a value.
 
 ```js
-import { useRef } from '@kalxjs/core';
+import { ref } from '@kalxjs/core';
 
-const count = useRef(0);
+const count = ref(0);
 console.log(count.value); // 0
 count.value++;
 console.log(count.value); // 1
 ```
 
-### useReactive
+### reactive
 
 Creates a reactive object.
 
 ```js
-import { useReactive } from '@kalxjs/core';
+import { reactive } from '@kalxjs/core';
 
-const state = useReactive({
+const state = reactive({
   count: 0,
   name: 'John'
 });
@@ -67,15 +67,15 @@ state.count++;
 console.log(state.count); // 1
 ```
 
-### useComputed
+### computed
 
 Creates a computed property.
 
 ```js
-import { useRef, useComputed } from '@kalxjs/core';
+import { ref, computed } from '@kalxjs/core';
 
-const count = useRef(0);
-const doubleCount = useComputed(() => count.value * 2);
+const count = ref(0);
+const doubleCount = computed(() => count.value * 2);
 
 console.log(doubleCount.value); // 0
 count.value++;
@@ -204,7 +204,7 @@ onErrorCaptured((error, instance, info) => {
 Creates a reactive reference that is synchronized with localStorage.
 
 ```js
-import { useLocalStorage } from '@kalxjs/core';
+import { useLocalStorage } from '@kalxjs/core/composition';
 
 const theme = useLocalStorage('theme', 'light');
 console.log(theme.value); // 'light' or the value from localStorage
@@ -217,7 +217,7 @@ theme.value = 'dark'; // Updates localStorage
 Creates a debounced version of a function.
 
 ```js
-import { useDebounce } from '@kalxjs/core';
+import { useDebounce } from '@kalxjs/core/composition';
 
 const debouncedSearch = useDebounce((query) => {
   // Search logic here
@@ -233,7 +233,7 @@ debouncedSearch('hello'); // Will only execute after 300ms of inactivity
 Creates a throttled version of a function.
 
 ```js
-import { useThrottle } from '@kalxjs/core';
+import { useThrottle } from '@kalxjs/core/composition';
 
 const throttledScroll = useThrottle(() => {
   // Scroll logic here
@@ -249,7 +249,7 @@ window.addEventListener('scroll', throttledScroll);
 Creates a reactive reference that tracks mouse position.
 
 ```js
-import { useMouse } from '@kalxjs/core';
+import { useMouse } from '@kalxjs/core/composition';
 
 const mouse = useMouse();
 console.log(mouse.x, mouse.y); // Current mouse position
@@ -303,26 +303,26 @@ text.value = 'world'; // Will only update after 300ms
 Creates a readonly reference.
 
 ```js
-import { useRef, readonly } from '@kalxjs/core';
+import { ref, readonly } from '@kalxjs/core';
 
-const count = useRef(0);
+const count = ref(0);
 const readonlyCount = readonly(count);
 
 count.value++; // Works
 readonlyCount.value++; // Error: Cannot set a readonly ref
 ```
 
-### writableComputed
+### computed with getter and setter
 
 Creates a computed reference that can be both read and written.
 
 ```js
-import { useRef, writableComputed } from '@kalxjs/core';
+import { ref, computed } from '@kalxjs/core';
 
-const firstName = useRef('John');
-const lastName = useRef('Doe');
+const firstName = ref('John');
+const lastName = ref('Doe');
 
-const fullName = writableComputed({
+const fullName = computed({
   get: () => `${firstName.value} ${lastName.value}`,
   set: (newValue) => {
     const parts = newValue.split(' ');

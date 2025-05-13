@@ -2,7 +2,7 @@
 
 # Component Lifecycle in kalxjs
 
-Modern guide to component lifecycle management in kalxjs 1.2.x.
+Modern guide to component lifecycle management in kalxjs v2.1.14.
 
 ## Composition API Lifecycle
 
@@ -17,7 +17,7 @@ import {
   onErrorCaptured,
   onActivated,
   onDeactivated
-} from '@kalxjs-framework/runtime'
+} from '@kalxjs/core'
 
 export default defineComponent({
   setup() {
@@ -69,6 +69,8 @@ export default defineComponent({
 ## Async Component Lifecycle
 
 ```typescript
+import { defineAsyncComponent } from '@kalxjs/core'
+
 const AsyncComponent = defineAsyncComponent({
   loader: () => import('./MyComponent.klx'),
   loadingComponent: LoadingSpinner,
@@ -88,7 +90,7 @@ const AsyncComponent = defineAsyncComponent({
 ## Suspense Integration
 
 ```typescript
-import { Suspense } from '@kalxjs-framework/runtime'
+import { Suspense } from '@kalxjs/core/components'
 
 export default defineComponent({
   setup() {
@@ -110,7 +112,7 @@ export default defineComponent({
 ## Effect Scope Lifecycle
 
 ```typescript
-import { effectScope } from '@kalxjs-framework/runtime'
+import { effectScope } from '@kalxjs/core/reactivity'
 
 export default defineComponent({
   setup() {

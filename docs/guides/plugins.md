@@ -1,13 +1,13 @@
 # Plugin System Guide
 
-KalxJS provides a plugin system that allows you to extend the framework with additional functionality. Plugins can add global methods, properties, assets, and more.
+KalxJS v2.1.14 provides a plugin system that allows you to extend the framework with additional functionality. Plugins can add global methods, properties, assets, and more.
 
 ## Creating a Plugin
 
 A plugin is an object with an `install` method that receives the application instance and options.
 
 ```js
-import { createPlugin } from '@kalxjs/core';
+import { createPlugin } from '@kalxjs/core/plugins';
 
 const MyPlugin = createPlugin({
   name: 'my-plugin',
@@ -74,7 +74,8 @@ app.mount('#app');
 KalxJS provides a `PluginManager` class that helps manage plugins.
 
 ```js
-import { createApp, PluginManager } from '@kalxjs/core';
+import { createApp } from '@kalxjs/core';
+import { PluginManager } from '@kalxjs/core/plugins';
 import MyPlugin from './my-plugin';
 import AnotherPlugin from './another-plugin';
 
@@ -109,7 +110,7 @@ app.mount('#app');
 Here's an example of a logger plugin that adds logging functionality to the application.
 
 ```js
-import { createPlugin } from '@kalxjs/core';
+import { createPlugin } from '@kalxjs/core/plugins';
 
 export const LoggerPlugin = createPlugin({
   name: 'logger',

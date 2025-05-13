@@ -1,10 +1,10 @@
 # Getting Started with kalxjs
 
-Learn how to build modern web applications with kalxjs.
+Learn how to build modern web applications with kalxjs v2.1.14.
 
 ## Prerequisites
-- Node.js 16.x or later
-- npm 7.x or later
+- Node.js 16.x or later (Node.js 18+ recommended)
+- npm 7.x or later (npm 9+ recommended)
 - Basic JavaScript/TypeScript knowledge
 
 ## Project Setup
@@ -69,7 +69,7 @@ my-app/
 Let's create a simple component in a file called `HelloWorld.js`:
 
 ```javascript
-import { defineComponent, h } from 'kalxjs';
+import { defineComponent, h } from '@kalxjs/core';
 
 export default defineComponent({
   props: {
@@ -93,19 +93,21 @@ Now we can use our component in the main application:
 
 ```javascript
 // src/main.js
-import kalxjs from 'kalxjs';
+import { createApp, h, ref } from '@kalxjs/core';
 import HelloWorld from './components/HelloWorld';
 
-const app = kalxjs.createApp({
-  data() {
+const app = createApp({
+  setup() {
+    const title = ref('My First kalxjs App');
+    
     return {
-      title: 'My First kalxjs App'
+      title
     };
   },
   
   render() {
     return h('div', { class: 'app' }, [
-      h('header', {}, this.title),
+      h('header', {}, this.title.value),
       h(HelloWorld, { message: 'Welcome to kalxjs!' })
     ]);
   }
@@ -143,9 +145,84 @@ To run your application:
 
 2. Or set up a development server using a bundler like Vite or Webpack.
 
+## Using AI Features
+
+KalxJS v2.1.14 includes built-in AI capabilities. Here's how to use them:
+
+```javascript
+import { createApp, ref } from '@kalxjs/core';
+import { useAI } from '@kalxjs/core/ai';
+
+const app = createApp({
+  setup() {
+    // Initialize AI with your API key
+    const ai = useAI({
+      apiKeys: {
+        openai: 'your-api-key'
+      }
+    });
+    
+    const prompt = ref('');
+    const result = ref('');
+    
+    async function generateText() {
+      result.value = await ai.generateText({
+        prompt: prompt.value,
+        model: 'gpt-3.5-turbo'
+      });
+    }
+    
+    return {
+      prompt,
+      result,
+      generateText
+    };
+  }
+});
+
+app.mount('#app');
+```
+
+## Using the Custom Renderer
+
+KalxJS v2.1.14 provides a custom rendering system for improved performance:
+
+```javascript
+import { createRouter } from '@kalxjs/router';
+import { createStore } from '@kalxjs/state';
+import { createCustomRenderer } from '@kalxjs/core/renderer';
+
+// Create router
+const router = createRouter({
+  mode: 'hash',
+  routes: [
+    { path: '/', component: 'home' },
+    { path: '/counter', component: 'counter' }
+  ]
+});
+
+// Create store
+const store = createStore({
+  state: {
+    count: 0
+  },
+  mutations: {
+    increment(state) {
+      state.count++;
+    }
+  }
+});
+
+// Create and initialize the custom renderer
+const renderer = createCustomRenderer(router, store);
+renderer.init('#app');
+```
+
 ## Next Steps
-- Explore [Component Composition](../guides/composition.md)
-- Learn about [State Management](../guides/state.md)
+- Explore [Component Composition](../guides/composition-api.md)
+- Learn about [State Management](../guides/state-management.md)
 - Understand [Performance Optimization](../guides/performance.md)
+- Try out [API Integration](../guides/api-integration.md)
+- Experiment with [Custom Renderers](../guides/custom-renderer.md)
 
 Congratulations! You've built your first kalxjs application.

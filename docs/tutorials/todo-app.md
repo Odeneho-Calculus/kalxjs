@@ -1,6 +1,6 @@
 # Building a Modern Todo App with kalxjs
 
-Learn how to build a full-featured Todo application using kalxjs's latest features.
+Learn how to build a full-featured Todo application using kalxjs v2.1.14's latest features.
 
 ## Project Setup
 
@@ -23,13 +23,13 @@ todo-app/
 ├── src/
 │   ├── components/
 │   │   ├── todo/
-│   │   │   ├── TodoList.tsx
-│   │   │   ├── TodoItem.tsx
-│   │   │   ├── TodoForm.tsx
-│   │   │   └── TodoFilter.tsx
+│   │   │   ├── TodoList.klx
+│   │   │   ├── TodoItem.klx
+│   │   │   ├── TodoForm.klx
+│   │   │   └── TodoFilter.klx
 │   │   └── ui/
-│   │       ├── Button.tsx
-│   │       └── Input.tsx
+│   │       ├── Button.klx
+│   │       └── Input.klx
 │   ├── composables/
 │   │   └── useTodos.ts
 │   ├── stores/
@@ -57,7 +57,7 @@ export type TodoFilter = 'all' | 'active' | 'completed'
 
 ```typescript
 // src/stores/todos.ts
-import { defineStore } from '@kalxjs-framework/runtime'
+import { defineStore } from '@kalxjs/state'
 
 export const useTodoStore = defineStore('todos', {
   state: () => ({
@@ -87,7 +87,8 @@ export const useTodoStore = defineStore('todos', {
 
 ```typescript
 // src/composables/useTodos.ts
-import { useDraggable } from '@kalxjs/draggable'
+import { computed } from '@kalxjs/core'
+import { useDraggable } from '@kalxjs/core/composition'
 
 export function useTodos() {
   const store = useTodoStore()
@@ -119,8 +120,9 @@ export function useTodos() {
 ## Modern Component Example
 
 ```typescript
-// src/components/todo/TodoList.tsx
-import { TransitionGroup } from '@kalxjs-framework/runtime'
+// src/components/todo/TodoList.klx
+import { defineComponent } from '@kalxjs/core'
+import { TransitionGroup } from '@kalxjs/core/animation'
 
 export default defineComponent({
   setup() {
@@ -183,7 +185,7 @@ export default defineComponent({
 
 ```typescript
 // src/services/todoService.ts
-import { createClient } from '@kalxjs/storage'
+import { createClient } from '@kalxjs/core/storage'
 
 const storage = createClient({
   prefix: 'todo-app',
@@ -204,7 +206,9 @@ export const todoService = {
 ### Error Boundaries
 
 ```typescript
-// src/components/ErrorBoundary.tsx
+// src/components/ErrorBoundary.klx
+import { defineComponent, ref, onErrorCaptured } from '@kalxjs/core'
+
 export default defineComponent({
   setup(_, { slots }) {
     const error = ref<Error | null>(null)
@@ -224,8 +228,8 @@ export default defineComponent({
 ## Testing Example
 
 ```typescript
-// src/components/__tests__/TodoList.test.ts
-import { render, fireEvent } from '@kalxjs/testing'
+// src/components/__tests__/TodoList.test.js
+import { render, fireEvent } from '@kalxjs/core/testing'
 import TodoList from '../TodoList'
 
 test('adds new todo', async () => {

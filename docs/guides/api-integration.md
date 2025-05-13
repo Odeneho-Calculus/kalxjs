@@ -1,11 +1,11 @@
 # API Integration Guide
 
-KalxJS provides a built-in API integration system that makes it easy to interact with REST APIs. It includes features like automatic caching, request/response interceptors, and reactive state.
+KalxJS v2.1.14 provides a built-in API integration system that makes it easy to interact with REST APIs. It includes features like automatic caching, request/response interceptors, and reactive state.
 
 ## Basic Usage
 
 ```js
-import { createApi } from '@kalxjs/core';
+import { createApi } from '@kalxjs/core/api';
 
 // Create an API client
 const api = createApi({
@@ -180,7 +180,7 @@ export default {
 KalxJS provides a `useApi` composable for using the API client in components:
 
 ```js
-import { useApi } from '@kalxjs/core';
+import { useApi } from '@kalxjs/core/api';
 
 export default {
   setup() {
@@ -213,7 +213,8 @@ export default {
 KalxJS provides an API plugin that you can use to add the API client to your application:
 
 ```js
-import { createApp, createApiPlugin } from '@kalxjs/core';
+import { createApp } from '@kalxjs/core';
+import { createApiPlugin } from '@kalxjs/core/api';
 
 const app = createApp({
   // App options
@@ -343,7 +344,8 @@ const api = createApi({
 You can combine the API client with the state management system:
 
 ```js
-import { createStore, createApi } from '@kalxjs/core';
+import { createStore } from '@kalxjs/state';
+import { createApi } from '@kalxjs/core/api';
 
 // Create an API client
 const api = createApi({

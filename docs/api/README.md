@@ -1,7 +1,7 @@
 <!-- kalxjs/docs/api/README.md -->
 # kalxjs API Reference
 
-Comprehensive API documentation for kalxjs v1.2.8.
+Comprehensive API documentation for kalxjs v2.1.14.
 
 ## Runtime Package (@kalxjs-framework/runtime)
 
@@ -54,6 +54,12 @@ Core runtime features:
 
 ## Advanced Features
 
+### AI Integration
+- [AI API](./ai.md) - AI capabilities for text and image generation
+- AI model integration
+- Content analysis
+- Image generation and editing
+
 ### Compiler
 - Template compilation optimizations
 - Static hoisting
@@ -65,6 +71,12 @@ Core runtime features:
 - Suspense integration
 - Keep-alive caching
 - Virtual scrolling
+
+### Custom Rendering
+- Template-based rendering
+- Native DOM APIs
+- Performance optimizations
+- Fallback mechanisms
 
 ## TypeScript Support
 

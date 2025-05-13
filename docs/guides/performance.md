@@ -1,13 +1,13 @@
 # Performance Optimization Guide
 
-KalxJS provides several built-in performance optimization features to help you build fast and efficient applications.
+KalxJS v2.1.14 provides several built-in performance optimization features to help you build fast and efficient applications.
 
 ## Memoization
 
 Memoization is a technique for caching the results of expensive function calls to avoid redundant calculations.
 
 ```js
-import { memoize } from '@kalxjs/core';
+import { memoize } from '@kalxjs/core/performance';
 
 // Create a memoized function
 const expensiveCalculation = memoize((a, b) => {
@@ -39,7 +39,8 @@ const getUserById = memoize(
 The `memo` function creates a component that only re-renders when its props change:
 
 ```js
-import { memo, defineComponent } from '@kalxjs/core';
+import { defineComponent } from '@kalxjs/core';
+import { memo } from '@kalxjs/core/performance';
 
 // Create a memoized component
 const MemoizedComponent = memo(defineComponent({
@@ -81,7 +82,8 @@ In this example, `MemoizedComponent` will only re-render when the `message` prop
 The `lazy` function creates a component that is only loaded when it's needed:
 
 ```js
-import { lazy, defineComponent } from '@kalxjs/core';
+import { defineComponent } from '@kalxjs/core';
+import { lazy } from '@kalxjs/core/performance';
 
 // Create a lazy-loaded component
 const LazyComponent = lazy(() => import('./HeavyComponent.js'));
@@ -103,7 +105,8 @@ The `LazyComponent` will only be loaded when it's rendered for the first time. W
 The `deferRender` function creates a component that is only rendered when it's visible in the viewport:
 
 ```js
-import { deferRender, defineComponent } from '@kalxjs/core';
+import { defineComponent } from '@kalxjs/core';
+import { deferRender } from '@kalxjs/core/performance';
 
 // Create a component
 const HeavyComponent = defineComponent({
@@ -138,7 +141,8 @@ The `DeferredComponent` will only be rendered when it's visible in the viewport.
 The `createVirtualList` function creates a component that only renders the items that are visible in the viewport:
 
 ```js
-import { createVirtualList, defineComponent } from '@kalxjs/core';
+import { defineComponent } from '@kalxjs/core';
+import { createVirtualList } from '@kalxjs/core/performance';
 
 // Create a virtualized list component
 const VirtualList = createVirtualList({
@@ -177,7 +181,8 @@ The `VirtualList` component will only render the items that are visible in the v
 KalxJS provides a performance plugin that adds all these optimization features to your application:
 
 ```js
-import { createApp, createPerformancePlugin } from '@kalxjs/core';
+import { createApp } from '@kalxjs/core';
+import { createPerformancePlugin } from '@kalxjs/core/performance';
 
 const app = createApp({
   // App options

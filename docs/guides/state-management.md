@@ -1,11 +1,11 @@
 # State Management Guide
 
-KalxJS provides a built-in state management system that is inspired by Vuex but with a more modern API and better TypeScript support. It offers a centralized store for all components in an application, with rules ensuring that state can only be mutated in a predictable fashion.
+KalxJS v2.1.14 provides a built-in state management system that is inspired by Vuex but with a more modern API and better TypeScript support. It offers a centralized store for all components in an application, with rules ensuring that state can only be mutated in a predictable fashion.
 
 ## Basic Usage
 
 ```js
-import { createStore } from '@kalxjs/core';
+import { createStore } from '@kalxjs/state';
 
 // Create a store
 const store = createStore({
@@ -169,7 +169,7 @@ store.dispatch('incrementIfOdd');
 You can divide your store into modules, each with its own state, getters, mutations, and actions.
 
 ```js
-import { createStore, createModule } from '@kalxjs/core';
+import { createStore, createModule } from '@kalxjs/state';
 
 // Create a module
 const counterModule = createModule({
@@ -218,7 +218,7 @@ store.dispatch('counter/incrementAsync');
 Plugins are a way to extend the store with additional functionality. They receive the store instance as their only argument.
 
 ```js
-import { createStore, createStorePlugin } from '@kalxjs/core';
+import { createStore, createStorePlugin } from '@kalxjs/state';
 
 // Create a logger plugin
 const loggerPlugin = createStorePlugin(store => {
@@ -247,7 +247,7 @@ store.commit('increment'); // Logs: State changed: { count: 1 }
 KalxJS provides a built-in plugin for persisting the state to localStorage or sessionStorage.
 
 ```js
-import { createStore, createPersistedState } from '@kalxjs/core';
+import { createStore, createPersistedState } from '@kalxjs/state';
 
 // Create a store with persisted state
 const store = createStore({
@@ -275,15 +275,16 @@ const store = createStore({
 KalxJS provides a way to define stores using the Composition API with the `defineStore` function.
 
 ```js
-import { defineStore, useRef, useComputed } from '@kalxjs/core';
+import { defineStore } from '@kalxjs/state';
+import { ref, computed } from '@kalxjs/core';
 
 // Define a store
 const useCounterStore = defineStore('counter', () => {
   // State
-  const count = useRef(0);
+  const count = ref(0);
   
   // Getters
-  const doubleCount = useComputed(() => count.value * 2);
+  const doubleCount = computed(() => count.value * 2);
   
   // Actions
   function increment() {
@@ -321,7 +322,7 @@ export default {
 You can also use the options API with `defineStore`:
 
 ```js
-import { defineStore } from '@kalxjs/core';
+import { defineStore } from '@kalxjs/state';
 
 // Define a store
 const useCounterStore = defineStore('counter', {
