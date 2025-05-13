@@ -228,167 +228,167 @@ import { reactive } from '@kalxjs/composition';
  * @returns {Object} API utilities and state
  */
 export function useApi(options = {}) {
-  const {
-    baseUrl = '',
-    headers: defaultHeaders = { 'Content-Type': 'application/json' },
-    timeout = 30000,
-    onError = null
-  } = options;
-
-  // State
-  const isLoading = ref(false);
-  const error = ref(null);
-  const abortControllers = reactive({});
-
-  // Computed
-  const hasError = computed(() => error.value !== null);
-
-  /**
-   * Make an API request
-   * @param {Object} config - Request configuration
-   * @returns {Promise} - Response promise
-   */
-  async function request(config) {
     const {
-      url,
-      method = 'GET',
-      data = null,
-      params = {},
-      headers = {},
-      signal = null,
-      cache = 'default',
-      key = url + method
-    } = config;
+        baseUrl = '',
+        headers: defaultHeaders = { 'Content-Type': 'application/json' },
+        timeout = 30000,
+        onError = null
+    } = options;
 
-    // Create URL with query parameters
-    const queryParams = new URLSearchParams();
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        queryParams.append(key, value);
-      }
-    });
-
-    const fullUrl = \`\${baseUrl}\${url}\${queryParams.toString() ? '?' + queryParams.toString() : ''}\`;
-
-    // Create abort controller if not provided
-    let controller;
-    if (signal) {
-      controller = { signal };
-    } else {
-      controller = new AbortController();
-      abortControllers[key] = controller;
-    }
-
-    // Reset state
-    isLoading.value = true;
-    error.value = null;
-
-    try {
-      // Prepare request options
-      const requestOptions = {
-        method,
-        headers: { ...defaultHeaders, ...headers },
-        signal: controller.signal,
-        cache
-      };
-
-      // Add body for non-GET requests
-      if (method !== 'GET' && data) {
-        requestOptions.body = typeof data === 'string' ? data : JSON.stringify(data);
-      }
-
-      // Set timeout
-      const timeoutId = setTimeout(() => {
-        if (abortControllers[key]) {
-          abortControllers[key].abort();
-          delete abortControllers[key];
-        }
-      }, timeout);
-
-      // Make request
-      const response = await fetch(fullUrl, requestOptions);
-      clearTimeout(timeoutId);
-
-      // Handle response
-      if (!response.ok) {
-        throw new Error(\`API error: \${response.status} \${response.statusText}\`);
-      }
-
-      // Parse response based on content type
-      const contentType = response.headers.get('content-type');
-      let result;
-
-      if (contentType && contentType.includes('application/json')) {
-        result = await response.json();
-      } else if (contentType && contentType.includes('text/')) {
-        result = await response.text();
-      } else {
-        result = await response.blob();
-      }
-
-      return result;
-    } catch (err) {
-      error.value = err.message || 'Unknown error occurred';
-
-      if (onError && typeof onError === 'function') {
-        onError(err);
-      }
-
-      throw err;
-    } finally {
-      isLoading.value = false;
-      if (abortControllers[key]) {
-        delete abortControllers[key];
-      }
-    }
-  }
-
-  /**
-   * Abort an ongoing request
-   * @param {string} key - Request key to abort
-   */
-  function abort(key) {
-    if (abortControllers[key]) {
-      abortControllers[key].abort();
-      delete abortControllers[key];
-    }
-  }
-
-  /**
-   * Abort all ongoing requests
-   */
-  function abortAll() {
-    Object.values(abortControllers).forEach(controller => {
-      controller.abort();
-    });
-    Object.keys(abortControllers).forEach(key => {
-      delete abortControllers[key];
-    });
-  }
-
-  // Convenience methods
-  const get = (url, config = {}) => request({ ...config, url, method: 'GET' });
-  const post = (url, data, config = {}) => request({ ...config, url, method: 'POST', data });
-  const put = (url, data, config = {}) => request({ ...config, url, method: 'PUT', data });
-  const patch = (url, data, config = {}) => request({ ...config, url, method: 'PATCH', data });
-  const del = (url, config = {}) => request({ ...config, url, method: 'DELETE' });
-
-  return {
     // State
-    isLoading,
-    error,
-    hasError,
+    const isLoading = ref(false);
+    const error = ref(null);
+    const abortControllers = reactive({});
 
-    // Methods
-    request,
-    get,
-    post,
-    put,
-    patch,
-    delete: del,
-    abort,
-    abortAll
-  };
+    // Computed
+    const hasError = computed(() => error.value !== null);
+
+    /**
+     * Make an API request
+     * @param {Object} config - Request configuration
+     * @returns {Promise} - Response promise
+     */
+    async function request(config) {
+        const {
+            url,
+            method = 'GET',
+            data = null,
+            params = {},
+            headers = {},
+            signal = null,
+            cache = 'default',
+            key = url + method
+        } = config;
+
+        // Create URL with query parameters
+        const queryParams = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                queryParams.append(key, value);
+            }
+        });
+
+        const fullUrl = \`\${baseUrl}\${url}\${queryParams.toString() ? '?' + queryParams.toString() : ''}\`;
+
+        // Create abort controller if not provided
+        let controller;
+        if (signal) {
+            controller = { signal };
+        } else {
+            controller = new AbortController();
+            abortControllers[key] = controller;
+        }
+
+        // Reset state
+        isLoading.value = true;
+        error.value = null;
+
+        try {
+            // Prepare request options
+            const requestOptions = {
+                method,
+                headers: { ...defaultHeaders, ...headers },
+                signal: controller.signal,
+                cache
+            };
+
+            // Add body for non-GET requests
+            if (method !== 'GET' && data) {
+                requestOptions.body = typeof data === 'string' ? data : JSON.stringify(data);
+            }
+
+            // Set timeout
+            const timeoutId = setTimeout(() => {
+                if (abortControllers[key]) {
+                    abortControllers[key].abort();
+                    delete abortControllers[key];
+                }
+            }, timeout);
+
+            // Make request
+            const response = await fetch(fullUrl, requestOptions);
+            clearTimeout(timeoutId);
+
+            // Handle response
+            if (!response.ok) {
+                throw new Error(\`API error: \${response.status} \${response.statusText}\`);
+            }
+
+            // Parse response based on content type
+            const contentType = response.headers.get('content-type');
+            let result;
+
+            if (contentType && contentType.includes('application/json')) {
+                result = await response.json();
+            } else if (contentType && contentType.includes('text/')) {
+                result = await response.text();
+            } else {
+                result = await response.blob();
+            }
+
+            return result;
+        } catch (err) {
+            error.value = err.message || 'Unknown error occurred';
+
+            if (onError && typeof onError === 'function') {
+                onError(err);
+            }
+
+            throw err;
+        } finally {
+            isLoading.value = false;
+            if (abortControllers[key]) {
+                delete abortControllers[key];
+            }
+        }
+    }
+
+    /**
+     * Abort an ongoing request
+     * @param {string} key - Request key to abort
+     */
+    function abort(key) {
+        if (abortControllers[key]) {
+            abortControllers[key].abort();
+            delete abortControllers[key];
+        }
+    }
+
+    /**
+     * Abort all ongoing requests
+     */
+    function abortAll() {
+        Object.values(abortControllers).forEach(controller => {
+            controller.abort();
+        });
+        Object.keys(abortControllers).forEach(key => {
+            delete abortControllers[key];
+        });
+    }
+
+    // Convenience methods
+    const get = (url, config = {}) => request({ ...config, url, method: 'GET' });
+    const post = (url, data, config = {}) => request({ ...config, url, method: 'POST', data });
+    const put = (url, data, config = {}) => request({ ...config, url, method: 'PUT', data });
+    const patch = (url, data, config = {}) => request({ ...config, url, method: 'PATCH', data });
+    const del = (url, config = {}) => request({ ...config, url, method: 'DELETE' });
+
+    return {
+        // State
+        isLoading,
+        error,
+        hasError,
+
+        // Methods
+        request,
+        get,
+        post,
+        put,
+        patch,
+        delete: del,
+        abort,
+        abortAll
+    };
 }`;
   }
 
@@ -398,32 +398,32 @@ export function useApi(options = {}) {
     files['src/components/counter.klx'] = `<template>
   <div class="counter-page">
     <h1>Counter Example</h1>
-    
+
     <div class="counter-container">
       <div class="counter-display">
         <div class="counter-value" id="counter-value">{{ count }}</div>
         <div class="counter-label">Current Count</div>
       </div>
-      
+
       <div class="counter-controls">
         <button id="decrement-button" class="counter-button decrement" data-event-decrement="click">-</button>
         <button id="reset-button" class="counter-button reset" data-event-reset="click">Reset</button>
         <button id="increment-button" class="counter-button increment" data-event-increment="click">+</button>
       </div>
-      
+
       <div class="counter-stats">
         <div class="stat-item">
           <div class="stat-label">Double Count:</div>
           <div class="stat-value" id="double-count">{{ doubleCount }}</div>
         </div>
-        
+
         <div class="stat-item">
           <div class="stat-label">Is Even:</div>
           <div class="stat-value" id="is-even">{{ isEven }}</div>
         </div>
       </div>
     </div>
-    
+
     <div class="counter-actions">
       <a href="#/" class="nav-link">Back to Home</a>
     </div>
@@ -435,64 +435,64 @@ import { defineComponent } from '@kalxjs/core';
 
 export default {
   name: 'CounterComponent',
-  
+
   data() {
     return {
       count: 0
     };
   },
-  
+
   computed: {
     doubleCount() {
       return this.count * 2;
     },
-    
+
     isEven() {
       return this.count % 2 === 0 ? 'Yes' : 'No';
     }
   },
-  
+
   methods: {
     increment() {
       this.count++;
       this.updateCounter();
     },
-    
+
     decrement() {
       this.count--;
       this.updateCounter();
     },
-    
+
     reset() {
       this.count = 0;
       this.updateCounter();
     },
-    
+
     updateCounter() {
       const counterValue = document.getElementById('counter-value');
       const doubleCount = document.getElementById('double-count');
       const isEven = document.getElementById('is-even');
-      
+
       if (counterValue) {
         counterValue.textContent = this.count;
-        
+
         // Add animation class
         counterValue.classList.add('updated');
         setTimeout(() => {
           counterValue.classList.remove('updated');
         }, 300);
       }
-      
+
       if (doubleCount) {
         doubleCount.textContent = this.doubleCount;
       }
-      
+
       if (isEven) {
         isEven.textContent = this.isEven;
       }
     }
   },
-  
+
   mounted() {
     console.log('Counter component mounted!');
   }
@@ -613,19 +613,19 @@ export default {
       <img src="/src/assets/logo.svg" alt="KalxJS Logo" class="welcome-logo" />
       <h1>Welcome to <span class="brand-name">KalxJS</span></h1>
     </div>
-    
+
     <div class="welcome-content">
       <p class="welcome-message">
         {{ welcomeMessage }}
       </p>
-      
+
       <div class="feature-grid">
         <div class="feature-card" v-for="feature in features">
           <h3>{{ feature.icon }} {{ feature.title }}</h3>
           <p>{{ feature.description }}</p>
         </div>
       </div>
-      
+
       <div class="counter-demo">
         <h2>Try the Counter Demo</h2>
         <div class="counter-value" id="counter-value">{{ count }}</div>
@@ -639,14 +639,14 @@ export default {
             <div class="stat-label">Double Count:</div>
             <div class="stat-value" id="double-count">{{ doubleCount }}</div>
           </div>
-          
+
           <div class="stat-item">
             <div class="stat-label">Is Even:</div>
             <div class="stat-value" id="is-even">{{ isEven }}</div>
           </div>
         </div>
       </div>
-      
+
       <div class="getting-started">
         <h2>Getting Started</h2>
         <div class="code-block">
@@ -659,7 +659,7 @@ cd my-app
 npm run dev
           </code></pre>
         </div>
-        
+
         <div class="links-section">
           <h3>Essential Links</h3>
           <div class="links-grid">
@@ -683,7 +683,7 @@ npm run dev
         </div>
       </div>
     </div>
-    
+
     <footer class="welcome-footer">
       <p>Made with ❤️ by the KalxJS Team</p>
     </footer>
@@ -695,7 +695,7 @@ import { defineComponent } from '@kalxjs/core';
 
 export default {
   name: 'WelcomeComponent',
-  
+
   data() {
     return {
       count: 0,
@@ -724,66 +724,66 @@ export default {
       ]
     };
   },
-  
+
   computed: {
     doubleCount() {
       return this.count * 2;
     },
-    
+
     isEven() {
       return this.count % 2 === 0 ? 'Yes' : 'No';
     }
   },
-  
+
   methods: {
     increment() {
       this.count++;
       this.updateCounter();
     },
-    
+
     decrement() {
       this.count--;
       this.updateCounter();
     },
-    
+
     reset() {
       this.count = 0;
       this.updateCounter();
     },
-    
+
     updateCounter() {
       const counterValue = document.getElementById('counter-value');
       const doubleCount = document.getElementById('double-count');
       const isEven = document.getElementById('is-even');
-      
+
       if (counterValue) {
         counterValue.textContent = this.count;
-        
+
         // Add animation class
         counterValue.classList.add('updated');
         setTimeout(() => {
           counterValue.classList.remove('updated');
         }, 300);
       }
-      
+
       if (doubleCount) {
         doubleCount.textContent = this.doubleCount;
       }
-      
+
       if (isEven) {
         isEven.textContent = this.isEven;
       }
     }
   },
-  
+
   mounted() {
     console.log('Welcome component mounted!');
-    
+
     // Render the features dynamically
     const featureGrid = document.querySelector('.feature-grid');
     if (featureGrid) {
       featureGrid.innerHTML = '';
-      
+
       this.features.forEach(feature => {
         const card = document.createElement('div');
         card.className = 'feature-card';
@@ -994,35 +994,6 @@ export default {
 }
 </style>
 `;
-    
-    <div class="counter-demo">
-      <h2>Try the Counter Demo</h2>
-      <div class="counter-value" id="counter-value">0</div>
-      <div class="counter-buttons">
-        <button id="decrement-button" class="counter-button">-</button>
-        <button id="increment-button" class="counter-button">+</button>
-      </div>
-      <div class="counter-info">
-        Double value: <span id="double-count">0</span>
-      </div>
-    </div>
-    
-    <div class="next-steps">
-      <h2>Next Steps</h2>
-      <ul>
-        <li>Edit <code>src/templates/welcome.html</code> to modify this page</li>
-        <li>Check out <code>src/templates/</code> for more template examples</li>
-        <li>Explore the documentation to learn more</li>
-        <li>Start building your awesome application!</li>
-      </ul>
-    </div>
-  </div >
-
-      <footer class="welcome-footer">
-        <p>Made with ❤️ by the KalxJS Team</p>
-        <p class="version-info">KalxJS v2.1.0</p>
-      </footer>
-</div > `;
 
     files['src/utils/template-loader.js'] = `/**
  * Template loader utility
@@ -1043,20 +1014,20 @@ export default {
         if (!response.ok) {
           throw new Error(\`Failed to load template: \${response.status} \${response.statusText}\`);
     }
-    
+
     // Get the template content
     const templateContent = await response.text();
-    
+
     // Find the template element
     const templateElement = document.getElementById(templateId);
-    
+
     if (!templateElement) {
       throw new Error(\`Template element not found: \${templateId}\`);
     }
-    
+
     // Set the template content
     templateElement.innerHTML = templateContent;
-    
+
     console.log(\`Template loaded: \${templateId}\`);
   } catch (error) {
     console.error(\`Error loading template \${templateId}:\`, error);
@@ -1073,16 +1044,16 @@ export async function loadAllTemplates() {
     { id: 'welcome-template', path: '/src/templates/welcome.html' },
     { id: 'counter-template', path: '/src/templates/counter.html' }
   ];
-  
+
   // Load all templates in parallel
-  await Promise.all(templates.map(template => 
+  await Promise.all(templates.map(template =>
     loadTemplate(template.id, template.path)
   ));
-  
+
   console.log('All templates loaded');
 }`;
 
-          files['src/styles/welcome.scss'] = `// Welcome page styles
+    files['src/styles/welcome.scss'] = `// Welcome page styles
 
 .welcome-container {
   max-width: 1000px;
@@ -1242,17 +1213,17 @@ export async function loadAllTemplates() {
   .feature-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .welcome-container {
     padding: 1rem;
   }
-  
+
   .welcome-content {
     padding: 1.5rem;
   }
 }`;
 
-          files['src/styles/counter.scss'] = `// Counter page styles
+    files['src/styles/counter.scss'] = `// Counter page styles
 
 .counter-page {
   max-width: 800px;
@@ -1401,7 +1372,7 @@ export async function loadAllTemplates() {
   animation: pulse 0.3s ease;
 }`;
 
-          files['public/logo.svg'] = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+    files['public/logo.svg'] = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
   <circle cx="100" cy="100" r="90" fill="#42b883" opacity="0.2"/>
   <path d="M100 20L180 140H20L100 20Z" fill="#42b883"/>
@@ -1409,7 +1380,7 @@ export async function loadAllTemplates() {
   <circle cx="100" cy="100" r="15" fill="#35495e"/>
 </svg>`;
 
-          files['src/renderer/index.js'] = `// Custom renderer initialization and setup
+    files['src/renderer/index.js'] = `// Custom renderer initialization and setup
 
 /**
  * Sets up the counter component
@@ -1418,25 +1389,25 @@ export async function loadAllTemplates() {
  */
 export function setupCounterComponent(content, store) {
   if (!store) return;
-  
+
   // Get elements
   const counterValue = content.querySelector('#counter-value');
   const doubleCount = content.querySelector('#double-count');
   const isEven = content.querySelector('#is-even');
-  
+
   // Set up initial values
   if (counterValue) {
     counterValue.textContent = store.state.count;
   }
-  
+
   if (doubleCount && store.getters && store.getters.doubleCount) {
     doubleCount.textContent = store.getters.doubleCount;
   }
-  
+
   if (isEven) {
     isEven.textContent = store.state.count % 2 === 0 ? 'Yes' : 'No';
   }
-  
+
   // Set up event listeners
   const incrementBtn = content.querySelector('#increment-button');
   if (incrementBtn) {
@@ -1445,7 +1416,7 @@ export function setupCounterComponent(content, store) {
       updateCounter(store);
     });
   }
-  
+
   const decrementBtn = content.querySelector('#decrement-button');
   if (decrementBtn) {
     decrementBtn.addEventListener('click', () => {
@@ -1453,7 +1424,7 @@ export function setupCounterComponent(content, store) {
       updateCounter(store);
     });
   }
-  
+
   const resetBtn = content.querySelector('#reset-button');
   if (resetBtn) {
     resetBtn.addEventListener('click', () => {
@@ -1472,24 +1443,24 @@ export function updateCounter(store) {
   const counterValue = document.querySelector('#counter-value');
   const doubleCount = document.querySelector('#double-count');
   const isEven = document.querySelector('#is-even');
-  
+
   // Update values
   if (counterValue) {
     counterValue.textContent = store.state.count;
-    
+
     // Add animation class
     counterValue.classList.add('updated');
-    
+
     // Remove animation class after animation completes
     setTimeout(() => {
       counterValue.classList.remove('updated');
     }, 300);
   }
-  
+
   if (doubleCount && store.getters && store.getters.doubleCount) {
     doubleCount.textContent = store.getters.doubleCount;
   }
-  
+
   if (isEven) {
     isEven.textContent = store.state.count % 2 === 0 ? 'Yes' : 'No';
   }
@@ -1502,20 +1473,20 @@ export function updateCounter(store) {
  */
 export function setupWelcomeComponent(content, store) {
   if (!store) return;
-  
+
   // Set up counter in the welcome page
   const counterValue = content.querySelector('#counter-value');
   const doubleCount = content.querySelector('#double-count');
-  
+
   // Set up initial values
   if (counterValue) {
     counterValue.textContent = store.state.count;
   }
-  
+
   if (doubleCount && store.getters && store.getters.doubleCount) {
     doubleCount.textContent = store.getters.doubleCount;
   }
-  
+
   // Set up event listeners
   const incrementBtn = content.querySelector('#increment-button');
   if (incrementBtn) {
@@ -1524,7 +1495,7 @@ export function setupWelcomeComponent(content, store) {
       updateWelcomeCounter(store);
     });
   }
-  
+
   const decrementBtn = content.querySelector('#decrement-button');
   if (decrementBtn) {
     decrementBtn.addEventListener('click', () => {
@@ -1542,12 +1513,12 @@ export function updateWelcomeCounter(store) {
   // Get elements
   const counterValue = document.querySelector('#counter-value');
   const doubleCount = document.querySelector('#double-count');
-  
+
   // Update values
   if (counterValue) {
     counterValue.textContent = store.state.count;
   }
-  
+
   if (doubleCount && store.getters && store.getters.doubleCount) {
     doubleCount.textContent = store.getters.doubleCount;
   }
@@ -1561,14 +1532,14 @@ export function updateWelcomeCounter(store) {
 export function extendRenderer(renderer, store) {
   // Store the original setupComponent method
   const originalSetupComponent = renderer.setupComponent;
-  
+
   // Override the setupComponent method
   renderer.setupComponent = function(name, content) {
     // Call the original method first
     if (originalSetupComponent) {
       originalSetupComponent.call(this, name, content);
     }
-    
+
     // Add custom component setup
     switch (name) {
       case 'welcome':
@@ -1579,7 +1550,7 @@ export function extendRenderer(renderer, store) {
         break;
     }
   };
-  
+
   return renderer;
 }
 
@@ -1595,21 +1566,21 @@ export function initRenderer(router, store, selector = '#app') {
   return import('@kalxjs/core/renderer').then(({ createCustomRenderer }) => {
     // Create the custom renderer
     const renderer = createCustomRenderer(router, store);
-    
+
     // Extend the renderer with custom functionality
     const extendedRenderer = extendRenderer(renderer, store);
-    
+
     // Initialize the renderer with the container
     extendedRenderer.init(selector);
-    
+
     return extendedRenderer;
   });
 }`;
-        }
+  }
 
-        // Add Composition API example if enabled
-        if (config.features.composition) {
-          files['src/composables/useWindowSize.js'] = `import { ref } from '@kalxjs/core';
+  // Add Composition API example if enabled
+  if (config.features.composition) {
+    files['src/composables/useWindowSize.js'] = `import { ref } from '@kalxjs/core';
 import { onMounted, onUnmounted } from '@kalxjs/composition';
 
 /**
@@ -1652,7 +1623,7 @@ export function useWindowSize() {
   };
 }`;
 
-          files['src/composables/useLocalStorage.js'] = `import { ref } from '@kalxjs/core';
+    files['src/composables/useLocalStorage.js'] = `import { ref } from '@kalxjs/core';
 import { watch } from '@kalxjs/composition';
 
 /**
@@ -1712,11 +1683,11 @@ export function useLocalStorage(key, defaultValue = null) {
     }
   };
 }`;
-        }
+  }
 
-        // Add Performance utilities if enabled
-        if (config.features.performance) {
-          files['src/utils/performance/lazyLoad.js'] = `import { ref } from '@kalxjs/core';
+  // Add Performance utilities if enabled
+  if (config.features.performance) {
+    files['src/utils/performance/lazyLoad.js'] = `import { ref } from '@kalxjs/core';
 import { onMounted } from '@kalxjs/composition';
 
 /**
@@ -1781,7 +1752,7 @@ export function useLazyLoad(importFn, options = {}) {
   };
 }`;
 
-          files['src/utils/performance/debounce.js'] = `/**
+    files['src/utils/performance/debounce.js'] = `/**
  * Creates a debounced function that delays invoking the provided function
  * until after the specified wait time has elapsed since the last invocation.
  *
@@ -1922,11 +1893,11 @@ export function debounce(func, wait = 300, options = {}) {
 
   return debounced;
 }`;
-        }
+  }
 
-        // Add Plugin system example if enabled
-        if (config.features.plugins) {
-          files['src/plugins/index.js'] = `import { createApp } from '@kalxjs/core';
+  // Add Plugin system example if enabled
+  if (config.features.plugins) {
+    files['src/plugins/index.js'] = `import { createApp } from '@kalxjs/core';
 
 /**
  * Plugin system for extending application functionality
@@ -2080,7 +2051,7 @@ export function createPlugin(options) {
   return plugin;
 }`;
 
-          files['src/plugins/logger.js'] = `import { createPlugin } from './index';
+    files['src/plugins/logger.js'] = `import { createPlugin } from './index';
 
 /**
  * Logger plugin for application-wide logging
@@ -2219,11 +2190,11 @@ export const loggerPlugin = createPlugin({
     this._config.enabled = !!enabled;
   }
 });`;
-        }
+  }
 
-        // Add SFC example component if enabled
-        if (config.features.sfc) {
-          files['src/components/sfc/Card.klx'] = `<template>
+  // Add SFC example component if enabled
+  if (config.features.sfc) {
+    files['src/components/sfc/Card.klx'] = `<template>
   <div class="card">
     <div class="card-header">
       <slot name="header">Default Header</slot>
@@ -2282,11 +2253,11 @@ export default defineComponent({
   background-color: #f8f9fa;
 }
 </style>`;
-        }
+  }
 
-        // Add AI manager example if enabled
-        if (config.features.ai) {
-          files['src/ai/aiManager.js'] = `import { createAIManager, configure, generateText as aiGenerateText, useAI } from '@kalxjs/ai';
+  // Add AI manager example if enabled
+  if (config.features.ai) {
+    files['src/ai/aiManager.js'] = `import { createAIManager, configure, generateText as aiGenerateText, useAI } from '@kalxjs/ai';
 
 // Helper function to get environment variables in different environments
 const getEnvVar = (name) => {
@@ -2356,7 +2327,7 @@ export function useAIHelper(options = {}) {
 // Export other AI utilities
 export { useAI } from '@kalxjs/ai';`;
 
-          files['src/components/AITextGenerator.js'] = `import { defineComponent, h, ref } from '@kalxjs/core';
+    files['src/components/AITextGenerator.js'] = `import { defineComponent, h, ref } from '@kalxjs/core';
 import { aiManager, generateText, useAIHelper } from '../ai/aiManager';
 
 export default defineComponent({
@@ -2460,9 +2431,9 @@ export default defineComponent({
     ]);
   }
 });`;
-        }
+  }
 
-        files['src/components/Button.js'] = `import { defineComponent, h } from '@kalxjs/core';
+  files['src/components/Button.js'] = `import { defineComponent, h } from '@kalxjs/core';
 
 export default defineComponent({
   name: 'Button',
@@ -2490,7 +2461,7 @@ export default defineComponent({
   }
 });`;
 
-        files['.gitignore'] = `# Logs
+  files['.gitignore'] = `# Logs
 logs
 *.log
 npm-debug.log*
@@ -2515,7 +2486,7 @@ dist-ssr
 *.sln
 *.sw?`;
 
-        files['README.md'] = `# ${config.projectName}
+  files['README.md'] = `# ${config.projectName}
 
 A modern web application built with KalxJS.
 
@@ -2557,7 +2528,7 @@ ${config.features.router ? '│   ├── views/       # Page components\n│ 
 
 MIT`;
 
-        files['index.html'] = `<!DOCTYPE html>
+  files['index.html'] = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -2572,7 +2543,7 @@ MIT`;
 </body>
 </html>`;
 
-        files['src/main.js'] = `import { createApp } from '@kalxjs/core';
+  files['src/main.js'] = `import { createApp } from '@kalxjs/core';
 import App from './App.js';
 ${config.features.router ? "import router from './router';" : ''}
 ${config.features.state ? "import store from './store';" : ''}
@@ -2598,7 +2569,7 @@ try {
   \`;
 }`;
 
-        files['src/App.js'] = `import { defineComponent, h } from '@kalxjs/core';
+  files['src/App.js'] = `import { defineComponent, h } from '@kalxjs/core';
 ${config.features.router ? "import { useRouter } from '@kalxjs/router';" : ''}
 ${config.features.state ? "import { useStore } from './store/useStore';" : ''}
 ${config.features.api ? "import { useApi } from './api/useApi';" : ''}
@@ -2638,7 +2609,7 @@ export default defineComponent({
 
       // Navigation if router is enabled
       ${config.features.router ?
-            `h("nav", { style: "margin: 1rem 0; padding: 0.5rem; background-color: #f8f9fa; border-radius: 4px;" }, [
+      `h("nav", { style: "margin: 1rem 0; padding: 0.5rem; background-color: #f8f9fa; border-radius: 4px;" }, [
         h("a", { href: "/", style: "margin-right: 1rem; color: #4299e1; text-decoration: none;" }, "Home"),
         h("a", { href: "/about", style: "color: #4299e1; text-decoration: none;" }, "About")
       ]),` : ''}
@@ -2663,13 +2634,13 @@ export default defineComponent({
 
       // Router view if router is enabled
       ${config.features.router ?
-            `h("div", { style: "padding: 1rem; margin-top: 1rem; border-radius: 8px; background-color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1);" }, [h("router-view")])` :
-            'h("p", { style: "margin-top: 1rem;" }, "Edit src/App.js to get started")'}
+      `h("div", { style: "padding: 1rem; margin-top: 1rem; border-radius: 8px; background-color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1);" }, [h("router-view")])` :
+      'h("p", { style: "margin-top: 1rem;" }, "Edit src/App.js to get started")'}
     ]);
   }
 });`;
 
-        files['vite.config.js'] = `import { defineConfig } from 'vite';
+  files['vite.config.js'] = `import { defineConfig } from 'vite';
 ${config.features.sfc ? "import kalxSFC from '@kalxjs/compiler/vite-plugin';" : ''}
 
 export default defineConfig({
@@ -2701,9 +2672,9 @@ export default defineConfig({
   }
 });`;
 
-        // Add feature-specific files
-        if (config.features.router) {
-          files['src/router/index.js'] = `import { createRouter } from '@kalxjs/router';
+  // Add feature-specific files
+  if (config.features.router) {
+    files['src/router/index.js'] = `import { createRouter } from '@kalxjs/router';
 import { h } from '@kalxjs/core';
 import Home from '../views/Home.js';
 import About from '../views/About.js';
@@ -2736,7 +2707,7 @@ export default createRouter({
 // Export the useRouter function for easy access in components
 export { useRouter } from '@kalxjs/router';`;
 
-          files['src/views/About.js'] = `import { defineComponent, h } from '@kalxjs/core';
+    files['src/views/About.js'] = `import { defineComponent, h } from '@kalxjs/core';
 
 export default defineComponent({
   name: 'About',
@@ -2749,7 +2720,7 @@ export default defineComponent({
   }
 });`;
 
-          files['src/views/NotFound.js'] = `import { defineComponent, h } from '@kalxjs/core';
+    files['src/views/NotFound.js'] = `import { defineComponent, h } from '@kalxjs/core';
 import { useRouter } from '@kalxjs/router';
 
 export default defineComponent({
@@ -2777,7 +2748,7 @@ export default defineComponent({
   }
 });`;
 
-          files['src/views/User.js'] = `import { defineComponent, h } from '@kalxjs/core';
+    files['src/views/User.js'] = `import { defineComponent, h } from '@kalxjs/core';
 import { useRouter } from '@kalxjs/router';
 
 export default defineComponent({
@@ -2804,7 +2775,7 @@ export default defineComponent({
   }
 });`;
 
-          files['src/views/Home.js'] = `import { defineComponent, h } from '@kalxjs/core';
+    files['src/views/Home.js'] = `import { defineComponent, h } from '@kalxjs/core';
     import Button from '../components/Button.js';
     import { useRouter } from '@kalxjs/router';
 
@@ -2868,10 +2839,10 @@ export default defineComponent({
         ]);
       }
     }); `;
-        }
+  }
 
-        if (config.features.state) {
-          files['src/store/index.js'] = `import { createStore } from '@kalxjs/state';
+  if (config.features.state) {
+    files['src/store/index.js'] = `import { createStore } from '@kalxjs/state';
 
     // Create and export the main store
     export default createStore({
@@ -2933,8 +2904,8 @@ export default defineComponent({
       }
     }); `;
 
-          // Add a useStore composable for the Composition API
-          files['src/store/useStore.js'] = `import { createStore } from '@kalxjs/state';
+    // Add a useStore composable for the Composition API
+    files['src/store/useStore.js'] = `import { createStore } from '@kalxjs/state';
     import store from './index';
 
     /**
@@ -2961,10 +2932,10 @@ export default defineComponent({
       // Create a new store with the provided options
       return createStore(options);
     } `;
-        }
+  }
 
-        if (config.features.scss) {
-          files['src/styles/main.scss'] = `/* Base styles */
+  if (config.features.scss) {
+    files['src/styles/main.scss'] = `/* Base styles */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -3026,198 +2997,198 @@ button:hover {
 button:active {
   background-color: #2b6cb0;
 }`;
-        }
+  }
 
-        // Write all files
-        for (const [file, content] of Object.entries(files)) {
-          await fs.writeFile(path.join(targetDir, file), content);
-        }
-      }
+  // Write all files
+  for (const [file, content] of Object.entries(files)) {
+    await fs.writeFile(path.join(targetDir, file), content);
+  }
+}
 
 async function installDependencies(targetDir, config) {
-        const pkg = {
-          name: config.projectName,
-          version: '0.1.0',
-          private: true,
-          type: 'module',
-          scripts: {
-            "dev": "vite",
-            "build": "vite build",
-            "preview": "vite preview"
-          },
-          dependencies: {
-            "@kalxjs/core": "^1.2.2"
-          },
-          devDependencies: {
-            "vite": "^5.0.0"
-          }
-        };
+  const pkg = {
+    name: config.projectName,
+    version: '0.1.0',
+    private: true,
+    type: 'module',
+    scripts: {
+      "dev": "vite",
+      "build": "vite build",
+      "preview": "vite preview"
+    },
+    dependencies: {
+      "@kalxjs/core": "^1.2.2"
+    },
+    devDependencies: {
+      "vite": "^5.0.0"
+    }
+  };
 
-        // Add feature-specific dependencies
-        if (config.features.router) pkg.dependencies["@kalxjs/router"] = "^1.2.14";
-        if (config.features.state) pkg.dependencies["@kalxjs/state"] = "^1.2.2";
-        if (config.features.scss) pkg.devDependencies["sass"] = "^1.69.0";
-        if (config.features.sfc) {
-          pkg.dependencies["@kalxjs/compiler"] = "^1.2.2";
-          pkg.devDependencies["@kalxjs/compiler-plugin"] = "^1.2.2";
-        }
+  // Add feature-specific dependencies
+  if (config.features.router) pkg.dependencies["@kalxjs/router"] = "^1.2.14";
+  if (config.features.state) pkg.dependencies["@kalxjs/state"] = "^1.2.2";
+  if (config.features.scss) pkg.devDependencies["sass"] = "^1.69.0";
+  if (config.features.sfc) {
+    pkg.dependencies["@kalxjs/compiler"] = "^1.2.2";
+    pkg.devDependencies["@kalxjs/compiler-plugin"] = "^1.2.2";
+  }
 
-        // Add the newly created packages
-        if (config.features.ai) {
-          pkg.dependencies["@kalxjs/ai"] = "^1.2.2";
-        }
-        if (config.features.api) {
-          pkg.dependencies["@kalxjs/api"] = "^1.2.2";
-        }
-        if (config.features.composition) {
-          pkg.dependencies["@kalxjs/composition"] = "^1.2.2";
-        }
-        if (config.features.performance) {
-          pkg.dependencies["@kalxjs/performance"] = "^1.2.2";
-        }
-        if (config.features.plugins) {
-          pkg.dependencies["@kalxjs/plugins"] = "^1.2.2";
-        }
+  // Add the newly created packages
+  if (config.features.ai) {
+    pkg.dependencies["@kalxjs/ai"] = "^1.2.2";
+  }
+  if (config.features.api) {
+    pkg.dependencies["@kalxjs/api"] = "^1.2.2";
+  }
+  if (config.features.composition) {
+    pkg.dependencies["@kalxjs/composition"] = "^1.2.2";
+  }
+  if (config.features.performance) {
+    pkg.dependencies["@kalxjs/performance"] = "^1.2.2";
+  }
+  if (config.features.plugins) {
+    pkg.dependencies["@kalxjs/plugins"] = "^1.2.2";
+  }
 
-        // Write package.json
-        await fs.writeJSON(path.join(targetDir, 'package.json'), pkg, { spaces: 2 });
+  // Write package.json
+  await fs.writeJSON(path.join(targetDir, 'package.json'), pkg, { spaces: 2 });
 
-        try {
-          // Use child_process instead of execa
-          const { execSync } = require('child_process');
-          execSync('npm install', {
-            cwd: targetDir,
-            stdio: 'inherit',
-            env: { ...process.env, FORCE_COLOR: true }
-          });
-        } catch (err) {
-          throw new Error('Failed to install dependencies: ' + err.message);
-        }
+  try {
+    // Use child_process instead of execa
+    const { execSync } = require('child_process');
+    execSync('npm install', {
+      cwd: targetDir,
+      stdio: 'inherit',
+      env: { ...process.env, FORCE_COLOR: true }
+    });
+  } catch (err) {
+    throw new Error('Failed to install dependencies: ' + err.message);
+  }
+}
+
+/**
+ * Process template files and replace placeholders with configuration values
+ * @param {string} targetDir - Target project directory
+ * @param {Object} config - Project configuration
+ */
+async function processTemplates(targetDir, config) {
+  const templateFiles = [
+    'src/App.js',
+    'src/main.js',
+    'index.html',
+    'README.md',
+    'vite.config.js'
+  ];
+
+  // Add feature-specific template files
+  if (config.features.router) {
+    templateFiles.push('src/router/index.js');
+    templateFiles.push('src/views/Home.js');
+  }
+
+  if (config.features.state) {
+    templateFiles.push('src/store/index.js');
+    templateFiles.push('src/store/useStore.js');
+  }
+
+  if (config.features.scss) {
+    templateFiles.push('src/styles/main.scss');
+  }
+
+  if (config.features.api) {
+    templateFiles.push('src/api/useApi.js');
+  }
+
+  if (config.features.composition) {
+    templateFiles.push('src/composables/useWindowSize.js');
+    templateFiles.push('src/composables/useLocalStorage.js');
+  }
+
+  if (config.features.performance) {
+    templateFiles.push('src/utils/performance/lazyLoad.js');
+    templateFiles.push('src/utils/performance/debounce.js');
+  }
+
+  if (config.features.plugins) {
+    templateFiles.push('src/plugins/index.js');
+    templateFiles.push('src/plugins/logger.js');
+  }
+
+  if (config.features.ai) {
+    templateFiles.push('src/ai/aiManager.js');
+    templateFiles.push('src/components/AITextGenerator.js');
+  }
+
+  if (config.features.sfc) {
+    templateFiles.push('src/components/sfc/Card.klx');
+  }
+
+  // Process each template file
+  for (const file of templateFiles) {
+    const filePath = path.join(targetDir, file);
+
+    // Skip if file doesn't exist
+    if (!fs.existsSync(filePath)) {
+      continue;
+    }
+
+    try {
+      // Read file content
+      let content = await fs.readFile(filePath, 'utf8');
+
+      // Replace common placeholders
+      content = content.replace(/\{\{projectName\}\}/g, config.projectName);
+      content = content.replace(/\{\{version\}\}/g, '0.1.0');
+      content = content.replace(/\{\{description\}\}/g, `A modern web application built with KalxJS`);
+
+      // Replace feature flags
+      Object.entries(config.features).forEach(([feature, enabled]) => {
+        content = content.replace(new RegExp(`\\{ \\{ features\\.${feature} \\ } \\ } `, 'g'), enabled.toString());
+      });
+
+      // Process conditional blocks
+      // Format: <!-- IF feature.name -->content<!-- ENDIF -->
+      const conditionalRegex = /<!--\s*IF\s+features\.(\w+)\s*-->([\s\S]*?)<!--\s*ENDIF\s*-->/g;
+      content = content.replace(conditionalRegex, (match, feature, block) => {
+        return config.features[feature] ? block : '';
+      });
+
+      // Write processed content back to file
+      await fs.writeFile(filePath, content, 'utf8');
+
+    } catch (error) {
+      console.error(`Error processing template file ${file}: `, error);
+    }
+  }
+
+  // Process package.json separately (it's a JSON file)
+  const packageJsonPath = path.join(targetDir, 'package.json');
+  if (fs.existsSync(packageJsonPath)) {
+    try {
+      const packageJson = await fs.readJSON(packageJsonPath);
+
+      // Update package.json fields
+      packageJson.name = config.projectName;
+      packageJson.description = `A modern web application built with KalxJS`;
+
+      // Add custom scripts based on features
+      if (config.features.testing) {
+        packageJson.scripts.test = 'vitest run';
+        packageJson.scripts['test:watch'] = 'vitest';
       }
 
-      /**
-       * Process template files and replace placeholders with configuration values
-       * @param {string} targetDir - Target project directory
-       * @param {Object} config - Project configuration
-       */
-      async function processTemplates(targetDir, config) {
-        const templateFiles = [
-          'src/App.js',
-          'src/main.js',
-          'index.html',
-          'README.md',
-          'vite.config.js'
-        ];
-
-        // Add feature-specific template files
-        if (config.features.router) {
-          templateFiles.push('src/router/index.js');
-          templateFiles.push('src/views/Home.js');
-        }
-
-        if (config.features.state) {
-          templateFiles.push('src/store/index.js');
-          templateFiles.push('src/store/useStore.js');
-        }
-
-        if (config.features.scss) {
-          templateFiles.push('src/styles/main.scss');
-        }
-
-        if (config.features.api) {
-          templateFiles.push('src/api/useApi.js');
-        }
-
-        if (config.features.composition) {
-          templateFiles.push('src/composables/useWindowSize.js');
-          templateFiles.push('src/composables/useLocalStorage.js');
-        }
-
-        if (config.features.performance) {
-          templateFiles.push('src/utils/performance/lazyLoad.js');
-          templateFiles.push('src/utils/performance/debounce.js');
-        }
-
-        if (config.features.plugins) {
-          templateFiles.push('src/plugins/index.js');
-          templateFiles.push('src/plugins/logger.js');
-        }
-
-        if (config.features.ai) {
-          templateFiles.push('src/ai/aiManager.js');
-          templateFiles.push('src/components/AITextGenerator.js');
-        }
-
-        if (config.features.sfc) {
-          templateFiles.push('src/components/sfc/Card.klx');
-        }
-
-        // Process each template file
-        for (const file of templateFiles) {
-          const filePath = path.join(targetDir, file);
-
-          // Skip if file doesn't exist
-          if (!fs.existsSync(filePath)) {
-            continue;
-          }
-
-          try {
-            // Read file content
-            let content = await fs.readFile(filePath, 'utf8');
-
-            // Replace common placeholders
-            content = content.replace(/\{\{projectName\}\}/g, config.projectName);
-            content = content.replace(/\{\{version\}\}/g, '0.1.0');
-            content = content.replace(/\{\{description\}\}/g, `A modern web application built with KalxJS`);
-
-            // Replace feature flags
-            Object.entries(config.features).forEach(([feature, enabled]) => {
-              content = content.replace(new RegExp(`\\{ \\{ features\\.${feature} \\ } \\ } `, 'g'), enabled.toString());
-            });
-
-            // Process conditional blocks
-            // Format: <!-- IF feature.name -->content<!-- ENDIF -->
-            const conditionalRegex = /<!--\s*IF\s+features\.(\w+)\s*-->([\s\S]*?)<!--\s*ENDIF\s*-->/g;
-            content = content.replace(conditionalRegex, (match, feature, block) => {
-              return config.features[feature] ? block : '';
-            });
-
-            // Write processed content back to file
-            await fs.writeFile(filePath, content, 'utf8');
-
-          } catch (error) {
-            console.error(`Error processing template file ${file}: `, error);
-          }
-        }
-
-        // Process package.json separately (it's a JSON file)
-        const packageJsonPath = path.join(targetDir, 'package.json');
-        if (fs.existsSync(packageJsonPath)) {
-          try {
-            const packageJson = await fs.readJSON(packageJsonPath);
-
-            // Update package.json fields
-            packageJson.name = config.projectName;
-            packageJson.description = `A modern web application built with KalxJS`;
-
-            // Add custom scripts based on features
-            if (config.features.testing) {
-              packageJson.scripts.test = 'vitest run';
-              packageJson.scripts['test:watch'] = 'vitest';
-            }
-
-            if (config.features.linting) {
-              packageJson.scripts.lint = 'eslint src --ext .js,.klx';
-              packageJson.scripts['lint:fix'] = 'eslint src --ext .js,.klx --fix';
-            }
-
-            // Write updated package.json
-            await fs.writeJSON(packageJsonPath, packageJson, { spaces: 2 });
-
-          } catch (error) {
-            console.error('Error processing package.json:', error);
-          }
-        }
+      if (config.features.linting) {
+        packageJson.scripts.lint = 'eslint src --ext .js,.klx';
+        packageJson.scripts['lint:fix'] = 'eslint src --ext .js,.klx --fix';
       }
 
-      module.exports = create;
+      // Write updated package.json
+      await fs.writeJSON(packageJsonPath, packageJson, { spaces: 2 });
+
+    } catch (error) {
+      console.error('Error processing package.json:', error);
+    }
+  }
+}
+
+module.exports = create;
