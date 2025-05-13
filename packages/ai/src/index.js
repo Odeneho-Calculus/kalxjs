@@ -103,6 +103,81 @@ export function useAI(options = {}) {
 }
 
 /**
+ * Creates an AI manager for KalxJS applications
+ * @param {Object} options - AI manager options
+ * @returns {Object} AI manager instance with methods for AI operations
+ */
+export function createAIManager(options = {}) {
+    // Configure with provided options
+    configure(options.apiKeys?.openai ? {
+        apiKey: options.apiKeys.openai,
+        model: options.defaultOptions?.model || 'gpt-3.5-turbo',
+        maxTokens: options.defaultOptions?.max_length || 1000,
+        temperature: options.defaultOptions?.temperature || 0.7
+    } : options);
+
+    return {
+        /**
+         * Generate text using AI
+         * @param {Object} params - Text generation parameters
+         * @param {string} params.prompt - The prompt to generate from
+         * @param {string} params.model - Model to use (optional)
+         * @param {string} params.provider - Provider to use (optional)
+         * @param {Object} params.options - Additional options (optional)
+         * @returns {Promise<string>} Generated text
+         */
+        generateText: async ({ prompt, model, provider, options = {} }) => {
+            return generateText(prompt, {
+                model: model || options.model || 'gpt-3.5-turbo',
+                ...options
+            });
+        },
+
+        /**
+         * Generate an image using AI
+         * @param {Object} params - Image generation parameters
+         * @param {string} params.prompt - The prompt to generate from
+         * @param {string} params.model - Model to use (optional)
+         * @param {string} params.provider - Provider to use (optional)
+         * @param {Object} params.options - Additional options (optional)
+         * @returns {Promise<string>} Generated image URL or data
+         */
+        generateImage: async ({ prompt, model, provider, options = {} }) => {
+            // Currently not implemented
+            throw new Error('Image generation not implemented in this version');
+        },
+
+        /**
+         * Analyze sentiment of text
+         * @param {string} text - Text to analyze
+         * @returns {Promise<string>} Sentiment analysis result
+         */
+        analyzeSentiment: async (text) => {
+            return analyzeSentiment(text);
+        },
+
+        /**
+         * Extract entities from text
+         * @param {string} text - Text to analyze
+         * @returns {Promise<Array>} Extracted entities
+         */
+        extractEntities: async (text) => {
+            return extractEntities(text);
+        },
+
+        /**
+         * Summarize text
+         * @param {string} text - Text to summarize
+         * @param {Object} options - Summarization options
+         * @returns {Promise<string>} Summarized text
+         */
+        summarize: async (text, options = {}) => {
+            return summarize(text, options);
+        }
+    };
+}
+
+/**
  * Analyze sentiment of text
  * @param {string} text - Text to analyze
  * @returns {Promise<Object>} Sentiment analysis
@@ -144,6 +219,7 @@ export default {
     configure,
     generateText,
     useAI,
+    createAIManager,
     analyzeSentiment,
     extractEntities,
     summarize

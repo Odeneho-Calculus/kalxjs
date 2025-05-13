@@ -1056,7 +1056,7 @@ export default defineComponent({
 
   // Add AI manager example if enabled
   if (config.features.ai) {
-    files['src/ai/aiManager.js'] = `import { createAIManager } from '@kalxjs/core';
+    files['src/ai/aiManager.js'] = `import { createAIManager } from '@kalxjs/ai';
 
 // Create and export the AI manager instance
 export const aiManager = createAIManager({
@@ -1065,7 +1065,7 @@ export const aiManager = createAIManager({
     huggingface: process.env.HUGGINGFACE_API_KEY || '',
     openai: process.env.OPENAI_API_KEY || ''
   },
-  defaultProvider: 'huggingface',
+  defaultProvider: 'openai',
   defaultOptions: {
     // Default options for AI requests
     temperature: 0.7,
@@ -1077,8 +1077,8 @@ export const aiManager = createAIManager({
 export async function generateText(prompt, options = {}) {
   return aiManager.generateText({
     prompt,
-    model: options.model || 'gpt2',
-    provider: options.provider || 'huggingface',
+    model: options.model || 'gpt-3.5-turbo',
+    provider: options.provider || 'openai',
     options: {
       ...options
     }
@@ -1088,8 +1088,8 @@ export async function generateText(prompt, options = {}) {
 export async function generateImage(prompt, options = {}) {
   return aiManager.generateImage({
     prompt,
-    model: options.model || 'stabilityai/stable-diffusion-2',
-    provider: options.provider || 'huggingface',
+    model: options.model || 'dall-e-3',
+    provider: options.provider || 'openai',
     options: {
       negative_prompt: options.negativePrompt || 'blurry, bad quality',
       num_inference_steps: options.steps || 30,

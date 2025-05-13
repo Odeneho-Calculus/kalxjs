@@ -1,81 +1,108 @@
-Root Cause of the Problem
-The issue is in the '@kalxjs/composition' package.It's trying to import lifecycle hooks from a non-existent path:
+Bug Report: Missing createAIManager Function in KalxJS Framework
+Issue Description
+The KalxJS CLI template generates code that imports a non - existent createAIManager function from the @kalxjs/ai or @kalxjs/core packages.This causes runtime errors when trying to use AI features in a KalxJS application.
 
+    Details
+The CLI template(@kalxjs / cli / src / commands / create.js) generates an aiManager.js file that imports createAIManager which doesn't exist in any package
+The template suggests importing from @kalxjs/core or @kalxjs/ai, but neither package exports this function
+    This creates a broken reference that prevents the AI features from working
+Reproduction Steps
+Create a new KalxJS application using the CLI
+Try to use the AI features referenced in the generated code
+Observe runtime errors about missing createAIManager function
+    Current Workaround
+I've implemented a workaround by rewriting the aiManager.js file to use the actual functions exported by the @kalxjs/ai package:
 
-The Problem
-The error occurs because the '@kalxjs/composition' package is trying to import lifecycle hooks (onMounted, onUnmounted, and watch) from '@kalxjs/core/composition', but this path doesn't exist. This causes the error:
+import { configure, generateText as aiGenerateText, useAI } from '@kalxjs/ai';
 
-Uncaught SyntaxError: The requested module doesn't provide an export named: 'onUnmounted'
-// In @kalxjs/composition/src/index.js
-import { ref, reactive, computed } from '@kalxjs/core';
-import { onMounted, onUnmounted, watch } from '@kalxjs/core/composition';
-The problem is that '@kalxjs/core/composition' doesn't exist or doesn't export these functions.
+// Configure the AI service
+configure({
+    apiKey: process.env.OPENAI_API_KEY || '',
+    endpoint: 'https://api.openai.com/v1',
+    model: 'gpt-3.5-turbo',
+    maxTokens: 1000,
+    temperature: 0.7
+});
 
-Solution for Package Maintainers
-Here's what needs to be fixed:
+// Helper functions for common AI tasks
+export async function generateText(prompt, options = {}) {
+    return aiGenerateText(prompt, {
+        model: options.model || 'gpt-3.5-turbo',
+        maxTokens: options.max_length || 100,
+        temperature: options.temperature || 0.7,
+        ...options
+    });
+}
 
-Fix the '@kalxjs/composition' package:
+// Create a hook for AI functionality
+export function useAIHelper(options = {}) {
+    return useAI(options);
+}
 
-Remove the incorrect import from '@kalxjs/core/composition'
-Implement the lifecycle hooks directly in the '@kalxjs/composition' package
-Specifically, update the '@kalxjs/composition/src/index.js' file:
+// Export other AI utilities
+export { useAI } from '@kalxjs/ai';
+Proposed Solutions
+Option 1: Add createAIManager to the @kalxjs/ai package
+Implement the missing function in the @kalxjs/ai package to match the expected API in the template:
 
-import { ref, reactive, computed } from '@kalxjs/core';
+// In @kalxjs/ai/src/index.js
+export function createAIManager(options = {}) {
+    // Configure with provided options
+    configure(options.apiKeys?.openai ? {
+        apiKey: options.apiKeys.openai,
+        model: options.defaultOptions?.model || 'gpt-3.5-turbo',
+        maxTokens: options.defaultOptions?.max_length || 1000,
+        temperature: options.defaultOptions?.temperature || 0.7
+    } : options);
 
-// Implement lifecycle hooks directly in this package
-export function onMounted(callback) {
-    if (typeof window !== 'undefined' && callback) {
-        // Execute callback when DOM is ready
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            setTimeout(callback, 1);
-        } else {
-            document.addEventListener('DOMContentLoaded', callback, { once: true });
+    return {
+        generateText: async ({ prompt, model, provider, options = {} }) => {
+            return generateText(prompt, {
+                model: model || options.model || 'gpt-3.5-turbo',
+                ...options
+            });
+        },
+        // Add other methods as needed
+        generateImage: async ({ prompt, model, provider, options = {} }) => {
+            // Implement or throw a "not implemented" error
+            throw new Error('Image generation not implemented');
         }
-    }
+    };
+}
+Option 2: Update the CLI template
+Modify the CLI template to use the actual API provided by the @kalxjs/ai package:
+
+// In @kalxjs/cli/src/commands/create.js
+files['src/ai/aiManager.js'] = `import { configure, generateText as aiGenerateText, useAI } from '@kalxjs/ai';
+
+// Configure the AI service
+configure({
+  apiKey: process.env.OPENAI_API_KEY || '',
+  endpoint: 'https://api.openai.com/v1',
+  model: 'gpt-3.5-turbo',
+  maxTokens: 1000,
+  temperature: 0.7
+});
+
+// Helper functions for common AI tasks
+export async function generateText(prompt, options = {}) {
+  return aiGenerateText(prompt, {
+    model: options.model || 'gpt-3.5-turbo',
+    maxTokens: options.max_length || 100,
+    temperature: options.temperature || 0.7,
+    ...options
+  });
 }
 
-export function onUnmounted(callback) {
-    // Store cleanup functions to be called when component is unmounted
-    if (typeof window !== 'undefined' && callback) {
-        window.addEventListener('beforeunload', callback, { once: true });
-    }
+// Create a hook for AI functionality
+export function useAIHelper(options = {}) {
+  return useAI(options);
 }
 
-// Simple watch implementation
-export function watch(source, callback) {
-    if (typeof source === 'function') {
-        let oldValue = source();
-        const interval = setInterval(() => {
-            const newValue = source();
-            if (newValue !== oldValue) {
-                callback(newValue, oldValue);
-                oldValue = newValue;
-            }
-        }, 100);
-
-        // Return cleanup function
-        return () => clearInterval(interval);
-    } else if (source && typeof source === 'object' && 'value' in source) {
-        // Handle ref objects
-        let oldValue = source.value;
-        const interval = setInterval(() => {
-            if (source.value !== oldValue) {
-                callback(source.value, oldValue);
-                oldValue = source.value;
-            }
-        }, 100);
-
-        // Return cleanup function
-        return () => clearInterval(interval);
-    }
-}
-Rebuild the package: After making these changes, the package needs to be rebuilt to update the distribution files:
-cd path / to / @kalxjs / composition
-npm run build  # or whatever build script is defined in package.json
-For Application Developers(Temporary Workaround)
-Until the package is fixed, application developers can:
-
-Modify the node_modules / @kalxjs / composition / src / index.js file directly with the changes above
-Rebuild the package manually if possible
-Clear Vite's cache with rm -rf node_modules/.vite and restart the development server
-This approach fixes the issue at its source rather than working around it with custom implementations in the application code.
+// Export other AI utilities
+export { useAI } from '@kalxjs/ai';`;
+Additional Notes
+The @kalxjs/ai package provides a good foundation with functions like configure, generateText, and useAI
+The current implementation focuses on text generation with OpenAI's API
+If image generation is planned as advertised in the template, it should be implemented in the @kalxjs/ai package
+This issue should be addressed to ensure a smooth developer experience when using the AI features of the KalxJS framework.
