@@ -12,32 +12,32 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
  * @param {Object} options - Generation options
  */
 export function generateComponent(name, options = {}) {
-    const { dir = '.', composition = false } = options;
+  const { dir = '.', composition = false } = options;
 
-    // Create component directory if it doesn't exist
-    const componentDir = path.resolve(process.cwd(), dir);
-    if (!fs.existsSync(componentDir)) {
-        fs.mkdirSync(componentDir, { recursive: true });
-    }
+  // Create component directory if it doesn't exist
+  const componentDir = path.resolve(process.cwd(), dir);
+  if (!fs.existsSync(componentDir)) {
+    fs.mkdirSync(componentDir, { recursive: true });
+  }
 
-    // Component file path
-    const componentPath = path.join(componentDir, `${name}.klx`);
+  // Component file path
+  const componentPath = path.join(componentDir, `${name}.klx`);
 
-    // Check if file already exists
-    if (fs.existsSync(componentPath)) {
-        console.error(`Component ${name} already exists at ${componentPath}`);
-        return;
-    }
+  // Check if file already exists
+  if (fs.existsSync(componentPath)) {
+    console.error(`Component ${name} already exists at ${componentPath}`);
+    return;
+  }
 
-    // Generate component content
-    const content = composition
-        ? generateCompositionComponent(name)
-        : generateOptionsComponent(name);
+  // Generate component content
+  const content = composition
+    ? generateCompositionComponent(name)
+    : generateOptionsComponent(name);
 
-    // Write component file
-    fs.writeFileSync(componentPath, content);
+  // Write component file
+  fs.writeFileSync(componentPath, content);
 
-    console.log(`Component ${name} created at ${componentPath}`);
+  console.log(`Component ${name} created at ${componentPath}`);
 }
 
 /**
@@ -47,7 +47,7 @@ export function generateComponent(name, options = {}) {
  * @returns {string} Component content
  */
 function generateOptionsComponent(name) {
-    return `<template>
+  return `<template>
   <div class="${name.toLowerCase()}">
     <h1>{{ title }}</h1>
     <p>{{ message }}</p>
@@ -117,7 +117,7 @@ button:hover {
  * @returns {string} Component content
  */
 function generateCompositionComponent(name) {
-    return `<template>
+  return `<template>
   <div class="${name.toLowerCase()}">
     <h1>{{ title }}</h1>
     <p>{{ message }}</p>
@@ -126,7 +126,8 @@ function generateCompositionComponent(name) {
 </template>
 
 <script>
-import { useRef, onMounted } from '@kalxjs/core';
+import { useRef } from '@kalxjs/core';
+import { onMounted } from '@kalxjs/composition';
 
 export default {
   name: '${name}',
@@ -194,26 +195,26 @@ button:hover {
  * Command handler for generating components
  */
 export default {
-    name: 'generate',
-    alias: 'g',
-    description: 'Generate a new component',
-    run: (args) => {
-        const [type, name] = args._;
+  name: 'generate',
+  alias: 'g',
+  description: 'Generate a new component',
+  run: (args) => {
+    const [type, name] = args._;
 
-        if (!type || !name) {
-            console.error('Please specify a type and name');
-            console.log('Usage: kalxjs generate component MyComponent');
-            return;
-        }
-
-        if (type === 'component' || type === 'c') {
-            generateComponent(name, {
-                dir: args.dir || '.',
-                composition: args.composition || false
-            });
-        } else {
-            console.error(`Unknown generation type: ${type}`);
-            console.log('Available types: component');
-        }
+    if (!type || !name) {
+      console.error('Please specify a type and name');
+      console.log('Usage: kalxjs generate component MyComponent');
+      return;
     }
+
+    if (type === 'component' || type === 'c') {
+      generateComponent(name, {
+        dir: args.dir || '.',
+        composition: args.composition || false
+      });
+    } else {
+      console.error(`Unknown generation type: ${type}`);
+      console.log('Available types: component');
+    }
+  }
 };

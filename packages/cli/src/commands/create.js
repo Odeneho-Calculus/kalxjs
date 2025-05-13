@@ -200,7 +200,8 @@ async function generateProject(targetDir, config) {
 
   // Add API integration example if enabled
   if (config.features.api) {
-    files['src/api/useApi.js'] = `import { ref, reactive, computed } from '@kalxjs/core';
+    files['src/api/useApi.js'] = `import { ref } from '@kalxjs/core';
+import { reactive, computed } from '@kalxjs/composition';
 
 /**
  * Custom hook for API requests with built-in state management
@@ -378,7 +379,8 @@ export function useApi(options = {}) {
 
   // Add Composition API example if enabled
   if (config.features.composition) {
-    files['src/composables/useWindowSize.js'] = `import { ref, onMounted, onUnmounted } from '@kalxjs/core';
+    files['src/composables/useWindowSize.js'] = `import { ref } from '@kalxjs/core';
+import { onMounted, onUnmounted } from '@kalxjs/composition';
 
 /**
  * Composable for tracking window size
@@ -420,7 +422,8 @@ export function useWindowSize() {
   };
 }`;
 
-    files['src/composables/useLocalStorage.js'] = `import { ref, watch } from '@kalxjs/core';
+    files['src/composables/useLocalStorage.js'] = `import { ref } from '@kalxjs/core';
+import { watch } from '@kalxjs/composition';
 
 /**
  * Composable for using localStorage with reactivity
@@ -483,7 +486,8 @@ export function useLocalStorage(key, defaultValue = null) {
 
   // Add Performance utilities if enabled
   if (config.features.performance) {
-    files['src/utils/performance/lazyLoad.js'] = `import { ref, onMounted } from '@kalxjs/core';
+    files['src/utils/performance/lazyLoad.js'] = `import { ref } from '@kalxjs/core';
+import { onMounted } from '@kalxjs/composition';
 
 /**
  * Utility for lazy loading components or resources
