@@ -52,7 +52,9 @@ async function component(componentName, options = {}) {
     // Ensure component directory exists
     await mkdir(componentDir, { recursive: true });
 
-    const componentFilePath = path.join(componentDir, `${formattedName}.js`);
+    // Use .klx extension for single file components if SFC option is enabled
+    const useKlx = options.sfc !== false; // Default to true if not specified
+    const componentFilePath = path.join(componentDir, `${formattedName}${useKlx ? '.klx' : '.js'}`);
 
     // Check if component already exists
     try {
@@ -64,7 +66,9 @@ async function component(componentName, options = {}) {
     }
 
     // Create component content using template
-    const componentTemplate = getDefaultComponentTemplate(formattedName, options);
+    const componentTemplate = useKlx
+      ? getKlxComponentTemplate(formattedName, options)
+      : getDefaultComponentTemplate(formattedName, options);
     await writeFile(componentFilePath, componentTemplate);
 
     // Create test file if requested
@@ -238,6 +242,174 @@ function getComponentStyleTemplate(componentName) {
   background-color: #357abd;
 }
 `;
+}
+
+/**
+ * Get KLX single file component template
+ * @param {string} componentName - Component name
+ * @param {Object} options - Component options
+ * @returns {string} - KLX component template
+ */
+function getKlxComponentTemplate(componentName, options = {}) {
+  // Template section
+  let template = `<template>
+  <div class="${componentName.toLowerCase()}">
+    <h2>${componentName}</h2>`;
+
+  if (options.state) {
+    template += `
+    <p>Count: {{ count }}</p>
+    <div class="button-group">
+      <button class="button" data-event-increment="click">Increment</button>
+      <button class="button reset" data-event-reset="click">Reset</button>
+    </div>`;
+  }
+
+  template += `
+  </div>
+</template>
+
+`;
+
+  // Script section
+  template += `<script>
+import { defineComponent } from '@kalxjs/core';
+
+export default {
+  name: '${componentName}',
+`;
+
+  if (options.props) {
+    template += `
+  props: {
+    message: {
+      type: String,
+      required: true
+    }
+  },
+`;
+  }
+
+  if (options.state) {
+    template += `
+  data() {
+    return {
+      count: 0
+    };
+  },
+`;
+  } else {
+    template += `
+  data() {
+    return {};
+  },
+`;
+  }
+
+  if (options.state) {
+    template += `
+  computed: {
+    doubleCount() {
+      return this.count * 2;
+    }
+  },
+`;
+  }
+
+  if (options.methods || options.state) {
+    template += `
+  methods: {`;
+
+    if (options.state) {
+      template += `
+    increment() {
+      this.count++;
+    },
+    
+    reset() {
+      this.count = 0;
+    }`;
+    }
+
+    template += `
+  },
+`;
+  }
+
+  if (options.lifecycle) {
+    template += `
+  beforeMount() {
+    // Called before component is mounted
+  },
+
+  mounted() {
+    console.log('${componentName} mounted');
+  },
+
+  beforeUpdate() {
+    // Called before component updates
+  },
+
+  updated() {
+    // Called after component updates
+  },
+`;
+  } else {
+    template += `
+  mounted() {
+    console.log('${componentName} mounted');
+  },
+`;
+  }
+
+  template += `};
+</script>
+
+`;
+
+  // Style section
+  template += `<style>
+.${componentName.toLowerCase()} {
+  padding: 1rem;
+  margin: 1rem;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.${componentName.toLowerCase()} h2 {
+  margin-top: 0;
+  color: #333;
+}
+
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.button {
+  padding: 0.5rem 1rem;
+  background-color: #42b883;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background-color: #3aa776;
+}
+
+.button.reset {
+  background-color: #7f8c8d;
+}
+
+.button.reset:hover {
+  background-color: #6c7a7b;
+}
+</style>`;
+
+  return template;
 }
 
 module.exports = { component };

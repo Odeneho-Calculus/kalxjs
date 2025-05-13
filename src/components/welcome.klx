@@ -1,11 +1,14 @@
 <template>
   <div class="welcome-container">
     <div class="welcome-header">
+      <img src="/src/assets/logo.svg" alt="KalxJS Logo" class="welcome-logo" />
       <h1>Welcome to <span class="brand-name">KalxJS</span></h1>
     </div>
     
     <div class="welcome-content">
-      <p class="welcome-message" data-bind="welcomeMessage"></p>
+      <p class="welcome-message">
+        {{ welcomeMessage }}
+      </p>
       
       <div class="feature-grid">
         <div class="feature-card" v-for="feature in features">
@@ -19,13 +22,62 @@
         <div class="counter-value" id="counter-value">{{ count }}</div>
         <div class="counter-buttons">
           <button id="decrement-button" class="counter-button" data-event-decrement="click">-</button>
+          <button id="reset-button" class="counter-button reset" data-event-reset="click">Reset</button>
           <button id="increment-button" class="counter-button" data-event-increment="click">+</button>
         </div>
         <div class="counter-info">
-          Double value: <span id="double-count">{{ doubleCount }}</span>
+          <div class="stat-item">
+            <div class="stat-label">Double Count:</div>
+            <div class="stat-value" id="double-count">{{ doubleCount }}</div>
+          </div>
+          
+          <div class="stat-item">
+            <div class="stat-label">Is Even:</div>
+            <div class="stat-value" id="is-even">{{ isEven }}</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="getting-started">
+        <h2>Getting Started</h2>
+        <div class="code-block">
+          <pre><code>
+// Create a new KalxJS project
+npm init kalx my-app
+
+// Start the development server
+cd my-app
+npm run dev
+          </code></pre>
+        </div>
+        
+        <div class="links-section">
+          <h3>Essential Links</h3>
+          <div class="links-grid">
+            <a href="https://github.com/Odeneho-Calculus/kalxjs" target="_blank" class="link-card">
+              <span class="link-icon">📚</span>
+              <span class="link-text">Documentation</span>
+            </a>
+            <a href="https://github.com/Odeneho-Calculus/kalxjs/examples" target="_blank" class="link-card">
+              <span class="link-icon">🔍</span>
+              <span class="link-text">Examples</span>
+            </a>
+            <a href="https://github.com/Odeneho-Calculus/kalxjs" target="_blank" class="link-card">
+              <span class="link-icon">💻</span>
+              <span class="link-text">GitHub</span>
+            </a>
+            <a href="https://github.com/Odeneho-Calculus/kalxjs/issues" target="_blank" class="link-card">
+              <span class="link-icon">🐞</span>
+              <span class="link-text">Report Bug</span>
+            </a>
+          </div>
         </div>
       </div>
     </div>
+    
+    <footer class="welcome-footer">
+      <p>Made with ❤️ by the KalxJS Team</p>
+    </footer>
   </div>
 </template>
 
@@ -67,6 +119,10 @@ export default {
   computed: {
     doubleCount() {
       return this.count * 2;
+    },
+    
+    isEven() {
+      return this.count % 2 === 0 ? 'Yes' : 'No';
     }
   },
   
@@ -81,9 +137,15 @@ export default {
       this.updateCounter();
     },
     
+    reset() {
+      this.count = 0;
+      this.updateCounter();
+    },
+    
     updateCounter() {
       const counterValue = document.getElementById('counter-value');
       const doubleCount = document.getElementById('double-count');
+      const isEven = document.getElementById('is-even');
       
       if (counterValue) {
         counterValue.textContent = this.count;
@@ -97,6 +159,10 @@ export default {
       
       if (doubleCount) {
         doubleCount.textContent = this.doubleCount;
+      }
+      
+      if (isEven) {
+        isEven.textContent = this.isEven;
       }
     }
   },
@@ -134,6 +200,12 @@ export default {
 .welcome-header {
   text-align: center;
   margin-bottom: 2rem;
+}
+
+.welcome-logo {
+  width: 100px;
+  height: auto;
+  margin-bottom: 1rem;
 }
 
 .brand-name {
@@ -190,23 +262,116 @@ export default {
 
 .counter-buttons {
   margin: 1rem 0;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
 }
 
 .counter-button {
   background-color: #42b883;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 50%;
   font-size: 1.5rem;
   width: 50px;
   height: 50px;
-  margin: 0 0.5rem;
   cursor: pointer;
 }
 
+.counter-button.reset {
+  background-color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
 .counter-info {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
   margin-top: 1rem;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.9rem;
   color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #35495e;
+}
+
+.getting-started {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid #eee;
+}
+
+.code-block {
+  background-color: #282c34;
+  border-radius: 6px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+.code-block pre {
+  margin: 0;
+}
+
+.code-block code {
+  color: #abb2bf;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+}
+
+.links-section {
+  margin-top: 2rem;
+}
+
+.links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.link-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  text-decoration: none;
+  color: #35495e;
+  transition: transform 0.2s;
+}
+
+.link-card:hover {
+  transform: translateY(-3px);
+}
+
+.link-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.link-text {
+  font-weight: bold;
+}
+
+.welcome-footer {
+  text-align: center;
+  margin-top: 3rem;
+  color: #7f8c8d;
+  font-size: 0.9rem;
 }
 
 @keyframes pulse {

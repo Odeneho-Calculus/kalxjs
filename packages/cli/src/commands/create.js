@@ -394,71 +394,606 @@ export function useApi(options = {}) {
 
   // Add Custom Renderer example if enabled
   if (config.features.customRenderer) {
-    files['src/templates/counter.html'] = `<div class="counter-page">
-  <h1>Counter Example</h1>
-  
-  <div class="counter-container">
-    <div class="counter-display">
-      <div class="counter-value" id="counter-value">0</div>
-      <div class="counter-label">Current Count</div>
-    </div>
+    // Create .klx components instead of HTML templates
+    files['src/components/counter.klx'] = `<template>
+  <div class="counter-page">
+    <h1>Counter Example</h1>
     
-    <div class="counter-controls">
-      <button id="decrement-button" class="counter-button decrement">-</button>
-      <button id="reset-button" class="counter-button reset">Reset</button>
-      <button id="increment-button" class="counter-button increment">+</button>
-    </div>
-    
-    <div class="counter-stats">
-      <div class="stat-item">
-        <div class="stat-label">Double Count:</div>
-        <div class="stat-value" id="double-count">0</div>
+    <div class="counter-container">
+      <div class="counter-display">
+        <div class="counter-value" id="counter-value">{{ count }}</div>
+        <div class="counter-label">Current Count</div>
       </div>
       
-      <div class="stat-item">
-        <div class="stat-label">Is Even:</div>
-        <div class="stat-value" id="is-even">Yes</div>
+      <div class="counter-controls">
+        <button id="decrement-button" class="counter-button decrement" data-event-decrement="click">-</button>
+        <button id="reset-button" class="counter-button reset" data-event-reset="click">Reset</button>
+        <button id="increment-button" class="counter-button increment" data-event-increment="click">+</button>
+      </div>
+      
+      <div class="counter-stats">
+        <div class="stat-item">
+          <div class="stat-label">Double Count:</div>
+          <div class="stat-value" id="double-count">{{ doubleCount }}</div>
+        </div>
+        
+        <div class="stat-item">
+          <div class="stat-label">Is Even:</div>
+          <div class="stat-value" id="is-even">{{ isEven }}</div>
+        </div>
       </div>
     </div>
+    
+    <div class="counter-actions">
+      <a href="#/" class="nav-link">Back to Home</a>
+    </div>
   </div>
-  
-  <div class="counter-actions">
-    <a href="#/" class="nav-link">Back to Home</a>
-  </div>
-</div>`;
+</template>
 
-    files['src/templates/welcome.html'] = `<div class="welcome-container">
-  <div class="welcome-header">
-    <img src="/logo.svg" alt="KalxJS Logo" class="welcome-logo" />
-    <h1>Welcome to <span class="brand-name">KalxJS</span></h1>
-  </div>
+<script>
+import { defineComponent } from '@kalxjs/core';
+
+export default {
+  name: 'CounterComponent',
   
-  <div class="welcome-content">
-    <p class="welcome-message">
-      Congratulations! You've successfully created a new KalxJS project using the Custom Renderer.
-    </p>
+  data() {
+    return {
+      count: 0
+    };
+  },
+  
+  computed: {
+    doubleCount() {
+      return this.count * 2;
+    },
     
-    <div class="feature-grid">
-      <div class="feature-card">
-        <h3>📝 Template-Based Rendering</h3>
-        <p>Use HTML templates directly with no virtual DOM overhead</p>
+    isEven() {
+      return this.count % 2 === 0 ? 'Yes' : 'No';
+    }
+  },
+  
+  methods: {
+    increment() {
+      this.count++;
+      this.updateCounter();
+    },
+    
+    decrement() {
+      this.count--;
+      this.updateCounter();
+    },
+    
+    reset() {
+      this.count = 0;
+      this.updateCounter();
+    },
+    
+    updateCounter() {
+      const counterValue = document.getElementById('counter-value');
+      const doubleCount = document.getElementById('double-count');
+      const isEven = document.getElementById('is-even');
+      
+      if (counterValue) {
+        counterValue.textContent = this.count;
+        
+        // Add animation class
+        counterValue.classList.add('updated');
+        setTimeout(() => {
+          counterValue.classList.remove('updated');
+        }, 300);
+      }
+      
+      if (doubleCount) {
+        doubleCount.textContent = this.doubleCount;
+      }
+      
+      if (isEven) {
+        isEven.textContent = this.isEven;
+      }
+    }
+  },
+  
+  mounted() {
+    console.log('Counter component mounted!');
+  }
+};
+</script>
+
+<style>
+.counter-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: Arial, sans-serif;
+}
+
+.counter-container {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.counter-display {
+  margin-bottom: 2rem;
+}
+
+.counter-value {
+  font-size: 4rem;
+  font-weight: bold;
+  color: #42b883;
+  margin-bottom: 0.5rem;
+}
+
+.counter-label {
+  color: #666;
+  font-size: 1.2rem;
+}
+
+.counter-controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.counter-button {
+  background-color: #42b883;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+}
+
+.counter-button.reset {
+  background-color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.counter-button.decrement {
+  background-color: #e74c3c;
+}
+
+.counter-stats {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #35495e;
+}
+
+.counter-actions {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.nav-link {
+  color: #42b883;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.nav-link:hover {
+  text-decoration: underline;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.counter-value.updated {
+  animation: pulse 0.3s ease;
+}
+</style>
+`;
+
+    files['src/components/welcome.klx'] = `<template>
+  <div class="welcome-container">
+    <div class="welcome-header">
+      <img src="/src/assets/logo.svg" alt="KalxJS Logo" class="welcome-logo" />
+      <h1>Welcome to <span class="brand-name">KalxJS</span></h1>
+    </div>
+    
+    <div class="welcome-content">
+      <p class="welcome-message">
+        {{ welcomeMessage }}
+      </p>
+      
+      <div class="feature-grid">
+        <div class="feature-card" v-for="feature in features">
+          <h3>{{ feature.icon }} {{ feature.title }}</h3>
+          <p>{{ feature.description }}</p>
+        </div>
       </div>
       
-      <div class="feature-card">
-        <h3>⚡ Reactive State</h3>
-        <p>Powerful state management with automatic DOM updates</p>
+      <div class="counter-demo">
+        <h2>Try the Counter Demo</h2>
+        <div class="counter-value" id="counter-value">{{ count }}</div>
+        <div class="counter-buttons">
+          <button id="decrement-button" class="counter-button" data-event-decrement="click">-</button>
+          <button id="reset-button" class="counter-button reset" data-event-reset="click">Reset</button>
+          <button id="increment-button" class="counter-button" data-event-increment="click">+</button>
+        </div>
+        <div class="counter-info">
+          <div class="stat-item">
+            <div class="stat-label">Double Count:</div>
+            <div class="stat-value" id="double-count">{{ doubleCount }}</div>
+          </div>
+          
+          <div class="stat-item">
+            <div class="stat-label">Is Even:</div>
+            <div class="stat-value" id="is-even">{{ isEven }}</div>
+          </div>
+        </div>
       </div>
       
-      <div class="feature-card">
-        <h3>🧩 Component System</h3>
-        <p>Create reusable components with clean APIs</p>
-      </div>
-      
-      <div class="feature-card">
-        <h3>🔄 Routing</h3>
-        <p>Seamless navigation between different views</p>
+      <div class="getting-started">
+        <h2>Getting Started</h2>
+        <div class="code-block">
+          <pre><code>
+// Create a new KalxJS project
+npm init kalx my-app
+
+// Start the development server
+cd my-app
+npm run dev
+          </code></pre>
+        </div>
+        
+        <div class="links-section">
+          <h3>Essential Links</h3>
+          <div class="links-grid">
+            <a href="https://github.com/Odeneho-Calculus/kalxjs" target="_blank" class="link-card">
+              <span class="link-icon">📚</span>
+              <span class="link-text">Documentation</span>
+            </a>
+            <a href="https://github.com/Odeneho-Calculus/kalxjs/examples" target="_blank" class="link-card">
+              <span class="link-icon">🔍</span>
+              <span class="link-text">Examples</span>
+            </a>
+            <a href="https://github.com/Odeneho-Calculus/kalxjs" target="_blank" class="link-card">
+              <span class="link-icon">💻</span>
+              <span class="link-text">GitHub</span>
+            </a>
+            <a href="https://github.com/Odeneho-Calculus/kalxjs/issues" target="_blank" class="link-card">
+              <span class="link-icon">🐞</span>
+              <span class="link-text">Report Bug</span>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
+    
+    <footer class="welcome-footer">
+      <p>Made with ❤️ by the KalxJS Team</p>
+    </footer>
+  </div>
+</template>
+
+<script>
+import { defineComponent } from '@kalxjs/core';
+
+export default {
+  name: 'WelcomeComponent',
+  
+  data() {
+    return {
+      count: 0,
+      welcomeMessage: 'Congratulations! You\\'ve successfully created a new KalxJS project with .klx components!',
+      features: [
+        {
+          icon: '📝',
+          title: 'Template-Based Rendering',
+          description: 'Use HTML templates directly with no virtual DOM overhead'
+        },
+        {
+          icon: '⚡',
+          title: 'Reactive State',
+          description: 'Powerful state management with automatic DOM updates'
+        },
+        {
+          icon: '🧩',
+          title: 'Component System',
+          description: 'Create reusable components with clean APIs'
+        },
+        {
+          icon: '🔄',
+          title: 'Routing',
+          description: 'Seamless navigation between different views'
+        }
+      ]
+    };
+  },
+  
+  computed: {
+    doubleCount() {
+      return this.count * 2;
+    },
+    
+    isEven() {
+      return this.count % 2 === 0 ? 'Yes' : 'No';
+    }
+  },
+  
+  methods: {
+    increment() {
+      this.count++;
+      this.updateCounter();
+    },
+    
+    decrement() {
+      this.count--;
+      this.updateCounter();
+    },
+    
+    reset() {
+      this.count = 0;
+      this.updateCounter();
+    },
+    
+    updateCounter() {
+      const counterValue = document.getElementById('counter-value');
+      const doubleCount = document.getElementById('double-count');
+      const isEven = document.getElementById('is-even');
+      
+      if (counterValue) {
+        counterValue.textContent = this.count;
+        
+        // Add animation class
+        counterValue.classList.add('updated');
+        setTimeout(() => {
+          counterValue.classList.remove('updated');
+        }, 300);
+      }
+      
+      if (doubleCount) {
+        doubleCount.textContent = this.doubleCount;
+      }
+      
+      if (isEven) {
+        isEven.textContent = this.isEven;
+      }
+    }
+  },
+  
+  mounted() {
+    console.log('Welcome component mounted!');
+    
+    // Render the features dynamically
+    const featureGrid = document.querySelector('.feature-grid');
+    if (featureGrid) {
+      featureGrid.innerHTML = '';
+      
+      this.features.forEach(feature => {
+        const card = document.createElement('div');
+        card.className = 'feature-card';
+        card.innerHTML = \`
+          <h3>\${feature.icon} \${feature.title}</h3>
+          <p>\${feature.description}</p>
+        \`;
+        featureGrid.appendChild(card);
+      });
+    }
+  }
+};
+</script>
+
+<style>
+.welcome-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: Arial, sans-serif;
+}
+
+.welcome-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.welcome-logo {
+  width: 100px;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+.brand-name {
+  color: #42b883;
+  font-weight: bold;
+}
+
+.welcome-content {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-message {
+  font-size: 1.2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.feature-card {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.feature-card h3 {
+  color: #42b883;
+  margin-top: 0;
+}
+
+.counter-demo {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.counter-value {
+  font-size: 4rem;
+  font-weight: bold;
+  color: #42b883;
+  margin: 1rem 0;
+}
+
+.counter-buttons {
+  margin: 1rem 0;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.counter-button {
+  background-color: #42b883;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+}
+
+.counter-button.reset {
+  background-color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.counter-info {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #35495e;
+}
+
+.getting-started {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid #eee;
+}
+
+.code-block {
+  background-color: #282c34;
+  border-radius: 6px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  overflow-x: auto;
+}
+
+.code-block pre {
+  margin: 0;
+}
+
+.code-block code {
+  color: #abb2bf;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+}
+
+.links-section {
+  margin-top: 2rem;
+}
+
+.links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.link-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  text-decoration: none;
+  color: #35495e;
+  transition: transform 0.2s;
+}
+
+.link-card:hover {
+  transform: translateY(-3px);
+}
+
+.link-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.link-text {
+  font-weight: bold;
+}
+
+.welcome-footer {
+  text-align: center;
+  margin-top: 3rem;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.counter-value.updated {
+  animation: pulse 0.3s ease;
+}
+</style>
+`;
     
     <div class="counter-demo">
       <h2>Try the Counter Demo</h2>
@@ -481,32 +1016,32 @@ export function useApi(options = {}) {
         <li>Start building your awesome application!</li>
       </ul>
     </div>
-  </div>
-  
-  <footer class="welcome-footer">
-    <p>Made with ❤️ by the KalxJS Team</p>
-    <p class="version-info">KalxJS v2.1.0</p>
-  </footer>
-</div>`;
+  </div >
+
+      <footer class="welcome-footer">
+        <p>Made with ❤️ by the KalxJS Team</p>
+        <p class="version-info">KalxJS v2.1.0</p>
+      </footer>
+</div > `;
 
     files['src/utils/template-loader.js'] = `/**
  * Template loader utility
  * Loads HTML templates from files and injects them into the DOM
  */
 
-/**
- * Loads a template from a file and injects it into a template element
- * @param {string} templateId - ID of the template element
- * @param {string} templatePath - Path to the template file
- * @returns {Promise<void>}
- */
-export async function loadTemplate(templateId, templatePath) {
-  try {
-    // Fetch the template content
-    const response = await fetch(templatePath);
-    
-    if (!response.ok) {
-      throw new Error(\`Failed to load template: \${response.status} \${response.statusText}\`);
+    /**
+     * Loads a template from a file and injects it into a template element
+     * @param {string} templateId - ID of the template element
+     * @param {string} templatePath - Path to the template file
+     * @returns {Promise<void>}
+     */
+    export async function loadTemplate(templateId, templatePath) {
+      try {
+        // Fetch the template content
+        const response = await fetch(templatePath);
+
+        if (!response.ok) {
+          throw new Error(\`Failed to load template: \${response.status} \${response.statusText}\`);
     }
     
     // Get the template content
@@ -547,7 +1082,7 @@ export async function loadAllTemplates() {
   console.log('All templates loaded');
 }`;
 
-    files['src/styles/welcome.scss'] = `// Welcome page styles
+          files['src/styles/welcome.scss'] = `// Welcome page styles
 
 .welcome-container {
   max-width: 1000px;
@@ -717,7 +1252,7 @@ export async function loadAllTemplates() {
   }
 }`;
 
-    files['src/styles/counter.scss'] = `// Counter page styles
+          files['src/styles/counter.scss'] = `// Counter page styles
 
 .counter-page {
   max-width: 800px;
@@ -866,7 +1401,7 @@ export async function loadAllTemplates() {
   animation: pulse 0.3s ease;
 }`;
 
-    files['public/logo.svg'] = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+          files['public/logo.svg'] = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
   <circle cx="100" cy="100" r="90" fill="#42b883" opacity="0.2"/>
   <path d="M100 20L180 140H20L100 20Z" fill="#42b883"/>
@@ -874,7 +1409,7 @@ export async function loadAllTemplates() {
   <circle cx="100" cy="100" r="15" fill="#35495e"/>
 </svg>`;
 
-    files['src/renderer/index.js'] = `// Custom renderer initialization and setup
+          files['src/renderer/index.js'] = `// Custom renderer initialization and setup
 
 /**
  * Sets up the counter component
@@ -1070,11 +1605,11 @@ export function initRenderer(router, store, selector = '#app') {
     return extendedRenderer;
   });
 }`;
-  }
+        }
 
-  // Add Composition API example if enabled
-  if (config.features.composition) {
-    files['src/composables/useWindowSize.js'] = `import { ref } from '@kalxjs/core';
+        // Add Composition API example if enabled
+        if (config.features.composition) {
+          files['src/composables/useWindowSize.js'] = `import { ref } from '@kalxjs/core';
 import { onMounted, onUnmounted } from '@kalxjs/composition';
 
 /**
@@ -1117,7 +1652,7 @@ export function useWindowSize() {
   };
 }`;
 
-    files['src/composables/useLocalStorage.js'] = `import { ref } from '@kalxjs/core';
+          files['src/composables/useLocalStorage.js'] = `import { ref } from '@kalxjs/core';
 import { watch } from '@kalxjs/composition';
 
 /**
@@ -1177,11 +1712,11 @@ export function useLocalStorage(key, defaultValue = null) {
     }
   };
 }`;
-  }
+        }
 
-  // Add Performance utilities if enabled
-  if (config.features.performance) {
-    files['src/utils/performance/lazyLoad.js'] = `import { ref } from '@kalxjs/core';
+        // Add Performance utilities if enabled
+        if (config.features.performance) {
+          files['src/utils/performance/lazyLoad.js'] = `import { ref } from '@kalxjs/core';
 import { onMounted } from '@kalxjs/composition';
 
 /**
@@ -1246,7 +1781,7 @@ export function useLazyLoad(importFn, options = {}) {
   };
 }`;
 
-    files['src/utils/performance/debounce.js'] = `/**
+          files['src/utils/performance/debounce.js'] = `/**
  * Creates a debounced function that delays invoking the provided function
  * until after the specified wait time has elapsed since the last invocation.
  *
@@ -1387,11 +1922,11 @@ export function debounce(func, wait = 300, options = {}) {
 
   return debounced;
 }`;
-  }
+        }
 
-  // Add Plugin system example if enabled
-  if (config.features.plugins) {
-    files['src/plugins/index.js'] = `import { createApp } from '@kalxjs/core';
+        // Add Plugin system example if enabled
+        if (config.features.plugins) {
+          files['src/plugins/index.js'] = `import { createApp } from '@kalxjs/core';
 
 /**
  * Plugin system for extending application functionality
@@ -1545,7 +2080,7 @@ export function createPlugin(options) {
   return plugin;
 }`;
 
-    files['src/plugins/logger.js'] = `import { createPlugin } from './index';
+          files['src/plugins/logger.js'] = `import { createPlugin } from './index';
 
 /**
  * Logger plugin for application-wide logging
@@ -1684,11 +2219,11 @@ export const loggerPlugin = createPlugin({
     this._config.enabled = !!enabled;
   }
 });`;
-  }
+        }
 
-  // Add SFC example component if enabled
-  if (config.features.sfc) {
-    files['src/components/sfc/Card.klx'] = `<template>
+        // Add SFC example component if enabled
+        if (config.features.sfc) {
+          files['src/components/sfc/Card.klx'] = `<template>
   <div class="card">
     <div class="card-header">
       <slot name="header">Default Header</slot>
@@ -1747,11 +2282,11 @@ export default defineComponent({
   background-color: #f8f9fa;
 }
 </style>`;
-  }
+        }
 
-  // Add AI manager example if enabled
-  if (config.features.ai) {
-    files['src/ai/aiManager.js'] = `import { createAIManager, configure, generateText as aiGenerateText, useAI } from '@kalxjs/ai';
+        // Add AI manager example if enabled
+        if (config.features.ai) {
+          files['src/ai/aiManager.js'] = `import { createAIManager, configure, generateText as aiGenerateText, useAI } from '@kalxjs/ai';
 
 // Helper function to get environment variables in different environments
 const getEnvVar = (name) => {
@@ -1821,7 +2356,7 @@ export function useAIHelper(options = {}) {
 // Export other AI utilities
 export { useAI } from '@kalxjs/ai';`;
 
-    files['src/components/AITextGenerator.js'] = `import { defineComponent, h, ref } from '@kalxjs/core';
+          files['src/components/AITextGenerator.js'] = `import { defineComponent, h, ref } from '@kalxjs/core';
 import { aiManager, generateText, useAIHelper } from '../ai/aiManager';
 
 export default defineComponent({
@@ -1925,9 +2460,9 @@ export default defineComponent({
     ]);
   }
 });`;
-  }
+        }
 
-  files['src/components/Button.js'] = `import { defineComponent, h } from '@kalxjs/core';
+        files['src/components/Button.js'] = `import { defineComponent, h } from '@kalxjs/core';
 
 export default defineComponent({
   name: 'Button',
@@ -1955,7 +2490,7 @@ export default defineComponent({
   }
 });`;
 
-  files['.gitignore'] = `# Logs
+        files['.gitignore'] = `# Logs
 logs
 *.log
 npm-debug.log*
@@ -1980,7 +2515,7 @@ dist-ssr
 *.sln
 *.sw?`;
 
-  files['README.md'] = `# ${config.projectName}
+        files['README.md'] = `# ${config.projectName}
 
 A modern web application built with KalxJS.
 
@@ -2022,7 +2557,7 @@ ${config.features.router ? '│   ├── views/       # Page components\n│ 
 
 MIT`;
 
-  files['index.html'] = `<!DOCTYPE html>
+        files['index.html'] = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -2037,7 +2572,7 @@ MIT`;
 </body>
 </html>`;
 
-  files['src/main.js'] = `import { createApp } from '@kalxjs/core';
+        files['src/main.js'] = `import { createApp } from '@kalxjs/core';
 import App from './App.js';
 ${config.features.router ? "import router from './router';" : ''}
 ${config.features.state ? "import store from './store';" : ''}
@@ -2063,7 +2598,7 @@ try {
   \`;
 }`;
 
-  files['src/App.js'] = `import { defineComponent, h } from '@kalxjs/core';
+        files['src/App.js'] = `import { defineComponent, h } from '@kalxjs/core';
 ${config.features.router ? "import { useRouter } from '@kalxjs/router';" : ''}
 ${config.features.state ? "import { useStore } from './store/useStore';" : ''}
 ${config.features.api ? "import { useApi } from './api/useApi';" : ''}
@@ -2103,7 +2638,7 @@ export default defineComponent({
 
       // Navigation if router is enabled
       ${config.features.router ?
-      `h("nav", { style: "margin: 1rem 0; padding: 0.5rem; background-color: #f8f9fa; border-radius: 4px;" }, [
+            `h("nav", { style: "margin: 1rem 0; padding: 0.5rem; background-color: #f8f9fa; border-radius: 4px;" }, [
         h("a", { href: "/", style: "margin-right: 1rem; color: #4299e1; text-decoration: none;" }, "Home"),
         h("a", { href: "/about", style: "color: #4299e1; text-decoration: none;" }, "About")
       ]),` : ''}
@@ -2128,13 +2663,13 @@ export default defineComponent({
 
       // Router view if router is enabled
       ${config.features.router ?
-      `h("div", { style: "padding: 1rem; margin-top: 1rem; border-radius: 8px; background-color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1);" }, [h("router-view")])` :
-      'h("p", { style: "margin-top: 1rem;" }, "Edit src/App.js to get started")'}
+            `h("div", { style: "padding: 1rem; margin-top: 1rem; border-radius: 8px; background-color: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1);" }, [h("router-view")])` :
+            'h("p", { style: "margin-top: 1rem;" }, "Edit src/App.js to get started")'}
     ]);
   }
 });`;
 
-  files['vite.config.js'] = `import { defineConfig } from 'vite';
+        files['vite.config.js'] = `import { defineConfig } from 'vite';
 ${config.features.sfc ? "import kalxSFC from '@kalxjs/compiler/vite-plugin';" : ''}
 
 export default defineConfig({
@@ -2166,9 +2701,9 @@ export default defineConfig({
   }
 });`;
 
-  // Add feature-specific files
-  if (config.features.router) {
-    files['src/router/index.js'] = `import { createRouter } from '@kalxjs/router';
+        // Add feature-specific files
+        if (config.features.router) {
+          files['src/router/index.js'] = `import { createRouter } from '@kalxjs/router';
 import { h } from '@kalxjs/core';
 import Home from '../views/Home.js';
 import About from '../views/About.js';
@@ -2201,7 +2736,7 @@ export default createRouter({
 // Export the useRouter function for easy access in components
 export { useRouter } from '@kalxjs/router';`;
 
-    files['src/views/About.js'] = `import { defineComponent, h } from '@kalxjs/core';
+          files['src/views/About.js'] = `import { defineComponent, h } from '@kalxjs/core';
 
 export default defineComponent({
   name: 'About',
@@ -2214,7 +2749,7 @@ export default defineComponent({
   }
 });`;
 
-    files['src/views/NotFound.js'] = `import { defineComponent, h } from '@kalxjs/core';
+          files['src/views/NotFound.js'] = `import { defineComponent, h } from '@kalxjs/core';
 import { useRouter } from '@kalxjs/router';
 
 export default defineComponent({
@@ -2242,7 +2777,7 @@ export default defineComponent({
   }
 });`;
 
-    files['src/views/User.js'] = `import { defineComponent, h } from '@kalxjs/core';
+          files['src/views/User.js'] = `import { defineComponent, h } from '@kalxjs/core';
 import { useRouter } from '@kalxjs/router';
 
 export default defineComponent({
@@ -2269,7 +2804,7 @@ export default defineComponent({
   }
 });`;
 
-    files['src/views/Home.js'] = `import { defineComponent, h } from '@kalxjs/core';
+          files['src/views/Home.js'] = `import { defineComponent, h } from '@kalxjs/core';
     import Button from '../components/Button.js';
     import { useRouter } from '@kalxjs/router';
 
@@ -2333,10 +2868,10 @@ export default defineComponent({
         ]);
       }
     }); `;
-  }
+        }
 
-  if (config.features.state) {
-    files['src/store/index.js'] = `import { createStore } from '@kalxjs/state';
+        if (config.features.state) {
+          files['src/store/index.js'] = `import { createStore } from '@kalxjs/state';
 
     // Create and export the main store
     export default createStore({
@@ -2398,8 +2933,8 @@ export default defineComponent({
       }
     }); `;
 
-    // Add a useStore composable for the Composition API
-    files['src/store/useStore.js'] = `import { createStore } from '@kalxjs/state';
+          // Add a useStore composable for the Composition API
+          files['src/store/useStore.js'] = `import { createStore } from '@kalxjs/state';
     import store from './index';
 
     /**
@@ -2426,10 +2961,10 @@ export default defineComponent({
       // Create a new store with the provided options
       return createStore(options);
     } `;
-  }
+        }
 
-  if (config.features.scss) {
-    files['src/styles/main.scss'] = `/* Base styles */
+        if (config.features.scss) {
+          files['src/styles/main.scss'] = `/* Base styles */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -2491,198 +3026,198 @@ button:hover {
 button:active {
   background-color: #2b6cb0;
 }`;
-  }
+        }
 
-  // Write all files
-  for (const [file, content] of Object.entries(files)) {
-    await fs.writeFile(path.join(targetDir, file), content);
-  }
-}
+        // Write all files
+        for (const [file, content] of Object.entries(files)) {
+          await fs.writeFile(path.join(targetDir, file), content);
+        }
+      }
 
 async function installDependencies(targetDir, config) {
-  const pkg = {
-    name: config.projectName,
-    version: '0.1.0',
-    private: true,
-    type: 'module',
-    scripts: {
-      "dev": "vite",
-      "build": "vite build",
-      "preview": "vite preview"
-    },
-    dependencies: {
-      "@kalxjs/core": "^1.2.2"
-    },
-    devDependencies: {
-      "vite": "^5.0.0"
-    }
-  };
+        const pkg = {
+          name: config.projectName,
+          version: '0.1.0',
+          private: true,
+          type: 'module',
+          scripts: {
+            "dev": "vite",
+            "build": "vite build",
+            "preview": "vite preview"
+          },
+          dependencies: {
+            "@kalxjs/core": "^1.2.2"
+          },
+          devDependencies: {
+            "vite": "^5.0.0"
+          }
+        };
 
-  // Add feature-specific dependencies
-  if (config.features.router) pkg.dependencies["@kalxjs/router"] = "^1.2.14";
-  if (config.features.state) pkg.dependencies["@kalxjs/state"] = "^1.2.2";
-  if (config.features.scss) pkg.devDependencies["sass"] = "^1.69.0";
-  if (config.features.sfc) {
-    pkg.dependencies["@kalxjs/compiler"] = "^1.2.2";
-    pkg.devDependencies["@kalxjs/compiler-plugin"] = "^1.2.2";
-  }
+        // Add feature-specific dependencies
+        if (config.features.router) pkg.dependencies["@kalxjs/router"] = "^1.2.14";
+        if (config.features.state) pkg.dependencies["@kalxjs/state"] = "^1.2.2";
+        if (config.features.scss) pkg.devDependencies["sass"] = "^1.69.0";
+        if (config.features.sfc) {
+          pkg.dependencies["@kalxjs/compiler"] = "^1.2.2";
+          pkg.devDependencies["@kalxjs/compiler-plugin"] = "^1.2.2";
+        }
 
-  // Add the newly created packages
-  if (config.features.ai) {
-    pkg.dependencies["@kalxjs/ai"] = "^1.2.2";
-  }
-  if (config.features.api) {
-    pkg.dependencies["@kalxjs/api"] = "^1.2.2";
-  }
-  if (config.features.composition) {
-    pkg.dependencies["@kalxjs/composition"] = "^1.2.2";
-  }
-  if (config.features.performance) {
-    pkg.dependencies["@kalxjs/performance"] = "^1.2.2";
-  }
-  if (config.features.plugins) {
-    pkg.dependencies["@kalxjs/plugins"] = "^1.2.2";
-  }
+        // Add the newly created packages
+        if (config.features.ai) {
+          pkg.dependencies["@kalxjs/ai"] = "^1.2.2";
+        }
+        if (config.features.api) {
+          pkg.dependencies["@kalxjs/api"] = "^1.2.2";
+        }
+        if (config.features.composition) {
+          pkg.dependencies["@kalxjs/composition"] = "^1.2.2";
+        }
+        if (config.features.performance) {
+          pkg.dependencies["@kalxjs/performance"] = "^1.2.2";
+        }
+        if (config.features.plugins) {
+          pkg.dependencies["@kalxjs/plugins"] = "^1.2.2";
+        }
 
-  // Write package.json
-  await fs.writeJSON(path.join(targetDir, 'package.json'), pkg, { spaces: 2 });
+        // Write package.json
+        await fs.writeJSON(path.join(targetDir, 'package.json'), pkg, { spaces: 2 });
 
-  try {
-    // Use child_process instead of execa
-    const { execSync } = require('child_process');
-    execSync('npm install', {
-      cwd: targetDir,
-      stdio: 'inherit',
-      env: { ...process.env, FORCE_COLOR: true }
-    });
-  } catch (err) {
-    throw new Error('Failed to install dependencies: ' + err.message);
-  }
-}
-
-/**
- * Process template files and replace placeholders with configuration values
- * @param {string} targetDir - Target project directory
- * @param {Object} config - Project configuration
- */
-async function processTemplates(targetDir, config) {
-  const templateFiles = [
-    'src/App.js',
-    'src/main.js',
-    'index.html',
-    'README.md',
-    'vite.config.js'
-  ];
-
-  // Add feature-specific template files
-  if (config.features.router) {
-    templateFiles.push('src/router/index.js');
-    templateFiles.push('src/views/Home.js');
-  }
-
-  if (config.features.state) {
-    templateFiles.push('src/store/index.js');
-    templateFiles.push('src/store/useStore.js');
-  }
-
-  if (config.features.scss) {
-    templateFiles.push('src/styles/main.scss');
-  }
-
-  if (config.features.api) {
-    templateFiles.push('src/api/useApi.js');
-  }
-
-  if (config.features.composition) {
-    templateFiles.push('src/composables/useWindowSize.js');
-    templateFiles.push('src/composables/useLocalStorage.js');
-  }
-
-  if (config.features.performance) {
-    templateFiles.push('src/utils/performance/lazyLoad.js');
-    templateFiles.push('src/utils/performance/debounce.js');
-  }
-
-  if (config.features.plugins) {
-    templateFiles.push('src/plugins/index.js');
-    templateFiles.push('src/plugins/logger.js');
-  }
-
-  if (config.features.ai) {
-    templateFiles.push('src/ai/aiManager.js');
-    templateFiles.push('src/components/AITextGenerator.js');
-  }
-
-  if (config.features.sfc) {
-    templateFiles.push('src/components/sfc/Card.klx');
-  }
-
-  // Process each template file
-  for (const file of templateFiles) {
-    const filePath = path.join(targetDir, file);
-
-    // Skip if file doesn't exist
-    if (!fs.existsSync(filePath)) {
-      continue;
-    }
-
-    try {
-      // Read file content
-      let content = await fs.readFile(filePath, 'utf8');
-
-      // Replace common placeholders
-      content = content.replace(/\{\{projectName\}\}/g, config.projectName);
-      content = content.replace(/\{\{version\}\}/g, '0.1.0');
-      content = content.replace(/\{\{description\}\}/g, `A modern web application built with KalxJS`);
-
-      // Replace feature flags
-      Object.entries(config.features).forEach(([feature, enabled]) => {
-        content = content.replace(new RegExp(`\\{ \\{ features\\.${feature} \\ } \\ } `, 'g'), enabled.toString());
-      });
-
-      // Process conditional blocks
-      // Format: <!-- IF feature.name -->content<!-- ENDIF -->
-      const conditionalRegex = /<!--\s*IF\s+features\.(\w+)\s*-->([\s\S]*?)<!--\s*ENDIF\s*-->/g;
-      content = content.replace(conditionalRegex, (match, feature, block) => {
-        return config.features[feature] ? block : '';
-      });
-
-      // Write processed content back to file
-      await fs.writeFile(filePath, content, 'utf8');
-
-    } catch (error) {
-      console.error(`Error processing template file ${file}: `, error);
-    }
-  }
-
-  // Process package.json separately (it's a JSON file)
-  const packageJsonPath = path.join(targetDir, 'package.json');
-  if (fs.existsSync(packageJsonPath)) {
-    try {
-      const packageJson = await fs.readJSON(packageJsonPath);
-
-      // Update package.json fields
-      packageJson.name = config.projectName;
-      packageJson.description = `A modern web application built with KalxJS`;
-
-      // Add custom scripts based on features
-      if (config.features.testing) {
-        packageJson.scripts.test = 'vitest run';
-        packageJson.scripts['test:watch'] = 'vitest';
+        try {
+          // Use child_process instead of execa
+          const { execSync } = require('child_process');
+          execSync('npm install', {
+            cwd: targetDir,
+            stdio: 'inherit',
+            env: { ...process.env, FORCE_COLOR: true }
+          });
+        } catch (err) {
+          throw new Error('Failed to install dependencies: ' + err.message);
+        }
       }
 
-      if (config.features.linting) {
-        packageJson.scripts.lint = 'eslint src --ext .js,.klx';
-        packageJson.scripts['lint:fix'] = 'eslint src --ext .js,.klx --fix';
+      /**
+       * Process template files and replace placeholders with configuration values
+       * @param {string} targetDir - Target project directory
+       * @param {Object} config - Project configuration
+       */
+      async function processTemplates(targetDir, config) {
+        const templateFiles = [
+          'src/App.js',
+          'src/main.js',
+          'index.html',
+          'README.md',
+          'vite.config.js'
+        ];
+
+        // Add feature-specific template files
+        if (config.features.router) {
+          templateFiles.push('src/router/index.js');
+          templateFiles.push('src/views/Home.js');
+        }
+
+        if (config.features.state) {
+          templateFiles.push('src/store/index.js');
+          templateFiles.push('src/store/useStore.js');
+        }
+
+        if (config.features.scss) {
+          templateFiles.push('src/styles/main.scss');
+        }
+
+        if (config.features.api) {
+          templateFiles.push('src/api/useApi.js');
+        }
+
+        if (config.features.composition) {
+          templateFiles.push('src/composables/useWindowSize.js');
+          templateFiles.push('src/composables/useLocalStorage.js');
+        }
+
+        if (config.features.performance) {
+          templateFiles.push('src/utils/performance/lazyLoad.js');
+          templateFiles.push('src/utils/performance/debounce.js');
+        }
+
+        if (config.features.plugins) {
+          templateFiles.push('src/plugins/index.js');
+          templateFiles.push('src/plugins/logger.js');
+        }
+
+        if (config.features.ai) {
+          templateFiles.push('src/ai/aiManager.js');
+          templateFiles.push('src/components/AITextGenerator.js');
+        }
+
+        if (config.features.sfc) {
+          templateFiles.push('src/components/sfc/Card.klx');
+        }
+
+        // Process each template file
+        for (const file of templateFiles) {
+          const filePath = path.join(targetDir, file);
+
+          // Skip if file doesn't exist
+          if (!fs.existsSync(filePath)) {
+            continue;
+          }
+
+          try {
+            // Read file content
+            let content = await fs.readFile(filePath, 'utf8');
+
+            // Replace common placeholders
+            content = content.replace(/\{\{projectName\}\}/g, config.projectName);
+            content = content.replace(/\{\{version\}\}/g, '0.1.0');
+            content = content.replace(/\{\{description\}\}/g, `A modern web application built with KalxJS`);
+
+            // Replace feature flags
+            Object.entries(config.features).forEach(([feature, enabled]) => {
+              content = content.replace(new RegExp(`\\{ \\{ features\\.${feature} \\ } \\ } `, 'g'), enabled.toString());
+            });
+
+            // Process conditional blocks
+            // Format: <!-- IF feature.name -->content<!-- ENDIF -->
+            const conditionalRegex = /<!--\s*IF\s+features\.(\w+)\s*-->([\s\S]*?)<!--\s*ENDIF\s*-->/g;
+            content = content.replace(conditionalRegex, (match, feature, block) => {
+              return config.features[feature] ? block : '';
+            });
+
+            // Write processed content back to file
+            await fs.writeFile(filePath, content, 'utf8');
+
+          } catch (error) {
+            console.error(`Error processing template file ${file}: `, error);
+          }
+        }
+
+        // Process package.json separately (it's a JSON file)
+        const packageJsonPath = path.join(targetDir, 'package.json');
+        if (fs.existsSync(packageJsonPath)) {
+          try {
+            const packageJson = await fs.readJSON(packageJsonPath);
+
+            // Update package.json fields
+            packageJson.name = config.projectName;
+            packageJson.description = `A modern web application built with KalxJS`;
+
+            // Add custom scripts based on features
+            if (config.features.testing) {
+              packageJson.scripts.test = 'vitest run';
+              packageJson.scripts['test:watch'] = 'vitest';
+            }
+
+            if (config.features.linting) {
+              packageJson.scripts.lint = 'eslint src --ext .js,.klx';
+              packageJson.scripts['lint:fix'] = 'eslint src --ext .js,.klx --fix';
+            }
+
+            // Write updated package.json
+            await fs.writeJSON(packageJsonPath, packageJson, { spaces: 2 });
+
+          } catch (error) {
+            console.error('Error processing package.json:', error);
+          }
+        }
       }
 
-      // Write updated package.json
-      await fs.writeJSON(packageJsonPath, packageJson, { spaces: 2 });
-
-    } catch (error) {
-      console.error('Error processing package.json:', error);
-    }
-  }
-}
-
-module.exports = create;
+      module.exports = create;

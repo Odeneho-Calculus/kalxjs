@@ -260,6 +260,18 @@ class CustomRenderer {
         console.warn(`Could not load .klx component: ${klxError.message}`);
       }
 
+      // If .klx fails, try to load from views directory
+      try {
+        const viewResponse = await fetch(`/src/views/${name}.klx`);
+
+        if (viewResponse.ok) {
+          const viewSource = await viewResponse.text();
+          return this.processKlxComponent(viewSource, name);
+        }
+      } catch (viewError) {
+        console.warn(`Could not load view component: ${viewError.message}`);
+      }
+
       // If .klx fails, try to load the HTML template
       const htmlResponse = await fetch(`/src/templates/${name}.html`);
 
@@ -295,7 +307,12 @@ class CustomRenderer {
     const result = this.parseKlx(source);
 
     if (!result.template) {
-      throw new Error(`No template section found in ${name}.klx`);
+      console.warn(`No template section found in ${name}.klx, using default template`);
+      // Create a default template if none is found
+      result.template = `<div class="${name}-component">
+        <h2>${name} Component</h2>
+        <p>This is a default template for ${name}.</p>
+      </div>`;
     }
 
     // Create a template element with the parsed template
@@ -359,6 +376,8 @@ class CustomRenderer {
       });
 
       result.template = template;
+    } else {
+      console.warn(`No <template> section found in .klx component${name ? ` ${name}` : ''}`);
     }
 
     // Find script section
@@ -372,6 +391,15 @@ class CustomRenderer {
         .replace(/import\s+.*?;\n/g, '') // Remove imports
         .replace(/export\s+default\s+{/, '{') // Replace export default with object literal
         .replace(/}\s*;?\s*$/, '}'); // Ensure proper closing
+    } else {
+      console.warn(`No <script> section found in .klx component${name ? ` ${name}` : ''}`);
+      // Create a default script if none is found
+      result.script = `{
+        name: '${name || 'DefaultComponent'}',
+        data() {
+          return {};
+        }
+      }`;
     }
 
     // Find style section
