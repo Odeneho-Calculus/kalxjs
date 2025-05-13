@@ -1,6 +1,7 @@
 // @kalxjs/core - Built-in state management
 
 import { reactive, ref, computed, effect } from '../reactivity/reactive';
+import { useStore } from './useStore';
 
 /**
  * Creates a store with state, getters, actions, and mutations
@@ -241,7 +242,7 @@ export function createPersistedState(options = {}) {
  */
 export function defineStore(id, options) {
     // Allow both object-style and setup-style stores
-    const useStore = () => {
+    const storeFunction = () => {
         // For setup function style
         if (typeof options === 'function') {
             const setupStore = {};
@@ -289,7 +290,10 @@ export function defineStore(id, options) {
         return store;
     };
 
-    useStore.$id = id;
+    storeFunction.$id = id;
 
-    return useStore;
+    return storeFunction;
 }
+
+// Export useStore from the module
+export { useStore };

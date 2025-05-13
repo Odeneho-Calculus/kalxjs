@@ -41,7 +41,8 @@ import {
     createModule,
     createStorePlugin,
     createPersistedState,
-    defineStore
+    defineStore,
+    useStore
 } from './store';
 import {
     createApi,
@@ -287,6 +288,7 @@ export {
     createStorePlugin,
     createPersistedState,
     defineStore,
+    useStore,
 
     // API integration
     createApi,

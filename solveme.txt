@@ -1,108 +1,124 @@
-Bug Report: Missing createAIManager Function in KalxJS Framework
-Issue Description
-The KalxJS CLI template generates code that imports a non - existent createAIManager function from the @kalxjs/ai or @kalxjs/core packages.This causes runtime errors when trying to use AI features in a KalxJS application.
+Additional Bug Report for KalxJS Framework - Store Implementation
+Summary
+In addition to the AI module issues previously reported, there are significant problems with the store implementation in KalxJS.These issues cause runtime errors and make the store functionality unusable without manual fixes.
 
-    Details
-The CLI template(@kalxjs / cli / src / commands / create.js) generates an aiManager.js file that imports createAIManager which doesn't exist in any package
-The template suggests importing from @kalxjs/core or @kalxjs/ai, but neither package exports this function
-    This creates a broken reference that prevents the AI features from working
-Reproduction Steps
-Create a new KalxJS application using the CLI
-Try to use the AI features referenced in the generated code
-Observe runtime errors about missing createAIManager function
-    Current Workaround
-I've implemented a workaround by rewriting the aiManager.js file to use the actual functions exported by the @kalxjs/ai package:
+Detailed Issues and Recommended Fixes
+1. Duplicate Import Declarations in Store Module
+Issue: The useStore.js file contained duplicate import declarations for createStore, causing syntax errors that prevent the application from running.
 
-import { configure, generateText as aiGenerateText, useAI } from '@kalxjs/ai';
+    Location:
 
-// Configure the AI service
-configure({
-    apiKey: process.env.OPENAI_API_KEY || '',
-    endpoint: 'https://api.openai.com/v1',
-    model: 'gpt-3.5-turbo',
-    maxTokens: 1000,
-    temperature: 0.7
-});
+@kalxjs/core or custom store implementation in user applications
+Example of problematic code:
 
-// Helper functions for common AI tasks
-export async function generateText(prompt, options = {}) {
-    return aiGenerateText(prompt, {
-        model: options.model || 'gpt-3.5-turbo',
-        maxTokens: options.max_length || 100,
-        temperature: options.temperature || 0.7,
-        ...options
-    });
-}
+import { createStore } from '@kalxjs/core';
+// ... some code ...
+import { createStore } from '@kalxjs/core'; // Duplicate import
+Recommended Fix:
 
-// Create a hook for AI functionality
-export function useAIHelper(options = {}) {
-    return useAI(options);
-}
+Review all framework files for duplicate imports
+Implement linting in the build process to catch duplicate imports
+Ensure that generated code or templates don't introduce duplicate imports
+Consider using named imports with aliases if the same function needs to be imported from different sources:
+import { createStore as coreCreateStore } from '@kalxjs/core';
+import { createStore as customCreateStore } from './customStore';
+2. Inconsistent Store API Implementation
+Issue: The store implementation appears to have inconsistencies between how it's defined and how it's expected to be used in applications.
 
-// Export other AI utilities
-export { useAI } from '@kalxjs/ai';
-Proposed Solutions
-Option 1: Add createAIManager to the @kalxjs/ai package
-Implement the missing function in the @kalxjs/ai package to match the expected API in the template:
+Recommended Fix:
 
-// In @kalxjs/ai/src/index.js
-export function createAIManager(options = {}) {
-    // Configure with provided options
-    configure(options.apiKeys?.openai ? {
-        apiKey: options.apiKeys.openai,
-        model: options.defaultOptions?.model || 'gpt-3.5-turbo',
-        maxTokens: options.defaultOptions?.max_length || 1000,
-        temperature: options.defaultOptions?.temperature || 0.7
-    } : options);
-
+Standardize the store API across the framework:
+// Clear, consistent API pattern
+export function useStore(options = {}) {
+    // Implementation
     return {
-        generateText: async ({ prompt, model, provider, options = {} }) => {
-            return generateText(prompt, {
-                model: model || options.model || 'gpt-3.5-turbo',
-                ...options
-            });
-        },
-        // Add other methods as needed
-        generateImage: async ({ prompt, model, provider, options = {} }) => {
-            // Implement or throw a "not implemented" error
-            throw new Error('Image generation not implemented');
-        }
+        state,
+        getters,
+        actions,
+        // Other store methods
     };
 }
-Option 2: Update the CLI template
-Modify the CLI template to use the actual API provided by the @kalxjs/ai package:
+Provide TypeScript definitions for the store API to make usage clearer
+Add comprehensive documentation on store usage patterns
+3. Potential Circular Dependencies
+Issue: The structure of the store implementation suggests potential circular dependencies that could cause initialization problems.
 
-// In @kalxjs/cli/src/commands/create.js
-files['src/ai/aiManager.js'] = `import { configure, generateText as aiGenerateText, useAI } from '@kalxjs/ai';
+Recommended Fix:
 
-// Configure the AI service
-configure({
-  apiKey: process.env.OPENAI_API_KEY || '',
-  endpoint: 'https://api.openai.com/v1',
-  model: 'gpt-3.5-turbo',
-  maxTokens: 1000,
-  temperature: 0.7
-});
+Review the dependency graph of the store implementation
+Refactor to avoid circular dependencies:
+// Instead of direct imports between modules that reference each other
+// Use a central registry or dependency injection pattern
+const storeRegistry = {};
 
-// Helper functions for common AI tasks
-export async function generateText(prompt, options = {}) {
-  return aiGenerateText(prompt, {
-    model: options.model || 'gpt-3.5-turbo',
-    maxTokens: options.max_length || 100,
-    temperature: options.temperature || 0.7,
-    ...options
-  });
+export function registerStore(name, store) {
+    storeRegistry[name] = store;
 }
 
-// Create a hook for AI functionality
-export function useAIHelper(options = {}) {
-  return useAI(options);
+export function getStore(name) {
+    return storeRegistry[name];
 }
+4. Lack of Error Handling in Store Operations
+Issue: The store implementation appears to lack proper error handling, which can lead to cryptic errors when store operations fail.
 
-// Export other AI utilities
-export { useAI } from '@kalxjs/ai';`;
-Additional Notes
-The @kalxjs/ai package provides a good foundation with functions like configure, generateText, and useAI
-The current implementation focuses on text generation with OpenAI's API
-If image generation is planned as advertised in the template, it should be implemented in the @kalxjs/ai package
-This issue should be addressed to ensure a smooth developer experience when using the AI features of the KalxJS framework.
+Recommended Fix:
+
+Add proper error handling for common store operations:
+    export function useStore(options = {}) {
+        try {
+            // Store initialization
+            return store;
+        } catch (error) {
+            console.error('Failed to initialize store:', error);
+            // Provide fallback or throw a more descriptive error
+            throw new Error(`Store initialization failed: ${error.message}`);
+        }
+    }
+Implement validation for store configuration options
+Add debugging helpers for store - related issues
+5. Inconsistent Module Resolution
+Issue: The framework appears to have inconsistencies in how modules are resolved, particularly when mixing default and named exports.
+
+Recommended Fix:
+
+Standardize the export pattern across the framework:
+// Either use named exports consistently
+export const createStore = () => { /* implementation */ };
+export const useStore = () => { /* implementation */ };
+
+// Or use default exports consistently
+const storeModule = {
+    createStore: () => { /* implementation */ },
+    useStore: () => { /* implementation */ }
+};
+export default storeModule;
+Ensure documentation and examples match the actual export structure
+Consider providing both named and default exports with clear documentation on which to use
+Overall Framework Recommendations
+Based on the issues encountered with both the AI and store modules, here are some general recommendations for improving the KalxJS framework:
+
+Comprehensive Testing Suite:
+
+Implement end - to - end tests that verify the framework works in real applications
+Test with different bundlers and environments
+Add integration tests for common usage patterns
+Improved Error Messages:
+
+Add descriptive error messages that help developers identify and fix issues
+Include debugging information in development mode
+Provide links to documentation for common errors
+Consistent API Design:
+
+Review the entire API surface for consistency
+Standardize naming conventions and patterns
+Document breaking changes clearly
+Developer Tools:
+
+Create developer tools to help debug KalxJS applications
+Add logging options for development environments
+Consider a browser extension for debugging
+Documentation Overhaul:
+
+Update all documentation to match the actual implementation
+Add more examples covering common use cases
+Create troubleshooting guides for common issues

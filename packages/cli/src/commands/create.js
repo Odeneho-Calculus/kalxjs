@@ -1056,51 +1056,78 @@ export default defineComponent({
 
   // Add AI manager example if enabled
   if (config.features.ai) {
-    files['src/ai/aiManager.js'] = `import { createAIManager } from '@kalxjs/ai';
+    files['src/ai/aiManager.js'] = `import { createAIManager, configure, generateText as aiGenerateText, useAI } from '@kalxjs/ai';
 
-// Create and export the AI manager instance
+// Helper function to get environment variables in different environments
+const getEnvVar = (name) => {
+  // For Vite
+  if (typeof import.meta !== 'undefined' && import.meta.env) {
+    return import.meta.env[name] || '';
+  }
+  // For webpack
+  else if (typeof process !== 'undefined' && process.env) {
+    return process.env[name] || '';
+  }
+  return '';
+};
+
+// Get API key from environment
+const apiKey = getEnvVar('OPENAI_API_KEY') || '';
+
+// Create AI manager instance
 export const aiManager = createAIManager({
   apiKeys: {
-    // Add your API keys here
-    huggingface: process.env.HUGGINGFACE_API_KEY || '',
-    openai: process.env.OPENAI_API_KEY || ''
+    openai: apiKey
   },
-  defaultProvider: 'openai',
   defaultOptions: {
-    // Default options for AI requests
     temperature: 0.7,
-    max_length: 100
+    max_length: 1000
   }
+});
+
+// Configure the AI service (alternative approach)
+configure({
+  apiKey: apiKey,
+  endpoint: 'https://api.openai.com/v1',
+  model: 'gpt-3.5-turbo',
+  maxTokens: 1000,
+  temperature: 0.7
 });
 
 // Helper functions for common AI tasks
 export async function generateText(prompt, options = {}) {
-  return aiManager.generateText({
-    prompt,
-    model: options.model || 'gpt-3.5-turbo',
-    provider: options.provider || 'openai',
-    options: {
+  try {
+    // Try using the AI manager first
+    return await aiManager.generateText({
+      prompt,
+      model: options.model || 'gpt-3.5-turbo',
+      options: {
+        temperature: options.temperature || 0.7,
+        max_tokens: options.max_length || 100,
+        ...options
+      }
+    });
+  } catch (error) {
+    // Fall back to direct API if manager fails
+    return aiGenerateText(prompt, {
+      model: options.model || 'gpt-3.5-turbo',
+      maxTokens: options.max_length || 100,
+      temperature: options.temperature || 0.7,
       ...options
-    }
-  });
+    });
+  }
 }
 
-export async function generateImage(prompt, options = {}) {
-  return aiManager.generateImage({
-    prompt,
-    model: options.model || 'dall-e-3',
-    provider: options.provider || 'openai',
-    options: {
-      negative_prompt: options.negativePrompt || 'blurry, bad quality',
-      num_inference_steps: options.steps || 30,
-      guidance_scale: options.guidance || 7.5,
-      ...options
-    }
-  });
-}`;
+// Create a hook for AI functionality
+export function useAIHelper(options = {}) {
+  return useAI(options);
+}
+
+// Export other AI utilities
+export { useAI } from '@kalxjs/ai';`;
 
     files['src/components/AITextGenerator.js'] = `import { defineComponent, h, ref } from '@kalxjs/core';
-import { generateText } from '../ai/aiManager';
+import { aiManager, generateText, useAIHelper } from '../ai/aiManager';
 
 export default defineComponent({
   name: 'AITextGenerator',
@@ -1109,6 +1136,18 @@ export default defineComponent({
     placeholder: {
       type: String,
       default: 'Enter your prompt here...'
+    },
+    model: {
+      type: String,
+      default: 'gpt-3.5-turbo'
+    },
+    temperature: {
+      type: Number,
+      default: 0.7
+    },
+    maxLength: {
+      type: Number,
+      default: 200
     }
   },
   setup(props) {
@@ -1116,6 +1155,9 @@ export default defineComponent({
     const result = ref('');
     const loading = ref(false);
     const error = ref(null);
+    
+    // Use the AI helper for additional functionality
+    const ai = useAIHelper();
 
     const generateContent = async () => {
       if (!prompt.value) return;
@@ -1124,7 +1166,12 @@ export default defineComponent({
       error.value = null;
 
       try {
-        result.value = await generateText(prompt.value);
+        // Try using the helper function first (which handles both approaches)
+        result.value = await generateText(prompt.value, {
+          model: props.model,
+          temperature: props.temperature,
+          max_length: props.maxLength
+        });
       } catch (err) {
         error.value = err.message || 'Failed to generate text';
         console.error('AI text generation error:', err);
@@ -1138,7 +1185,9 @@ export default defineComponent({
       result,
       loading,
       error,
-      generateContent
+      generateContent,
+      ai,
+      aiManager // Export the manager for advanced usage
     };
   },
   render() {
@@ -1321,12 +1370,12 @@ try {
 
   files['src/App.js'] = `import { defineComponent, h } from '@kalxjs/core';
 ${config.features.router ? "import { useRouter } from '@kalxjs/router';" : ''}
-${config.features.state ? "import { useStore } from '@kalxjs/state';" : ''}
+${config.features.state ? "import { useStore } from './store/useStore';" : ''}
 ${config.features.api ? "import { useApi } from './api/useApi';" : ''}
 ${config.features.composition ? "import { useWindowSize } from './composables/useWindowSize';" : ''}
 ${config.features.performance ? "import { useLazyLoad } from './utils/performance/lazyLoad';" : ''}
 ${config.features.plugins ? "import { plugins } from './plugins';" : ''}
-${config.features.ai ? "import { aiManager } from './ai/aiManager';" : ''}
+${config.features.ai ? "import { aiManager, generateText, useAI } from './ai/aiManager';" : ''}
 
 export default defineComponent({
   name: 'App',
@@ -1504,14 +1553,20 @@ export default defineComponent({
   }
 
   if (config.features.state) {
-    files['src/store/index.js'] = `import { createStore } from '@kalxjs/state';
+    files['src/store/index.js'] = `import { createStore } from '@kalxjs/core';
 
+// Create and export the main store
 export default createStore({
   state: {
     count: 0,
     todos: [],
     loading: false,
     error: null
+  },
+  getters: {
+    doubleCount: state => state.count * 2,
+    completedTodos: state => state.todos.filter(todo => todo.completed),
+    pendingTodos: state => state.todos.filter(todo => !todo.completed)
   },
   mutations: {
     increment(state) {
@@ -1559,6 +1614,35 @@ export default createStore({
     }
   }
 });`;
+
+    // Add a useStore composable for the Composition API
+    files['src/store/useStore.js'] = `import { useStore as baseUseStore } from '@kalxjs/core';
+import store from './index';
+
+/**
+ * Composition API hook for using the store
+ * @param {Object} options - Optional custom store options
+ * @returns {Object} Store instance with state, getters, actions, etc.
+ */
+export function useStore(options = {}) {
+  // If no options provided, return the main store
+  if (Object.keys(options).length === 0) {
+    return {
+      state: store.state,
+      getters: store.getters,
+      dispatch: store.dispatch.bind(store),
+      commit: store.commit.bind(store),
+      $reset: store.$reset.bind(store),
+      $patch: store.$patch.bind(store),
+      $subscribe: store.$subscribe.bind(store),
+      // Return the full store for advanced usage
+      $store: store
+    };
+  }
+  
+  // Create a new store with the provided options
+  return baseUseStore(options);
+}`;
   }
 
   if (config.features.scss) {
@@ -1715,6 +1799,7 @@ async function processTemplates(targetDir, config) {
 
   if (config.features.state) {
     templateFiles.push('src/store/index.js');
+    templateFiles.push('src/store/useStore.js');
   }
 
   if (config.features.scss) {

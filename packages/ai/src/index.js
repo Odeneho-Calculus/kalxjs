@@ -4,6 +4,23 @@
  */
 
 /**
+ * Helper function to get environment variables in different environments
+ * @param {string} name - Environment variable name
+ * @returns {string} Environment variable value or empty string
+ */
+export const getEnvVar = (name) => {
+    // For Vite
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+        return import.meta.env[name] || '';
+    }
+    // For webpack
+    else if (typeof process !== 'undefined' && process.env) {
+        return process.env[name] || '';
+    }
+    return '';
+};
+
+/**
  * Configuration for AI services
  * @type {Object}
  */
@@ -108,13 +125,17 @@ export function useAI(options = {}) {
  * @returns {Object} AI manager instance with methods for AI operations
  */
 export function createAIManager(options = {}) {
+    // Get API key from options or environment variables
+    const openaiKey = options.apiKeys?.openai || getEnvVar('OPENAI_API_KEY');
+
     // Configure with provided options
-    configure(options.apiKeys?.openai ? {
-        apiKey: options.apiKeys.openai,
+    configure({
+        apiKey: openaiKey,
         model: options.defaultOptions?.model || 'gpt-3.5-turbo',
         maxTokens: options.defaultOptions?.max_length || 1000,
-        temperature: options.defaultOptions?.temperature || 0.7
-    } : options);
+        temperature: options.defaultOptions?.temperature || 0.7,
+        ...options
+    });
 
     return {
         /**
@@ -222,5 +243,6 @@ export default {
     createAIManager,
     analyzeSentiment,
     extractEntities,
-    summarize
+    summarize,
+    getEnvVar
 };
