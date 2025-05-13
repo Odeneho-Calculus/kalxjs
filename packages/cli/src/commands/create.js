@@ -1155,7 +1155,7 @@ export default defineComponent({
     const result = ref('');
     const loading = ref(false);
     const error = ref(null);
-    
+
     // Use the AI helper for additional functionality
     const ai = useAIHelper();
 
@@ -1476,34 +1476,11 @@ export default defineConfig({
     files['src/router/index.js'] = `import { createRouter } from '@kalxjs/router';
 import { h } from '@kalxjs/core';
 import Home from '../views/Home.js';
+import About from '../views/About.js';
+import User from '../views/User.js';
+import NotFound from '../views/NotFound.js';
 
-// Create an About page component
-const About = {
-  name: 'About',
-  render() {
-    return h('div', { class: 'about', style: 'padding: 1rem;' }, [
-      h('h2', { style: 'color: #4a5568;' }, 'About Page'),
-      h('p', null, 'This is the about page content.'),
-      h('p', null, 'KalxJS is a modern JavaScript framework for building user interfaces.')
-    ]);
-  }
-};
-
-// Create a NotFound page component
-const NotFound = {
-  name: 'NotFound',
-  render() {
-    return h('div', { class: 'not-found', style: 'padding: 1rem; text-align: center;' }, [
-      h('h2', { style: 'color: #e53e3e;' }, '404 - Page Not Found'),
-      h('p', null, 'The page you are looking for does not exist.'),
-      h('a', {
-        href: '/',
-        style: 'color: #4299e1; text-decoration: none;'
-      }, 'Go back to home')
-    ]);
-  }
-};
-
+// Create and export the router instance
 export default createRouter({
   mode: 'history',
   routes: [
@@ -1516,198 +1493,309 @@ export default createRouter({
       component: About
     },
     {
+      path: '/user/:id',
+      component: User
+    },
+    {
       path: '*',
       component: NotFound
     }
   ]
-});`;
+});
 
-    files['src/views/Home.js'] = `import { defineComponent, h } from '@kalxjs/core';
-import Button from '../components/Button.js';
+// Export the useRouter function for easy access in components
+export { useRouter } from '@kalxjs/router';`;
+
+    files['src/views/About.js'] = `import { defineComponent, h } from '@kalxjs/core';
 
 export default defineComponent({
-  name: 'Home',
-  setup() {
-    console.log('Home component setup called');
-
-    const handleClick = () => {
-      console.log('Button clicked!');
-      alert('Button clicked!');
-    };
-
-    return { handleClick };
-  },
+  name: 'About',
   render() {
-    console.log('Home component render called');
-    return h('div', { class: 'home', style: 'padding: 1rem;' }, [
-      h('h2', { style: 'color: #4a5568;' }, 'Home Page'),
-      h('p', null, 'This is the home page content.'),
-      h(Button, {
-        primary: true,
-        text: 'Click me!',
-        onClick: this.handleClick
-      })
+    return h('div', { class: 'about', style: 'padding: 1rem;' }, [
+      h('h2', { style: 'color: #4a5568;' }, 'About Page'),
+      h('p', null, 'This is the about page content.'),
+      h('p', null, 'KalxJS is a modern JavaScript framework for building user interfaces.')
     ]);
   }
 });`;
+
+    files['src/views/NotFound.js'] = `import { defineComponent, h } from '@kalxjs/core';
+import { useRouter } from '@kalxjs/router';
+
+export default defineComponent({
+  name: 'NotFound',
+  setup() {
+    const { push } = useRouter();
+
+    const goHome = (e) => {
+      e.preventDefault();
+      push('/');
+    };
+
+    return { goHome };
+  },
+  render() {
+    return h('div', { class: 'not-found', style: 'padding: 1rem; text-align: center;' }, [
+      h('h2', { style: 'color: #e53e3e;' }, '404 - Page Not Found'),
+      h('p', null, 'The page you are looking for does not exist.'),
+      h('a', {
+        href: '/',
+        style: 'color: #4299e1; text-decoration: none;',
+        onClick: this.goHome
+      }, 'Go back to home')
+    ]);
+  }
+});`;
+
+    files['src/views/User.js'] = `import { defineComponent, h } from '@kalxjs/core';
+import { useRouter } from '@kalxjs/router';
+
+export default defineComponent({
+  name: 'User',
+  setup() {
+    // Use the router composition function to access route params
+    const { params, push } = useRouter();
+
+    const goBack = () => {
+      push('/');
+    };
+
+    return { params, goBack };
+  },
+  render() {
+    return h('div', { class: 'user', style: 'padding: 1rem;' }, [
+      h('h2', { style: 'color: #4a5568;' }, 'User Profile'),
+      h('p', null, \`User ID: \${this.params.value.id}\`),
+      h('button', {
+        style: 'background-color: #4299e1; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;',
+        onClick: this.goBack
+      }, 'Back to Home')
+    ]);
+  }
+});`;
+
+    files['src/views/Home.js'] = `import { defineComponent, h } from '@kalxjs/core';
+    import Button from '../components/Button.js';
+    import { useRouter } from '@kalxjs/router';
+
+    export default defineComponent({
+      name: 'Home',
+      setup() {
+        console.log('Home component setup called');
+
+        // Get router functionality using the composition API
+        const { push, path } = useRouter();
+
+        const handleClick = () => {
+          console.log('Button clicked!');
+          alert('Button clicked!');
+        };
+
+        const navigateTo = (route) => {
+          push(route);
+        };
+
+        return {
+          handleClick,
+          navigateTo,
+          currentPath: path
+        };
+      },
+      render() {
+        console.log('Home component render called');
+
+        // Navigation styles
+        const navStyle = 'display: flex; gap: 1rem; margin-bottom: 1.5rem;';
+        const linkStyle = 'padding: 0.5rem 1rem; background-color: #edf2f7; border-radius: 4px; cursor: pointer; color: #4a5568; text-decoration: none;';
+        const activeLinkStyle = linkStyle + ' background-color: #4299e1; color: white;';
+
+        return h('div', { class: 'home', style: 'padding: 1rem;' }, [
+          // Navigation
+          h('nav', { style: navStyle }, [
+            h('a', {
+              style: this.currentPath.value === '/' ? activeLinkStyle : linkStyle,
+              onClick: () => this.navigateTo('/')
+            }, 'Home'),
+            h('a', {
+              style: this.currentPath.value === '/about' ? activeLinkStyle : linkStyle,
+              onClick: () => this.navigateTo('/about')
+            }, 'About'),
+            h('a', {
+              style: this.currentPath.value === '/user/123' ? activeLinkStyle : linkStyle,
+              onClick: () => this.navigateTo('/user/123')
+            }, 'User Profile')
+          ]),
+
+          // Content
+          h('h2', { style: 'color: #4a5568;' }, 'Home Page'),
+          h('p', null, 'This is the home page content.'),
+          h('p', null, 'Try clicking the navigation links above to see the router in action.'),
+          h(Button, {
+            primary: true,
+            text: 'Click me!',
+            onClick: this.handleClick
+          })
+        ]);
+      }
+    }); `;
   }
 
   if (config.features.state) {
     files['src/store/index.js'] = `import { createStore } from '@kalxjs/state';
 
-// Create and export the main store
-export default createStore({
-  state: {
-    count: 0,
-    todos: [],
-    loading: false,
-    error: null
-  },
-  getters: {
-    doubleCount: state => state.count * 2,
-    completedTodos: state => state.todos.filter(todo => todo.completed),
-    pendingTodos: state => state.todos.filter(todo => !todo.completed)
-  },
-  mutations: {
-    increment(state) {
-      state.count++;
-    },
-    decrement(state) {
-      state.count--;
-    },
-    setCount(state, value) {
-      state.count = value;
-    },
-    addTodo(state, todo) {
-      state.todos.push(todo);
-    },
-    removeTodo(state, id) {
-      state.todos = state.todos.filter(todo => todo.id !== id);
-    },
-    toggleTodo(state, id) {
-      const todo = state.todos.find(todo => todo.id === id);
-      if (todo) {
-        todo.completed = !todo.completed;
-      }
-    },
-    setLoading(state, status) {
-      state.loading = status;
-    },
-    setError(state, error) {
-      state.error = error;
-    }
-  },
-  actions: {
-    async fetchData({ commit }) {
-      commit('setLoading', true);
-      commit('setError', null);
+    // Create and export the main store
+    export default createStore({
+      state: {
+        count: 0,
+        todos: [],
+        loading: false,
+        error: null
+      },
+      getters: {
+        doubleCount: state => state.count * 2,
+        completedTodos: state => state.todos.filter(todo => todo.completed),
+        pendingTodos: state => state.todos.filter(todo => !todo.completed)
+      },
+      mutations: {
+        increment(state) {
+          state.count++;
+        },
+        decrement(state) {
+          state.count--;
+        },
+        setCount(state, value) {
+          state.count = value;
+        },
+        addTodo(state, todo) {
+          state.todos.push(todo);
+        },
+        removeTodo(state, id) {
+          state.todos = state.todos.filter(todo => todo.id !== id);
+        },
+        toggleTodo(state, id) {
+          const todo = state.todos.find(todo => todo.id === id);
+          if (todo) {
+            todo.completed = !todo.completed;
+          }
+        },
+        setLoading(state, status) {
+          state.loading = status;
+        },
+        setError(state, error) {
+          state.error = error;
+        }
+      },
+      actions: {
+        async fetchData({ commit }) {
+          commit('setLoading', true);
+          commit('setError', null);
 
-      try {
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        commit('setCount', 42);
-      } catch (error) {
-        commit('setError', error.message);
-      } finally {
-        commit('setLoading', false);
+          try {
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            commit('setCount', 42);
+          } catch (error) {
+            commit('setError', error.message);
+          } finally {
+            commit('setLoading', false);
+          }
+        }
       }
-    }
-  }
-});`;
+    }); `;
 
     // Add a useStore composable for the Composition API
-    files['src/store/useStore.js'] = `import { useStore as baseUseStore } from '@kalxjs/core';
-import store from './index';
+    files['src/store/useStore.js'] = `import { createStore } from '@kalxjs/state';
+    import store from './index';
 
-/**
- * Composition API hook for using the store
- * @param {Object} options - Optional custom store options
- * @returns {Object} Store instance with state, getters, actions, etc.
- */
-export function useStore(options = {}) {
-  // If no options provided, return the main store
-  if (Object.keys(options).length === 0) {
-    return {
-      state: store.state,
-      getters: store.getters,
-      dispatch: store.dispatch.bind(store),
-      commit: store.commit.bind(store),
-      $reset: store.$reset.bind(store),
-      $patch: store.$patch.bind(store),
-      $subscribe: store.$subscribe.bind(store),
-      // Return the full store for advanced usage
-      $store: store
-    };
-  }
-  
-  // Create a new store with the provided options
-  return baseUseStore(options);
-}`;
+    /**
+     * Composition API hook for using the store
+     * @param {Object} options - Optional custom store options
+     * @returns {Object} Store instance with state, getters, actions, etc.
+     */
+    export function useStore(options = {}) {
+      // If no options provided, return the main store
+      if (Object.keys(options).length === 0) {
+        return {
+          state: store.state,
+          getters: store.getters,
+          dispatch: store.dispatch.bind(store),
+          commit: store.commit.bind(store),
+          $reset: store.$reset && store.$reset.bind(store),
+          $patch: store.$patch && store.$patch.bind(store),
+          $subscribe: store.$subscribe && store.$subscribe.bind(store),
+          // Return the full store for advanced usage
+          $store: store
+        };
+      }
+
+      // Create a new store with the provided options
+      return createStore(options);
+    } `;
   }
 
   if (config.features.scss) {
     files['src/styles/main.scss'] = `/* Base styles */
 body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: #f7f8fa;
-  color: #333;
-  line-height: 1.6;
-}
+      margin: 0;
+      font - family: -apple - system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans - serif;
+      background - color: #f7f8fa;
+      color: #333;
+      line - height: 1.6;
+    }
 
 /* Layout */
 .app {
-  padding: 2rem;
-  text-align: center;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+      padding: 2rem;
+      text - align: center;
+      max - width: 1200px;
+      margin: 0 auto;
+    }
 
 .home {
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  padding: 2rem;
-  margin-top: 1rem;
-}
+      background - color: white;
+      border - radius: 8px;
+      box - shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      padding: 2rem;
+      margin - top: 1rem;
+    }
 
 /* Typography */
 h1 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  color: #2d3748;
-}
+      font - size: 2.5rem;
+      margin - bottom: 1rem;
+      color: #2d3748;
+    }
 
 h2 {
-  font-size: 1.8rem;
-  margin-bottom: 0.8rem;
-  color: #4a5568;
-}
+      font - size: 1.8rem;
+      margin - bottom: 0.8rem;
+      color: #4a5568;
+    }
 
 p {
-  margin-bottom: 1.5rem;
-  color: #4a5568;
-}
+      margin - bottom: 1.5rem;
+      color: #4a5568;
+    }
 
 /* Buttons */
 button {
-  background-color: #4299e1;
-  color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.2s;
-}
+      background - color: #4299e1;
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border - radius: 4px;
+      cursor: pointer;
+      font - size: 1rem;
+      transition: background - color 0.2s;
+    }
 
-button:hover {
-  background-color: #3182ce;
-}
+    button:hover {
+      background - color: #3182ce;
+    }
 
-button:active {
-  background-color: #2b6cb0;
-}`;
+    button:active {
+      background - color: #2b6cb0;
+    } `;
   }
 
   // Write all files
@@ -1736,7 +1824,7 @@ async function installDependencies(targetDir, config) {
   };
 
   // Add feature-specific dependencies
-  if (config.features.router) pkg.dependencies["@kalxjs/router"] = "^1.2.2";
+  if (config.features.router) pkg.dependencies["@kalxjs/router"] = "^1.2.13";
   if (config.features.state) pkg.dependencies["@kalxjs/state"] = "^1.2.2";
   if (config.features.scss) pkg.devDependencies["sass"] = "^1.69.0";
   if (config.features.sfc) {
@@ -1854,7 +1942,7 @@ async function processTemplates(targetDir, config) {
 
       // Replace feature flags
       Object.entries(config.features).forEach(([feature, enabled]) => {
-        content = content.replace(new RegExp(`\\{\\{features\\.${feature}\\}\\}`, 'g'), enabled.toString());
+        content = content.replace(new RegExp(`\\{ \\{ features\\.${feature} \\ } \\ } `, 'g'), enabled.toString());
       });
 
       // Process conditional blocks
@@ -1868,7 +1956,7 @@ async function processTemplates(targetDir, config) {
       await fs.writeFile(filePath, content, 'utf8');
 
     } catch (error) {
-      console.error(`Error processing template file ${file}:`, error);
+      console.error(`Error processing template file ${file}: `, error);
     }
   }
 

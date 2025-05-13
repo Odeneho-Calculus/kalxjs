@@ -12,6 +12,7 @@ Next-generation routing for kalxjs applications with TypeScript support, view tr
 - **Dynamic Routes**: Pattern matching and parameters
 - **Navigation API**: History and scroll management
 - **Dev Tools**: Built-in debugging support
+- **Composition API**: Access router from any component with `useRouter()`
 
 ## Installation
 
@@ -51,6 +52,50 @@ const router = createRouter({
   }
 })
 ```
+
+## Composition API
+
+The router package now includes a `useRouter()` composition function that allows you to access the router instance and route information from any component:
+
+```javascript
+import { useRouter } from '@kalxjs/router';
+
+export default {
+  setup() {
+    // Access router instance and route information
+    const { router, route, params, query, path } = useRouter();
+    
+    // Navigation methods
+    const goToProfile = () => {
+      router.push('/profile');
+    };
+    
+    // Access route parameters
+    console.log(params.value.id); // Access dynamic route parameter
+    
+    return {
+      // Expose to template
+      params,
+      goToProfile
+    };
+  }
+}
+```
+
+### Available Properties and Methods
+
+The `useRouter()` function returns:
+
+- `router`: The router instance
+- `route`: Reactive reference to the current route
+- `params`: Computed property for route parameters
+- `query`: Computed property for query parameters
+- `path`: Computed property for the current path
+- `push(location)`: Navigate to a new location
+- `replace(location)`: Replace current location
+- `go(n)`: Go forward or backward in history
+- `back()`: Go back one step in history
+- `forward()`: Go forward one step in history
 
 ## Advanced Features
 

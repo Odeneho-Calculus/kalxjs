@@ -3,6 +3,8 @@
  * kalxjs Router - A routing system for single-page applications
  */
 
+import { ref, computed } from '@kalxjs/core';
+
 /**
  * Create a new router instance
  * @param {Object} options - Router options
@@ -263,6 +265,62 @@ export function createRouter(options = {}) {
     };
 
     return router;
+}
+
+/**
+ * Composition API hook for accessing the router instance
+ * @returns {Object} Router instance and reactive route state
+ */
+export function useRouter() {
+    // Get the router instance from the application context
+    const router = typeof window !== 'undefined' && window.__KAL_APP__ && window.__KAL_APP__._context.$router;
+    
+    if (!router) {
+        console.warn('useRouter() was called with no active router on the page');
+        return {
+            // Return a minimal implementation to prevent errors
+            currentRoute: {
+                path: '/',
+                params: {},
+                query: {},
+                matched: []
+            },
+            push: () => console.warn('Router not available'),
+            replace: () => console.warn('Router not available'),
+            go: () => console.warn('Router not available')
+        };
+    }
+    
+    // Create reactive references to route properties
+    const route = ref(router.currentRoute);
+    
+    // Update the reactive route when navigation occurs
+    router.onChange((newRoute) => {
+        route.value = newRoute;
+    });
+    
+    // Computed properties for commonly used route values
+    const params = computed(() => route.value.params || {});
+    const query = computed(() => route.value.query || {});
+    const path = computed(() => route.value.path || '/');
+    
+    return {
+        // Expose the router instance
+        router,
+        
+        // Navigation methods
+        push: (location) => router.push(location),
+        replace: (location) => router.replace(location),
+        go: (n) => router.go(n),
+        back: () => router.go(-1),
+        forward: () => router.go(1),
+        
+        // Route state
+        route,
+        params,
+        query,
+        path
+    };
 }
 
 // Create a Router View component that renders the matched route component

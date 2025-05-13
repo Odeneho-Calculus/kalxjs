@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.42](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/cli@1.2.41...@kalxjs/cli@1.2.42) (2025-05-15)
+
+### Features
+
+* **cli:** Update router templates to use the new useRouter composition API ([#124](https://github.com/Odeneho-Calculus/kalxjs/issues/124))
+  * Updated router template to export the useRouter function
+  * Added example components that demonstrate useRouter usage
+  * Created a User component with dynamic route parameter access
+  * Updated Home component with navigation using useRouter
+  * Updated router dependency to v1.2.13
+
 ## [1.2.41](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/cli@1.2.40...@kalxjs/cli@1.2.41) (2025-05-13)
 
 **Note:** Version bump only for package @kalxjs/cli

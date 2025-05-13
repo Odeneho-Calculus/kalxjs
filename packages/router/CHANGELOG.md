@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.13](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/router@1.2.12...@kalxjs/router@1.2.13) (2025-05-15)
+
+### Features
+
+* **router:** Add `useRouter` composition API function ([#123](https://github.com/Odeneho-Calculus/kalxjs/issues/123))
+  * Added new `useRouter()` function to access router from any component
+  * Provides reactive route state (params, query, path)
+  * Includes navigation methods (push, replace, go, back, forward)
+  * Updated documentation with examples
+
 ## [1.2.12](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/router@1.2.11...@kalxjs/router@1.2.12) (2025-05-12)
 
 **Note:** Version bump only for package @kalxjs/router
