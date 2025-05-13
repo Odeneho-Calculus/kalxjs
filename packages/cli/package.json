@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/cli",
-  "version": "1.2.44",
+  "version": "1.2.45",
   "description": "Command Line Interface for KalxJs framework",
   "type": "commonjs",
   "author": "kalxjs Team",

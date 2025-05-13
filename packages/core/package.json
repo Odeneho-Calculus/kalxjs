@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/core",
-  "version": "2.0.18",
+  "version": "2.0.19",
   "description": "A modern JavaScript framework for building user interfaces with reactive state, composition API, and built-in performance optimizations",
   "type": "module",
   "author": "kalxjs Team",
@@ -58,16 +58,16 @@
     "prepublishOnly": "npm run build"
   },
   "optionalDependencies": {
-    "@kalxjs/cli": "^1.2.44",
-    "@kalxjs/devtools": "^1.2.13",
-    "@kalxjs/router": "^1.2.16",
-    "@kalxjs/state": "^1.2.12"
+    "@kalxjs/cli": "^1.2.45",
+    "@kalxjs/devtools": "^1.2.14",
+    "@kalxjs/router": "^1.2.17",
+    "@kalxjs/state": "^1.2.13"
   },
   "suggests": {
-    "@kalxjs/router": "^1.2.7",
-    "@kalxjs/state": "^1.2.7",
-    "@kalxjs/devtools": "^1.2.8",
-    "@kalxjs/cli": "^1.2.28"
+    "@kalxjs/router": "^1.2.17",
+    "@kalxjs/state": "^1.2.13",
+    "@kalxjs/devtools": "^1.2.14",
+    "@kalxjs/cli": "^1.2.45"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.0.0",
