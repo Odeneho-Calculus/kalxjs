@@ -13,7 +13,5 @@
         "typedoc-plugin-markdown"
     ],
     "readme": "none",
-    "name": "@kalxjs/router",
-    "allowJs": true,
-    "checkJs": false
+    "name": "@kalxjs/router"
 }
