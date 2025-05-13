@@ -178,9 +178,12 @@ function generateElementCode(node) {
             // Generate attributes
             code += '{ ';
             for (const [key, value] of Object.entries(node.attrs || {})) {
+                // Convert hyphenated attributes to camelCase or quoted property names
+                const propKey = key.includes('-') ? `'${key}'` : key;
+
                 if (key.startsWith('on') && typeof value === 'string') {
                     // Event handler
-                    code += `${key}: this.${value}, `;
+                    code += `${propKey}: this.${value}, `;
                 } else if (key.startsWith('v-')) {
                     // Handle directives (simplified)
                     if (key === 'v-if') {
@@ -194,13 +197,13 @@ function generateElementCode(node) {
                     }
                 } else if (typeof value === 'string' && value.startsWith('this.')) {
                     // Dynamic attribute already referencing this
-                    code += `${key}: ${value}, `;
+                    code += `${propKey}: ${value}, `;
                 } else if (typeof value === 'boolean') {
                     // Boolean attribute
-                    code += `${key}: ${value}, `;
+                    code += `${propKey}: ${value}, `;
                 } else {
                     // Static attribute
-                    code += `${key}: ${JSON.stringify(value)}, `;
+                    code += `${propKey}: ${JSON.stringify(value)}, `;
                 }
             }
             code += '}, ';
@@ -209,7 +212,12 @@ function generateElementCode(node) {
             if (node.children && node.children.length) {
                 code += '[';
                 for (const child of node.children) {
-                    code += generateElementCode(child) + ', ';
+                    // For element children, we need to use h() function
+                    if (child.type === 'Element') {
+                        code += `h(${generateElementCode(child)}), `;
+                    } else {
+                        code += generateElementCode(child) + ', ';
+                    }
                 }
                 code += ']';
             } else {

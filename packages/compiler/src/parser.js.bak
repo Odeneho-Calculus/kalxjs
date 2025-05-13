@@ -147,23 +147,27 @@ export function parseTemplate(template) {
  * @param {Array} children - Array to store child nodes
  */
 function parseContent(content, children) {
+    // First, remove HTML comments for processing
+    // (we'll still handle them in the text nodes)
+    const processedContent = content.replace(/<!--[\s\S]*?-->/g, '');
+
     // Handle elements
     const elementRegex = /<([a-z0-9-]+)(?:\s+([^>]*))?(?:\/>|>([\s\S]*?)<\/\1>)/gi;
     let lastIndex = 0;
     let match;
 
-    // Keep track of processed indices to avoid infinite loops
-    const processedIndices = new Set();
+    // Keep track of processed content to avoid infinite loops
+    const processedContent = new Set();
 
     while ((match = elementRegex.exec(content))) {
         const [fullMatch, tag, attrs, elementContent] = match;
         const matchIndex = match.index;
 
         // Check if we've already processed this match
-        if (processedIndices.has(matchIndex)) {
+        if (processedContent.has(matchIndex)) {
             continue;
         }
-        processedIndices.add(matchIndex);
+        processedContent.add(matchIndex);
 
         // Add text before the element
         if (matchIndex > lastIndex) {
@@ -187,21 +191,21 @@ function parseContent(content, children) {
         if (elementContent !== undefined) {
             parseContent(elementContent, elementNode.children);
         }
-
-        // Add the element node to the children
-        children.push(elementNode);
-
-        lastIndex = matchIndex + fullMatch.length;
     }
 
-    // Add any remaining text
-    if (lastIndex < content.length) {
-        const remainingText = content.substring(lastIndex);
-        // Skip HTML comments when adding remaining text
-        const cleanRemainingText = remainingText.replace(/<!--[\s\S]*?-->/g, '');
-        if (cleanRemainingText.trim()) {
-            parseTextContent(cleanRemainingText, children);
-        }
+    // Add the element node to the children
+    children.push(elementNode);
+
+    lastIndex = matchIndex + fullMatch.length;
+}
+
+// Add any remaining text
+if (lastIndex < content.length) {
+    const remainingText = content.substring(lastIndex);
+    // Skip HTML comments when adding remaining text
+    const cleanRemainingText = remainingText.replace(/<!--[\s\S]*?-->/g, '');
+    if (cleanRemainingText.trim()) {
+        parseTextContent(cleanRemainingText, children);
     }
 }
 

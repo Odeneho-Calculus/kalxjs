@@ -5,7 +5,15 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ## [1.2.14](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/compiler@1.2.13...@kalxjs/compiler@1.2.14) (2025-05-13)
 
-**Note:** Version bump only for package @kalxjs/compiler
+### Fixed
+- Fixed handling of hyphenated attributes in templates (e.g., `active-class`, `exact-active-class`)
+- Fixed duplicate variable declarations in parser.js
+- Fixed HTML comment handling in templates
+
+### Improved
+- Enhanced template parsing for better component nesting
+- Added better error reporting
+- Improved documentation with more examples and clearer API descriptions
 
 ## [1.2.13](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/compiler@1.2.12...@kalxjs/compiler@1.2.13) (2025-05-13)
 
