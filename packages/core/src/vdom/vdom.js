@@ -60,54 +60,102 @@ export function h(tag, props = {}, children = []) {
 export function createElement(vnode) {
     // Handle primitive values (string, number, etc.)
     if (typeof vnode === 'string' || typeof vnode === 'number') {
-        return document.createTextNode(vnode);
+        return document.createTextNode(String(vnode));
     }
 
     // Handle null or undefined
     if (!vnode) {
-        console.warn('Attempted to create element from null/undefined vnode');
-        return document.createComment('empty node');
+        console.error('Attempted to create element from null/undefined vnode');
+        const comment = document.createComment('empty node');
+        // Add a debug property to help with troubleshooting
+        comment._debug = {
+            error: 'Null or undefined vnode',
+            timestamp: new Date().toISOString()
+        };
+        return comment;
     }
 
     // Handle case where vnode might be a function (component)
     if (typeof vnode === 'function') {
         try {
             const result = vnode();
+            if (!result) {
+                throw new Error('Component function returned null or undefined');
+            }
             return createElement(result);
         } catch (error) {
             console.error('Error rendering component function:', error);
-            return document.createComment('component error');
+            const errorElement = document.createElement('div');
+            errorElement.style.color = 'red';
+            errorElement.style.border = '1px solid red';
+            errorElement.style.padding = '10px';
+            errorElement.style.margin = '10px 0';
+            errorElement.innerHTML = `
+                <h4>Component Error</h4>
+                <p>${error.message}</p>
+                <pre style="font-size: 12px; overflow: auto; max-height: 200px;">${error.stack}</pre>
+            `;
+            return errorElement;
         }
     }
 
     // Handle case where vnode might not be a proper virtual node object
     if (!vnode.tag) {
-        console.warn('Invalid vnode (missing tag):', vnode);
-        return document.createComment('invalid node');
+        console.error('Invalid vnode (missing tag):', vnode);
+        const errorElement = document.createElement('div');
+        errorElement.style.color = 'red';
+        errorElement.style.padding = '5px';
+        errorElement.textContent = `Invalid vnode: ${JSON.stringify(vnode)}`;
+        return errorElement;
     }
 
     // Create the DOM element
-    const element = document.createElement(vnode.tag);
+    let element;
+    try {
+        element = document.createElement(vnode.tag);
+    } catch (error) {
+        console.error(`Error creating element with tag "${vnode.tag}":`, error);
+        const errorElement = document.createElement('div');
+        errorElement.style.color = 'red';
+        errorElement.style.padding = '5px';
+        errorElement.textContent = `Invalid tag: ${vnode.tag}`;
+        return errorElement;
+    }
 
     // Set properties
-    for (const [key, value] of Object.entries(vnode.props || {})) {
-        if (key.startsWith('on')) {
-            // Handle both camelCase (onClick) and lowercase (onclick) event handlers
-            const eventName = key.slice(2).toLowerCase();
-            element.addEventListener(eventName, value);
-        } else if (key === 'style' && typeof value === 'object') {
-            // Handle style objects
-            Object.assign(element.style, value);
-        } else if (key === 'class' || key === 'className') {
-            // Handle class names
-            element.className = value;
-        } else if (key === 'dangerouslySetInnerHTML') {
-            // Handle innerHTML
-            element.innerHTML = value.__html;
-        } else {
-            // Handle regular attributes
-            element.setAttribute(key, value);
+    try {
+        for (const [key, value] of Object.entries(vnode.props || {})) {
+            if (value === undefined || value === null) {
+                continue; // Skip null/undefined props
+            }
+
+            if (key.startsWith('on')) {
+                // Handle both camelCase (onClick) and lowercase (onclick) event handlers
+                const eventName = key.slice(2).toLowerCase();
+                if (typeof value === 'function') {
+                    element.addEventListener(eventName, value);
+                } else {
+                    console.warn(`Event handler for ${eventName} is not a function:`, value);
+                }
+            } else if (key === 'style' && typeof value === 'object') {
+                // Handle style objects
+                Object.assign(element.style, value);
+            } else if (key === 'class' || key === 'className') {
+                // Handle class names
+                element.className = value;
+            } else if (key === 'dangerouslySetInnerHTML') {
+                // Handle innerHTML
+                if (value && value.__html !== undefined) {
+                    element.innerHTML = value.__html;
+                }
+            } else {
+                // Handle regular attributes
+                element.setAttribute(key, value);
+            }
         }
+    } catch (error) {
+        console.error('Error setting properties:', error);
+        // Continue despite property errors
     }
 
     // Create and append children
@@ -121,7 +169,8 @@ export function createElement(vnode) {
                 }
             } catch (error) {
                 console.error('Error creating child element:', error);
-                element.appendChild(document.createComment('child error'));
+                const errorComment = document.createComment(`Error creating child: ${error.message}`);
+                element.appendChild(errorComment);
             }
         }
     });

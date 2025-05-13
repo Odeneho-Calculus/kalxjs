@@ -168,7 +168,7 @@ function createComponent(options) {
         }
 
         if (!el) {
-            console.warn('Invalid mounting element');
+            console.error('Invalid mounting element. Make sure the element exists in the DOM.');
             return this;
         }
 
@@ -178,6 +178,11 @@ function createComponent(options) {
         // Call lifecycle hook
         if (options.beforeMount) {
             options.beforeMount.call(instance);
+        }
+
+        // Call composition API beforeMount hooks
+        if (instance.beforeMount && Array.isArray(instance.beforeMount)) {
+            instance.beforeMount.forEach(hook => hook());
         }
 
         // Render the component
@@ -194,15 +199,36 @@ function createComponent(options) {
 
         // Create real DOM from virtual DOM and append to element
         if (vnode) {
-            const dom = createDOMElement(vnode);
-            if (dom) {
-                el.appendChild(dom);
-                console.log('DOM element created and appended:', dom);
-            } else {
-                console.warn('Failed to create DOM element from vnode:', vnode);
+            try {
+                // Use createElement from vdom/vdom.js to ensure consistent behavior
+                const dom = createElement(vnode);
+
+                if (dom) {
+                    el.appendChild(dom);
+                    console.log('DOM element created and appended:', dom);
+                } else {
+                    throw new Error('Failed to create DOM element from vnode');
+                }
+            } catch (error) {
+                console.error('Error during component mounting:', error);
+                // Add a visible error message to help with debugging
+                el.innerHTML = `
+                    <div style="color: red; border: 1px solid red; padding: 10px; margin: 10px 0;">
+                        <h3>Component Rendering Error</h3>
+                        <p>${error.message}</p>
+                        <pre>${error.stack}</pre>
+                    </div>
+                `;
             }
         } else {
-            console.warn('Component render returned null or undefined');
+            console.error('Component render returned null or undefined. Check your render function.');
+            // Add a visible error message
+            el.innerHTML = `
+                <div style="color: red; border: 1px solid red; padding: 10px; margin: 10px 0;">
+                    <h3>Component Rendering Error</h3>
+                    <p>Render function returned null or undefined</p>
+                </div>
+            `;
         }
 
         // Call mounted hooks
@@ -297,22 +323,88 @@ function createComponent(options) {
 }
 
 function defineComponent(options) {
+    // Validate options
+    if (!options) {
+        console.error('defineComponent called with null or undefined options');
+        throw new Error('Component options cannot be null or undefined');
+    }
+
+    // Ensure options is an object
+    if (typeof options !== 'object') {
+        console.error('defineComponent called with invalid options type:', typeof options);
+        throw new Error(`Component options must be an object, got ${typeof options}`);
+    }
+
+    // Add a name if not provided
+    if (!options.name) {
+        options.name = 'AnonymousComponent';
+        console.warn('Component defined without a name. Consider adding a name for better debugging.');
+    }
+
+    // Return the component factory function
     return function (props) {
-        const instance = createComponent({
-            ...options,
-            props: props || {}
-        });
+        try {
+            // Create a new component instance with the provided props
+            const instance = createComponent({
+                ...options,
+                props: props || {}
+            });
 
-        // Make props accessible directly
-        for (const key in props) {
-            if (key !== 'children') {
-                Object.defineProperty(instance, key, {
-                    get() { return props[key]; }
-                });
+            // Make props accessible directly on the instance
+            for (const key in props) {
+                if (key !== 'children' && !(key in instance)) {
+                    Object.defineProperty(instance, key, {
+                        get() { return props[key]; },
+                        configurable: true
+                    });
+                }
             }
-        }
 
-        return instance.render();
+            // Check if render method exists
+            if (!instance.render) {
+                console.error(`Component ${options.name} has no render method`);
+                throw new Error(`Component ${options.name} has no render method`);
+            }
+
+            // Call the render method to get the virtual DOM
+            const vnode = instance.render();
+
+            // Add component reference to the vnode for future updates
+            if (vnode && typeof vnode === 'object') {
+                vnode._component = instance;
+            }
+
+            return vnode;
+        } catch (error) {
+            console.error(`Error in component ${options.name}:`, error);
+
+            // Return an error vnode instead of throwing
+            return {
+                tag: 'div',
+                props: {
+                    style: 'color: red; border: 1px solid red; padding: 10px; margin: 10px 0;'
+                },
+                children: [
+                    {
+                        tag: 'h4',
+                        props: {},
+                        children: [`Error in component ${options.name}`]
+                    },
+                    {
+                        tag: 'p',
+                        props: {},
+                        children: [error.message]
+                    },
+                    {
+                        tag: 'pre',
+                        props: {
+                            style: 'font-size: 12px; overflow: auto; max-height: 200px;'
+                        },
+                        children: [error.stack]
+                    }
+                ]
+            };
+        }
     };
 }
 
@@ -388,63 +480,123 @@ export function createApp(component) {
                 : selector;
 
             if (!container) {
-                console.warn(`Target container ${selector} not found. Mounting failed.`);
-                return;
+                console.error(`Target container ${selector} not found. Mounting failed.`);
+                // Add a visible error message to the body
+                const errorDiv = document.createElement('div');
+                errorDiv.style.color = 'red';
+                errorDiv.style.border = '1px solid red';
+                errorDiv.style.padding = '10px';
+                errorDiv.style.margin = '10px';
+                errorDiv.innerHTML = `<h3>KalxJS Mount Error</h3><p>Target container "${selector}" not found.</p>`;
+                document.body.appendChild(errorDiv);
+                return this;
             }
 
             // Clear container
             container.innerHTML = '';
 
-            // Try to use the custom renderer if available and enabled
-            try {
-                if (this._useCustomRenderer) {
-                    // Import the renderer dynamically to avoid circular dependencies
-                    import('../renderer').then(({ createRenderer, createCustomRenderer }) => {
-                        try {
-                            // First try to use the direct custom renderer for better performance
-                            if (this._router && this._store) {
-                                this._renderer = createCustomRenderer(this._router, this._store);
+            // Add a loading indicator
+            const loadingEl = document.createElement('div');
+            loadingEl.className = 'kalxjs-loading';
+            loadingEl.innerHTML = 'Loading KalxJS Application...';
+            loadingEl.style.padding = '20px';
+            loadingEl.style.textAlign = 'center';
+            container.appendChild(loadingEl);
+
+            // Create a promise to handle async mounting
+            const mountPromise = new Promise((resolve, reject) => {
+                try {
+                    // First try the default renderer for simplicity and reliability
+                    const instance = this._mountWithDefaultRenderer(container);
+
+                    // If successful, resolve with the instance
+                    if (instance) {
+                        console.log('Application successfully mounted with default renderer');
+                        resolve(instance);
+                        return;
+                    }
+
+                    // If default renderer didn't work and custom renderer is enabled, try that
+                    if (this._useCustomRenderer) {
+                        // Import the renderer dynamically to avoid circular dependencies
+                        import('../renderer').then(({ createRenderer, createCustomRenderer }) => {
+                            try {
+                                // First try to use the direct custom renderer for better performance
+                                if (this._router && this._store) {
+                                    this._renderer = createCustomRenderer(this._router, this._store);
+
+                                    if (this._renderer && this._renderer.init) {
+                                        // Initialize the renderer with the container
+                                        this._renderer.init(container);
+                                        console.log('Application successfully mounted with custom renderer');
+                                        resolve(this);
+                                        return;
+                                    }
+                                }
+
+                                // Fall back to the renderer factory if direct initialization fails
+                                this._renderer = createRenderer({
+                                    router: this._router,
+                                    store: this._store,
+                                    useCustomRenderer: true
+                                });
 
                                 if (this._renderer && this._renderer.init) {
                                     // Initialize the renderer with the container
                                     this._renderer.init(container);
-                                    console.log('Application successfully mounted');
-                                    return; // Exit early if successful
+                                    console.log('Application successfully mounted with factory renderer');
+                                    resolve(this);
+                                } else {
+                                    // If all else fails, try one more time with the default renderer
+                                    const fallbackInstance = this._mountWithDefaultRenderer(container);
+                                    if (fallbackInstance) {
+                                        resolve(fallbackInstance);
+                                    } else {
+                                        reject(new Error('Failed to mount application with any renderer'));
+                                    }
+                                }
+                            } catch (error) {
+                                console.error('Error initializing custom renderer:', error);
+                                // Try default renderer as a last resort
+                                const fallbackInstance = this._mountWithDefaultRenderer(container);
+                                if (fallbackInstance) {
+                                    resolve(fallbackInstance);
+                                } else {
+                                    reject(error);
                                 }
                             }
-
-                            // Fall back to the renderer factory if direct initialization fails
-                            this._renderer = createRenderer({
-                                router: this._router,
-                                store: this._store,
-                                useCustomRenderer: true
-                            });
-
-                            if (this._renderer && this._renderer.init) {
-                                // Initialize the renderer with the container
-                                this._renderer.init(container);
-                                console.log('Application successfully mounted');
+                        }).catch(error => {
+                            console.error('Error loading custom renderer:', error);
+                            // Try default renderer as a last resort
+                            const fallbackInstance = this._mountWithDefaultRenderer(container);
+                            if (fallbackInstance) {
+                                resolve(fallbackInstance);
                             } else {
-                                // Fall back to the default rendering if custom renderer fails
-                                this._mountWithDefaultRenderer(container);
+                                reject(error);
                             }
-                        } catch (error) {
-                            console.error('Error initializing custom renderer:', error);
-                            this._mountWithDefaultRenderer(container);
-                        }
-                    }).catch(error => {
-                        console.error('Error loading custom renderer:', error);
-                        this._mountWithDefaultRenderer(container);
-                    });
-                } else {
-                    // Use the default rendering
-                    this._mountWithDefaultRenderer(container);
+                        });
+                    } else {
+                        // If we get here, the default renderer failed and custom renderer is disabled
+                        reject(new Error('Failed to mount application with default renderer'));
+                    }
+                } catch (error) {
+                    console.error('Error during mount:', error);
+                    reject(error);
                 }
-            } catch (error) {
-                console.error('Error during mount:', error);
-                // Fall back to the default rendering
-                this._mountWithDefaultRenderer(container);
-            }
+            });
+
+            // Handle mount promise
+            mountPromise.catch(error => {
+                console.error('Fatal mounting error:', error);
+                // Show error in the container
+                container.innerHTML = `
+                    <div style="color: red; border: 1px solid red; padding: 20px; margin: 20px 0;">
+                        <h3>KalxJS Fatal Error</h3>
+                        <p>Failed to mount application: ${error.message}</p>
+                        <pre>${error.stack}</pre>
+                    </div>
+                `;
+            });
 
             return this;
         },
@@ -458,16 +610,65 @@ export function createApp(component) {
         _mountWithDefaultRenderer(container) {
             console.log('Using default renderer');
 
-            const instance = createComponent(this._component);
+            try {
+                // Remove loading indicator if it exists
+                const loadingEl = container.querySelector('.kalxjs-loading');
+                if (loadingEl) {
+                    container.removeChild(loadingEl);
+                }
 
-            // Inject app context and plugins
-            instance.$app = this;
-            instance.$options._context = this._context;
+                // Create a fresh component instance
+                const instance = createComponent(this._component);
 
-            // Mount the component
-            instance.$mount(container);
+                // Inject app context and plugins
+                instance.$app = this;
+                instance.$options._context = this._context;
 
-            return instance;
+                // Explicitly inject store if available
+                if (this._store) {
+                    instance.store = this._store;
+
+                    // Also add it to the instance prototype for inheritance
+                    Object.defineProperty(instance, '$store', {
+                        get: function () {
+                            return this._store || this.$app._store;
+                        }
+                    });
+                }
+
+                // Explicitly inject router if available
+                if (this._router) {
+                    instance.router = this._router;
+
+                    // Also add it to the instance prototype for inheritance
+                    Object.defineProperty(instance, '$router', {
+                        get: function () {
+                            return this._router || this.$app._router;
+                        }
+                    });
+                }
+
+                // Mount the component
+                instance.$mount(container);
+
+                // Store the root instance for future reference
+                this._rootInstance = instance;
+
+                return instance;
+            } catch (error) {
+                console.error('Error in default renderer:', error);
+
+                // Show error in the container
+                container.innerHTML = `
+                    <div style="color: red; border: 1px solid red; padding: 20px; margin: 20px 0;">
+                        <h3>KalxJS Rendering Error</h3>
+                        <p>${error.message}</p>
+                        <pre>${error.stack}</pre>
+                    </div>
+                `;
+
+                return null;
+            }
         }
     };
 
