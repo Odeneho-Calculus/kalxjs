@@ -7,13 +7,13 @@
  * @returns {Object} Generated code and source map
  */
 export function generateCode(compiled, options = {}) {
-    const { template, script, style } = compiled;
+    const { template, script, scriptSetup, style } = compiled;
 
     try {
         // Start with the imports
         let code = `import { h, defineComponent } from '@kalxjs/core';\n\n`;
 
-        // Track imports from the script section
+        // Track imports from the script sections
         const imports = [];
 
         // Process script content
@@ -40,6 +40,28 @@ export function generateCode(compiled, options = {}) {
                 .trim();
         }
 
+        // Process script setup content if present
+        let setupContent = '';
+        if (scriptSetup) {
+            // Extract imports from setup
+            const setupImportRegex = /import\s+.*?;\n/g;
+            let setupMatch;
+            let setupCode = scriptSetup.code;
+
+            while ((setupMatch = setupImportRegex.exec(setupCode))) {
+                // Add to imports if not already included
+                if (!imports.includes(setupMatch[0])) {
+                    imports.push(setupMatch[0]);
+                }
+            }
+
+            // Remove imports from setup content
+            setupCode = setupCode.replace(setupImportRegex, '');
+
+            // Store the setup code to be added to the setup() function
+            setupContent = setupCode.trim();
+        }
+
         // Add imports at the top
         if (imports.length > 0) {
             code = imports.join('') + code;
@@ -64,6 +86,27 @@ export function generateCode(compiled, options = {}) {
                 code += ',\n';
             } else {
                 code += '\n';
+            }
+        }
+
+        // Add setup function if we have script setup content
+        if (setupContent) {
+            // Check if there's already a setup function in the script content
+            if (!scriptContent.includes('setup(') && !scriptContent.includes('setup :')) {
+                code += `  setup() {\n`;
+                // Add the setup content, indented properly
+                code += setupContent.split('\n')
+                    .map(line => `    ${line}`)
+                    .join('\n');
+
+                // Add return statement if not present
+                if (!setupContent.includes('return {') && !setupContent.includes('return(')) {
+                    code += '\n    // Auto-generated return statement\n    return {};\n';
+                }
+
+                code += '  },\n';
+            } else {
+                console.warn('Script setup content found but setup() function already exists in main script');
             }
         }
 

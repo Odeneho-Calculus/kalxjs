@@ -1,4 +1,4 @@
-[**@kalxjs/router v2.0.5**](../README.md)
+[**@kalxjs/router v2.0.6**](../README.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **createWebHashHistory**(`base`): `any`
 
-Defined in: [index.js:50](https://github.com/Odeneho-Calculus/kalxjs/blob/e27abe834ab0b355974c298aed79777c1c2c2a61/packages/router/src/index.js#L50)
+Defined in: [index.js:50](https://github.com/Odeneho-Calculus/kalxjs/blob/f4e1448a67739b423dfc857ea0a65824ff7a067a/packages/router/src/index.js#L50)
 
 Create a hash history object for hash mode
 

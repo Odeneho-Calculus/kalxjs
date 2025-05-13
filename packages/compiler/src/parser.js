@@ -14,8 +14,8 @@ export function parse(source) {
     };
 
     try {
-        // Find template section
-        const templateMatch = /<template>([\s\S]*?)<\/template>/i.exec(source);
+        // Find template section - improved to handle attributes
+        const templateMatch = /<template(?:\s+[^>]*)?>([\s\S]*?)<\/template>/i.exec(source);
         if (templateMatch) {
             result.template = {
                 content: templateMatch[1].trim(),
@@ -26,14 +26,37 @@ export function parse(source) {
             result.errors.push('No <template> section found');
         }
 
-        // Find script section
-        const scriptMatch = /<script>([\s\S]*?)<\/script>/i.exec(source);
-        if (scriptMatch) {
-            result.script = {
-                content: scriptMatch[1].trim(),
-                start: scriptMatch.index,
-                end: scriptMatch.index + scriptMatch[0].length
-            };
+        // Find main script section - improved to handle multiple script sections
+        const scriptMatches = Array.from(source.matchAll(/<script(?:\s+[^>]*)?>([\s\S]*?)<\/script>/gi));
+
+        if (scriptMatches && scriptMatches.length > 0) {
+            // Use the first script section without setup attribute as the main script
+            const mainScriptMatch = scriptMatches.find(match => !match[0].includes('setup'));
+
+            if (mainScriptMatch) {
+                result.script = {
+                    content: mainScriptMatch[1].trim(),
+                    start: mainScriptMatch.index,
+                    end: mainScriptMatch.index + mainScriptMatch[0].length
+                };
+            } else {
+                // If no main script found, use the first script section
+                result.script = {
+                    content: scriptMatches[0][1].trim(),
+                    start: scriptMatches[0].index,
+                    end: scriptMatches[0].index + scriptMatches[0][0].length
+                };
+            }
+
+            // Handle script setup if present
+            const setupScriptMatch = scriptMatches.find(match => match[0].includes('setup'));
+            if (setupScriptMatch) {
+                result.scriptSetup = {
+                    content: setupScriptMatch[1].trim(),
+                    start: setupScriptMatch.index,
+                    end: setupScriptMatch.index + setupScriptMatch[0].length
+                };
+            }
         } else {
             result.errors.push('No <script> section found');
         }

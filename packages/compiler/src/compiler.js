@@ -59,6 +59,12 @@ export function compile(ast, options = {}) {
         try {
             console.log(`[compiler] Processing script for ${options.filename || 'unknown'}`);
             result.script = processScript(ast.script.content, options);
+
+            // Process script setup if present
+            if (ast.scriptSetup) {
+                console.log(`[compiler] Processing script setup for ${options.filename || 'unknown'}`);
+                result.scriptSetup = processScriptSetup(ast.scriptSetup.content, options);
+            }
         } catch (error) {
             console.error(`[compiler] Script compilation error:`, error);
             result.errors.push(`Script compilation error: ${error.message}`);
@@ -236,6 +242,27 @@ function processScript(script, options) {
         };
     } catch (error) {
         console.error(`[compiler] Error in processScript:`, error);
+        throw error;
+    }
+}
+
+/**
+ * Processes the script setup section
+ * @private
+ * @param {string} scriptSetup - Script setup content
+ * @param {Object} options - Compilation options
+ * @returns {Object} Processed script setup
+ */
+function processScriptSetup(scriptSetup, options) {
+    try {
+        // For now, just return the script setup as-is
+        // In a real implementation, we would transform the script setup into setup() function
+        return {
+            code: scriptSetup,
+            isSetup: true
+        };
+    } catch (error) {
+        console.error(`[compiler] Error in processScriptSetup:`, error);
         throw error;
     }
 }
