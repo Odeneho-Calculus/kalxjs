@@ -1,114 +1,175 @@
-KalxJS Framework Rendering Issue Report
-Issue Description
-The KalxJS application is mounting successfully but fails to render any content to the DOM.The application shows a blank white page despite no JavaScript errors in the console.The framework appears to be initializing correctly(router and store are registered), but the virtual DOM is not being properly converted to actual DOM elements.
+kalculusGuy@kalculus MINGW64 ~/Desktop/projectEra/nodejs/kaljs (master)
+$ npm run clean
 
-Diagnostic Findings
-Application Lifecycle:
+> kalxjs-monorepo@1.0.0 clean
+> lerna clean -y && rm -rf node_modules
 
-The application mounts successfully with app.mount('#app')
-Console logs show "Application successfully mounted"
-The App component's render function is called (logs "App component render called")
-However, child components like Home are never rendered(no "Home component render called" log)
-DOM Inspection:
+(node:31668) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+lerna notice cli v8.2.2
+lerna info versioning independent
+lerna info clean removing C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\ai\node_modules
+lerna info clean removing C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\api\node_modules
+lerna info clean removing C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\cli\node_modules
+lerna info clean removing C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\compiler-plugin\node_modules
+lerna info clean removing C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\compiler\node_modules
+lerna info clean removing C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\composition\node_modules
+lerna info clean removing C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\core\node_modules
+lerna info clean removing C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\devtools\node_modules
+lerna info clean removing C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\performance\node_modules
+lerna info clean removing C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\plugins\node_modules
+lerna info clean removing C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\router\node_modules
+lerna info clean removing C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\state\node_modules
+lerna success clean finished
 
-After mounting, the app container only contains an HTML comment: <!--empty node-- >
-    This indicates the virtual DOM is not being properly converted to real DOM elements
-Framework Integration:
+kalculusGuy@kalculus MINGW64 ~/Desktop/projectEra/nodejs/kaljs (master)
+$ npm run build
 
-Router and store are properly initialized and registered
-Component definitions appear correct
-Event handlers were fixed(changed onclick to onClick in Button component)
-Root Cause Analysis
-The issue appears to be with the KalxJS framework's rendering system. Specifically:
+> kalxjs-monorepo@1.0.0 build
+> lerna run build --stream --sort
 
-The virtual DOM created by component render functions is not being properly converted to real DOM elements
-The framework's mounting process completes successfully, but the renderer fails silently
-No errors are thrown during this process, making it difficult to diagnose
-Solution Implemented
-We implemented a fallback rendering mechanism that bypasses the framework's rendering system:
+(node:29392) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+lerna notice cli v8.2.2
+lerna info versioning independent
 
-Added a fallback script(fallback.js) that runs after the main application
-This script checks if the app container is empty after the framework has had time to render
-If empty, it directly injects HTML content into the DOM
-This ensures users see content even when the framework's renderer fails
-Recommendations for Framework Developers
-Fix the Rendering Pipeline:
+ Lerna (powered by Nx)   The task graph has a circular dependency
 
-Investigate the conversion from virtual DOM to real DOM elements
-Add proper error handling in the rendering pipeline to expose silent failures
-Check compatibility between the core renderer and other framework components
-Improve Error Reporting:
+@kalxjs/ai:build --> @kalxjs/core:build --> @kalxjs/router:build --> @kalxjs/core:build
 
-Add more detailed logging in the rendering process
-Throw meaningful errors when rendering fails instead of silently failing
-Consider adding a development mode with enhanced debugging
-Component Rendering:
 
-Review how components like RouterView are registered and rendered
-Ensure proper communication between the router and the rendering system
-Fix the event handler naming convention to be consistent(either all camelCase or all lowercase)
-Version Compatibility:
+ Lerna (powered by Nx)   Running target build for 12 projects:
 
-Ensure all framework packages have compatible versions:
-@kalxjs/core: ^1.2.2
-@kalxjs/router: ^1.2.14
-@kalxjs/state: ^1.2.2
-Other packages: ^ 1.2.2
-The router version(1.2.14) differs from other packages(1.2.2), which might cause compatibility issues
-Documentation Improvements:
+- @kalxjs/ai
+- @kalxjs/api
+- @kalxjs/cli
+- @kalxjs/compiler
+- @kalxjs/compiler-plugin
+- @kalxjs/composition
+- @kalxjs/core
+- @kalxjs/devtools
+- @kalxjs/performance
+- @kalxjs/plugins
+- @kalxjs/router
+- @kalxjs/state
 
-Document the expected behavior of the rendering system
-Provide troubleshooting guides for common issues
-Include examples of proper component definition and usage
-Code Changes Made to Fix the Issue
-Fixed event handler naming in Button component:
+——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————— 
 
-// Changed from:
-return h('button', {
-    style: this.getStyle(),
-    onclick: this.onClick
-}, this.text || this.$slots.default);
+> @kalxjs/state:build
 
-// To:
-return h('button', {
-    style: this.getStyle(),
-    onClick: this.onClick
-}, this.text || this.$slots.default);
-Added proper RouterView import:
 
-// Changed from:
-import { useRouter } from '@kalxjs/router';
+> @kalxjs/devtools:build
 
-// To:
-import { useRouter, RouterView } from '@kalxjs/router';
-Created fallback rendering mechanism:
 
-// Added fallback.js to ensure content is displayed
-window.addEventListener('load', function () {
-    setTimeout(function () {
-        const appContainer = document.getElementById('app');
-        if (appContainer) {
-            const appContent = appContainer.innerHTML.trim();
-            if (!appContent || appContent === '' || appContent.startsWith('<!--')) {
-                // Render fallback content directly to DOM
-                appContainer.innerHTML = `
-          <div style="padding: 2rem; text-align: center;">
-            <!-- Fallback content -->
-          </div>
-        `;
-            }
-        }
-    }, 1000);
-});
-Added the fallback script to index.html:
+> @kalxjs/cli:build
 
-<div id="app" > </div>
-    < script type = "module" src = "/src/main.js" > </script>
-        < !--Fallback script to ensure content is displayed-- >
-            <script src="/fallback.js" > </script>
-Testing Recommendations
-Test with different versions of the KalxJS framework packages
-Create a minimal reproduction case with just the core rendering functionality
-Test in different browsers to see if the issue is browser - specific
-Check if the issue occurs with both development and production builds
-This comprehensive report should help the KalxJS framework developers identify and fix the rendering issues in their framework.
+
+> @kalxjs/router:build
+
+
+> @kalxjs/compiler:build
+
+@kalxjs/router: > @kalxjs/router@1.2.33 build
+@kalxjs/router: > rollup -c ../../rollup.config.js
+@kalxjs/state: > @kalxjs/state@1.2.29 build
+@kalxjs/state: > rollup -c ../../rollup.config.js
+@kalxjs/devtools: > @kalxjs/devtools@1.2.16 build
+@kalxjs/devtools: > rollup -c rollup.config.js
+@kalxjs/cli: > @kalxjs/cli@1.3.9 build
+@kalxjs/cli: > node scripts/build.js
+@kalxjs/compiler: > @kalxjs/compiler@1.2.8 build
+@kalxjs/compiler: > rollup -c
+@kalxjs/devtools: [!] Error: Cannot find package '@rollup/plugin-node-resolve' imported from C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\devtools\rollup.config.js
+@kalxjs/devtools: Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@rollup/plugin-node-resolve' imported from C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\devtools\rollup.config.js
+@kalxjs/devtools:     at packageResolve (node:internal/modules/esm/resolve:857:9)
+@kalxjs/devtools:     at moduleResolve (node:internal/modules/esm/resolve:926:18)
+@kalxjs/devtools:     at defaultResolve (node:internal/modules/esm/resolve:1056:11)
+@kalxjs/devtools:     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:654:12)
+@kalxjs/devtools:     at #cachedDefaultResolve (node:internal/modules/esm/loader:603:25)
+@kalxjs/devtools:     at ModuleLoader.resolve (node:internal/modules/esm/loader:586:38)
+@kalxjs/devtools:     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:242:38)
+@kalxjs/devtools:     at ModuleJob._link (node:internal/modules/esm/module_job:135:49)
+@kalxjs/router: [!] Error: Cannot find package '@rollup/plugin-node-resolve' imported from C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\rollup.config.js
+@kalxjs/router: Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@rollup/plugin-node-resolve' imported from C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\rollup.config.js
+@kalxjs/router:     at packageResolve (node:internal/modules/esm/resolve:857:9)
+@kalxjs/router:     at moduleResolve (node:internal/modules/esm/resolve:926:18)
+@kalxjs/router:     at defaultResolve (node:internal/modules/esm/resolve:1056:11)
+@kalxjs/router:     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:654:12)
+@kalxjs/router:     at #cachedDefaultResolve (node:internal/modules/esm/loader:603:25)
+@kalxjs/router:     at ModuleLoader.resolve (node:internal/modules/esm/loader:586:38)
+@kalxjs/router:     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:242:38)
+@kalxjs/router:     at ModuleJob._link (node:internal/modules/esm/module_job:135:49)
+@kalxjs/state: [!] Error: Cannot find package '@rollup/plugin-node-resolve' imported from C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\rollup.config.js
+@kalxjs/state: Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@rollup/plugin-node-resolve' imported from C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\rollup.config.js
+@kalxjs/state:     at packageResolve (node:internal/modules/esm/resolve:857:9)
+@kalxjs/state:     at moduleResolve (node:internal/modules/esm/resolve:926:18)
+@kalxjs/state:     at defaultResolve (node:internal/modules/esm/resolve:1056:11)
+@kalxjs/state:     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:654:12)
+@kalxjs/state:     at #cachedDefaultResolve (node:internal/modules/esm/loader:603:25)
+@kalxjs/state:     at ModuleLoader.resolve (node:internal/modules/esm/loader:586:38)
+@kalxjs/state:     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:242:38)
+@kalxjs/state:     at ModuleJob._link (node:internal/modules/esm/module_job:135:49)
+@kalxjs/router: npm error Lifecycle script `build` failed with error:
+@kalxjs/state: npm error Lifecycle script `build` failed with error:
+@kalxjs/state: npm error code 1
+@kalxjs/state: npm error path C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\state
+@kalxjs/state: npm error workspace @kalxjs/state@1.2.29
+@kalxjs/state: npm error location C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\state
+@kalxjs/state: npm error command failed
+@kalxjs/state: npm error command C:\WINDOWS\system32\cmd.exe /d /s /c rollup -c ../../rollup.config.js
+@kalxjs/devtools: npm error Lifecycle script `build` failed with error:
+@kalxjs/devtools: npm error code 1
+@kalxjs/devtools: npm error path C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\devtools
+@kalxjs/devtools: npm error workspace @kalxjs/devtools@1.2.16
+@kalxjs/devtools: npm error location C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\devtools
+@kalxjs/devtools: npm error command failed
+@kalxjs/devtools: npm error command C:\WINDOWS\system32\cmd.exe /d /s /c rollup -c rollup.config.js
+@kalxjs/router: npm error code 1
+@kalxjs/router: npm error path C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\router
+@kalxjs/router: npm error workspace @kalxjs/router@1.2.33
+@kalxjs/router: npm error location C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\router
+@kalxjs/router: npm error command failed
+@kalxjs/router: npm error command C:\WINDOWS\system32\cmd.exe /d /s /c rollup -c ../../rollup.config.js
+@kalxjs/compiler: [!] Error: Cannot find package '@rollup/plugin-node-resolve' imported from C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\compiler\rollup.config.js
+@kalxjs/compiler: Error [ERR_MODULE_NOT_FOUND]: Cannot find package '@rollup/plugin-node-resolve' imported from C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\compiler\rollup.config.js
+@kalxjs/compiler:     at packageResolve (node:internal/modules/esm/resolve:857:9)
+@kalxjs/compiler:     at moduleResolve (node:internal/modules/esm/resolve:926:18)
+@kalxjs/compiler:     at defaultResolve (node:internal/modules/esm/resolve:1056:11)
+@kalxjs/compiler:     at ModuleLoader.defaultResolve (node:internal/modules/esm/loader:654:12)
+@kalxjs/compiler:     at #cachedDefaultResolve (node:internal/modules/esm/loader:603:25)
+@kalxjs/compiler:     at ModuleLoader.resolve (node:internal/modules/esm/loader:586:38)
+@kalxjs/compiler:     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:242:38)
+@kalxjs/compiler:     at ModuleJob._link (node:internal/modules/esm/module_job:135:49)
+@kalxjs/compiler: npm error Lifecycle script `build` failed with error:
+@kalxjs/compiler: npm error code 1
+@kalxjs/compiler: npm error path C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\compiler
+@kalxjs/compiler: npm error workspace @kalxjs/compiler@1.2.8
+@kalxjs/compiler: npm error location C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\compiler
+@kalxjs/compiler: npm error command failed
+@kalxjs/compiler: npm error command C:\WINDOWS\system32\cmd.exe /d /s /c rollup -c
+@kalxjs/cli: Build completed successfully!
+
+———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
+
+ Lerna (powered by Nx)   Running target build for 12 projects failed
+
+Tasks not run because their dependencies failed or --nx-bail=true:
+
+- @kalxjs/ai:build
+- @kalxjs/api:build
+- @kalxjs/compiler-plugin:build
+- @kalxjs/composition:build
+- @kalxjs/core:build
+- @kalxjs/performance:build
+- @kalxjs/plugins:build
+
+Failed tasks:
+
+- @kalxjs/state:build
+- @kalxjs/router:build
+- @kalxjs/devtools:build
+- @kalxjs/compiler:build
+
+
+kalculusGuy@kalculus MINGW64 ~/Desktop/projectEra/nodejs/kaljs (master)
+$
