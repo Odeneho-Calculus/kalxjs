@@ -1,0 +1,221 @@
+<template>
+  <div class="welcome-container">
+    <div class="welcome-header">
+      <h1>Welcome to <span class="brand-name">KalxJS</span></h1>
+    </div>
+    
+    <div class="welcome-content">
+      <p class="welcome-message" data-bind="welcomeMessage"></p>
+      
+      <div class="feature-grid">
+        <div class="feature-card" v-for="feature in features">
+          <h3>{{ feature.icon }} {{ feature.title }}</h3>
+          <p>{{ feature.description }}</p>
+        </div>
+      </div>
+      
+      <div class="counter-demo">
+        <h2>Try the Counter Demo</h2>
+        <div class="counter-value" id="counter-value">{{ count }}</div>
+        <div class="counter-buttons">
+          <button id="decrement-button" class="counter-button" data-event-decrement="click">-</button>
+          <button id="increment-button" class="counter-button" data-event-increment="click">+</button>
+        </div>
+        <div class="counter-info">
+          Double value: <span id="double-count">{{ doubleCount }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import { defineComponent } from '@kalxjs/core';
+
+export default {
+  name: 'WelcomeComponent',
+  
+  data() {
+    return {
+      count: 0,
+      welcomeMessage: 'Congratulations! You\'ve successfully created a new KalxJS project with .klx components!',
+      features: [
+        {
+          icon: '📝',
+          title: 'Template-Based Rendering',
+          description: 'Use HTML templates directly with no virtual DOM overhead'
+        },
+        {
+          icon: '⚡',
+          title: 'Reactive State',
+          description: 'Powerful state management with automatic DOM updates'
+        },
+        {
+          icon: '🧩',
+          title: 'Component System',
+          description: 'Create reusable components with clean APIs'
+        },
+        {
+          icon: '🔄',
+          title: 'Routing',
+          description: 'Seamless navigation between different views'
+        }
+      ]
+    };
+  },
+  
+  computed: {
+    doubleCount() {
+      return this.count * 2;
+    }
+  },
+  
+  methods: {
+    increment() {
+      this.count++;
+      this.updateCounter();
+    },
+    
+    decrement() {
+      this.count--;
+      this.updateCounter();
+    },
+    
+    updateCounter() {
+      const counterValue = document.getElementById('counter-value');
+      const doubleCount = document.getElementById('double-count');
+      
+      if (counterValue) {
+        counterValue.textContent = this.count;
+        
+        // Add animation class
+        counterValue.classList.add('updated');
+        setTimeout(() => {
+          counterValue.classList.remove('updated');
+        }, 300);
+      }
+      
+      if (doubleCount) {
+        doubleCount.textContent = this.doubleCount;
+      }
+    }
+  },
+  
+  mounted() {
+    console.log('Welcome component mounted!');
+    
+    // Render the features dynamically
+    const featureGrid = document.querySelector('.feature-grid');
+    if (featureGrid) {
+      featureGrid.innerHTML = '';
+      
+      this.features.forEach(feature => {
+        const card = document.createElement('div');
+        card.className = 'feature-card';
+        card.innerHTML = `
+          <h3>${feature.icon} ${feature.title}</h3>
+          <p>${feature.description}</p>
+        `;
+        featureGrid.appendChild(card);
+      });
+    }
+  }
+};
+</script>
+
+<style>
+.welcome-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: Arial, sans-serif;
+}
+
+.welcome-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.brand-name {
+  color: #42b883;
+  font-weight: bold;
+}
+
+.welcome-content {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-message {
+  font-size: 1.2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.feature-card {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.feature-card h3 {
+  color: #42b883;
+  margin-top: 0;
+}
+
+.counter-demo {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.counter-value {
+  font-size: 4rem;
+  font-weight: bold;
+  color: #42b883;
+  margin: 1rem 0;
+}
+
+.counter-buttons {
+  margin: 1rem 0;
+}
+
+.counter-button {
+  background-color: #42b883;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 1.5rem;
+  width: 50px;
+  height: 50px;
+  margin: 0 0.5rem;
+  cursor: pointer;
+}
+
+.counter-info {
+  margin-top: 1rem;
+  color: #666;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.counter-value.updated {
+  animation: pulse 0.3s ease;
+}
+</style>

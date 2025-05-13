@@ -1,0 +1,216 @@
+<template>
+  <div class="counter-page">
+    <h1>Counter Example</h1>
+    
+    <div class="counter-container">
+      <div class="counter-display">
+        <div class="counter-value" id="counter-value">{{ count }}</div>
+        <div class="counter-label">Current Count</div>
+      </div>
+      
+      <div class="counter-controls">
+        <button id="decrement-button" class="counter-button decrement" data-event-decrement="click">-</button>
+        <button id="reset-button" class="counter-button reset" data-event-reset="click">Reset</button>
+        <button id="increment-button" class="counter-button increment" data-event-increment="click">+</button>
+      </div>
+      
+      <div class="counter-stats">
+        <div class="stat-item">
+          <div class="stat-label">Double Count:</div>
+          <div class="stat-value" id="double-count">{{ doubleCount }}</div>
+        </div>
+        
+        <div class="stat-item">
+          <div class="stat-label">Is Even:</div>
+          <div class="stat-value" id="is-even">{{ isEven }}</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="counter-actions">
+      <a href="#/" class="nav-link" data-route="/">Back to Home</a>
+    </div>
+  </div>
+</template>
+
+<script>
+import { defineComponent } from '@kalxjs/core';
+
+export default {
+  name: 'CounterComponent',
+  
+  data() {
+    return {
+      count: 0
+    };
+  },
+  
+  computed: {
+    doubleCount() {
+      return this.count * 2;
+    },
+    
+    isEven() {
+      return this.count % 2 === 0 ? 'Yes' : 'No';
+    }
+  },
+  
+  methods: {
+    increment() {
+      this.count++;
+      this.updateCounter();
+    },
+    
+    decrement() {
+      this.count--;
+      this.updateCounter();
+    },
+    
+    reset() {
+      this.count = 0;
+      this.updateCounter();
+    },
+    
+    updateCounter() {
+      const counterValue = document.getElementById('counter-value');
+      const doubleCount = document.getElementById('double-count');
+      const isEven = document.getElementById('is-even');
+      
+      if (counterValue) {
+        counterValue.textContent = this.count;
+        
+        // Add animation class
+        counterValue.classList.add('updated');
+        setTimeout(() => {
+          counterValue.classList.remove('updated');
+        }, 300);
+      }
+      
+      if (doubleCount) {
+        doubleCount.textContent = this.doubleCount;
+      }
+      
+      if (isEven) {
+        isEven.textContent = this.isEven;
+      }
+    }
+  },
+  
+  mounted() {
+    console.log('Counter component mounted!');
+  }
+};
+</script>
+
+<style>
+.counter-page {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: Arial, sans-serif;
+  text-align: center;
+}
+
+.counter-container {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.counter-display {
+  margin-bottom: 2rem;
+}
+
+.counter-value {
+  font-size: 6rem;
+  font-weight: bold;
+  color: #42b883;
+}
+
+.counter-label {
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+.counter-controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.counter-button {
+  width: 60px;
+  height: 60px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.counter-button.increment {
+  background-color: #42b883;
+  color: white;
+}
+
+.counter-button.decrement {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.counter-button.reset {
+  background-color: #7f8c8d;
+  color: white;
+  font-size: 0.9rem;
+}
+
+.counter-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #35495e;
+}
+
+.counter-actions {
+  margin-top: 2rem;
+}
+
+.nav-link {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: #f8f8fa;
+  color: #42b883;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.counter-value.updated {
+  animation: pulse 0.3s ease;
+}
+</style>

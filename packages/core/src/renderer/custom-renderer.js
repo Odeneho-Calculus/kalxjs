@@ -248,14 +248,26 @@ class CustomRenderer {
    */
   async loadTemplateFromFile(name) {
     try {
-      // Try to load the template from the templates directory
-      const response = await fetch(`/src/templates/${name}.html`);
+      // First try to load the .klx component
+      try {
+        const klxResponse = await fetch(`/src/components/${name}.klx`);
 
-      if (!response.ok) {
-        throw new Error(`Failed to load template: ${response.status} ${response.statusText}`);
+        if (klxResponse.ok) {
+          const klxSource = await klxResponse.text();
+          return this.processKlxComponent(klxSource, name);
+        }
+      } catch (klxError) {
+        console.warn(`Could not load .klx component: ${klxError.message}`);
       }
 
-      const html = await response.text();
+      // If .klx fails, try to load the HTML template
+      const htmlResponse = await fetch(`/src/templates/${name}.html`);
+
+      if (!htmlResponse.ok) {
+        throw new Error(`Failed to load template: ${htmlResponse.status} ${htmlResponse.statusText}`);
+      }
+
+      const html = await htmlResponse.text();
 
       // Create a template element
       const template = document.createElement('template');
@@ -270,6 +282,139 @@ class CustomRenderer {
       console.error(`Error loading template ${name}:`, error);
       throw error;
     }
+  }
+
+  /**
+   * Processes a .klx component file
+   * @param {string} source - KLX component source
+   * @param {string} name - Component name
+   * @returns {DocumentFragment} Processed component content
+   */
+  processKlxComponent(source, name) {
+    // Parse the .klx file
+    const result = this.parseKlx(source);
+
+    if (!result.template) {
+      throw new Error(`No template section found in ${name}.klx`);
+    }
+
+    // Create a template element with the parsed template
+    const template = document.createElement('template');
+    template.innerHTML = result.template.trim();
+
+    // Store the template for future use
+    this.templates.set(name, template);
+
+    // If there's a style section, add it to the document
+    if (result.style) {
+      const styleId = `style-${name}-${Date.now()}`;
+      const styleElement = document.createElement('style');
+      styleElement.id = styleId;
+      styleElement.textContent = result.style;
+      document.head.appendChild(styleElement);
+    }
+
+    // If there's a script section, evaluate it
+    if (result.script) {
+      try {
+        // Create a component instance
+        const componentScript = new Function('return ' + result.script)();
+
+        // Store the component instance
+        this.componentInstances.set(name, componentScript);
+      } catch (error) {
+        console.error(`Error evaluating script for ${name}.klx:`, error);
+      }
+    }
+
+    // Return a clone of the template content
+    return template.content.cloneNode(true);
+  }
+
+  /**
+   * Parses a .klx file into its sections
+   * @param {string} source - KLX component source
+   * @param {string} name - Component name (optional)
+   * @returns {Object} Parsed sections
+   */
+  parseKlx(source, name = '') {
+    const result = {
+      template: null,
+      script: null,
+      style: null
+    };
+
+    // Find template section
+    const templateMatch = /<template>([\s\S]*?)<\/template>/i.exec(source);
+    if (templateMatch) {
+      // Process template interpolation
+      let template = templateMatch[1].trim();
+
+      // Process v-for directives (simplified implementation)
+      template = this.processVForDirectives(template);
+
+      // Process template interpolation {{ expression }}
+      template = template.replace(/{{(.*?)}}/g, (match, expression) => {
+        return `<span data-bind="${expression.trim()}"></span>`;
+      });
+
+      result.template = template;
+    }
+
+    // Find script section
+    const scriptMatch = /<script>([\s\S]*?)<\/script>/i.exec(source);
+    if (scriptMatch) {
+      // Extract the component definition
+      const scriptContent = scriptMatch[1].trim();
+
+      // Convert to a component object
+      result.script = scriptContent
+        .replace(/import\s+.*?;\n/g, '') // Remove imports
+        .replace(/export\s+default\s+{/, '{') // Replace export default with object literal
+        .replace(/}\s*;?\s*$/, '}'); // Ensure proper closing
+    }
+
+    // Find style section
+    const styleMatch = /<style(\s+scoped)?>([\s\S]*?)<\/style>/i.exec(source);
+    if (styleMatch) {
+      const scoped = !!styleMatch[1];
+      let styleContent = styleMatch[2].trim();
+
+      // Handle scoped styles
+      if (scoped && name) {
+        const scopeId = `data-klx-${name}`;
+        styleContent = styleContent.replace(/([^{]*){/g, (match, selector) => {
+          return `${selector}[${scopeId}] {`;
+        });
+      }
+
+      result.style = styleContent;
+    }
+
+    return result;
+  }
+
+  /**
+   * Processes v-for directives in a template
+   * @param {string} template - Template HTML
+   * @returns {string} Processed template
+   */
+  processVForDirectives(template) {
+    // This is a simplified implementation
+    // In a real implementation, we would use a proper HTML parser
+
+    // Match elements with v-for directive
+    const vForRegex = /<([a-z0-9-]+)([^>]*?)v-for="([^"]*?)"([^>]*?)>([\s\S]*?)<\/\1>/gi;
+
+    return template.replace(vForRegex, (match, tag, attrs1, vForExpr, attrs2, content) => {
+      // Extract the v-for expression parts: "item in items"
+      const [itemName, arrayName] = vForExpr.split(' in ').map(s => s.trim());
+
+      // Replace with a data-for attribute for runtime processing
+      return `<div data-for="${arrayName}" data-for-item="${itemName}" data-for-template="${encodeURIComponent(
+        `<${tag}${attrs1}${attrs2}>${content}</${tag}>`
+      )}"></div>`;
+    });
   }
 
   /**
@@ -350,7 +495,16 @@ class CustomRenderer {
    * @param {DocumentFragment} content - Component content
    */
   setupComponent(name, content) {
-    // Set up based on component type
+    // Check if we have a component instance for this name
+    const componentInstance = this.componentInstances.get(name);
+
+    if (componentInstance) {
+      // Set up the component using its instance
+      this.setupComponentInstance(componentInstance, content);
+      return;
+    }
+
+    // Otherwise, set up based on component type
     switch (name) {
       case 'home':
         this.setupHomeComponent(content);
@@ -370,6 +524,184 @@ class CustomRenderer {
       default:
         console.log(`No specific setup for component: ${name}`);
     }
+  }
+
+  /**
+   * Sets up a component using its instance
+   * @param {Object} component - Component instance
+   * @param {DocumentFragment} content - Component content
+   */
+  setupComponentInstance(component, content) {
+    // Initialize component data
+    let data = {};
+    if (component.data && typeof component.data === 'function') {
+      data = component.data();
+
+      // Store the data on the component
+      component._data = data;
+    }
+
+    // Initialize computed properties
+    let computed = {};
+    if (component.computed) {
+      for (const [key, fn] of Object.entries(component.computed)) {
+        Object.defineProperty(component, key, {
+          get: typeof fn === 'function' ? fn.bind(component) : () => fn,
+          configurable: true
+        });
+
+        // Initialize computed value
+        computed[key] = component[key];
+      }
+    }
+
+    // Process v-for directives
+    const forElements = content.querySelectorAll('[data-for]');
+    forElements.forEach(element => {
+      const arrayName = element.getAttribute('data-for');
+      const itemName = element.getAttribute('data-for-item');
+      const templateStr = decodeURIComponent(element.getAttribute('data-for-template'));
+
+      // Get the array from data
+      const array = this.getNestedValue(data, arrayName);
+
+      if (Array.isArray(array)) {
+        // Create a document fragment to hold the generated elements
+        const fragment = document.createDocumentFragment();
+
+        // Generate elements for each item in the array
+        array.forEach((item, index) => {
+          // Create a template element to parse the template string
+          const template = document.createElement('template');
+          template.innerHTML = templateStr;
+
+          // Clone the template content
+          const itemContent = template.content.cloneNode(true);
+
+          // Replace item interpolation in the content
+          this.processItemInterpolation(itemContent, itemName, item, index);
+
+          // Add to the fragment
+          fragment.appendChild(itemContent);
+        });
+
+        // Replace the v-for element with the generated elements
+        element.parentNode.replaceChild(fragment, element);
+      }
+    });
+
+    // Set up data bindings
+    const bindingElements = content.querySelectorAll('[data-bind]');
+    bindingElements.forEach(element => {
+      const binding = element.getAttribute('data-bind');
+
+      // Try to get the value from data, computed, or component methods
+      let value;
+
+      if (binding.includes('.')) {
+        // Handle nested properties
+        value = this.getNestedValue(data, binding);
+      } else if (data[binding] !== undefined) {
+        value = data[binding];
+      } else if (component[binding] !== undefined) {
+        value = component[binding];
+      }
+
+      if (value !== undefined) {
+        element.textContent = value;
+      }
+    });
+
+    // Set up event handlers
+    if (component.methods) {
+      for (const [methodName, method] of Object.entries(component.methods)) {
+        // Find elements with this method as an event handler
+        const eventElements = content.querySelectorAll(`[data-event-${methodName}]`);
+        eventElements.forEach(element => {
+          const eventType = element.getAttribute(`data-event-${methodName}`);
+          const boundMethod = method.bind(component);
+
+          element.addEventListener(eventType, boundMethod);
+          this.eventListeners.set(element, boundMethod);
+        });
+      }
+    }
+
+    // Call mounted hook if available
+    if (component.mounted && typeof component.mounted === 'function') {
+      // Delay the mounted call to ensure the DOM is ready
+      setTimeout(() => {
+        component.mounted.call(component);
+      }, 0);
+    }
+  }
+
+  /**
+   * Gets a nested value from an object using a dot-notation path
+   * @param {Object} obj - Object to get value from
+   * @param {string} path - Dot-notation path
+   * @returns {*} Value at the path
+   */
+  getNestedValue(obj, path) {
+    return path.split('.').reduce((value, key) => {
+      return value && value[key] !== undefined ? value[key] : undefined;
+    }, obj);
+  }
+
+  /**
+   * Processes item interpolation in v-for templates
+   * @param {DocumentFragment} content - Content to process
+   * @param {string} itemName - Name of the item variable
+   * @param {*} item - Current item
+   * @param {number} index - Current index
+   */
+  processItemInterpolation(content, itemName, item, index) {
+    // Process text nodes
+    const walker = document.createTreeWalker(
+      content,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+
+    const textNodes = [];
+    let currentNode;
+
+    while ((currentNode = walker.nextNode())) {
+      textNodes.push(currentNode);
+    }
+
+    textNodes.forEach(node => {
+      // Replace {{ item.property }} with the actual value
+      node.textContent = node.textContent.replace(
+        new RegExp(`{{\\s*${itemName}\\.(.*?)\\s*}}`, 'g'),
+        (match, property) => {
+          return item[property] !== undefined ? item[property] : '';
+        }
+      );
+
+      // Replace {{ index }} with the current index
+      node.textContent = node.textContent.replace(
+        /{{\\s*index\\s*}}/g,
+        index
+      );
+    });
+
+    // Process attributes
+    const elements = content.querySelectorAll('*');
+    elements.forEach(element => {
+      Array.from(element.attributes).forEach(attr => {
+        if (attr.value.includes(`{{${itemName}.`)) {
+          // Replace {{ item.property }} with the actual value
+          attr.value = attr.value.replace(
+            new RegExp(`{{\\s*${itemName}\\.(.*?)\\s*}}`, 'g'),
+            (match, property) => {
+              return item[property] !== undefined ? item[property] : '';
+            }
+          );
+        }
+      });
+    });
   }
 
   /**
