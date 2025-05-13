@@ -105,21 +105,11 @@ import {
 /**
  * Main entry point for kalxjs framework
  */
-function createAppInstance(options) {
-    const app = createApp(options);
+function createAppInstance(rootComponent) {
+    // Make sure we're passing the component definition to createApp
+    const app = createApp(rootComponent);
 
-    // Add plugin support
-    app.use = function (plugin, options = {}) {
-        if (!plugin) return this;
-
-        if (typeof plugin.install === 'function') {
-            plugin.install(this, options);
-        } else if (typeof plugin === 'function') {
-            plugin(this, options);
-        }
-        return this;
-    };
-
+    // Plugin support is already added in createApp
     return app;
 }
 

@@ -341,12 +341,17 @@ function defineComponent(options) {
         console.warn('Component defined without a name. Consider adding a name for better debugging.');
     }
 
+    // Store the original options for reference
+    const componentOptions = { ...options };
+
     // Return the component factory function
-    return function (props) {
+    const componentFactory = function (props) {
         try {
+            console.log(`Creating component ${componentOptions.name} with props:`, props);
+
             // Create a new component instance with the provided props
             const instance = createComponent({
-                ...options,
+                ...componentOptions,
                 props: props || {}
             });
 
@@ -362,12 +367,13 @@ function defineComponent(options) {
 
             // Check if render method exists
             if (!instance.render) {
-                console.error(`Component ${options.name} has no render method`);
-                throw new Error(`Component ${options.name} has no render method`);
+                console.error(`Component ${componentOptions.name} has no render method`);
+                throw new Error(`Component ${componentOptions.name} has no render method`);
             }
 
             // Call the render method to get the virtual DOM
             const vnode = instance.render();
+            console.log(`Component ${componentOptions.name} rendered:`, vnode);
 
             // Add component reference to the vnode for future updates
             if (vnode && typeof vnode === 'object') {
@@ -376,7 +382,7 @@ function defineComponent(options) {
 
             return vnode;
         } catch (error) {
-            console.error(`Error in component ${options.name}:`, error);
+            console.error(`Error in component ${componentOptions.name}:`, error);
 
             // Return an error vnode instead of throwing
             return {
@@ -388,7 +394,7 @@ function defineComponent(options) {
                     {
                         tag: 'h4',
                         props: {},
-                        children: [`Error in component ${options.name}`]
+                        children: [`Error in component ${componentOptions.name}`]
                     },
                     {
                         tag: 'p',
@@ -406,6 +412,11 @@ function defineComponent(options) {
             };
         }
     };
+
+    // Add the component options to the factory function for reference
+    componentFactory.options = componentOptions;
+
+    return componentFactory;
 }
 
 /**
@@ -415,7 +426,7 @@ function defineComponent(options) {
  */
 export function createApp(component) {
     const app = {
-        _component: typeof component === 'function' ? component() : component,
+        _component: component, // Store the component definition, not the instance
         _context: {},
         _plugins: new Set(),
         _router: null,
@@ -618,7 +629,15 @@ export function createApp(component) {
                 }
 
                 // Create a fresh component instance
-                const instance = createComponent(this._component);
+                // Handle both component definition objects and component factory functions
+                let componentOptions = this._component;
+                if (typeof componentOptions === 'function') {
+                    // If it's a factory function (like from defineComponent), we need to call it
+                    // But don't pass any props yet - they'll be handled by the component system
+                    componentOptions = { render: () => componentOptions() };
+                }
+
+                const instance = createComponent(componentOptions);
 
                 // Inject app context and plugins
                 instance.$app = this;
