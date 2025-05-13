@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/router",
-  "version": "1.2.32",
+  "version": "1.2.33",
   "description": "Router package for KalxJs framework",
   "type": "module",
   "author": "kalxjs Team",
@@ -32,7 +32,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@kalxjs/core": "^2.1.14"
+    "@kalxjs/core": "^2.1.15"
   },
   "peerDependencies": {
     "@kalxjs/core": "^2.0.0"
