@@ -1,5 +1,8 @@
 import { ref, reactive, computed } from '@kalxjs/core';
 
+// Re-export reactive from @kalxjs/core
+export { reactive };
+
 // Implement lifecycle hooks directly in this package
 export function onMounted(callback) {
     if (typeof window !== 'undefined' && callback) {
