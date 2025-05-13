@@ -200,8 +200,8 @@ async function generateProject(targetDir, config) {
 
   // Add API integration example if enabled
   if (config.features.api) {
-    files['src/api/useApi.js'] = `import { ref } from '@kalxjs/core';
-import { reactive, computed } from '@kalxjs/composition';
+    files['src/api/useApi.js'] = `import { ref, computed } from '@kalxjs/core';
+import { reactive } from '@kalxjs/composition';
 
 /**
  * Custom hook for API requests with built-in state management

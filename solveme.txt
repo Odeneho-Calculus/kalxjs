@@ -1,0 +1,81 @@
+Root Cause of the Problem
+The issue is in the '@kalxjs/composition' package.It's trying to import lifecycle hooks from a non-existent path:
+
+
+The Problem
+The error occurs because the '@kalxjs/composition' package is trying to import lifecycle hooks (onMounted, onUnmounted, and watch) from '@kalxjs/core/composition', but this path doesn't exist. This causes the error:
+
+Uncaught SyntaxError: The requested module doesn't provide an export named: 'onUnmounted'
+// In @kalxjs/composition/src/index.js
+import { ref, reactive, computed } from '@kalxjs/core';
+import { onMounted, onUnmounted, watch } from '@kalxjs/core/composition';
+The problem is that '@kalxjs/core/composition' doesn't exist or doesn't export these functions.
+
+Solution for Package Maintainers
+Here's what needs to be fixed:
+
+Fix the '@kalxjs/composition' package:
+
+Remove the incorrect import from '@kalxjs/core/composition'
+Implement the lifecycle hooks directly in the '@kalxjs/composition' package
+Specifically, update the '@kalxjs/composition/src/index.js' file:
+
+import { ref, reactive, computed } from '@kalxjs/core';
+
+// Implement lifecycle hooks directly in this package
+export function onMounted(callback) {
+    if (typeof window !== 'undefined' && callback) {
+        // Execute callback when DOM is ready
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            setTimeout(callback, 1);
+        } else {
+            document.addEventListener('DOMContentLoaded', callback, { once: true });
+        }
+    }
+}
+
+export function onUnmounted(callback) {
+    // Store cleanup functions to be called when component is unmounted
+    if (typeof window !== 'undefined' && callback) {
+        window.addEventListener('beforeunload', callback, { once: true });
+    }
+}
+
+// Simple watch implementation
+export function watch(source, callback) {
+    if (typeof source === 'function') {
+        let oldValue = source();
+        const interval = setInterval(() => {
+            const newValue = source();
+            if (newValue !== oldValue) {
+                callback(newValue, oldValue);
+                oldValue = newValue;
+            }
+        }, 100);
+
+        // Return cleanup function
+        return () => clearInterval(interval);
+    } else if (source && typeof source === 'object' && 'value' in source) {
+        // Handle ref objects
+        let oldValue = source.value;
+        const interval = setInterval(() => {
+            if (source.value !== oldValue) {
+                callback(source.value, oldValue);
+                oldValue = source.value;
+            }
+        }, 100);
+
+        // Return cleanup function
+        return () => clearInterval(interval);
+    }
+}
+Rebuild the package: After making these changes, the package needs to be rebuilt to update the distribution files:
+cd path / to / @kalxjs / composition
+npm run build  # or whatever build script is defined in package.json
+For Application Developers(Temporary Workaround)
+Until the package is fixed, application developers can:
+
+Modify the node_modules / @kalxjs / composition / src / index.js file directly with the changes above
+Rebuild the package manually if possible
+Clear Vite's cache with rm -rf node_modules/.vite and restart the development server
+This approach fixes the issue at its source rather than working around it with custom implementations in the application code.

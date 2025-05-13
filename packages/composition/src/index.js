@@ -1,5 +1,52 @@
 import { ref, reactive, computed } from '@kalxjs/core';
-import { onMounted, onUnmounted, watch } from '@kalxjs/core/composition';
+
+// Implement lifecycle hooks directly in this package
+export function onMounted(callback) {
+    if (typeof window !== 'undefined' && callback) {
+        // Execute callback when DOM is ready
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            setTimeout(callback, 1);
+        } else {
+            document.addEventListener('DOMContentLoaded', callback, { once: true });
+        }
+    }
+}
+
+export function onUnmounted(callback) {
+    // Store cleanup functions to be called when component is unmounted
+    if (typeof window !== 'undefined' && callback) {
+        window.addEventListener('beforeunload', callback, { once: true });
+    }
+}
+
+// Simple watch implementation
+export function watch(source, callback) {
+    if (typeof source === 'function') {
+        let oldValue = source();
+        const interval = setInterval(() => {
+            const newValue = source();
+            if (newValue !== oldValue) {
+                callback(newValue, oldValue);
+                oldValue = newValue;
+            }
+        }, 100);
+
+        // Return cleanup function
+        return () => clearInterval(interval);
+    } else if (source && typeof source === 'object' && 'value' in source) {
+        // Handle ref objects
+        let oldValue = source.value;
+        const interval = setInterval(() => {
+            if (source.value !== oldValue) {
+                callback(source.value, oldValue);
+                oldValue = source.value;
+            }
+        }, 100);
+
+        // Return cleanup function
+        return () => clearInterval(interval);
+    }
+}
 
 /**
  * Composition API hook for tracking window size
