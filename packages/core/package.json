@@ -67,15 +67,15 @@
   },
   "optionalDependencies": {
     "@kalxjs/cli": "^1.3.3",
-    "@kalxjs/devtools": "^1.2.15",
+    "@kalxjs/devtools": "^1.3.1",
     "@kalxjs/router": "^1.2.20",
     "@kalxjs/state": "^1.2.16"
   },
   "suggests": {
-    "@kalxjs/router": "^1.2.17",
-    "@kalxjs/state": "^1.2.13",
-    "@kalxjs/devtools": "^1.2.14",
-    "@kalxjs/cli": "^1.2.45"
+    "@kalxjs/router": "^1.2.18",
+    "@kalxjs/state": "^1.2.14",
+    "@kalxjs/devtools": "^1.2.15",
+    "@kalxjs/cli": "^1.3.1"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.0.0",

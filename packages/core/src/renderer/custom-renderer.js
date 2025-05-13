@@ -54,13 +54,13 @@ class CustomRenderer {
 
     // Set up router listeners
     this.setupRouterListeners();
-    
+
     // Set up navigation
     this.setupNavigation();
-    
+
     // Initial render
     this.renderCurrentRoute();
-    
+
     console.log('Custom renderer initialized');
   }
 
@@ -88,16 +88,16 @@ class CustomRenderer {
   setupNavigation() {
     // Find all navigation links
     const navLinks = document.querySelectorAll('[data-route]');
-    
+
     navLinks.forEach(link => {
       const route = link.getAttribute('data-route');
-      
+
       // Remove existing click listener if any
       const existingListener = this.eventListeners.get(link);
       if (existingListener) {
         link.removeEventListener('click', existingListener);
       }
-      
+
       // Add click listener
       const clickHandler = (e) => {
         e.preventDefault();
@@ -105,7 +105,7 @@ class CustomRenderer {
           this.router.push(route);
         }
       };
-      
+
       link.addEventListener('click', clickHandler);
       this.eventListeners.set(link, clickHandler);
     });
@@ -116,12 +116,12 @@ class CustomRenderer {
    */
   updateNavigation() {
     if (!this.currentRoute) return;
-    
+
     const navLinks = document.querySelectorAll('[data-route]');
-    
+
     navLinks.forEach(link => {
       const route = link.getAttribute('data-route');
-      
+
       if (route === this.currentRoute.path) {
         link.classList.add('active');
       } else {
@@ -135,20 +135,20 @@ class CustomRenderer {
    */
   renderCurrentRoute() {
     if (!this.routerView) return;
-    
+
     // Clear current content
     this.routerView.innerHTML = '';
-    
+
     if (!this.currentRoute) {
       console.warn('No current route to render');
       return;
     }
-    
+
     const path = this.currentRoute.path;
     const component = this.currentRoute.component;
-    
+
     console.log(`Rendering route: ${path}, component: ${component}`);
-    
+
     // Render the component
     if (typeof component === 'string') {
       // Component is a string identifier
@@ -172,21 +172,66 @@ class CustomRenderer {
   renderNamedComponent(name) {
     const templateId = `${name}-template`;
     const template = document.getElementById(templateId);
-    
+
     if (!template) {
       console.warn(`Template not found for component: ${name}`);
-      this.renderNotFound();
+
+      // Try to load the template from a file
+      this.loadTemplateFromFile(name)
+        .then(content => {
+          // Set up component
+          this.setupComponent(name, content);
+
+          // Append to router view
+          this.routerView.appendChild(content);
+        })
+        .catch(error => {
+          console.error(`Failed to load template for ${name}:`, error);
+          this.renderNotFound();
+        });
+
       return;
     }
-    
+
     // Clone the template content
     const content = template.content.cloneNode(true);
-    
+
     // Set up component
     this.setupComponent(name, content);
-    
+
     // Append to router view
     this.routerView.appendChild(content);
+  }
+
+  /**
+   * Loads a template from a file
+   * @param {string} name - Template name
+   * @returns {Promise<DocumentFragment>} Template content
+   */
+  async loadTemplateFromFile(name) {
+    try {
+      // Try to load the template from the templates directory
+      const response = await fetch(`/src/templates/${name}.html`);
+
+      if (!response.ok) {
+        throw new Error(`Failed to load template: ${response.status} ${response.statusText}`);
+      }
+
+      const html = await response.text();
+
+      // Create a template element
+      const template = document.createElement('template');
+      template.innerHTML = html.trim();
+
+      // Store the template for future use
+      this.templates.set(name, template);
+
+      // Return a clone of the content
+      return template.content.cloneNode(true);
+    } catch (error) {
+      console.error(`Error loading template ${name}:`, error);
+      throw error;
+    }
   }
 
   /**
@@ -198,14 +243,14 @@ class CustomRenderer {
       // Create a container for the component
       const container = document.createElement('div');
       container.className = 'component-container';
-      
+
       // Create component instance
       const instance = component();
-      
+
       // Store the instance
       const id = `func-${Date.now()}`;
       this.componentInstances.set(id, instance);
-      
+
       // Set up the component
       if (instance.$mount) {
         // If it's a KalxJS component, mount it to the container
@@ -214,7 +259,7 @@ class CustomRenderer {
         // Otherwise, render it directly
         container.innerHTML = instance;
       }
-      
+
       // Append to router view
       this.routerView.appendChild(container);
     } catch (error) {
@@ -232,11 +277,11 @@ class CustomRenderer {
       // Create a container for the component
       const container = document.createElement('div');
       container.className = 'component-container';
-      
+
       // Store the component
       const id = `obj-${Date.now()}`;
       this.componentInstances.set(id, component);
-      
+
       // Set up the component
       if (component.render) {
         const result = component.render();
@@ -252,7 +297,7 @@ class CustomRenderer {
         console.warn('Component has no render method or template');
         container.innerHTML = '<div>Component Error: No render method or template</div>';
       }
-      
+
       // Append to router view
       this.routerView.appendChild(container);
     } catch (error) {
@@ -271,6 +316,9 @@ class CustomRenderer {
     switch (name) {
       case 'home':
         this.setupHomeComponent(content);
+        break;
+      case 'welcome':
+        this.setupWelcomeComponent(content);
         break;
       case 'counter':
         this.setupCounterComponent(content);
@@ -299,6 +347,107 @@ class CustomRenderer {
   }
 
   /**
+   * Sets up the welcome component
+   * @param {DocumentFragment} content - Component content
+   */
+  setupWelcomeComponent(content) {
+    if (!this.store) {
+      console.warn('Store not available for welcome component');
+      return;
+    }
+
+    // Set up user name if available
+    const userNameEl = content.querySelector('.user-name');
+    if (userNameEl && this.store.state.user) {
+      userNameEl.textContent = this.store.state.user.name || 'Developer';
+    }
+
+    // Set up counter in the welcome page
+    const counterValue = content.querySelector('#counter-value');
+    const doubleCount = content.querySelector('#double-count');
+
+    if (counterValue) {
+      counterValue.textContent = this.store.state.count || 0;
+    }
+
+    if (doubleCount) {
+      // Handle both function and value getters
+      const doubled = typeof this.store.getters?.doubleCount === 'function'
+        ? this.store.getters.doubleCount()
+        : this.store.getters?.doubleCount;
+
+      doubleCount.textContent = doubled !== undefined ? doubled : ((this.store.state.count || 0) * 2);
+    }
+
+    // Set up event listeners
+    const incrementBtn = content.querySelector('#increment-button');
+    if (incrementBtn) {
+      const listener = () => {
+        this.store.commit('increment');
+        this.updateWelcomeCounter();
+      };
+
+      incrementBtn.addEventListener('click', listener);
+      this.eventListeners.set(incrementBtn, listener);
+    }
+
+    const decrementBtn = content.querySelector('#decrement-button');
+    if (decrementBtn) {
+      const listener = () => {
+        this.store.commit('decrement');
+        this.updateWelcomeCounter();
+      };
+
+      decrementBtn.addEventListener('click', listener);
+      this.eventListeners.set(decrementBtn, listener);
+    }
+
+    // Set up store subscription
+    if (this.store.watch) {
+      this.store.watch(state => state.count, () => {
+        this.updateWelcomeCounter();
+      });
+    } else if (this.store.subscribe) {
+      // Alternative subscription method
+      const unsubscribe = this.store.subscribe(() => {
+        this.updateWelcomeCounter();
+      });
+
+      // Store the unsubscribe function
+      this.eventListeners.set('welcome-store-subscription', unsubscribe);
+    }
+  }
+
+  /**
+   * Updates the welcome counter
+   */
+  updateWelcomeCounter() {
+    const counterValue = document.querySelector('#counter-value');
+    const doubleCount = document.querySelector('#double-count');
+
+    if (counterValue) {
+      counterValue.textContent = this.store.state.count;
+
+      // Add animation class if available
+      if (counterValue.classList.contains('counter-value')) {
+        counterValue.classList.add('updated');
+        setTimeout(() => {
+          counterValue.classList.remove('updated');
+        }, 300);
+      }
+    }
+
+    if (doubleCount) {
+      // Handle both function and value getters
+      const doubled = typeof this.store.getters?.doubleCount === 'function'
+        ? this.store.getters.doubleCount()
+        : this.store.getters?.doubleCount;
+
+      doubleCount.textContent = doubled !== undefined ? doubled : (this.store.state.count * 2);
+    }
+  }
+
+  /**
    * Sets up the counter component
    * @param {DocumentFragment} content - Component content
    */
@@ -307,24 +456,24 @@ class CustomRenderer {
       console.warn('Store not available for counter component');
       return;
     }
-    
+
     // Set up initial values
     const counterValue = content.querySelector('#counter-value');
     const doubleCount = content.querySelector('#double-count');
-    
+
     if (counterValue) {
       counterValue.textContent = this.store.state.count || 0;
     }
-    
+
     if (doubleCount) {
       // Handle both function and value getters
       const doubled = typeof this.store.getters?.doubleCount === 'function'
         ? this.store.getters.doubleCount()
         : this.store.getters?.doubleCount;
-      
+
       doubleCount.textContent = doubled !== undefined ? doubled : ((this.store.state.count || 0) * 2);
     }
-    
+
     // Set up event listeners
     const incrementBtn = content.querySelector('#increment-button');
     if (incrementBtn) {
@@ -333,7 +482,7 @@ class CustomRenderer {
         this.updateCounter();
       });
     }
-    
+
     const decrementBtn = content.querySelector('#decrement-button');
     if (decrementBtn) {
       decrementBtn.addEventListener('click', () => {
@@ -341,7 +490,7 @@ class CustomRenderer {
         this.updateCounter();
       });
     }
-    
+
     // Set up store subscription
     if (this.store.watch) {
       this.store.watch(state => state.count, () => {
@@ -356,18 +505,31 @@ class CustomRenderer {
   updateCounter() {
     const counterValue = document.querySelector('#counter-value');
     const doubleCount = document.querySelector('#double-count');
-    
+    const isEven = document.querySelector('#is-even');
+
     if (counterValue) {
       counterValue.textContent = this.store.state.count;
+
+      // Add animation class
+      counterValue.classList.add('updated');
+
+      // Remove animation class after animation completes
+      setTimeout(() => {
+        counterValue.classList.remove('updated');
+      }, 300);
     }
-    
+
     if (doubleCount) {
       // Handle both function and value getters
       const doubled = typeof this.store.getters?.doubleCount === 'function'
         ? this.store.getters.doubleCount()
         : this.store.getters?.doubleCount;
-      
+
       doubleCount.textContent = doubled !== undefined ? doubled : (this.store.state.count * 2);
+    }
+
+    if (isEven) {
+      isEven.textContent = this.store.state.count % 2 === 0 ? 'Yes' : 'No';
     }
   }
 
@@ -380,10 +542,10 @@ class CustomRenderer {
       console.warn('Store not available for todos component');
       return;
     }
-    
+
     // Render initial todos
     this.renderTodos();
-    
+
     // Set up form submission
     const todoForm = content.querySelector('#todo-form');
     if (todoForm) {
@@ -397,7 +559,7 @@ class CustomRenderer {
         }
       });
     }
-    
+
     // Set up store subscription
     if (this.store.watch) {
       this.store.watch(state => state.todos, () => {
@@ -412,15 +574,15 @@ class CustomRenderer {
   renderTodos() {
     const todoList = document.querySelector('#todo-list');
     if (!todoList || !this.store || !this.store.state || !this.store.state.todos) return;
-    
+
     // Clear current todos
     todoList.innerHTML = '';
-    
+
     // Render todos
     this.store.state.todos.forEach(todo => {
       const li = document.createElement('li');
       li.className = todo.completed ? 'completed' : '';
-      
+
       // Create checkbox
       const checkbox = document.createElement('input');
       checkbox.type = 'checkbox';
@@ -428,25 +590,25 @@ class CustomRenderer {
       checkbox.addEventListener('change', () => {
         this.store.commit('toggleTodo', todo.id);
       });
-      
+
       // Create text
       const span = document.createElement('span');
       span.textContent = todo.text;
-      
+
       // Create delete button
       const deleteBtn = document.createElement('button');
       deleteBtn.textContent = 'Delete';
       deleteBtn.addEventListener('click', () => {
         this.store.commit('removeTodo', todo.id);
       });
-      
+
       // Append elements
       li.appendChild(checkbox);
       li.appendChild(span);
       li.appendChild(deleteBtn);
       todoList.appendChild(li);
     });
-    
+
     // Update completed count
     const completedCount = document.querySelector('#completed-count');
     if (completedCount) {
@@ -476,7 +638,7 @@ class CustomRenderer {
     if (window.kalxjs && window.kalxjs.version) {
       return window.kalxjs.version;
     }
-    
+
     return '2.0.0'; // Default version
   }
 
@@ -485,7 +647,7 @@ class CustomRenderer {
    */
   renderNotFound() {
     const notFoundTemplate = document.getElementById('not-found-template');
-    
+
     if (notFoundTemplate) {
       // Use the template if available
       const content = notFoundTemplate.content.cloneNode(true);
@@ -499,9 +661,9 @@ class CustomRenderer {
         <p>The page you are looking for does not exist.</p>
         <a href="#/" data-route="/">Go Home</a>
       `;
-      
+
       this.routerView.appendChild(container);
-      
+
       // Set up the home link
       const homeLink = container.querySelector('[data-route]');
       if (homeLink && this.router) {
@@ -525,7 +687,7 @@ class CustomRenderer {
       <p>${error.message}</p>
       <pre>${error.stack}</pre>
     `;
-    
+
     this.routerView.appendChild(container);
   }
 
@@ -535,17 +697,28 @@ class CustomRenderer {
   cleanup() {
     // Remove event listeners
     this.eventListeners.forEach((listener, element) => {
-      element.removeEventListener('click', listener);
+      if (typeof element === 'string') {
+        // Handle special cases like store subscriptions
+        if (element.includes('subscription') && typeof listener === 'function') {
+          // Call the unsubscribe function
+          listener();
+        }
+      } else if (element instanceof Element) {
+        // DOM element event listener
+        element.removeEventListener('click', listener);
+      }
     });
-    
+
     // Clear maps
     this.eventListeners.clear();
     this.componentInstances.clear();
     this.templates.clear();
-    
+
     // Clear router view
     if (this.routerView) {
       this.routerView.innerHTML = '';
     }
+
+    console.log('Renderer cleaned up');
   }
 }

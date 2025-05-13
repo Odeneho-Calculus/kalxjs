@@ -345,7 +345,7 @@ export function createApp(component) {
                     plugin(this, options);
                 }
                 this._plugins.add(plugin);
-                
+
                 // Check if this is a router or store plugin
                 if (plugin.name === 'router' && options.router) {
                     this._router = options.router;
@@ -366,7 +366,7 @@ export function createApp(component) {
             this._context[key] = value;
             return this;
         },
-        
+
         /**
          * Sets whether to use the custom renderer
          * @param {boolean} value - Whether to use the custom renderer
@@ -394,24 +394,42 @@ export function createApp(component) {
 
             // Clear container
             container.innerHTML = '';
-            
+
             // Try to use the custom renderer if available and enabled
             try {
                 if (this._useCustomRenderer) {
                     // Import the renderer dynamically to avoid circular dependencies
-                    import('../renderer').then(({ createRenderer }) => {
-                        this._renderer = createRenderer({
-                            router: this._router,
-                            store: this._store,
-                            useCustomRenderer: true
-                        });
-                        
-                        if (this._renderer && this._renderer.init) {
-                            // Initialize the renderer with the container
-                            this._renderer.init(container);
-                            console.log('Using custom renderer');
-                        } else {
-                            // Fall back to the default rendering if custom renderer fails
+                    import('../renderer').then(({ createRenderer, createCustomRenderer }) => {
+                        try {
+                            // First try to use the direct custom renderer for better performance
+                            if (this._router && this._store) {
+                                this._renderer = createCustomRenderer(this._router, this._store);
+
+                                if (this._renderer && this._renderer.init) {
+                                    // Initialize the renderer with the container
+                                    this._renderer.init(container);
+                                    console.log('Application successfully mounted');
+                                    return; // Exit early if successful
+                                }
+                            }
+
+                            // Fall back to the renderer factory if direct initialization fails
+                            this._renderer = createRenderer({
+                                router: this._router,
+                                store: this._store,
+                                useCustomRenderer: true
+                            });
+
+                            if (this._renderer && this._renderer.init) {
+                                // Initialize the renderer with the container
+                                this._renderer.init(container);
+                                console.log('Application successfully mounted');
+                            } else {
+                                // Fall back to the default rendering if custom renderer fails
+                                this._mountWithDefaultRenderer(container);
+                            }
+                        } catch (error) {
+                            console.error('Error initializing custom renderer:', error);
                             this._mountWithDefaultRenderer(container);
                         }
                     }).catch(error => {
@@ -427,10 +445,10 @@ export function createApp(component) {
                 // Fall back to the default rendering
                 this._mountWithDefaultRenderer(container);
             }
-            
+
             return this;
         },
-        
+
         /**
          * Mounts the application using the default renderer
          * @private
@@ -439,7 +457,7 @@ export function createApp(component) {
          */
         _mountWithDefaultRenderer(container) {
             console.log('Using default renderer');
-            
+
             const instance = createComponent(this._component);
 
             // Inject app context and plugins
@@ -448,7 +466,7 @@ export function createApp(component) {
 
             // Mount the component
             instance.$mount(container);
-            
+
             return instance;
         }
     };
