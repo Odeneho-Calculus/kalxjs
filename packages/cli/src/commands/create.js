@@ -1553,7 +1553,7 @@ export default defineComponent({
   }
 
   if (config.features.state) {
-    files['src/store/index.js'] = `import { createStore } from '@kalxjs/core';
+    files['src/store/index.js'] = `import { createStore } from '@kalxjs/state';
 
 // Create and export the main store
 export default createStore({

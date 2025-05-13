@@ -36,7 +36,8 @@ import {
     useMouse
 } from './composition/utils';
 import { createPlugin, PluginManager } from './plugin';
-import {
+// Re-export store functions directly
+export {
     createStore,
     createModule,
     createStorePlugin,
@@ -162,11 +163,6 @@ const kalxjs = {
     createPlugin,
 
     // State management
-    createStore,
-    createModule,
-    createStorePlugin,
-    createPersistedState,
-    defineStore,
 
     // API integration
     createApi,
@@ -283,12 +279,6 @@ export {
     PluginManager,
 
     // State management
-    createStore,
-    createModule,
-    createStorePlugin,
-    createPersistedState,
-    defineStore,
-    useStore,
 
     // API integration
     createApi,

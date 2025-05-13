@@ -1,124 +1,136 @@
-Additional Bug Report for KalxJS Framework - Store Implementation
-Summary
-In addition to the AI module issues previously reported, there are significant problems with the store implementation in KalxJS.These issues cause runtime errors and make the store functionality unusable without manual fixes.
+kalculusGuy @kalculus MINGW64 ~/Desktop/projectEra / nodejs / kaljs(master)
+$ npm run build
 
-Detailed Issues and Recommended Fixes
-1. Duplicate Import Declarations in Store Module
-Issue: The useStore.js file contained duplicate import declarations for createStore, causing syntax errors that prevent the application from running.
+    > kalxjs - monorepo@1.0.0 build
+        > lerna run build--stream--sort
 
-    Location:
+            (node: 2120)[DEP0040] DeprecationWarning: The `punycode` module is deprecated.Please use a userland alternative instead.
+(Use`node --trace-deprecation ...` to show where the warning was created)
+lerna notice cli v8.2.2
+lerna info versioning independent
 
-@kalxjs/core or custom store implementation in user applications
-Example of problematic code:
+Lerna(powered by Nx)   The task graph has a circular dependency
 
-import { createStore } from '@kalxjs/core';
-// ... some code ...
-import { createStore } from '@kalxjs/core'; // Duplicate import
-Recommended Fix:
+@kalxjs/ai:build --> @kalxjs/core: build-- > @kalxjs / router: build-- > @kalxjs / core: build
 
-Review all framework files for duplicate imports
-Implement linting in the build process to catch duplicate imports
-Ensure that generated code or templates don't introduce duplicate imports
-Consider using named imports with aliases if the same function needs to be imported from different sources:
-import { createStore as coreCreateStore } from '@kalxjs/core';
-import { createStore as customCreateStore } from './customStore';
-2. Inconsistent Store API Implementation
-Issue: The store implementation appears to have inconsistencies between how it's defined and how it's expected to be used in applications.
 
-Recommended Fix:
+Lerna(powered by Nx)   Running target build for 12 projects:
 
-Standardize the store API across the framework:
-// Clear, consistent API pattern
-export function useStore(options = {}) {
-    // Implementation
-    return {
-        state,
-        getters,
-        actions,
-        // Other store methods
-    };
-}
-Provide TypeScript definitions for the store API to make usage clearer
-Add comprehensive documentation on store usage patterns
-3. Potential Circular Dependencies
-Issue: The structure of the store implementation suggests potential circular dependencies that could cause initialization problems.
+    - @kalxjs / ai
+        - @kalxjs / api
+        - @kalxjs / cli
+        - @kalxjs / compiler
+        - @kalxjs / compiler - plugin
+        - @kalxjs / composition
+        - @kalxjs / core
+        - @kalxjs / devtools
+        - @kalxjs / performance
+        - @kalxjs / plugins
+        - @kalxjs / router
+        - @kalxjs / state
 
-Recommended Fix:
+——————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————— 
 
-Review the dependency graph of the store implementation
-Refactor to avoid circular dependencies:
-// Instead of direct imports between modules that reference each other
-// Use a central registry or dependency injection pattern
-const storeRegistry = {};
+> @kalxjs / state: build
 
-export function registerStore(name, store) {
-    storeRegistry[name] = store;
-}
 
-export function getStore(name) {
-    return storeRegistry[name];
-}
-4. Lack of Error Handling in Store Operations
-Issue: The store implementation appears to lack proper error handling, which can lead to cryptic errors when store operations fail.
+    > @kalxjs / router: build
 
-Recommended Fix:
 
-Add proper error handling for common store operations:
-    export function useStore(options = {}) {
-        try {
-            // Store initialization
-            return store;
-        } catch (error) {
-            console.error('Failed to initialize store:', error);
-            // Provide fallback or throw a more descriptive error
-            throw new Error(`Store initialization failed: ${error.message}`);
-        }
-    }
-Implement validation for store configuration options
-Add debugging helpers for store - related issues
-5. Inconsistent Module Resolution
-Issue: The framework appears to have inconsistencies in how modules are resolved, particularly when mixing default and named exports.
+        > @kalxjs / devtools: build
 
-Recommended Fix:
 
-Standardize the export pattern across the framework:
-// Either use named exports consistently
-export const createStore = () => { /* implementation */ };
-export const useStore = () => { /* implementation */ };
+            > @kalxjs / cli: build
 
-// Or use default exports consistently
-const storeModule = {
-    createStore: () => { /* implementation */ },
-    useStore: () => { /* implementation */ }
-};
-export default storeModule;
-Ensure documentation and examples match the actual export structure
-Consider providing both named and default exports with clear documentation on which to use
-Overall Framework Recommendations
-Based on the issues encountered with both the AI and store modules, here are some general recommendations for improving the KalxJS framework:
 
-Comprehensive Testing Suite:
+                > @kalxjs / compiler: build
 
-Implement end - to - end tests that verify the framework works in real applications
-Test with different bundlers and environments
-Add integration tests for common usage patterns
-Improved Error Messages:
+@kalxjs/state: > @kalxjs/state@1.2.12 build
+@kalxjs/state: > rollup -c ../../ rollup.config.js
+@kalxjs/cli: > @kalxjs/cli@1.2.40 build
+@kalxjs/cli: > node scripts/build.js
+@kalxjs/router: > @kalxjs/router@1.2.12 build
+@kalxjs/router: > rollup -c ../../ rollup.config.js
+@kalxjs/devtools: > @kalxjs/devtools@1.2.13 build
+@kalxjs/devtools: > rollup -c rollup.config.js
+@kalxjs/compiler: > @kalxjs/compiler@1.2.7 build
+@kalxjs/compiler: > rollup -c
+@kalxjs/cli: Build completed successfully!
+@kalxjs/state:
+@kalxjs/state: C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\core\src\index.js → ../core / dist / kalxjs.umd.js, ../ core / dist / kalxjs.esm.js...
+@kalxjs/router:
+@kalxjs/router: C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\core\src\index.js → ../core / dist / kalxjs.umd.js, ../ core / dist / kalxjs.esm.js...
+@kalxjs/devtools:
+@kalxjs/devtools: src/index.js → dist / index.cjs.js, dist / index.esm.js...
+@kalxjs/compiler:
+@kalxjs/compiler: src/index.js → dist / index.cjs.js, dist / index.esm.js...
+@kalxjs/state: [!] Error: Duplicate export 'createStore'
+@kalxjs/state: ../core / src / index.js(287: 4)
+@kalxjs/state: 285:
+@kalxjs/state: 286:     / / State management
+@kalxjs/state: 287:     createStore,
+@kalxjs/state:          ^
+@kalxjs/state: 288:     createModule,
+@kalxjs/state: 289:     createStorePlugin,
+@kalxjs/router: [!] Error: Duplicate export 'createStore'
+@kalxjs/router: ../core / src / index.js(287: 4)
+@kalxjs/router: 285:
+@kalxjs/router: 286:     / / State management
+@kalxjs/router: 287:     createStore,
+@kalxjs/router:          ^
+@kalxjs/router: 288:     createModule,
+@kalxjs/router: 289:     createStorePlugin,
+@kalxjs/state: Error: Duplicate export 'createStore'
+@kalxjs/state:     at error (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\node_modules\rollup\dist\shared\rollup.js:198:30)
+@kalxjs/state:     at Module.error (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\node_modules\rollup\dist\shared\rollup.js:12560:16)
+@kalxjs/state:     at Module.tryParse (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\node_modules\rollup\dist\shared\rollup.js:12937:25)
+@kalxjs/state:     at Module.setSource (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\node_modules\rollup\dist\shared\rollup.js:12842:24)
+@kalxjs/state:     at ModuleLoader.addModuleSource (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\node_modules\rollup\dist\shared\rollup.js:22090:20)
+@kalxjs/router: Error: Duplicate export 'createStore'
+@kalxjs/router:     at error (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\node_modules\rollup\dist\shared\rollup.js:198:30)
+@kalxjs/router:     at Module.error (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\node_modules\rollup\dist\shared\rollup.js:12560:16)
+@kalxjs/router:     at Module.tryParse (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\node_modules\rollup\dist\shared\rollup.js:12937:25)
+@kalxjs/router:     at Module.setSource (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\node_modules\rollup\dist\shared\rollup.js:12842:24)
+@kalxjs/router:     at ModuleLoader.addModuleSource (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\node_modules\rollup\dist\shared\rollup.js:22090:20)
+@kalxjs/state: npm error Lifecycle script `build` failed with error:
+@kalxjs/state: npm error code 1
+@kalxjs/state: npm error path C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\state
+@kalxjs/state: npm error workspace @kalxjs/state@1.2.12
+@kalxjs/state: npm error location C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\state
+@kalxjs/state: npm error command failed
+@kalxjs/state: npm error command C:\WINDOWS\system32\cmd.exe /d / s / c rollup - c../../ rollup.config.js
+@kalxjs/router: npm error Lifecycle script `build` failed with error:
+@kalxjs/router: npm error code 1
+@kalxjs/router: npm error path C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\router
+@kalxjs/router: npm error workspace @kalxjs/router@1.2.12
+@kalxjs/router: npm error location C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\packages\router
+@kalxjs/router: npm error command failed
+@kalxjs/router: npm error command C:\WINDOWS\system32\cmd.exe /d / s / c rollup - c../../ rollup.config.js
+@kalxjs/devtools: created dist/index.cjs.js, dist / index.esm.js in 97ms
+@kalxjs/compiler: created dist/index.cjs.js, dist / index.esm.js in 438ms
+@kalxjs/compiler:
+@kalxjs/compiler: vite-plugin/index.js → dist / vite - plugin.cjs.js, dist / vite - plugin.esm.js...
+@kalxjs/compiler: created dist/vite - plugin.cjs.js, dist / vite - plugin.esm.js in 278ms
 
-Add descriptive error messages that help developers identify and fix issues
-Include debugging information in development mode
-Provide links to documentation for common errors
-Consistent API Design:
+———————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————————
 
-Review the entire API surface for consistency
-Standardize naming conventions and patterns
-Document breaking changes clearly
-Developer Tools:
+Lerna(powered by Nx)   Running target build for 12 projects failed
 
-Create developer tools to help debug KalxJS applications
-Add logging options for development environments
-Consider a browser extension for debugging
-Documentation Overhaul:
+Tasks not run because their dependencies failed or--nx - bail=true:
 
-Update all documentation to match the actual implementation
-Add more examples covering common use cases
-Create troubleshooting guides for common issues
+- @kalxjs / ai: build
+    - @kalxjs / api: build
+        - @kalxjs / compiler - plugin: build
+            - @kalxjs / composition: build
+                - @kalxjs / core: build
+                    - @kalxjs / performance: build
+                        - @kalxjs / plugins: build
+
+Failed tasks:
+
+- @kalxjs / state: build
+    - @kalxjs / router: build
+
+
+kalculusGuy @kalculus MINGW64 ~/Desktop/projectEra / nodejs / kaljs(master)
+$
