@@ -13,5 +13,7 @@
         "typedoc-plugin-markdown"
     ],
     "readme": "none",
-    "name": "@kalxjs/router"
+    "name": "@kalxjs/router",
+    "skipErrorChecking": true,
+    "tsconfig": "./tsconfig.json"
 }
