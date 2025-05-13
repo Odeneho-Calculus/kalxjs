@@ -52,11 +52,15 @@ class CustomRenderer {
       return;
     }
 
-    // Set up router listeners
-    this.setupRouterListeners();
+    // Set up router listeners if router is available
+    if (this.router) {
+      this.setupRouterListeners();
 
-    // Set up navigation
-    this.setupNavigation();
+      // Set up navigation
+      this.setupNavigation();
+    } else {
+      console.warn('Router not provided to custom renderer, using default welcome page');
+    }
 
     // Initial render
     this.renderCurrentRoute();
@@ -74,12 +78,36 @@ class CustomRenderer {
     }
 
     // Listen for route changes
-    this.router.onChange((route) => {
-      console.log('Route changed:', route);
-      this.currentRoute = route;
-      this.renderCurrentRoute();
-      this.updateNavigation();
-    });
+    if (typeof this.router.onChange === 'function') {
+      this.router.onChange((route) => {
+        console.log('Route changed:', route);
+        this.currentRoute = route;
+        this.renderCurrentRoute();
+        this.updateNavigation();
+      });
+    } else if (typeof this.router.beforeEach === 'function' && typeof this.router.afterEach === 'function') {
+      // Alternative router API
+      this.router.beforeEach((to, from, next) => {
+        console.log('Route changing from', from, 'to', to);
+        next();
+      });
+
+      this.router.afterEach((to, from) => {
+        console.log('Route changed to:', to);
+        this.currentRoute = to;
+        this.renderCurrentRoute();
+        this.updateNavigation();
+      });
+    }
+
+    // Try to get the initial route
+    if (!this.currentRoute) {
+      if (this.router.currentRoute) {
+        this.currentRoute = this.router.currentRoute;
+      } else if (typeof this.router.getRoute === 'function') {
+        this.currentRoute = this.router.getRoute();
+      }
+    }
   }
 
   /**
@@ -139,8 +167,10 @@ class CustomRenderer {
     // Clear current content
     this.routerView.innerHTML = '';
 
+    // If no router or current route, render the default welcome component
     if (!this.currentRoute) {
-      console.warn('No current route to render');
+      console.log('No current route, rendering default welcome component');
+      this.renderNamedComponent('welcome');
       return;
     }
 
@@ -187,7 +217,15 @@ class CustomRenderer {
         })
         .catch(error => {
           console.error(`Failed to load template for ${name}:`, error);
-          this.renderNotFound();
+
+          // If this is the welcome component, use a default template
+          if (name === 'welcome') {
+            this.renderDefaultWelcome();
+          } else if (name === 'counter') {
+            this.renderDefaultCounter();
+          } else {
+            this.renderNotFound();
+          }
         });
 
       return;
@@ -640,6 +678,317 @@ class CustomRenderer {
     }
 
     return '2.0.0'; // Default version
+  }
+
+  /**
+   * Renders a default welcome component
+   */
+  renderDefaultWelcome() {
+    // Create a container
+    const container = document.createElement('div');
+    container.className = 'welcome-container';
+
+    // Add content
+    container.innerHTML = `
+      <div class="welcome-header">
+        <h1>Welcome to <span class="brand-name">KalxJS</span></h1>
+      </div>
+      
+      <div class="welcome-content">
+        <p class="welcome-message">
+          Congratulations! You've successfully created a new KalxJS project.
+        </p>
+        
+        <div class="feature-grid">
+          <div class="feature-card">
+            <h3>📝 Template-Based Rendering</h3>
+            <p>Use HTML templates directly with no virtual DOM overhead</p>
+          </div>
+          
+          <div class="feature-card">
+            <h3>⚡ Reactive State</h3>
+            <p>Powerful state management with automatic DOM updates</p>
+          </div>
+          
+          <div class="feature-card">
+            <h3>🧩 Component System</h3>
+            <p>Create reusable components with clean APIs</p>
+          </div>
+          
+          <div class="feature-card">
+            <h3>🔄 Routing</h3>
+            <p>Seamless navigation between different views</p>
+          </div>
+        </div>
+        
+        <div class="counter-demo">
+          <h2>Try the Counter Demo</h2>
+          <div class="counter-value" id="counter-value">0</div>
+          <div class="counter-buttons">
+            <button id="decrement-button" class="counter-button">-</button>
+            <button id="increment-button" class="counter-button">+</button>
+          </div>
+          <div class="counter-info">
+            Double value: <span id="double-count">0</span>
+          </div>
+        </div>
+      </div>
+      
+      <style>
+        .welcome-container {
+          max-width: 800px;
+          margin: 0 auto;
+          padding: 2rem;
+          font-family: Arial, sans-serif;
+        }
+        
+        .welcome-header {
+          text-align: center;
+          margin-bottom: 2rem;
+        }
+        
+        .brand-name {
+          color: #42b883;
+          font-weight: bold;
+        }
+        
+        .welcome-content {
+          background-color: #f9f9f9;
+          border-radius: 8px;
+          padding: 2rem;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .welcome-message {
+          font-size: 1.2rem;
+          text-align: center;
+          margin-bottom: 2rem;
+        }
+        
+        .feature-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 1.5rem;
+          margin-bottom: 2rem;
+        }
+        
+        .feature-card {
+          background-color: white;
+          padding: 1.5rem;
+          border-radius: 6px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .feature-card h3 {
+          color: #42b883;
+          margin-top: 0;
+        }
+        
+        .counter-demo {
+          background-color: white;
+          padding: 2rem;
+          border-radius: 8px;
+          text-align: center;
+          margin-top: 2rem;
+        }
+        
+        .counter-value {
+          font-size: 4rem;
+          font-weight: bold;
+          color: #42b883;
+          margin: 1rem 0;
+        }
+        
+        .counter-buttons {
+          margin: 1rem 0;
+        }
+        
+        .counter-button {
+          background-color: #42b883;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          font-size: 1.5rem;
+          width: 50px;
+          height: 50px;
+          margin: 0 0.5rem;
+          cursor: pointer;
+        }
+        
+        .counter-info {
+          margin-top: 1rem;
+          color: #666;
+        }
+      </style>
+    `;
+
+    // Append to router view
+    this.routerView.appendChild(container);
+
+    // Set up the component
+    this.setupWelcomeComponent(container);
+  }
+
+  /**
+   * Renders a default counter component
+   */
+  renderDefaultCounter() {
+    // Create a container
+    const container = document.createElement('div');
+    container.className = 'counter-page';
+
+    // Add content
+    container.innerHTML = `
+      <h1>Counter Example</h1>
+      
+      <div class="counter-container">
+        <div class="counter-display">
+          <div class="counter-value" id="counter-value">0</div>
+          <div class="counter-label">Current Count</div>
+        </div>
+        
+        <div class="counter-controls">
+          <button id="decrement-button" class="counter-button decrement">-</button>
+          <button id="reset-button" class="counter-button reset">Reset</button>
+          <button id="increment-button" class="counter-button increment">+</button>
+        </div>
+        
+        <div class="counter-stats">
+          <div class="stat-item">
+            <div class="stat-label">Double Count:</div>
+            <div class="stat-value" id="double-count">0</div>
+          </div>
+          
+          <div class="stat-item">
+            <div class="stat-label">Is Even:</div>
+            <div class="stat-value" id="is-even">Yes</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="counter-actions">
+        <a href="#/" class="nav-link">Back to Home</a>
+      </div>
+      
+      <style>
+        .counter-page {
+          max-width: 600px;
+          margin: 0 auto;
+          padding: 2rem;
+          font-family: Arial, sans-serif;
+          text-align: center;
+        }
+        
+        .counter-container {
+          background-color: #f9f9f9;
+          border-radius: 8px;
+          padding: 2rem;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .counter-display {
+          margin-bottom: 2rem;
+        }
+        
+        .counter-value {
+          font-size: 6rem;
+          font-weight: bold;
+          color: #42b883;
+        }
+        
+        .counter-label {
+          color: #666;
+          margin-top: 0.5rem;
+        }
+        
+        .counter-controls {
+          display: flex;
+          justify-content: center;
+          gap: 1rem;
+          margin-bottom: 2rem;
+        }
+        
+        .counter-button {
+          width: 60px;
+          height: 60px;
+          font-size: 1.5rem;
+          font-weight: bold;
+          border: none;
+          border-radius: 50%;
+          cursor: pointer;
+        }
+        
+        .counter-button.increment {
+          background-color: #42b883;
+          color: white;
+        }
+        
+        .counter-button.decrement {
+          background-color: #e74c3c;
+          color: white;
+        }
+        
+        .counter-button.reset {
+          background-color: #7f8c8d;
+          color: white;
+          font-size: 0.9rem;
+        }
+        
+        .counter-stats {
+          display: flex;
+          justify-content: center;
+          gap: 2rem;
+          margin-top: 2rem;
+          padding-top: 1.5rem;
+          border-top: 1px solid #eee;
+        }
+        
+        .stat-item {
+          text-align: center;
+        }
+        
+        .stat-label {
+          font-size: 0.9rem;
+          color: #666;
+          margin-bottom: 0.5rem;
+        }
+        
+        .stat-value {
+          font-size: 1.5rem;
+          font-weight: bold;
+          color: #35495e;
+        }
+        
+        .counter-actions {
+          margin-top: 2rem;
+        }
+        
+        .nav-link {
+          display: inline-block;
+          padding: 0.5rem 1rem;
+          background-color: #f8f8fa;
+          color: #42b883;
+          text-decoration: none;
+          border-radius: 4px;
+        }
+        
+        @keyframes pulse {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+          100% { transform: scale(1); }
+        }
+        
+        .counter-value.updated {
+          animation: pulse 0.3s ease;
+        }
+      </style>
+    `;
+
+    // Append to router view
+    this.routerView.appendChild(container);
+
+    // Set up the component
+    this.setupCounterComponent(container);
   }
 
   /**
