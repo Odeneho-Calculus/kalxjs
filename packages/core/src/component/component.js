@@ -157,7 +157,31 @@ function createComponent(options) {
     // Add render method (if not already defined by setup)
     if (!instance.render) {
         instance.render = function () {
-            return options.render ? options.render.call(instance) : null;
+            console.log('Component render called for', options.name || 'unnamed component');
+
+            if (!options.render) {
+                console.error('No render method defined for component');
+                return h('div', {
+                    style: 'color: red; border: 1px solid red; padding: 10px; margin: 10px 0;'
+                }, [
+                    'Component Error: No render method defined'
+                ]);
+            }
+
+            try {
+                const result = options.render.call(instance);
+                console.log('Render result:', result);
+                return result;
+            } catch (error) {
+                console.error('Error in render method:', error);
+                return h('div', {
+                    style: 'color: red; border: 1px solid red; padding: 10px; margin: 10px 0;'
+                }, [
+                    h('h4', {}, ['Render Error']),
+                    h('p', {}, [error.message]),
+                    h('pre', { style: 'font-size: 12px; overflow: auto; max-height: 200px;' }, [error.stack])
+                ]);
+            }
         };
     }
 
@@ -186,20 +210,29 @@ function createComponent(options) {
         }
 
         // Render the component
-        const vnode = this.render();
+        console.log('Mounting component to element:', el);
 
-        // Log the render process for debugging
-        console.log('Component render called:', vnode);
+        try {
+            // Clear the element before mounting
+            el.innerHTML = '';
 
-        // Store the vnode for future updates
-        this._vnode = vnode;
+            // Render the component
+            const vnode = this.render();
 
-        // Clear the element before mounting
-        el.innerHTML = '';
+            // Log the render process for debugging
+            console.log('Component render result:', vnode);
 
-        // Create real DOM from virtual DOM and append to element
-        if (vnode) {
-            try {
+            // Store the vnode for future updates
+            this._vnode = vnode;
+
+            // Create real DOM from virtual DOM and append to element
+            if (vnode) {
+                // Ensure the vnode has a tag property
+                if (typeof vnode === 'object' && !vnode.tag) {
+                    console.warn('Render returned a vnode without a tag property, adding div tag');
+                    vnode.tag = 'div';
+                }
+
                 // Use createElement from vdom/vdom.js to ensure consistent behavior
                 const dom = createElement(vnode);
 
@@ -209,24 +242,17 @@ function createComponent(options) {
                 } else {
                     throw new Error('Failed to create DOM element from vnode');
                 }
-            } catch (error) {
-                console.error('Error during component mounting:', error);
-                // Add a visible error message to help with debugging
-                el.innerHTML = `
-                    <div style="color: red; border: 1px solid red; padding: 10px; margin: 10px 0;">
-                        <h3>Component Rendering Error</h3>
-                        <p>${error.message}</p>
-                        <pre>${error.stack}</pre>
-                    </div>
-                `;
+            } else {
+                throw new Error('Component render returned null or undefined');
             }
-        } else {
-            console.error('Component render returned null or undefined. Check your render function.');
-            // Add a visible error message
+        } catch (error) {
+            console.error('Error during component mounting:', error);
+            // Add a visible error message to help with debugging
             el.innerHTML = `
                 <div style="color: red; border: 1px solid red; padding: 10px; margin: 10px 0;">
                     <h3>Component Rendering Error</h3>
-                    <p>Render function returned null or undefined</p>
+                    <p>${error.message}</p>
+                    <pre style="font-size: 12px; overflow: auto; max-height: 200px; background: #f5f5f5; padding: 5px;">${error.stack}</pre>
                 </div>
             `;
         }
@@ -378,6 +404,12 @@ function defineComponent(options) {
             // Add component reference to the vnode for future updates
             if (vnode && typeof vnode === 'object') {
                 vnode._component = instance;
+
+                // Ensure the vnode has a tag property if it doesn't already
+                if (!vnode.tag && !vnode.isComponent) {
+                    console.warn(`Component ${componentOptions.name} rendered a vnode without a tag property. Adding a div tag.`);
+                    vnode.tag = 'div';
+                }
             }
 
             return vnode;
@@ -486,6 +518,8 @@ export function createApp(component) {
          * @returns {Object} Component instance
          */
         mount(selector) {
+            console.log('Mounting application to:', selector);
+
             const container = typeof selector === 'string'
                 ? document.querySelector(selector)
                 : selector;
@@ -502,6 +536,8 @@ export function createApp(component) {
                 document.body.appendChild(errorDiv);
                 return this;
             }
+
+            console.log('Found container:', container);
 
             // Clear container
             container.innerHTML = '';
@@ -631,12 +667,26 @@ export function createApp(component) {
                 // Create a fresh component instance
                 // Handle both component definition objects and component factory functions
                 let componentOptions = this._component;
+
+                console.log('Component type:', typeof componentOptions);
+
                 if (typeof componentOptions === 'function') {
-                    // If it's a factory function (like from defineComponent), we need to call it
-                    // But don't pass any props yet - they'll be handled by the component system
-                    componentOptions = { render: () => componentOptions() };
+                    // If it's a factory function (like from defineComponent), we need to handle it specially
+                    if (componentOptions.options) {
+                        // This is a component factory from defineComponent
+                        console.log('Using component factory with options:', componentOptions.options.name);
+                        componentOptions = componentOptions.options;
+                    } else {
+                        // This is a regular function component
+                        console.log('Using function component');
+                        componentOptions = {
+                            name: componentOptions.name || 'FunctionComponent',
+                            render: () => componentOptions({})
+                        };
+                    }
                 }
 
+                console.log('Creating component with options:', componentOptions);
                 const instance = createComponent(componentOptions);
 
                 // Inject app context and plugins

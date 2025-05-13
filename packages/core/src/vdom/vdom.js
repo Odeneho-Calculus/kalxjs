@@ -78,10 +78,28 @@ export function createElement(vnode) {
     // Handle case where vnode might be a function (component)
     if (typeof vnode === 'function') {
         try {
-            const result = vnode();
+            console.log('Rendering component function:', vnode.name || 'anonymous');
+
+            // Check if this is a component factory from defineComponent
+            if (vnode.options) {
+                console.log('Detected component factory with options:', vnode.options.name);
+            }
+
+            // Call the function with empty props if none provided
+            const result = vnode({});
+
             if (!result) {
                 throw new Error('Component function returned null or undefined');
             }
+
+            console.log('Component function result:', result);
+
+            // If the result doesn't have a tag property, add one
+            if (typeof result === 'object' && !result.tag) {
+                console.warn('Component returned object without tag property, adding div tag');
+                result.tag = 'div';
+            }
+
             return createElement(result);
         } catch (error) {
             console.error('Error rendering component function:', error);
@@ -93,7 +111,7 @@ export function createElement(vnode) {
             errorElement.innerHTML = `
                 <h4>Component Error</h4>
                 <p>${error.message}</p>
-                <pre style="font-size: 12px; overflow: auto; max-height: 200px;">${error.stack}</pre>
+                <pre style="font-size: 12px; overflow: auto; max-height: 200px; background: #f5f5f5; padding: 5px;">${error.stack}</pre>
             `;
             return errorElement;
         }
@@ -102,10 +120,30 @@ export function createElement(vnode) {
     // Handle case where vnode might not be a proper virtual node object
     if (!vnode.tag) {
         console.error('Invalid vnode (missing tag):', vnode);
+
+        // Debug information
+        console.log('vnode type:', typeof vnode);
+        console.log('vnode keys:', Object.keys(vnode || {}));
+
+        // Create a more informative error element
         const errorElement = document.createElement('div');
         errorElement.style.color = 'red';
-        errorElement.style.padding = '5px';
-        errorElement.textContent = `Invalid vnode: ${JSON.stringify(vnode)}`;
+        errorElement.style.border = '1px solid red';
+        errorElement.style.padding = '10px';
+        errorElement.style.margin = '10px 0';
+
+        try {
+            errorElement.innerHTML = `
+                <h4>Invalid Virtual DOM Node</h4>
+                <p>A virtual DOM node is missing the required 'tag' property</p>
+                <pre style="font-size: 12px; overflow: auto; max-height: 200px; background: #f5f5f5; padding: 5px;">
+${JSON.stringify(vnode, null, 2)}
+                </pre>
+            `;
+        } catch (e) {
+            errorElement.textContent = `Invalid vnode: Cannot stringify for display`;
+        }
+
         return errorElement;
     }
 
