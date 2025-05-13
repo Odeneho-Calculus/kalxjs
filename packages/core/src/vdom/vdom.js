@@ -66,13 +66,25 @@ export function createElement(vnode) {
     // Handle null or undefined
     if (!vnode) {
         console.error('Attempted to create element from null/undefined vnode');
-        const comment = document.createComment('empty node');
+
+        // Instead of returning a comment node, create a fallback element
+        const fallbackElement = document.createElement('div');
+        fallbackElement.className = 'kalxjs-fallback-element';
+        fallbackElement.innerHTML = `
+            <div style="padding: 10px; border: 1px solid #f0ad4e; background-color: #fcf8e3; color: #8a6d3b; border-radius: 4px;">
+                <h4 style="margin-top: 0;">KalxJS Rendering Notice</h4>
+                <p>The framework attempted to render a component but received empty content.</p>
+                <p>This is a fallback element to ensure something is displayed.</p>
+            </div>
+        `;
+
         // Add a debug property to help with troubleshooting
-        comment._debug = {
+        fallbackElement._debug = {
             error: 'Null or undefined vnode',
             timestamp: new Date().toISOString()
         };
-        return comment;
+
+        return fallbackElement;
     }
 
     // Handle case where vnode might be a function (component)

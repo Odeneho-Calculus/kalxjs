@@ -73,7 +73,17 @@ function createDOMNode(vnode) {
 
     // Handle null or undefined
     if (!vnode) {
-        return document.createComment('empty node');
+        // Create a fallback element instead of a comment node
+        const fallbackElement = document.createElement('div');
+        fallbackElement.className = 'kalxjs-fallback-element';
+        fallbackElement.innerHTML = `
+            <div style="padding: 10px; border: 1px solid #f0ad4e; background-color: #fcf8e3; color: #8a6d3b; border-radius: 4px;">
+                <h4 style="margin-top: 0;">KalxJS Rendering Notice</h4>
+                <p>The framework attempted to render a component but received empty content.</p>
+                <p>This is a fallback element to ensure something is displayed.</p>
+            </div>
+        `;
+        return fallbackElement;
     }
 
     // Handle component nodes
