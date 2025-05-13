@@ -1824,7 +1824,7 @@ async function installDependencies(targetDir, config) {
   };
 
   // Add feature-specific dependencies
-  if (config.features.router) pkg.dependencies["@kalxjs/router"] = "^1.2.13";
+  if (config.features.router) pkg.dependencies["@kalxjs/router"] = "^1.2.14";
   if (config.features.state) pkg.dependencies["@kalxjs/state"] = "^1.2.2";
   if (config.features.scss) pkg.devDependencies["sass"] = "^1.69.0";
   if (config.features.sfc) {

@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.14](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/router@1.2.13...@kalxjs/router@1.2.14) (2025-05-15)
+
+### Bug Fixes
+
+* **router:** Improve router instance detection in useRouter function ([#125](https://github.com/Odeneho-Calculus/kalxjs/issues/125))
+  * Fixed "useRouter() was called with no active router on the page" warning
+  * Added multiple router detection strategies for better compatibility
+  * Improved fallback implementation with more helpful error messages
+  * Register router globally for easier access by useRouter()
+
 ## [1.2.14](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/router@1.2.12...@kalxjs/router@1.2.14) (2025-05-13)
 
 **Note:** Version bump only for package @kalxjs/router

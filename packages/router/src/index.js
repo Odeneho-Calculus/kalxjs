@@ -259,6 +259,11 @@ export function createRouter(options = {}) {
             // Inject router into components
             app._context.$router = this;
 
+            // Register router globally for easier access by useRouter()
+            if (typeof window !== 'undefined') {
+                window.__KAL_ROUTER__ = this;
+            }
+
             // Initialize router
             this.init();
         }
@@ -272,49 +277,85 @@ export function createRouter(options = {}) {
  * @returns {Object} Router instance and reactive route state
  */
 export function useRouter() {
-    // Get the router instance from the application context
-    const router = typeof window !== 'undefined' && window.__KAL_APP__ && window.__KAL_APP__._context.$router;
-    
+    // Try to find the router instance in various possible locations
+    let router;
+
+    // Check if we're in a browser environment
+    if (typeof window !== 'undefined') {
+        // Option 1: Check the global KalxJS app instance
+        if (window.__KAL_APP__ && window.__KAL_APP__._context && window.__KAL_APP__._context.$router) {
+            router = window.__KAL_APP__._context.$router;
+        }
+        // Option 2: Check for a globally registered router instance
+        else if (window.__KAL_ROUTER__) {
+            router = window.__KAL_ROUTER__;
+        }
+        // Option 3: Check for router in current component context (if available)
+        else if (window.__KAL_CURRENT_INSTANCE__ && window.__KAL_CURRENT_INSTANCE__.$router) {
+            router = window.__KAL_CURRENT_INSTANCE__.$router;
+        }
+    }
+
+    // If no router is found, provide a fallback implementation
     if (!router) {
-        console.warn('useRouter() was called with no active router on the page');
+        // Only show warning in development mode or if explicitly enabled
+        if (process.env.NODE_ENV !== 'production' || window.__KAL_DEBUG__) {
+            console.warn('useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.');
+        }
+
+        // Create reactive refs for the fallback implementation
+        const route = ref({
+            path: '/',
+            params: {},
+            query: {},
+            matched: []
+        });
+
+        const params = computed(() => ({}));
+        const query = computed(() => ({}));
+        const path = computed(() => '/');
+
+        // Return a minimal implementation to prevent errors
         return {
-            // Return a minimal implementation to prevent errors
-            currentRoute: {
-                path: '/',
-                params: {},
-                query: {},
-                matched: []
-            },
-            push: () => console.warn('Router not available'),
-            replace: () => console.warn('Router not available'),
-            go: () => console.warn('Router not available')
+            // Route state
+            route,
+            params,
+            query,
+            path,
+
+            // Navigation methods (no-ops with warnings)
+            push: (location) => console.warn(`Router not available. Cannot navigate to ${location}`),
+            replace: (location) => console.warn(`Router not available. Cannot replace with ${location}`),
+            go: (n) => console.warn(`Router not available. Cannot go ${n} steps`),
+            back: () => console.warn('Router not available. Cannot go back'),
+            forward: () => console.warn('Router not available. Cannot go forward')
         };
     }
-    
+
     // Create reactive references to route properties
     const route = ref(router.currentRoute);
-    
+
     // Update the reactive route when navigation occurs
     router.onChange((newRoute) => {
         route.value = newRoute;
     });
-    
+
     // Computed properties for commonly used route values
     const params = computed(() => route.value.params || {});
     const query = computed(() => route.value.query || {});
     const path = computed(() => route.value.path || '/');
-    
+
     return {
         // Expose the router instance
         router,
-        
+
         // Navigation methods
         push: (location) => router.push(location),
         replace: (location) => router.replace(location),
         go: (n) => router.go(n),
         back: () => router.go(-1),
         forward: () => router.go(1),
-        
+
         // Route state
         route,
         params,
