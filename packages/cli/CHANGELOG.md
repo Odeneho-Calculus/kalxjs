@@ -3,14 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.44](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/cli@1.2.44...@kalxjs/cli@1.2.44) (2025-05-13)
+
+**Note:** Version bump only for package @kalxjs/cli
+
 ## [1.2.43](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/cli@1.2.42...@kalxjs/cli@1.2.43) (2025-05-15)
 
 ### Bug Fixes
 
-* **cli:** Fix SCSS syntax errors in project template ([#126](https://github.com/Odeneho-Calculus/kalxjs/issues/126))
-  * Fixed invalid CSS property names that had spaces around hyphens
-  * Corrected indentation in SCSS template
-  * Updated router dependency to v1.2.14
+- **cli:** Fix SCSS syntax errors in project template ([#126](https://github.com/Odeneho-Calculus/kalxjs/issues/126))
+  - Fixed invalid CSS property names that had spaces around hyphens
+  - Corrected indentation in SCSS template
+  - Updated router dependency to v1.2.14
 
 ## [1.2.44](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/cli@1.2.43...@kalxjs/cli@1.2.44) (2025-05-13)
 
