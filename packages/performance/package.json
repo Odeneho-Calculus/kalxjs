@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/performance",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "Performance optimization utilities for KalxJs framework",
   "type": "module",
   "author": "kalxjs Team",

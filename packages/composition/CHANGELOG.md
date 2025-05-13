@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.9](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/composition@1.2.8...@kalxjs/composition@1.2.9) (2025-05-13)
+
+**Note:** Version bump only for package @kalxjs/composition
+
 ## [1.2.8](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/composition@1.2.7...@kalxjs/composition@1.2.8) (2025-05-13)
 
 **Note:** Version bump only for package @kalxjs/composition

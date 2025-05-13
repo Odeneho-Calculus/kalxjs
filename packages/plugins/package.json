@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/plugins",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "Plugin system for KalxJs framework",
   "type": "module",
   "author": "kalxjs Team",

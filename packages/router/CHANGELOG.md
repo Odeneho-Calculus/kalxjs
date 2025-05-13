@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.26](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/router@1.2.25...@kalxjs/router@1.2.26) (2025-05-13)
+
+**Note:** Version bump only for package @kalxjs/router
+
 ## [1.2.25](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/router@1.2.24...@kalxjs/router@1.2.25) (2025-05-13)
 
 **Note:** Version bump only for package @kalxjs/router
