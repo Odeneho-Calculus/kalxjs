@@ -7,33 +7,30 @@
     
     <div class="welcome-content">
       <p class="welcome-message">
-        {{ welcomeMessage }}
+        Congratulations! You've successfully created a new KalxJS project with .klx components!
       </p>
       
       <div class="feature-grid">
-        <div class="feature-card" v-for="feature in features">
-          <h3>{{ feature.icon }} {{ feature.title }}</h3>
-          <p>{{ feature.description }}</p>
-        </div>
+        <!-- Feature cards will be dynamically inserted here -->
       </div>
       
       <div class="counter-demo">
         <h2>Try the Counter Demo</h2>
-        <div class="counter-value" id="counter-value">{{ count }}</div>
+        <div class="counter-value" id="counter-value">0</div>
         <div class="counter-buttons">
-          <button id="decrement-button" class="counter-button" data-event-decrement="click">-</button>
-          <button id="reset-button" class="counter-button reset" data-event-reset="click">Reset</button>
-          <button id="increment-button" class="counter-button" data-event-increment="click">+</button>
+          <button id="decrement-button" class="counter-button" onclick="decrementCounter()">-</button>
+          <button id="reset-button" class="counter-button reset" onclick="resetCounter()">Reset</button>
+          <button id="increment-button" class="counter-button" onclick="incrementCounter()">+</button>
         </div>
         <div class="counter-info">
           <div class="stat-item">
             <div class="stat-label">Double Count:</div>
-            <div class="stat-value" id="double-count">{{ doubleCount }}</div>
+            <div class="stat-value" id="double-count">0</div>
           </div>
           
           <div class="stat-item">
             <div class="stat-label">Is Even:</div>
-            <div class="stat-value" id="is-even">{{ isEven }}</div>
+            <div class="stat-value" id="is-even">Yes</div>
           </div>
         </div>
       </div>
@@ -82,111 +79,98 @@ npm run dev
 </template>
 
 <script>
-import { defineComponent } from '@kalxjs/core';
+// Simple counter functionality
+let count = 0;
 
-export default {
-  name: 'WelcomeComponent',
+function updateCounter() {
+  const counterValue = document.getElementById('counter-value');
+  const doubleCount = document.getElementById('double-count');
+  const isEven = document.getElementById('is-even');
   
-  data() {
-    return {
-      count: 0,
-      welcomeMessage: 'Congratulations! You\'ve successfully created a new KalxJS project with .klx components!',
-      features: [
-        {
-          icon: '📝',
-          title: 'Template-Based Rendering',
-          description: 'Use HTML templates directly with no virtual DOM overhead'
-        },
-        {
-          icon: '⚡',
-          title: 'Reactive State',
-          description: 'Powerful state management with automatic DOM updates'
-        },
-        {
-          icon: '🧩',
-          title: 'Component System',
-          description: 'Create reusable components with clean APIs'
-        },
-        {
-          icon: '🔄',
-          title: 'Routing',
-          description: 'Seamless navigation between different views'
-        }
-      ]
-    };
-  },
-  
-  computed: {
-    doubleCount() {
-      return this.count * 2;
-    },
+  if (counterValue) {
+    counterValue.textContent = count;
     
-    isEven() {
-      return this.count % 2 === 0 ? 'Yes' : 'No';
-    }
-  },
-  
-  methods: {
-    increment() {
-      this.count++;
-      this.updateCounter();
-    },
-    
-    decrement() {
-      this.count--;
-      this.updateCounter();
-    },
-    
-    reset() {
-      this.count = 0;
-      this.updateCounter();
-    },
-    
-    updateCounter() {
-      const counterValue = document.getElementById('counter-value');
-      const doubleCount = document.getElementById('double-count');
-      const isEven = document.getElementById('is-even');
-      
-      if (counterValue) {
-        counterValue.textContent = this.count;
-        
-        // Add animation class
-        counterValue.classList.add('updated');
-        setTimeout(() => {
-          counterValue.classList.remove('updated');
-        }, 300);
-      }
-      
-      if (doubleCount) {
-        doubleCount.textContent = this.doubleCount;
-      }
-      
-      if (isEven) {
-        isEven.textContent = this.isEven;
-      }
-    }
-  },
-  
-  mounted() {
-    console.log('Welcome component mounted!');
-    
-    // Render the features dynamically
-    const featureGrid = document.querySelector('.feature-grid');
-    if (featureGrid) {
-      featureGrid.innerHTML = '';
-      
-      this.features.forEach(feature => {
-        const card = document.createElement('div');
-        card.className = 'feature-card';
-        card.innerHTML = `
-          <h3>${feature.icon} ${feature.title}</h3>
-          <p>${feature.description}</p>
-        `;
-        featureGrid.appendChild(card);
-      });
-    }
+    // Add animation class
+    counterValue.classList.add('updated');
+    setTimeout(() => {
+      counterValue.classList.remove('updated');
+    }, 300);
   }
-};
+  
+  if (doubleCount) {
+    doubleCount.textContent = count * 2;
+  }
+  
+  if (isEven) {
+    isEven.textContent = count % 2 === 0 ? 'Yes' : 'No';
+  }
+}
+
+function incrementCounter() {
+  count++;
+  updateCounter();
+}
+
+function decrementCounter() {
+  count--;
+  updateCounter();
+}
+
+function resetCounter() {
+  count = 0;
+  updateCounter();
+}
+
+// Initialize when the component is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('Welcome component loaded');
+  
+  // Render the features dynamically
+  const features = [
+    {
+      icon: '📝',
+      title: 'Template-Based Rendering',
+      description: 'Use HTML templates directly with no virtual DOM overhead'
+    },
+    {
+      icon: '⚡',
+      title: 'Reactive State',
+      description: 'Powerful state management with automatic DOM updates'
+    },
+    {
+      icon: '🧩',
+      title: 'Component System',
+      description: 'Create reusable components with clean APIs'
+    },
+    {
+      icon: '🔄',
+      title: 'Routing',
+      description: 'Seamless navigation between different views'
+    }
+  ];
+  
+  const featureGrid = document.querySelector('.feature-grid');
+  if (featureGrid) {
+    featureGrid.innerHTML = '';
+    
+    features.forEach(feature => {
+      const card = document.createElement('div');
+      card.className = 'feature-card';
+      card.innerHTML = `
+        <h3>${feature.icon} ${feature.title}</h3>
+        <p>${feature.description}</p>
+      `;
+      featureGrid.appendChild(card);
+    });
+  }
+  
+  updateCounter();
+});
+
+// Make functions available globally
+window.incrementCounter = incrementCounter;
+window.decrementCounter = decrementCounter;
+window.resetCounter = resetCounter;
 </script>
 
 <style>
