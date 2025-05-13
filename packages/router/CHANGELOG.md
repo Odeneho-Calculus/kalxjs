@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.1](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/router@1.2.34...@kalxjs/router@2.0.1) (2025-05-13)
+
+**Note:** Version bump only for package @kalxjs/router
+
 ## [2.0.0](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/router@1.2.34...@kalxjs/router@2.0.0) (2024-07-01)
 
 ### Major Enhancements
@@ -18,34 +22,40 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ### New Features
 
 - **History API Implementations**:
+
   - `createWebHistory`: HTML5 History API implementation
   - `createWebHashHistory`: Hash-based history implementation
   - `createMemoryHistory`: In-memory history for testing and SSR
 
 - **Enhanced Route Matching**:
+
   - Support for regex patterns in route parameters: `/users/:id(\\d+)`
   - Optional parameters: `/users/:id?`
   - Custom parameter patterns: `/products/:category([a-z]+)/:id(\\d+)`
   - Catch-all routes with named parameter: `/:pathMatch(.*)*`
 
 - **Advanced Navigation Guards**:
+
   - Global guards: `beforeEach`, `beforeResolve`, `afterEach`
   - Per-route guards: `beforeEnter` (supports arrays of guards)
   - Return-based redirects: `return '/login'` or `return { path: '/login' }`
   - Promise-based guard resolution
 
 - **Enhanced RouterLink Component**:
+
   - Active class management: `activeClass`, `exactActiveClass`
   - ARIA support: `ariaCurrentValue`
   - Custom rendering: `custom` prop
   - Replace mode: `replace` prop
 
 - **Enhanced RouterView Component**:
+
   - Better error handling
   - Support for nested routes
   - Improved component rendering
 
 - **Enhanced useRouter Composition API**:
+
   - More reactive properties: `hash`, `fullPath`, `meta`, `name`, `matched`
   - Route matching helpers: `isActive`, `isExactActive`
   - Route construction helpers: `resolve`
