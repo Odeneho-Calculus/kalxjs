@@ -916,13 +916,13 @@ setTimeout(() => {
 
       <!-- Router view if router is enabled -->
       ${config.features.router ?
-        `<section class="router-view-container">
+      `<section class="router-view-container">
         <!-- Use transition for smooth page transitions -->
         <Transition name="fade" mode="out-in">
           <RouterView />
         </Transition>
       </section>` :
-        '<p class="edit-prompt">Edit src/App.klx to get started</p>'}
+      '<p class="edit-prompt">Edit src/App.klx to get started</p>'}
     </main>
 
     <footer class="app-footer">
@@ -932,7 +932,7 @@ setTimeout(() => {
 </template>
 
 <script>
-import { defineComponent, onMounted } from '@kalxjs/core';
+import { defineComponent, onMounted, h } from '@kalxjs/core';
 ${config.features.router ? "import { useRouter, RouterLink, RouterView } from '@kalxjs/router';" : ''}
 ${config.features.state ? "import { useStore } from './store/useStore';" : ''}
 ${config.features.api ? "import { useApi } from './api/useApi';" : ''}
@@ -987,6 +987,52 @@ export default defineComponent({
       ${config.features.api ? 'api,' : ''}
       ${config.features.composition ? 'width, height, isMobile,' : ''}
     };
+  },
+  
+  // Add render function to ensure it works properly
+  render() {
+    return h('div', { class: 'app' }, [
+      h('header', { class: 'app-header' }, [
+        h('div', { class: 'logo-container' }, [
+          h('img', { src: './assets/logo.svg', alt: 'KalxJS Logo', class: 'logo' }),
+          h('h1', { class: 'app-title' }, ['${config.projectName}'])
+        ]),
+        ${config.features.router ? `
+        h('nav', { class: 'app-nav' }, [
+          h(RouterLink, { to: '/', activeClass: 'active', exactActiveClass: 'exact-active' }, ['Home']),
+          h(RouterLink, { to: '/about', activeClass: 'active', exactActiveClass: 'exact-active' }, ['About'])
+        ])` : 'null'}
+      ]),
+      
+      h('main', { class: 'app-main' }, [
+        h('section', { class: 'features-section' }, [
+          h('h2', {}, ['Enabled Features:']),
+          h('ul', { class: 'features-list' }, [
+            ${config.features.router ? `h('li', { class: 'feature-item router' }, ['✓ Router']),` : ''}
+            ${config.features.state ? `h('li', { class: 'feature-item state' }, ['✓ State Management']),` : ''}
+            ${config.features.scss ? `h('li', { class: 'feature-item scss' }, ['✓ SCSS Support']),` : ''}
+            ${config.features.sfc ? `h('li', { class: 'feature-item sfc' }, ['✓ Single File Components']),` : ''}
+            ${config.features.api ? `h('li', { class: 'feature-item api' }, ['✓ API Integration']),` : ''}
+            ${config.features.composition ? `h('li', { class: 'feature-item composition' }, ['✓ Composition API']),` : ''}
+            ${config.features.performance ? `h('li', { class: 'feature-item performance' }, ['✓ Performance Utilities']),` : ''}
+            ${config.features.plugins ? `h('li', { class: 'feature-item plugins' }, ['✓ Plugin System']),` : ''}
+            ${config.features.ai ? `h('li', { class: 'feature-item ai' }, ['✓ AI Features']),` : ''}
+            ${config.features.testing ? `h('li', { class: 'feature-item testing' }, ['✓ Testing']),` : ''}
+            ${config.features.linting ? `h('li', { class: 'feature-item linting' }, ['✓ Linting']),` : ''}
+          ].filter(Boolean))
+        ]),
+        
+        ${config.features.router ?
+      `h('section', { class: 'router-view-container' }, [
+          h(RouterView)
+        ])` :
+      `h('p', { class: 'edit-prompt' }, ['Edit src/App.klx to get started'])`}
+      ]),
+      
+      h('footer', { class: 'app-footer' }, [
+        h('p', {}, ['Powered by KalxJS'])
+      ])
+    ]);
   }
 });
 </script>
@@ -1400,16 +1446,16 @@ async function processTemplates(targetDir, config) {
     const filePath = path.join(targetDir, file);
     if (await fs.pathExists(filePath)) {
       let content = await fs.readFile(filePath, 'utf8');
-      
+
       // Replace placeholders with config values
       content = content.replace(/\{\{projectName\}\}/g, config.projectName);
-      
+
       // Replace feature flags
       Object.entries(config.features).forEach(([feature, enabled]) => {
         const regex = new RegExp(`\\{\\{features\\.${feature}\\}\\}`, 'g');
         content = content.replace(regex, enabled.toString());
       });
-      
+
       await fs.writeFile(filePath, content);
     }
   }

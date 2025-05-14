@@ -1,0 +1,7 @@
+kalculusGuy@kalculus MINGW64 ~/Desktop/projectEra/nodejs/kaljs (master)
+$ grep -A 5 "Write all files" c:/Users/kalculusGuy/Desktop/projectEra/nodejs/kaljs/packages/cli/src/commands/create.js
+  // Write all files
+  for (const [file, content] of Object.entries(files)) {
+    await fs.writeFile(path.join(targetDir, file), content);
+  }
+}
