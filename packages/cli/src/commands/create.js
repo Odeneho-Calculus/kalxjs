@@ -141,10 +141,11 @@ async function create(projectName, options = {}) {
     await processTemplates(targetDir, projectConfig);
 
     // Install dependencies
+    let installSuccess = false;
     if (!options.skipInstall) {
       spinner.text = 'Installing dependencies...';
-      const installSuccess = await installDependencies(targetDir, projectConfig);
-      
+      installSuccess = await installDependencies(targetDir, projectConfig);
+
       if (!installSuccess) {
         spinner.warn('Dependencies installation failed. You will need to run npm install manually.');
       }
@@ -1381,7 +1382,7 @@ setTimeout(() => {
     "@kalxjs/core": "^1.0.0"${config.features.router ? ',\n    "@kalxjs/router": "^1.0.0"' : ''}${config.features.state ? ',\n    "@kalxjs/state": "^1.0.0"' : ''}
   },
   "devDependencies": {
-    "vite": "^4.3.9"${config.features.scss ? ',\n    "sass": "^1.62.1"' : ''}${config.features.testing ? ',\n    "vitest": "^0.31.1",\n    "@testing-library/dom": "^9.3.0"' : ''}${config.features.linting ? ',\n    "eslint": "^8.41.0",\n    "eslint-plugin-javascript": "^1.0.0"' : ''}
+    "vite": "^4.3.9"${config.features.scss ? ',\n    "sass": "^1.62.1"' : ''}${config.features.testing ? ',\n    "vitest": "^0.31.1",\n    "@testing-library/dom": "^9.3.0"' : ''}${config.features.linting ? ',\n    "eslint": "^8.41.0",\n    "eslint-plugin-js": "^1.0.0"' : ''}
   }
 }`;
 
@@ -1483,7 +1484,7 @@ For more information, please refer to the [KalxJS documentation](https://github.
 async function processTemplates(targetDir, config) {
   // This function would normally process template files with placeholders
   // For now, we'll just create a simple component as an example
-  
+
   const testComponentPath = path.join(targetDir, 'src/components/TestComponent.klx');
   const testComponentContent = `<template>
   <div class="test-component">
@@ -1566,13 +1567,13 @@ async function installDependencies(targetDir, config) {
     return true;
   } catch (error) {
     console.error('Failed to install dependencies:', error.message);
-    
+
     // Create a .dependencies-failed file to indicate installation failed
     await fs.writeFile(
       path.join(targetDir, '.dependencies-failed'),
       `Installation failed: ${error.message}\n\nPlease run 'npm install' manually after fixing any issues.`
     );
-    
+
     // Don't throw error, just return false to indicate failure
     console.warn(chalk.yellow('Continuing without installing dependencies. Please run npm install manually.'));
     return false;
