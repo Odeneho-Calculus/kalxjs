@@ -253,14 +253,14 @@ export function registerPlugins(app) {
 
   // Add router files if router feature is enabled
   if (config.features.router) {
-    files['src/router/index.js'] = `import { createRouter as createKalRouter, createHistory } from '@kalxjs/router';
+    files['src/router/index.js'] = `import { createRouter as createKalRouter } from '@kalxjs/router';
 import Home from '../views/Home.klx';
 import About from '../views/About.klx';
 import NotFound from '../views/NotFound.klx';
 
 export function createRouter() {
   return createKalRouter({
-    history: createHistory(),
+    history: 'hash', // Use hash history instead of createHistory()
     routes: [
       {
         path: '/',
@@ -738,6 +738,7 @@ import App from './App.klx';
 ${config.features.router ? "import { createRouter } from './router';" : ''}
 ${config.features.state ? "import { createStore } from './store';" : ''}
 ${config.features.plugins ? "import { registerPlugins } from './plugins';" : ''}
+${config.features.scss ? "// Import global styles\nimport './styles/main.scss';" : ''}
 
 // Create the app instance
 const app = createApp(App);
@@ -1234,13 +1235,17 @@ For more information, please refer to the [KalxJS Documentation](https://kalxjs.
 
   // Add vite.config.js
   files['vite.config.js'] = `import { defineConfig } from 'vite';
-import { kalxCompilerPlugin } from '@kalxjs/compiler-plugin';
+import { vitePlugin } from '@kalxjs/compiler';
 import path from 'path';
 
 export default defineConfig({
   plugins: [
-    kalxCompilerPlugin()
+    vitePlugin()
   ],
+  assetsInclude: ['**/*.klx'], // Include .klx files as assets
+  optimizeDeps: {
+    exclude: ['@kalxjs/compiler'] // Exclude compiler from optimization
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src')
@@ -1294,11 +1299,101 @@ async function installDependencies(targetDir, config) {
   // Add feature-specific dependencies with latest versions
   if (config.features.router) pkg.dependencies["@kalxjs/router"] = latestVersions["@kalxjs/router"] || "^2.0.0";
   if (config.features.state) pkg.dependencies["@kalxjs/state"] = latestVersions["@kalxjs/state"] || "^1.2.26";
-  if (config.features.scss) pkg.devDependencies["sass"] = "^1.69.0";
+  if (config.features.scss) {
+    pkg.devDependencies["sass"] = "^1.69.0";
+    // Add main.scss file
+    files['src/styles/main.scss'] = `// Main SCSS file for the application
+
+// Variables
+$primary-color: #42b883;
+$secondary-color: #35495e;
+$light-color: #f8f9fa;
+$dark-color: #343a40;
+$border-radius: 4px;
+
+// Global styles
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: $dark-color;
+  background-color: white;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: $primary-color;
+  text-decoration: none;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+// Button styles
+.btn {
+  display: inline-block;
+  background-color: $primary-color;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: $border-radius;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: darken($primary-color, 10%);
+  }
+  
+  &.btn-secondary {
+    background-color: $secondary-color;
+    
+    &:hover {
+      background-color: darken($secondary-color, 10%);
+    }
+  }
+}
+
+// Card component
+.card {
+  background-color: white;
+  border-radius: $border-radius;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  
+  .card-title {
+    margin-top: 0;
+    color: $primary-color;
+  }
+}
+
+// Utility classes
+.text-center {
+  text-align: center;
+}
+
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+`;
+  }
 
   // Always include compiler for .klx files since we're using App.klx
   pkg.dependencies["@kalxjs/compiler"] = latestVersions["@kalxjs/compiler"] || "^1.2.2";
-  pkg.devDependencies["@kalxjs/compiler-plugin"] = latestVersions["@kalxjs/compiler-plugin"] || "^1.2.2";
+  // Remove compiler-plugin as we're using the vitePlugin from @kalxjs/compiler
 
   // Add the newly created packages with latest versions
   if (config.features.ai) {
