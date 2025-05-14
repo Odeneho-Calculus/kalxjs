@@ -1,0 +1,265 @@
+<template>
+  <button 
+    class="k-button" 
+    :class="[
+      `k-button--${variant}`, 
+      `k-button--${size}`, 
+      { 'k-button--rounded': rounded, 'k-button--block': block, 'k-button--loading': loading }
+    ]"
+    :disabled="disabled || loading"
+    @click="handleClick"
+  >
+    <span class="k-button__loader" v-if="loading">
+      <span class="k-button__loader-dot"></span>
+      <span class="k-button__loader-dot"></span>
+      <span class="k-button__loader-dot"></span>
+    </span>
+    <span class="k-button__icon k-button__icon--left" v-if="iconLeft">{{ iconLeft }}</span>
+    <span class="k-button__content" :class="{ 'k-button__content--hidden': loading }">
+      <slot>Button</slot>
+    </span>
+    <span class="k-button__icon k-button__icon--right" v-if="iconRight">{{ iconRight }}</span>
+  </button>
+</template>
+
+<script>
+export default {
+  name: 'KButton',
+  
+  props: {
+    variant: {
+      type: String,
+      default: 'primary',
+      validator: value => ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'light', 'dark'].includes(value)
+    },
+    size: {
+      type: String,
+      default: 'medium',
+      validator: value => ['small', 'medium', 'large'].includes(value)
+    },
+    rounded: {
+      type: Boolean,
+      default: false
+    },
+    block: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
+      type: Boolean,
+      default: false
+    },
+    loading: {
+      type: Boolean,
+      default: false
+    },
+    iconLeft: {
+      type: String,
+      default: ''
+    },
+    iconRight: {
+      type: String,
+      default: ''
+    }
+  },
+  
+  methods: {
+    handleClick(event) {
+      if (!this.disabled && !this.loading) {
+        this.$emit('click', event);
+      }
+    }
+  }
+};
+</script>
+
+<style>
+.k-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  user-select: none;
+  border: 1px solid transparent;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.k-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.4);
+}
+
+.k-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Variants */
+.k-button--primary {
+  background-color: var(--button-primary-bg, #4299e1);
+  color: white;
+}
+
+.k-button--primary:hover:not(:disabled) {
+  background-color: var(--button-primary-hover, #3182ce);
+}
+
+.k-button--secondary {
+  background-color: var(--button-secondary-bg, #4a5568);
+  color: white;
+}
+
+.k-button--secondary:hover:not(:disabled) {
+  background-color: var(--button-secondary-hover, #718096);
+}
+
+.k-button--success {
+  background-color: #48bb78;
+  color: white;
+}
+
+.k-button--success:hover:not(:disabled) {
+  background-color: #38a169;
+}
+
+.k-button--danger {
+  background-color: #f56565;
+  color: white;
+}
+
+.k-button--danger:hover:not(:disabled) {
+  background-color: #e53e3e;
+}
+
+.k-button--warning {
+  background-color: #ed8936;
+  color: white;
+}
+
+.k-button--warning:hover:not(:disabled) {
+  background-color: #dd6b20;
+}
+
+.k-button--info {
+  background-color: #63b3ed;
+  color: white;
+}
+
+.k-button--info:hover:not(:disabled) {
+  background-color: #4299e1;
+}
+
+.k-button--light {
+  background-color: #e2e8f0;
+  color: #1a202c;
+}
+
+.k-button--light:hover:not(:disabled) {
+  background-color: #cbd5e0;
+}
+
+.k-button--dark {
+  background-color: #2d3748;
+  color: white;
+}
+
+.k-button--dark:hover:not(:disabled) {
+  background-color: #1a202c;
+}
+
+/* Sizes */
+.k-button--small {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.k-button--medium {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+}
+
+.k-button--large {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.125rem;
+}
+
+/* Modifiers */
+.k-button--rounded {
+  border-radius: 9999px;
+}
+
+.k-button--block {
+  display: flex;
+  width: 100%;
+}
+
+/* Loading state */
+.k-button--loading {
+  color: transparent;
+}
+
+.k-button__content--hidden {
+  opacity: 0;
+}
+
+.k-button__loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+}
+
+.k-button__loader-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+  margin: 0 2px;
+  animation: k-button-loader 1s infinite ease-in-out;
+}
+
+.k-button__loader-dot:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.k-button__loader-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.k-button__loader-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes k-button-loader {
+  0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* Icons */
+.k-button__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.k-button__icon--left {
+  margin-right: 0.5rem;
+}
+
+.k-button__icon--right {
+  margin-left: 0.5rem;
+}
+</style>

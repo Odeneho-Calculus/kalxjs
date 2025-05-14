@@ -1,6 +1,7 @@
 import { createApp, createElement, h } from '@kalxjs/core';
-import App from './App';
+import App from './App.klx'; // Use .klx file
 import './styles.css';
+import './assets/dark-theme.css';
 
 /**
  * Custom renderer function to directly render a vnode to the DOM

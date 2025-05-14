@@ -125,8 +125,28 @@ export function generateCode(compiled, options = {}) {
             code += renderBody + '\n';
             code += `  }\n`;
         } else {
-            // Fallback render function
-            code += `  render() {\n    return h('div', { class: 'klx-component-fallback' }, ['No template defined or template compilation failed']);\n  }\n`;
+            // Enhanced fallback render function with better UI and guidance
+            code += `  render() {
+    return h('div', { 
+      class: 'klx-component-fallback',
+      style: 'padding: 20px; border: 2px solid #3182ce; border-radius: 4px; background-color: #ebf8ff; color: #2c5282;'
+    }, [
+      h('h2', {}, ['Component Ready']),
+      h('p', {}, ['This component is working but needs a template section.']),
+      h('div', { style: 'margin-top: 15px; background: #fff; padding: 15px; border-radius: 4px; border: 1px solid #bee3f8;' }, [
+        h('h3', { style: 'margin-top: 0; color: #3182ce;' }, ['How to fix this:']),
+        h('p', {}, ['Add a <template> section to your .klx file with your component markup.']),
+        h('pre', { style: 'background: #2d3748; color: #e2e8f0; padding: 10px; border-radius: 4px; overflow: auto;' }, [
+\`<template>
+  <div class="my-component">
+    <h2>My Component</h2>
+    <p>This is my component content</p>
+  </div>
+</template>\`
+        ])
+      ])
+    ]);
+  }\n`;
         }
 
         // Close the component definition

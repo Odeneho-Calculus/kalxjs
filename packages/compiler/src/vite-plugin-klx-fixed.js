@@ -107,7 +107,7 @@ ${result.code}`;
             } catch (err) {
                 console.error(`[vite:klx] Error compiling ${fileName}:`, err);
 
-                // Create a fallback component that shows the error
+                // Create an improved fallback component that shows the error with better UI
                 const fallbackCode = `
 import { h, defineComponent } from '@kalxjs/core';
 
@@ -115,12 +115,26 @@ export default defineComponent({
   name: 'CompilationErrorComponent',
   render() {
     return h('div', { 
-      style: 'padding: 20px; border: 2px solid red; border-radius: 4px; background-color: #fff5f5; color: #c53030;'
+      style: 'padding: 20px; border: 2px solid #e53e3e; border-radius: 4px; background-color: #fff5f5; color: #c53030; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;'
     }, [
-      h('h2', {}, ['KLX Compilation Error']),
-      h('p', {}, [${JSON.stringify(err.message)}]),
-      h('pre', { style: 'background-color: #f8f8f8; padding: 10px; overflow: auto; font-size: 12px;' }, [
-        ${JSON.stringify(err.stack || 'No stack trace available')}
+      h('h2', { style: 'margin-top: 0; border-bottom: 1px solid #feb2b2; padding-bottom: 10px;' }, ['KLX Compilation Error']),
+      h('p', { style: 'font-size: 16px;' }, [${JSON.stringify(err.message)}]),
+      h('div', { style: 'margin-top: 20px;' }, [
+        h('h3', { style: 'margin-top: 0; font-size: 16px; color: #822727;' }, ['Error Details:']),
+        h('pre', { 
+          style: 'background-color: #2d3748; color: #e2e8f0; padding: 15px; border-radius: 4px; overflow: auto; font-size: 14px; margin-top: 10px;' 
+        }, [
+          ${JSON.stringify(err.stack || 'No stack trace available')}
+        ])
+      ]),
+      h('div', { style: 'margin-top: 20px; background-color: #fffaf0; border: 1px solid #fbd38d; padding: 15px; border-radius: 4px;' }, [
+        h('h3', { style: 'margin-top: 0; font-size: 16px; color: #744210;' }, ['Troubleshooting Tips:']),
+        h('ul', { style: 'margin-top: 10px; padding-left: 20px;' }, [
+          h('li', {}, ['Check your template syntax for any errors']),
+          h('li', {}, ['Ensure all tags are properly closed']),
+          h('li', {}, ['Verify that your script section is valid JavaScript']),
+          h('li', {}, ['Make sure your component has a <template> section'])
+        ])
       ])
     ]);
   }

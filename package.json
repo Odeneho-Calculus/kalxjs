@@ -1,6 +1,6 @@
 {
     "name": "kalxjs-monorepo",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "workspaces": [
         "packages/*"
     ],
@@ -17,7 +17,9 @@
         "build": "lerna run build --stream --sort",
         "build:core": "cd packages/core && npm run build",
         "build:router": "cd packages/router && npm run build",
-        "build:state": "cd packages/state && npm run build",
+        "build:store": "cd packages/store && npm run build",
+        "build:cli": "cd packages/cli && npm run build",
+        "build:all": "npm run build:core && npm run build:router && npm run build:store && npm run build:cli",
         "test": "jest",
         "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
         "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
@@ -25,11 +27,16 @@
         "clean": "lerna clean -y && rm -rf node_modules",
         "clear-jest-cache": "node --experimental-vm-modules node_modules/jest/bin/jest.js --clearCache",
         "publish": "lerna publish",
+        "publish:from-package": "lerna publish from-package",
+        "publish:canary": "lerna publish --canary",
+        "version:bump": "lerna version --no-push --no-git-tag-version",
         "docs:dev": "vuepress dev docs",
         "docs:build": "vuepress build docs",
+        "docs:deploy": "npm run docs:build && gh-pages -d docs/.vuepress/dist",
         "dev": "vite",
         "dev:packages": "lerna run dev --parallel",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "create": "node packages/cli/bin/kalx-cli.js create"
     },
     "keywords": [
         "javascript",
@@ -44,7 +51,18 @@
         "api-integration",
         "performance",
         "virtual-dom",
-        "single-file-components"
+        "single-file-components",
+        "kalxjs",
+        "ui-framework",
+        "spa",
+        "router",
+        "store",
+        "cli",
+        "modern-javascript",
+        "web-development",
+        "javascript-framework",
+        "component-based",
+        "reactive-programming"
     ],
     "author": "kalxjs Team",
     "license": "MIT",

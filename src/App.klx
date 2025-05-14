@@ -1,0 +1,96 @@
+<template>
+  <div class="app-container">
+    <h1>Welcome to KalxJS</h1>
+    <p>This is a simple counter example:</p>
+    <div class="counter">
+      <button @click="decrement">-</button>
+      <span>{{ count }}</span>
+      <button @click="increment">+</button>
+    </div>
+  </div>
+</template>
+
+<script>
+import { h } from "@kalxjs/core";
+
+export default {
+  name: "App",
+  
+  data() {
+    return {
+      count: 0
+    };
+  },
+  
+  methods: {
+    increment() {
+      console.log('Incrementing count');
+      this.count++;
+      console.log('New count:', this.count);
+      this.$update(); // Explicitly call update to ensure re-render
+    },
+    
+    decrement() {
+      console.log('Decrementing count');
+      this.count--;
+      console.log('New count:', this.count);
+      this.$update(); // Explicitly call update to ensure re-render
+    }
+  },
+  
+  mounted() {
+    console.log("App component mounted");
+  },
+  
+  render() {
+    // Make sure we're using the current count value
+    console.log('Rendering with count:', this.count);
+    
+    return h("div", { class: "app-container" }, [
+      h("h1", {}, ["Welcome to KalxJS"]),
+      h("p", {}, ["This is a simple counter example:"]),
+      h("div", { class: "counter" }, [
+        h("button", { onClick: this.decrement }, ["-"]),
+        h("span", {}, [String(this.count)]), // Ensure we're converting to string
+        h("button", { onClick: this.increment }, ["+"])
+      ])
+    ]);
+  }
+};
+</script>
+
+<style>
+.app-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+h1 {
+  color: #42b883;
+}
+
+.counter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+button {
+  background-color: #42b883;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+span {
+  font-size: 2rem;
+  font-weight: bold;
+}
+</style>

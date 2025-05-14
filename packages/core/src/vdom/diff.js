@@ -8,6 +8,18 @@
  * @returns {HTMLElement} Updated DOM node
  */
 export function patch(domNode, oldVNode, newVNode) {
+    // Check if domNode is valid
+    if (!domNode) {
+        console.warn('Cannot patch: domNode is undefined or null');
+        return createDOMNode(newVNode); // Return a new node but don't attach it
+    }
+
+    // Check if domNode has a parent
+    if (!domNode.parentNode) {
+        console.warn('Cannot patch: domNode has no parent');
+        return createDOMNode(newVNode); // Return a new node but don't attach it
+    }
+
     // If the old vnode is the same as the new vnode, do nothing
     if (oldVNode === newVNode) {
         return domNode;
@@ -117,6 +129,18 @@ function createDOMNode(vnode) {
  * @returns {HTMLElement} Updated DOM node
  */
 function updateDOMNode(domNode, oldVNode, newVNode) {
+    // Check if domNode is valid
+    if (!domNode) {
+        console.warn('Cannot update DOM node: domNode is undefined or null');
+        return createDOMNode(newVNode);
+    }
+
+    // Check if domNode has a parent
+    if (!domNode.parentNode) {
+        console.warn('Cannot update DOM node: domNode has no parent');
+        return createDOMNode(newVNode);
+    }
+
     // Handle text nodes
     if (typeof oldVNode === 'string' || typeof newVNode === 'string' ||
         typeof oldVNode === 'number' || typeof newVNode === 'number') {
@@ -195,6 +219,12 @@ function updateAttributes(domNode, oldAttrs, newAttrs) {
  * @param {Array} newChildren - New children
  */
 function updateChildren(domNode, oldChildren, newChildren) {
+    // Check if domNode is valid
+    if (!domNode) {
+        console.warn('Cannot update children: domNode is undefined or null');
+        return;
+    }
+
     // Optimize for common cases
     if (oldChildren.length === 0) {
         // If there were no old children, append all new children
@@ -240,7 +270,7 @@ function updateChildren(domNode, oldChildren, newChildren) {
         // Remove nodes that are no longer needed
         keysToRemove.forEach(key => {
             const { index } = oldKeyedChildren[key];
-            if (domChildren[index]) {
+            if (index < domChildren.length && domChildren[index]) {
                 domNode.removeChild(domChildren[index]);
             }
         });
@@ -257,15 +287,30 @@ function updateChildren(domNode, oldChildren, newChildren) {
                 const oldIndex = oldChild.index;
                 const oldVNode = oldChild.vnode;
 
-                patch(domChildren[oldIndex], oldVNode, newChild);
+                // Make sure the DOM node exists before patching
+                if (oldIndex < domChildren.length && domChildren[oldIndex]) {
+                    patch(domChildren[oldIndex], oldVNode, newChild);
 
-                // Move node if needed
-                if (oldIndex < lastIndex) {
-                    const node = domChildren[oldIndex];
-                    domNode.insertBefore(node, domChildren[lastIndex]);
+                    // Move node if needed
+                    if (oldIndex < lastIndex) {
+                        const node = domChildren[oldIndex];
+                        if (lastIndex < domChildren.length) {
+                            domNode.insertBefore(node, domChildren[lastIndex]);
+                        } else {
+                            domNode.appendChild(node);
+                        }
+                    }
+
+                    lastIndex = Math.max(oldIndex, lastIndex);
+                } else {
+                    // DOM node doesn't exist, create a new one
+                    const newNode = createDOMNode(newChild);
+                    if (newIndex < domChildren.length) {
+                        domNode.insertBefore(newNode, domChildren[newIndex]);
+                    } else {
+                        domNode.appendChild(newNode);
+                    }
                 }
-
-                lastIndex = Math.max(oldIndex, lastIndex);
             } else {
                 // Insert new node
                 const newNode = createDOMNode(newChild);
@@ -284,17 +329,28 @@ function updateChildren(domNode, oldChildren, newChildren) {
         for (let i = 0; i < maxLength; i++) {
             const oldChild = oldChildren[i];
             const newChild = newChildren[i];
-            const domChild = domNode.childNodes[i];
+
+            // Check if the DOM child exists
+            const domChild = i < domNode.childNodes.length ? domNode.childNodes[i] : null;
 
             if (!oldChild && newChild) {
                 // Insert new node
                 domNode.appendChild(createDOMNode(newChild));
             } else if (oldChild && !newChild) {
-                // Remove old node
-                domNode.removeChild(domChild);
+                // Remove old node if it exists in the DOM
+                if (domChild) {
+                    domNode.removeChild(domChild);
+                } else {
+                    console.warn('Attempted to remove a child node that does not exist in the DOM');
+                }
             } else if (oldChild && newChild) {
-                // Update existing node
-                patch(domChild, oldChild, newChild);
+                if (domChild) {
+                    // Update existing node
+                    patch(domChild, oldChild, newChild);
+                } else {
+                    // DOM node doesn't exist, create a new one
+                    domNode.appendChild(createDOMNode(newChild));
+                }
             }
         }
     }

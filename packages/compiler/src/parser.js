@@ -24,8 +24,16 @@ export function parse(source) {
             };
             console.log('Template section found with length:', templateMatch[1].trim().length);
         } else {
-            result.errors.push('No <template> section found');
-            console.error('No template section found in source');
+            // Create a default template instead of just reporting an error
+            console.warn('No <template> section found, creating default template');
+            result.template = {
+                content: '<div class="default-template">Default Template Content</div>',
+                start: 0,
+                end: 0,
+                isDefault: true
+            };
+            // Still add the error for reference
+            result.errors.push('No <template> section found, using default template');
         }
 
         // Find main script section - improved to handle multiple script sections

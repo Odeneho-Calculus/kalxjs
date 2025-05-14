@@ -56,46 +56,71 @@ export default defineComponent({
         console.log('App component render called');
 
         if (this.isLoading) {
-            return h('div', { class: 'loading' }, ['Loading KalxJS App...']);
+            return h('div', { class: 'loading' }, [
+                h('div', { class: 'loading-spinner' }),
+                h('h2', {}, ['Loading KalxJS App']),
+                h('p', {}, ['Initializing components...'])
+            ]);
         }
 
-        // Return the welcome component structure directly
+        // Return the welcome component structure with modern UI
         return h('div', { class: 'app-container' }, [
             h('div', { class: 'welcome-container' }, [
-                // Header
+                // Header with animated elements
                 h('div', { class: 'welcome-header' }, [
                     h('img', { src: '/src/assets/logo.svg', alt: 'KalxJS Logo', class: 'welcome-logo' }),
                     h('h1', {}, ['Welcome to ', h('span', { class: 'brand-name' }, ['KalxJS'])])
                 ]),
 
-                // Content
+                // Content with enhanced styling
                 h('div', { class: 'welcome-content' }, [
                     h('p', { class: 'welcome-message' }, [
-                        'Congratulations! You\'ve successfully created a new KalxJS project!'
+                        'kalculus! You\'ve successfully created a new KalxJS project with modern dark theme!'
                     ]),
 
-                    // Feature grid
-                    h('div', { class: 'feature-grid', id: 'feature-grid' }),
+                    // Feature grid with predefined features
+                    h('div', { class: 'feature-grid', id: 'feature-grid' }, [
+                        // Pre-render some features for immediate display
+                        h('div', { class: 'feature-card' }, [
+                            h('h3', {}, ['📝 Template-Based Rendering']),
+                            h('p', {}, ['Use HTML templates directly with no virtual DOM overhead'])
+                        ]),
+                        h('div', { class: 'feature-card' }, [
+                            h('h3', {}, ['⚡ Reactive State']),
+                            h('p', {}, ['Powerful state management with automatic DOM updates'])
+                        ]),
+                        h('div', { class: 'feature-card' }, [
+                            h('h3', {}, ['🧩 Component System']),
+                            h('p', {}, ['Create reusable components with clean APIs'])
+                        ]),
+                        h('div', { class: 'feature-card' }, [
+                            h('h3', {}, ['🔄 Routing']),
+                            h('p', {}, ['Seamless navigation between different views'])
+                        ])
+                    ]),
 
-                    // Counter demo
+                    // Enhanced Counter demo with modern UI
                     h('div', { class: 'counter-demo' }, [
-                        h('h2', {}, ['Try the Counter Demo']),
+                        h('h2', {}, ['Interactive Counter Demo']),
                         h('div', { class: 'counter-value', id: 'counter-value' }, ['0']),
                         h('div', { class: 'counter-buttons' }, [
                             h('button', {
                                 class: 'counter-button',
                                 id: 'decrement-button',
-                                onClick: () => window.decrementCounter && window.decrementCounter()
+                                onClick: () => window.decrementCounter && window.decrementCounter(),
+                                'aria-label': 'Decrement counter'
                             }, ['-']),
                             h('button', {
                                 class: 'counter-button reset',
                                 id: 'reset-button',
-                                onClick: () => window.resetCounter && window.resetCounter()
+                                onClick: () => window.resetCounter && window.resetCounter(),
+                                'aria-label': 'Reset counter'
                             }, ['Reset']),
                             h('button', {
                                 class: 'counter-button',
                                 id: 'increment-button',
-                                onClick: () => window.incrementCounter && window.incrementCounter()
+                                onClick: () => window.incrementCounter && window.incrementCounter(),
+                                'aria-label': 'Increment counter'
                             }, ['+'])
                         ]),
                         h('div', { class: 'counter-info' }, [
@@ -107,68 +132,114 @@ export default defineComponent({
                                 h('div', { class: 'stat-label' }, ['Is Even:']),
                                 h('div', { class: 'stat-value', id: 'is-even' }, ['Yes'])
                             ])
+                        ]),
+                        h('p', { class: 'counter-description' }, [
+                            'This counter demonstrates reactive state management in KalxJS. Try clicking the buttons to see the state update in real-time.'
                         ])
                     ]),
 
-                    // Getting started
+                    // Enhanced Getting Started section
                     h('div', { class: 'getting-started' }, [
                         h('h2', {}, ['Getting Started']),
+                        h('p', { class: 'getting-started-intro' }, [
+                            'Start building your next project with KalxJS in just a few simple steps:'
+                        ]),
                         h('div', { class: 'code-block' }, [
                             h('pre', {}, [
                                 h('code', {}, [
                                     '// Create a new KalxJS project\n',
-                                    'npm init kalx my-app\n\n',
+                                    'npm init kalx my-awesome-app\n\n',
+                                    '// Navigate to your project directory\n',
+                                    'cd my-awesome-app\n\n',
                                     '// Start the development server\n',
-                                    'cd my-app\n',
                                     'npm run dev'
                                 ])
                             ])
                         ]),
 
-                        // Links section
+                        // Enhanced Links section
                         h('div', { class: 'links-section' }, [
-                            h('h3', {}, ['Essential Links']),
+                            h('h3', {}, ['Essential Resources']),
                             h('div', { class: 'links-grid' }, [
                                 h('a', {
                                     href: 'https://github.com/Odeneho-Calculus/kalxjs',
                                     target: '_blank',
-                                    class: 'link-card'
+                                    class: 'link-card',
+                                    rel: 'noopener'
                                 }, [
                                     h('span', { class: 'link-icon' }, ['📚']),
-                                    h('span', { class: 'link-text' }, ['Documentation'])
+                                    h('span', { class: 'link-text' }, ['Documentation']),
+                                    h('span', { class: 'link-description' }, ['Learn how to use KalxJS'])
                                 ]),
                                 h('a', {
                                     href: 'https://github.com/Odeneho-Calculus/kalxjs/examples',
                                     target: '_blank',
-                                    class: 'link-card'
+                                    class: 'link-card',
+                                    rel: 'noopener'
                                 }, [
                                     h('span', { class: 'link-icon' }, ['🔍']),
-                                    h('span', { class: 'link-text' }, ['Examples'])
+                                    h('span', { class: 'link-text' }, ['Examples']),
+                                    h('span', { class: 'link-description' }, ['Explore sample projects'])
                                 ]),
                                 h('a', {
                                     href: 'https://github.com/Odeneho-Calculus/kalxjs',
                                     target: '_blank',
-                                    class: 'link-card'
+                                    class: 'link-card',
+                                    rel: 'noopener'
                                 }, [
                                     h('span', { class: 'link-icon' }, ['💻']),
-                                    h('span', { class: 'link-text' }, ['GitHub'])
+                                    h('span', { class: 'link-text' }, ['GitHub']),
+                                    h('span', { class: 'link-description' }, ['Star us on GitHub'])
                                 ]),
                                 h('a', {
                                     href: 'https://github.com/Odeneho-Calculus/kalxjs/issues',
                                     target: '_blank',
-                                    class: 'link-card'
+                                    class: 'link-card',
+                                    rel: 'noopener'
                                 }, [
                                     h('span', { class: 'link-icon' }, ['🐞']),
-                                    h('span', { class: 'link-text' }, ['Report Bug'])
+                                    h('span', { class: 'link-text' }, ['Report Bug']),
+                                    h('span', { class: 'link-description' }, ['Help us improve'])
+                                ])
+                            ])
+                        ]),
+
+                        // New section: What's Next
+                        h('div', { class: 'whats-next-section' }, [
+                            h('h3', {}, ['What\'s Next?']),
+                            h('ul', { class: 'next-steps-list' }, [
+                                h('li', {}, [
+                                    h('strong', {}, ['Create your first component: ']),
+                                    'Try creating a .klx file in the components directory'
+                                ]),
+                                h('li', {}, [
+                                    h('strong', {}, ['Add state management: ']),
+                                    'Explore the reactive system for managing application state'
+                                ]),
+                                h('li', {}, [
+                                    h('strong', {}, ['Style your app: ']),
+                                    'Add custom CSS or use the built-in styling options'
+                                ]),
+                                h('li', {}, [
+                                    h('strong', {}, ['Deploy your app: ']),
+                                    'Build for production and deploy to your favorite hosting service'
                                 ])
                             ])
                         ])
                     ])
                 ]),
 
-                // Footer
+                // Enhanced Footer
                 h('footer', { class: 'welcome-footer' }, [
-                    h('p', {}, ['Made with ❤️ by the KalxJS Team'])
+                    h('div', { class: 'footer-content' }, [
+                        h('p', { class: 'footer-tagline' }, ['Built with KalxJS - The Modern JavaScript Framework']),
+                        h('p', { class: 'footer-copyright' }, [
+                            '© ', new Date().getFullYear(), ' Made with ❤️ by the KalxJS Team'
+                        ]),
+                        h('div', { class: 'footer-version' }, [
+                            'Version 0.1.0-beta'
+                        ])
+                    ])
                 ])
             ])
         ]);

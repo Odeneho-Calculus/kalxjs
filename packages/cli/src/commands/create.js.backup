@@ -1280,20 +1280,16 @@ function kalxSFCPlugin() {
         const script = scriptMatch[1].trim();
         const style = styleMatch ? styleMatch[1].trim() : '';
         
-
-// Process template to escape backticks and handle line breaks
-const processedTemplate = template
-  .replace(/\`/g, "\\`")
-  .replace(/\$/g, "\\$");
-
-
-
+        // Process template to escape backticks and handle line breaks
+        const processedTemplate = template
+          .replace(/`/g, '\\\\`')
+          .replace(/\$/g, '\\\\$');
 
   // Create a JavaScript file that exports the component
   let jsCode = script;
 
   // Add template as a string property to the component
-  const exportMatch = /export\\s+default\\s+\\{/g.exec(jsCode);
+  const exportMatch = /export\s+default\s+\{/g.exec(jsCode);
   if (exportMatch) {
     const index = exportMatch.index + exportMatch[0].length;
     jsCode = jsCode.slice(0, index) + \`
@@ -1319,7 +1315,7 @@ const processedTemplate = template
         
         // Add style to the document if it exists
         if (style) {
-          const processedStyle = style.replace(/\`/g, '\\\\`').replace(/\$/g, '\\\\$');
+          const processedStyle = style.replace(/\`/g, '\\\\\\`').replace(/\$/g, '\\\\\\$');
     const componentName = path.basename(id, '.klx').toLowerCase();
 
     jsCode += \`
@@ -5655,120 +5651,121 @@ button:active {
     }
 
     // Create package.json
-    const packageJson = {
-      name: config.projectName,
-      version: '0.1.0',
-      private: true,
-      description: `A modern web application built with KalxJS`,
-      scripts: {
-        dev: 'vite',
-        build: 'vite build',
-        preview: 'vite preview',
-        start: 'vite'
-      },
-      dependencies: {
-        '@kalxjs/core': '^0.1.0'
-      },
-      devDependencies: {
-        vite: '^4.4.9'
+    try {
+      const packageJson = {
+        name: config.projectName,
+        version: '0.1.0',
+        private: true,
+        description: `A modern web application built with KalxJS`,
+        scripts: {
+          dev: 'vite',
+          build: 'vite build',
+          preview: 'vite preview',
+          start: 'vite'
+        },
+        dependencies: {
+          '@kalxjs/core': '^0.1.0'
+        },
+        devDependencies: {
+          vite: '^4.4.9'
+        }
+      };
+
+      // Add router dependencies
+      if (config.features.router) {
+        packageJson.dependencies = {
+          ...packageJson.dependencies,
+          '@kalxjs/router': '^0.1.0'
+        };
       }
-    };
 
-    // Add router dependencies
-    if (config.features.router) {
-      packageJson.dependencies = {
-        ...packageJson.dependencies,
-        '@kalxjs/router': '^0.1.0'
-      };
+      // Add state management dependencies
+      if (config.features.state) {
+        packageJson.dependencies = {
+          ...packageJson.dependencies,
+          '@kalxjs/store': '^0.1.0'
+        };
+      }
+
+      // Add API utilities dependencies
+      if (config.features.api) {
+        packageJson.dependencies = {
+          ...packageJson.dependencies,
+          '@kalxjs/api': '^0.1.0',
+          'axios': '^1.5.0'
+        };
+      }
+
+      // Add performance utilities dependencies
+      if (config.features.performance) {
+        packageJson.dependencies = {
+          ...packageJson.dependencies,
+          '@kalxjs/performance': '^0.1.0'
+        };
+      }
+
+      // Add AI features dependencies
+      if (config.features.ai) {
+        packageJson.dependencies = {
+          ...packageJson.dependencies,
+          '@kalxjs/ai': '^0.1.0',
+          'openai': '^4.0.0'
+        };
+      }
+
+      // Add testing dependencies
+      if (config.features.testing) {
+        packageJson.devDependencies = {
+          ...packageJson.devDependencies,
+          jest: '^29.6.4',
+          '@testing-library/jest-dom': '^6.1.3',
+          '@testing-library/user-event': '^14.4.3',
+          '@kalxjs/test-utils': '^0.1.0'
+        };
+        packageJson.scripts = {
+          ...packageJson.scripts,
+          test: 'jest',
+          'test:watch': 'jest --watch',
+          'test:coverage': 'jest --coverage'
+        };
+      }
+
+      // Add linting dependencies
+      if (config.features.linting) {
+        packageJson.devDependencies = {
+          ...packageJson.devDependencies,
+          eslint: '^8.49.0',
+          'eslint-plugin-kalxjs': '^0.1.0',
+          'prettier': '^3.0.3',
+          'eslint-config-prettier': '^9.0.0',
+          'eslint-plugin-prettier': '^5.0.0'
+        };
+        packageJson.scripts = {
+          ...packageJson.scripts,
+          lint: 'eslint --ext .js,.klx src',
+          'lint:fix': 'eslint --ext .js,.klx src --fix',
+          format: 'prettier --write "src/**/*.{js,klx,css,scss}"'
+        };
+      }
+
+      // Add SCSS dependencies
+      if (config.features.scss) {
+        packageJson.devDependencies = {
+          ...packageJson.devDependencies,
+          sass: '^1.66.1'
+        };
+      }
+
+      // Write package.json
+      await fs.writeFile(
+        path.join(targetDir, 'package.json'),
+        JSON.stringify(packageJson, null, 2)
+      );
+
+    } catch (error) {
+      console.error('Error processing package.json:', error);
     }
-
-    // Add state management dependencies
-    if (config.features.state) {
-      packageJson.dependencies = {
-        ...packageJson.dependencies,
-        '@kalxjs/store': '^0.1.0'
-      };
-    }
-
-    // Add API utilities dependencies
-    if (config.features.api) {
-      packageJson.dependencies = {
-        ...packageJson.dependencies,
-        '@kalxjs/api': '^0.1.0',
-        'axios': '^1.5.0'
-      };
-    }
-
-    // Add performance utilities dependencies
-    if (config.features.performance) {
-      packageJson.dependencies = {
-        ...packageJson.dependencies,
-        '@kalxjs/performance': '^0.1.0'
-      };
-    }
-
-    // Add AI features dependencies
-    if (config.features.ai) {
-      packageJson.dependencies = {
-        ...packageJson.dependencies,
-        '@kalxjs/ai': '^0.1.0',
-        'openai': '^4.0.0'
-      };
-    }
-
-    // Add testing dependencies
-    if (config.features.testing) {
-      packageJson.devDependencies = {
-        ...packageJson.devDependencies,
-        jest: '^29.6.4',
-        '@testing-library/jest-dom': '^6.1.3',
-        '@testing-library/user-event': '^14.4.3',
-        '@kalxjs/test-utils': '^0.1.0'
-      };
-      packageJson.scripts = {
-        ...packageJson.scripts,
-        test: 'jest',
-        'test:watch': 'jest --watch',
-        'test:coverage': 'jest --coverage'
-      };
-    }
-
-    // Add linting dependencies
-    if (config.features.linting) {
-      packageJson.devDependencies = {
-        ...packageJson.devDependencies,
-        eslint: '^8.49.0',
-        'eslint-plugin-kalxjs': '^0.1.0',
-        'prettier': '^3.0.3',
-        'eslint-config-prettier': '^9.0.0',
-        'eslint-plugin-prettier': '^5.0.0'
-      };
-      packageJson.scripts = {
-        ...packageJson.scripts,
-        lint: 'eslint --ext .js,.klx src',
-        'lint:fix': 'eslint --ext .js,.klx src --fix',
-        format: 'prettier --write "src/**/*.{js,klx,css,scss}"'
-      };
-    }
-
-    // Add SCSS dependencies
-    if (config.features.scss) {
-      packageJson.devDependencies = {
-        ...packageJson.devDependencies,
-        sass: '^1.66.1'
-      };
-    }
-
-    // Write package.json
-    await fs.writeFile(
-      path.join(targetDir, 'package.json'),
-      JSON.stringify(packageJson, null, 2)
-    );
-
-  } catch (error) {
-    console.error('Error processing package.json:', error);
   }
 }
-  }
 
 module.exports = create;

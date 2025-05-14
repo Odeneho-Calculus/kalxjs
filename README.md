@@ -234,40 +234,227 @@ timeline.add(createTrack(
 timeline.play();
 ```
 
-## Single File Components
+## Single File Components (.klx)
 
-kalxjs uses .klx files for single file components, combining template, script, and style in one file:
+KalxJS uses `.klx` files for single file components, combining template, script, and style in one file, similar to Vue's `.vue` files. This approach provides a clean separation of concerns while keeping related code together.
 
-```klx
+### Basic Structure
+
+Each `.klx` file consists of three sections:
+
+1. `<template>`: Contains the HTML markup for your component
+2. `<script>`: Contains the JavaScript logic for your component
+3. `<style>`: Contains the CSS styles for your component
+
+### Example Component
+
+```html
 <template>
-  <button @click="increment">
-    Count is: {{ count }}
-  </button>
+  <div class="counter">
+    <h2>{{ title }}</h2>
+    <div class="counter-value">{{ count }}</div>
+    <div class="counter-controls">
+      <button @click="decrement" class="counter-button">-</button>
+      <button @click="reset" class="counter-button reset">Reset</button>
+      <button @click="increment" class="counter-button">+</button>
+    </div>
+    <div class="counter-info">
+      <div class="stat-item">
+        <div class="stat-label">Double Count:</div>
+        <div class="stat-value">{{ doubleCount }}</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">Is Even:</div>
+        <div class="stat-value">{{ isEven ? 'Yes' : 'No' }}</div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-import { ref } from '@kalxjs-framework/runtime'
-
 export default {
   name: 'Counter',
-  setup() {
-    const count = ref(0)
-    const increment = () => count.value++
-    return { count, increment }
+  
+  props: {
+    title: {
+      type: String,
+      default: 'Counter'
+    },
+    initialValue: {
+      type: Number,
+      default: 0
+    }
+  },
+  
+  data() {
+    return {
+      count: this.initialValue
+    };
+  },
+  
+  computed: {
+    doubleCount() {
+      return this.count * 2;
+    },
+    
+    isEven() {
+      return this.count % 2 === 0;
+    }
+  },
+  
+  methods: {
+    increment() {
+      this.count++;
+      this.$emit('change', this.count);
+    },
+    
+    decrement() {
+      this.count--;
+      this.$emit('change', this.count);
+    },
+    
+    reset() {
+      this.count = 0;
+      this.$emit('change', this.count);
+    }
   }
-}
+};
 </script>
 
 <style>
-button {
-  padding: 8px 16px;
-  background: #4a90e2;
+.counter {
+  background-color: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+.counter:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+}
+
+.counter-value {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.counter-controls {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.counter-button {
+  background-color: var(--button-primary-bg);
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.counter-button:hover {
+  background-color: var(--button-primary-hover);
+  transform: translateY(-2px);
+}
+
+.counter-button.reset {
+  background-color: var(--button-secondary-bg);
+  border-radius: 20px;
+  width: 70px;
+  font-size: 0.9rem;
+}
+
+.counter-info {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  background-color: var(--bg-tertiary);
+  padding: 0.8rem;
+  border-radius: 8px;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 0.3rem;
+}
+
+.stat-value {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-secondary);
 }
 </style>
+```
+
+### Using Composition API
+
+KalxJS also supports the Composition API for more flexible component organization:
+
+```html
+<template>
+  <div class="counter">
+    <h2>{{ title }}</h2>
+    <div class="counter-value">{{ count }}</div>
+    <button @click="increment">Increment</button>
+  </div>
+</template>
+
+<script>
+import { ref, computed, watch } from '@kalxjs/core';
+
+export default {
+  name: 'CompositionCounter',
+  
+  props: {
+    title: String
+  },
+  
+  setup(props, { emit }) {
+    // State
+    const count = ref(0);
+    
+    // Computed
+    const doubleCount = computed(() => count.value * 2);
+    const isEven = computed(() => count.value % 2 === 0);
+    
+    // Methods
+    function increment() {
+      count.value++;
+      emit('change', count.value);
+    }
+    
+    // Watch
+    watch(count, (newValue) => {
+      console.log(`Count changed to: ${newValue}`);
+    });
+    
+    // Expose to template
+    return {
+      count,
+      doubleCount,
+      isEven,
+      increment
+    };
+  }
+};
+</script>
 ```
 
 ## Project Structure

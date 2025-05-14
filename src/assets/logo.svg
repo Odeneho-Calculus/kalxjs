@@ -1,9 +1,53 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M100 20L180 150H20L100 20Z" fill="#42b883"/>
-  <path d="M100 40L160 140H40L100 40Z" fill="#35495e"/>
-  <circle cx="100" cy="100" r="20" fill="#42b883"/>
-  <path d="M85 100C85 91.7157 91.7157 85 100 85C108.284 85 115 91.7157 115 100C115 108.284 108.284 115 100 115" stroke="#35495e" stroke-width="5"/>
-  <path d="M100 130L130 130" stroke="#35495e" stroke-width="5" stroke-linecap="round"/>
-  <path d="M100 130L70 130" stroke="#42b883" stroke-width="5" stroke-linecap="round"/>
+  <!-- Background Circle with Gradient -->
+  <circle cx="100" cy="100" r="90" fill="url(#paint0_radial)" />
+  
+  <!-- K Letter -->
+  <path d="M60 50V150H80V110L120 150H145L95 100L145 50H120L80 90V50H60Z" fill="white"/>
+  
+  <!-- JS Symbol -->
+  <path d="M130 90C130 85.5817 133.582 82 138 82H150C154.418 82 158 85.5817 158 90V130C158 139.941 149.941 148 140 148C130.059 148 122 139.941 122 130" stroke="white" stroke-width="12" stroke-linecap="round"/>
+  
+  <!-- Orbit Rings -->
+  <circle cx="100" cy="100" r="95" stroke="url(#paint1_linear)" stroke-width="2" stroke-dasharray="4 4" opacity="0.6" />
+  <circle cx="100" cy="100" r="75" stroke="url(#paint2_linear)" stroke-width="2" stroke-dasharray="4 4" opacity="0.8" />
+  
+  <!-- Small Particles -->
+  <circle cx="40" cy="100" r="5" fill="#63B3ED" />
+  <circle cx="160" cy="100" r="5" fill="#63B3ED" />
+  <circle cx="100" cy="40" r="5" fill="#63B3ED" />
+  <circle cx="100" cy="160" r="5" fill="#63B3ED" />
+  
+  <!-- Animated Particle (for static SVG, just positioned) -->
+  <circle cx="175" cy="75" r="6" fill="#4299E1" />
+  
+  <!-- Glowing Effect -->
+  <circle cx="100" cy="100" r="90" fill="url(#paint3_radial)" fill-opacity="0.3" />
+  
+  <!-- Definitions for gradients -->
+  <defs>
+    <!-- Main Background Gradient -->
+    <radialGradient id="paint0_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(100 100) rotate(90) scale(90)">
+      <stop offset="0" stop-color="#4299E1" />
+      <stop offset="1" stop-color="#2B6CB0" />
+    </radialGradient>
+    
+    <!-- Orbit Ring Gradients -->
+    <linearGradient id="paint1_linear" x1="100" y1="4" x2="100" y2="196" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#63B3ED" />
+      <stop offset="1" stop-color="#63B3ED" stop-opacity="0" />
+    </linearGradient>
+    
+    <linearGradient id="paint2_linear" x1="100" y1="24" x2="100" y2="176" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#63B3ED" />
+      <stop offset="1" stop-color="#63B3ED" stop-opacity="0" />
+    </linearGradient>
+    
+    <!-- Glow Effect -->
+    <radialGradient id="paint3_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(100 100) rotate(90) scale(90)">
+      <stop offset="0.7" stop-color="#63B3ED" stop-opacity="0.2" />
+      <stop offset="1" stop-color="#63B3ED" stop-opacity="0" />
+    </radialGradient>
+  </defs>
 </svg>

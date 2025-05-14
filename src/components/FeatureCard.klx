@@ -1,0 +1,84 @@
+<template>
+  <div class="feature-card" :class="{ 'highlighted': isHighlighted }">
+    <div class="feature-icon" v-if="icon">{{ icon }}</div>
+    <h3 class="feature-title">{{ title }}</h3>
+    <p class="feature-description">{{ description }}</p>
+    <div class="feature-actions" v-if="$slots.actions">
+      <slot name="actions"></slot>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'FeatureCard',
+  
+  props: {
+    title: {
+      type: String,
+      required: true
+    },
+    description: {
+      type: String,
+      default: ''
+    },
+    icon: {
+      type: String,
+      default: ''
+    },
+    isHighlighted: {
+      type: Boolean,
+      default: false
+    }
+  }
+};
+</script>
+
+<style>
+.feature-card {
+  background-color: var(--bg-secondary);
+  border-radius: 10px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+  border-color: var(--accent-color);
+}
+
+.feature-card.highlighted {
+  border-color: var(--accent-color);
+  background-color: rgba(99, 179, 237, 0.1);
+}
+
+.feature-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: var(--accent-color);
+}
+
+.feature-title {
+  color: var(--accent-color);
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+  font-size: 1.2rem;
+}
+
+.feature-description {
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  flex-grow: 1;
+}
+
+.feature-actions {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+</style>

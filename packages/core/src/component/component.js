@@ -69,8 +69,8 @@ function createComponent(options) {
 
     // Initialize data
     if (options.data) {
-        // Create data object
-        instance.$data = options.data.call(instance);
+        // Create data object and make it reactive
+        instance.$data = reactive(options.data.call(instance));
 
         // Setup getters/setters for data properties
         for (const key in instance.$data) {
@@ -96,7 +96,9 @@ function createComponent(options) {
                         }
 
                         // Call composition API beforeUpdate hooks
-                        instance.beforeUpdate.forEach(hook => hook());
+                        if (instance.beforeUpdate && Array.isArray(instance.beforeUpdate)) {
+                            instance.beforeUpdate.forEach(hook => hook());
+                        }
 
                         // Get new virtual DOM tree
                         const newVdom = instance.render();
@@ -106,11 +108,13 @@ function createComponent(options) {
                         if (parentNode) {
                             // Update the contents of the element rather than replacing it
                             if (instance._vnode) {
+                                console.log('Updating component with new vdom:', newVdom);
                                 // Use the updateElement function from vdom to properly update the DOM
                                 updateElement(instance.$el, instance._vnode, newVdom);
                                 instance._vnode = newVdom;
                             } else {
                                 // First render, create and append the new DOM
+                                console.log('First render with vdom:', newVdom);
                                 const newElement = createDOMElement(newVdom);
                                 instance.$el.appendChild(newElement);
                                 instance._vnode = newVdom;
@@ -123,7 +127,9 @@ function createComponent(options) {
                         }
 
                         // Call composition API updated hooks
-                        instance.updated.forEach(hook => hook());
+                        if (instance.updated && Array.isArray(instance.updated)) {
+                            instance.updated.forEach(hook => hook());
+                        }
                     }
                 }
             });
@@ -161,11 +167,18 @@ function createComponent(options) {
             console.log('Component render called for', options.name || 'unnamed component');
 
             if (!options.render) {
-                console.error('No render method defined for component');
+                console.warn('No render method defined for component, creating default render');
+
+                // Create a default render function that shows a more helpful message
+                // instead of just showing an error
                 return h('div', {
-                    style: 'color: red; border: 1px solid red; padding: 10px; margin: 10px 0;'
+                    style: 'padding: 20px; border: 2px solid orange; border-radius: 4px; background-color: #fffaf0; color: #c05621;'
                 }, [
-                    'Component Error: No render method defined'
+                    h('h2', {}, ['Component Ready']),
+                    h('p', {}, ['This component is working but needs a template or render function.']),
+                    h('div', { style: 'margin-top: 15px; font-size: 14px;' }, [
+                        h('p', {}, ['To fix this, add a <template> section to your .klx file or define a render function.'])
+                    ])
                 ]);
             }
 
@@ -290,17 +303,34 @@ function createComponent(options) {
 
         // Re-render and update the DOM
         const newVdom = this.render();
+        console.log('Component update with new vdom:', newVdom);
 
         if (this.$el) {
-            // Use the updateElement function from vdom to properly update the DOM
-            if (this._vnode) {
-                updateElement(this.$el, this._vnode, newVdom);
-            } else {
-                // First render, create and append the new DOM
-                const newElement = createDOMElement(newVdom);
+            try {
+                // Clear the element first
+                this.$el.innerHTML = '';
+
+                // Create a new DOM element from the virtual DOM
+                const newElement = createElement(newVdom);
+
+                // Append the new element to the container
                 this.$el.appendChild(newElement);
+
+                // Store the new vnode for future updates
+                this._vnode = newVdom;
+
+                console.log('DOM updated successfully');
+            } catch (error) {
+                console.error('Error during component update:', error);
+                // Add a visible error message to help with debugging
+                this.$el.innerHTML = `
+                    <div style="color: red; border: 1px solid red; padding: 10px; margin: 10px 0;">
+                        <h3>Component Update Error</h3>
+                        <p>${error.message}</p>
+                        <pre style="font-size: 12px; overflow: auto; max-height: 200px; background: #f5f5f5; padding: 5px;">${error.stack}</pre>
+                    </div>
+                `;
             }
-            this._vnode = newVdom;
         }
 
         // Call updated lifecycle hooks

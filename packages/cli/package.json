@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/cli",
-  "version": "1.3.17",
+  "version": "0.1.0",
   "description": "Command Line Interface for KalxJs framework",
   "type": "commonjs",
   "author": "kalxjs Team",
@@ -14,7 +14,8 @@
   },
   "homepage": "https://github.com/Odeneho-Calculus/kalxjs#readme",
   "bin": {
-    "kalxjs": "./bin/kalxjs.js"
+    "kalxjs": "./bin/kalxjs.js",
+    "kalx": "./bin/kalxjs.js"
   },
   "files": [
     "bin",
