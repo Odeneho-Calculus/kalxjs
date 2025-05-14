@@ -61,12 +61,14 @@ export function parse(source) {
             result.errors.push('No <script> section found');
         }
 
-        // Find style section
-        const styleMatch = /<style(\s+scoped)?>([\s\S]*?)<\/style>/i.exec(source);
+        // Find style section - improved to handle lang attribute
+        const styleMatch = /<style(?:\s+(?:scoped|lang="[^"]*"))*>([\s\S]*?)<\/style>/i.exec(source);
         if (styleMatch) {
+            const styleTag = styleMatch[0].substring(0, styleMatch[0].indexOf('>'));
             result.style = {
-                content: styleMatch[2].trim(),
-                scoped: !!styleMatch[1],
+                content: styleMatch[1].trim(),
+                scoped: styleTag.includes('scoped'),
+                lang: (styleTag.match(/lang="([^"]*)"/) || [])[1] || 'css',
                 start: styleMatch.index,
                 end: styleMatch.index + styleMatch[0].length
             };
@@ -147,31 +149,32 @@ export function parseTemplate(template) {
  * @param {Array} children - Array to store child nodes
  */
 function parseContent(content, children) {
+    // First, remove HTML comments for processing
+    const contentWithoutComments = content.replace(/<!--[\s\S]*?-->/g, '');
+
     // Handle elements
     const elementRegex = /<([a-z0-9-]+)(?:\s+([^>]*))?(?:\/>|>([\s\S]*?)<\/\1>)/gi;
     let lastIndex = 0;
     let match;
 
-    // Keep track of processed indices to avoid infinite loops
-    const processedIndices = new Set();
+    // Keep track of processed positions to avoid infinite loops
+    const processedPositions = new Set();
 
-    while ((match = elementRegex.exec(content))) {
+    while ((match = elementRegex.exec(contentWithoutComments))) {
         const [fullMatch, tag, attrs, elementContent] = match;
         const matchIndex = match.index;
 
-        // Check if we've already processed this match
-        if (processedIndices.has(matchIndex)) {
+        // Check if we've already processed this position
+        if (processedPositions.has(matchIndex)) {
             continue;
         }
-        processedIndices.add(matchIndex);
+        processedPositions.add(matchIndex);
 
         // Add text before the element
         if (matchIndex > lastIndex) {
-            const textBefore = content.substring(lastIndex, matchIndex);
-            // Skip HTML comments when adding text
-            const cleanTextBefore = textBefore.replace(/<!--[\s\S]*?-->/g, '');
-            if (cleanTextBefore.trim()) {
-                parseTextContent(cleanTextBefore, children);
+            const textBefore = contentWithoutComments.substring(lastIndex, matchIndex);
+            if (textBefore.trim()) {
+                parseTextContent(textBefore, children);
             }
         }
 
@@ -188,19 +191,19 @@ function parseContent(content, children) {
             parseContent(elementContent, elementNode.children);
         }
 
+
         // Add the element node to the children
         children.push(elementNode);
 
         lastIndex = matchIndex + fullMatch.length;
     }
 
+
     // Add any remaining text
-    if (lastIndex < content.length) {
-        const remainingText = content.substring(lastIndex);
-        // Skip HTML comments when adding remaining text
-        const cleanRemainingText = remainingText.replace(/<!--[\s\S]*?-->/g, '');
-        if (cleanRemainingText.trim()) {
-            parseTextContent(cleanRemainingText, children);
+    if (lastIndex < contentWithoutComments.length) {
+        const remainingText = contentWithoutComments.substring(lastIndex);
+        if (remainingText.trim()) {
+            parseTextContent(remainingText, children);
         }
     }
 }

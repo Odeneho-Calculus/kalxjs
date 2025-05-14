@@ -5,6 +5,37 @@ import { compileKLX } from './index.js';
 import path from 'path';
 
 /**
+ * Create a filter function for include/exclude patterns
+ * @param {RegExp|RegExp[]} include - Include pattern
+ * @param {RegExp|RegExp[]} exclude - Exclude pattern
+ * @returns {Function} Filter function
+ */
+function createFilter(include, exclude) {
+    return (id) => {
+        if (exclude && testPattern(exclude, id)) {
+            return false;
+        }
+        if (include && !testPattern(include, id)) {
+            return false;
+        }
+        return true;
+    };
+}
+
+/**
+ * Test if a pattern matches a string
+ * @param {RegExp|RegExp[]} pattern - Pattern to test
+ * @param {string} id - String to test
+ * @returns {boolean} Whether the pattern matches
+ */
+function testPattern(pattern, id) {
+    if (Array.isArray(pattern)) {
+        return pattern.some(p => testPattern(p, id));
+    }
+    return pattern.test(id);
+}
+
+/**
  * Vite plugin for KalxJS single-file components
  * @param {Object} options - Plugin options
  * @returns {Object} Vite plugin
@@ -22,7 +53,7 @@ export default function klxPlugin(options = {}) {
         name: 'vite:klx',
 
         // Handle .klx files as a transform step
-        async transform(code, id, transformOptions) {
+        transform(code, id, transformOptions) {
             // Skip if not a .klx file or if excluded
             if (!filter(id)) return null;
 
@@ -46,7 +77,7 @@ export default function klxPlugin(options = {}) {
                 console.log(`[vite:klx] Compiling ${fileName}`);
 
                 // Compile the .klx file
-                const result = await compileKLX(code, {
+                const result = compileKLX(code, {
                     filename: cleanId,
                     ...rest
                 });
@@ -135,33 +166,4 @@ export default defineComponent({
     };
 }
 
-/**
- * Create a filter function for include/exclude patterns
- * @param {RegExp|RegExp[]} include - Include pattern
- * @param {RegExp|RegExp[]} exclude - Exclude pattern
- * @returns {Function} Filter function
- */
-function createFilter(include, exclude) {
-    return (id) => {
-        if (exclude && testPattern(exclude, id)) {
-            return false;
-        }
-        if (include && !testPattern(include, id)) {
-            return false;
-        }
-        return true;
-    };
-}
-
-/**
- * Test if a pattern matches a string
- * @param {RegExp|RegExp[]} pattern - Pattern to test
- * @param {string} id - String to test
- * @returns {boolean} Whether the pattern matches
- */
-function testPattern(pattern, id) {
-    if (Array.isArray(pattern)) {
-        return pattern.some(p => testPattern(p, id));
-    }
-    return pattern.test(id);
-}
+// Functions are now defined at the top of the file

@@ -3169,7 +3169,7 @@ describe('App.klx', () => {
 
 
   files['vite.config.js'] = `import { defineConfig } from 'vite';
-import kalxSFC from '@kalxjs/compiler/vite-plugin';
+import { klxPlugin } from '@kalxjs/compiler';
 import path from 'path';
 
 export default defineConfig({
@@ -3184,7 +3184,7 @@ export default defineConfig({
     sourcemap: true
   },
   plugins: [
-    kalxSFC() // Add support for .klx single file components
+    klxPlugin() // Add support for .klx single file components
   ],
   optimizeDeps: {
     include: [
