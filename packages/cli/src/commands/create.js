@@ -1296,7 +1296,7 @@ async function installDependencies(targetDir, config) {
     }
   };
 
-  // Add feature-specific dependencies with latest versions
+  // Add feature-spec dependencies with latest versions
   if (config.features.router) pkg.dependencies["@kalxjs/router"] = latestVersions["@kalxjs/router"] || "^2.0.0";
   if (config.features.state) pkg.dependencies["@kalxjs/state"] = latestVersions["@kalxjs/state"] || "^1.2.26";
   if (config.features.scss) {
