@@ -40,8 +40,8 @@
     "build": "rollup -c ../../rollup.config.js",
     "dev": "rollup -c ../../rollup.config.js -w",
     "test": "jest",
-    "docs": "typedoc --skipErrorChecking",
-    "prepublishOnly": "npm run build && npm run docs"
+    "docs": "echo \"Skipping docs generation\"",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@kalxjs/core": "^2.1.30"
@@ -58,5 +58,5 @@
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "gitHead": "687dc10e06f0a1540411cbc226c99b11ba883318"
+  "gitHead": "82d314e7f43a9c923577101c0878b398739c2070"
 }

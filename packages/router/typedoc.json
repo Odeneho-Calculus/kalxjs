@@ -14,6 +14,5 @@
     ],
     "readme": "none",
     "name": "@kalxjs/router",
-    "skipErrorChecking": true,
-    "tsconfig": "./tsconfig.json"
+    "skipErrorChecking": true
 }
