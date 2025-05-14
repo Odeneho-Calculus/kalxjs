@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.16](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/compiler@1.2.15...@kalxjs/compiler@1.2.16) (2025-05-14)
+
+**Note:** Version bump only for package @kalxjs/compiler
+
 ## [1.2.15](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/compiler@1.2.14...@kalxjs/compiler@1.2.15) (2025-05-13)
 
 **Note:** Version bump only for package @kalxjs/compiler
