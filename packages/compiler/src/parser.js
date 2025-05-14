@@ -14,7 +14,7 @@ export function parse(source) {
     };
 
     try {
-        // Find template section - improved to handle attributes
+        // Find template section - improved to handle attributes and whitespace
         const templateMatch = /<template(?:\s+[^>]*)?>([\s\S]*?)<\/template>/i.exec(source);
         if (templateMatch) {
             result.template = {
@@ -22,14 +22,18 @@ export function parse(source) {
                 start: templateMatch.index,
                 end: templateMatch.index + templateMatch[0].length
             };
+            console.log('Template section found with length:', templateMatch[1].trim().length);
         } else {
             result.errors.push('No <template> section found');
+            console.error('No template section found in source');
         }
 
         // Find main script section - improved to handle multiple script sections
         const scriptMatches = Array.from(source.matchAll(/<script(?:\s+[^>]*)?>([\s\S]*?)<\/script>/gi));
 
         if (scriptMatches && scriptMatches.length > 0) {
+            console.log('Found', scriptMatches.length, 'script sections');
+
             // Use the first script section without setup attribute as the main script
             const mainScriptMatch = scriptMatches.find(match => !match[0].includes('setup'));
 
@@ -39,6 +43,7 @@ export function parse(source) {
                     start: mainScriptMatch.index,
                     end: mainScriptMatch.index + mainScriptMatch[0].length
                 };
+                console.log('Main script section found with length:', mainScriptMatch[1].trim().length);
             } else {
                 // If no main script found, use the first script section
                 result.script = {
@@ -46,6 +51,7 @@ export function parse(source) {
                     start: scriptMatches[0].index,
                     end: scriptMatches[0].index + scriptMatches[0][0].length
                 };
+                console.log('Using first script section with length:', scriptMatches[0][1].trim().length);
             }
 
             // Handle script setup if present
@@ -56,9 +62,11 @@ export function parse(source) {
                     start: setupScriptMatch.index,
                     end: setupScriptMatch.index + setupScriptMatch[0].length
                 };
+                console.log('Script setup section found with length:', setupScriptMatch[1].trim().length);
             }
         } else {
             result.errors.push('No <script> section found');
+            console.error('No script section found in source');
         }
 
         // Find style section - improved to handle lang attribute
