@@ -1382,7 +1382,7 @@ setTimeout(() => {
     "@kalxjs/core": "^1.0.0"${config.features.router ? ',\n    "@kalxjs/router": "^1.0.0"' : ''}${config.features.state ? ',\n    "@kalxjs/state": "^1.0.0"' : ''}
   },
   "devDependencies": {
-    "vite": "^4.3.9"${config.features.scss ? ',\n    "sass": "^1.62.1"' : ''}${config.features.testing ? ',\n    "vitest": "^0.31.1",\n    "@testing-library/dom": "^9.3.0"' : ''}${config.features.linting ? ',\n    "eslint": "^8.41.0",\n    "eslint-plugin-js": "^1.0.0"' : ''}
+    "vite": "^4.3.9"${config.features.scss ? ',\n    "sass": "^1.62.1"' : ''}${config.features.testing ? ',\n    "vitest": "^0.31.1",\n    "@testing-library/dom": "^9.3.0"' : ''}${config.features.linting ? ',\n    "eslint": "^8.41.0"' : ''}
   }
 }`;
 
