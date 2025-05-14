@@ -1,4 +1,4 @@
-[**@kalxjs/router v0.1.3**](../README.md)
+[**@kalxjs/router v2.0.10**](../README.md)
 
 ***
 
@@ -8,7 +8,7 @@
 
 > **RouterView**(`props`): `any`
 
-Defined in: [index.js:1550](https://github.com/Odeneho-Calculus/kalxjs/blob/7fd2a04b82eb46847d177e10454dc1c716d25790/packages/router/src/index.js#L1550)
+Defined in: [index.js:1550](https://github.com/Odeneho-Calculus/kalxjs/blob/687dc10e06f0a1540411cbc226c99b11ba883318/packages/router/src/index.js#L1550)
 
 ## Parameters
 

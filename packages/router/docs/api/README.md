@@ -1,8 +1,8 @@
-**@kalxjs/router v0.1.3**
+**@kalxjs/router v2.0.10**
 
 ***
 
-# @kalxjs/router v0.1.3
+# @kalxjs/router v2.0.10
 
 ## Functions
 
