@@ -221,6 +221,95 @@ async function generateProject(targetDir, config) {
       'src/templates/.gitkeep': '',
       'src/renderer/.gitkeep': '',
       'src/utils/.gitkeep': ''
+    } : {}),
+    ...(config.features.scss ? {
+      'src/styles/main.scss': `// Main SCSS file for the application
+
+// Variables
+$primary-color: #42b883;
+$secondary-color: #35495e;
+$light-color: #f8f9fa;
+$dark-color: #343a40;
+$border-radius: 4px;
+
+// Global styles
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: $dark-color;
+  background-color: white;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: $primary-color;
+  text-decoration: none;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+// Button styles
+.btn {
+  display: inline-block;
+  background-color: $primary-color;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: $border-radius;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: darken($primary-color, 10%);
+  }
+  
+  &.btn-secondary {
+    background-color: $secondary-color;
+    
+    &:hover {
+      background-color: darken($secondary-color, 10%);
+    }
+  }
+}
+
+// Card component
+.card {
+  background-color: white;
+  border-radius: $border-radius;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  
+  .card-title {
+    margin-top: 0;
+    color: $primary-color;
+  }
+}
+
+// Utility classes
+.text-center {
+  text-align: center;
+}
+
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+`
     } : {})
   };
 
@@ -1237,8 +1326,9 @@ For more information, please refer to the [KalxJS Documentation](https://kalxjs.
   files['vite.config.js'] = `import { defineConfig } from 'vite';
 import { vitePlugin } from '@kalxjs/compiler';
 import path from 'path';
+${config.features.testing ? "import { defineConfig as defineVitestConfig } from 'vitest/config';" : ''}
 
-export default defineConfig({
+export default ${config.features.testing ? 'defineVitestConfig(' : ''}defineConfig({
   plugins: [
     vitePlugin()
   ],
@@ -1246,6 +1336,12 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['@kalxjs/compiler'] // Exclude compiler from optimization
   },
+  ${config.features.testing ? `test: {
+    environment: 'jsdom',
+    globals: true,
+    include: ['**/*.{test,spec}.{js,klx}']
+  },` : ''}
+})${config.features.testing ? ');' : ';'}
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src')
@@ -1262,6 +1358,46 @@ export default defineConfig({
   }
 });
 `;
+
+  // Add ESLint configuration if linting is enabled
+  if (config.features.linting) {
+    files['.eslintrc.js'] = `module.exports = {
+  root: true,
+  env: {
+    browser: true,
+    es2021: true,
+    node: true${config.features.testing ? ',\n    "vitest-globals/env": true' : ''}
+  },
+  extends: [
+    'eslint:recommended'
+  ],
+  parserOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module'
+  },
+  rules: {
+    'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off'
+  }
+}`;
+  }
+
+  // Add test directory and example test if testing is enabled
+  if (config.features.testing) {
+    await fs.ensureDir(path.join(targetDir, 'tests'));
+    files['tests/example.test.js'] = `import { describe, it, expect } from 'vitest';
+
+describe('Example test suite', () => {
+  it('should pass a simple test', () => {
+    expect(1 + 1).toBe(2);
+  });
+
+  it('should handle async operations', async () => {
+    const result = await Promise.resolve(42);
+    expect(result).toBe(42);
+  });
+});`;
+  }
 
   // Write all files
   for (const [file, content] of Object.entries(files)) {
@@ -1301,99 +1437,28 @@ async function installDependencies(targetDir, config) {
   if (config.features.state) pkg.dependencies["@kalxjs/state"] = latestVersions["@kalxjs/state"] || "^1.2.26";
   if (config.features.scss) {
     pkg.devDependencies["sass"] = "^1.69.0";
-    // Add main.scss file
-    files['src/styles/main.scss'] = `// Main SCSS file for the application
-
-// Variables
-$primary-color: #42b883;
-$secondary-color: #35495e;
-$light-color: #f8f9fa;
-$dark-color: #343a40;
-$border-radius: 4px;
-
-// Global styles
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
-  color: $dark-color;
-  background-color: white;
-  margin: 0;
-  padding: 0;
-}
-
-a {
-  color: $primary-color;
-  text-decoration: none;
-  
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 15px;
-}
-
-// Button styles
-.btn {
-  display: inline-block;
-  background-color: $primary-color;
-  color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: $border-radius;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  
-  &:hover {
-    background-color: darken($primary-color, 10%);
-  }
-  
-  &.btn-secondary {
-    background-color: $secondary-color;
-    
-    &:hover {
-      background-color: darken($secondary-color, 10%);
-    }
-  }
-}
-
-// Card component
-.card {
-  background-color: white;
-  border-radius: $border-radius;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  
-  .card-title {
-    margin-top: 0;
-    color: $primary-color;
-  }
-}
-
-// Utility classes
-.text-center {
-  text-align: center;
-}
-
-.mt-1 { margin-top: 0.5rem; }
-.mt-2 { margin-top: 1rem; }
-.mt-3 { margin-top: 1.5rem; }
-.mt-4 { margin-top: 2rem; }
-
-.mb-1 { margin-bottom: 0.5rem; }
-.mb-2 { margin-bottom: 1rem; }
-.mb-3 { margin-bottom: 1.5rem; }
-.mb-4 { margin-bottom: 2rem; }
-`;
   }
 
   // Always include compiler for .klx files since we're using App.klx
   pkg.dependencies["@kalxjs/compiler"] = latestVersions["@kalxjs/compiler"] || "^1.2.2";
   // Remove compiler-plugin as we're using the vitePlugin from @kalxjs/compiler
+
+  // Add testing dependencies if testing is enabled
+  if (config.features.testing) {
+    pkg.devDependencies["vitest"] = "^0.34.6";
+    pkg.devDependencies["@testing-library/dom"] = "^9.3.3";
+    pkg.devDependencies["jsdom"] = "^22.1.0";
+    pkg.scripts["test"] = "vitest run";
+    pkg.scripts["test:watch"] = "vitest";
+  }
+
+  // Add ESLint dependencies if linting is enabled
+  if (config.features.linting) {
+    pkg.devDependencies["eslint"] = "^8.53.0";
+    pkg.devDependencies["eslint-plugin-import"] = "^2.29.0";
+    pkg.scripts["lint"] = "eslint src --ext .js,.klx";
+    pkg.scripts["lint:fix"] = "eslint src --ext .js,.klx --fix";
+  }
 
   // Add the newly created packages with latest versions
   if (config.features.ai) {
