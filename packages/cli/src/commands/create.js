@@ -2454,46 +2454,6 @@ export default defineComponent({
 </template>
 
 <script>
-<template>
-  <button 
-    :class="[
-      'button', 
-      primary ? 'primary' : 'secondary',
-      size,
-      { 'full-width': fullWidth, 'icon-only': iconOnly }
-    ]" 
-    @click="handleClick"
-    :disabled="disabled || loading"
-    :type="type"
-  >
-    <span v-if="loading" class="spinner"></span>
-    <span v-else-if="icon" class="icon">{{ icon }}</span>
-    <span v-if="!iconOnly" class="text">{{ text }}</span>
-    <slot></slot>
-  </button>
-</template>
-
-<script>
-<template>
-  <button 
-    :class="[
-      'button', 
-      primary ? 'primary' : 'secondary',
-      size,
-      { 'full-width': fullWidth, 'icon-only': iconOnly }
-    ]" 
-    @click="handleClick"
-    :disabled="disabled || loading"
-    :type="type"
-  >
-    <span v-if="loading" class="spinner"></span>
-    <span v-else-if="icon" class="icon">{{ icon }}</span>
-    <span v-if="!iconOnly" class="text">{{ text }}</span>
-    <slot></slot>
-  </button>
-</template>
-
-<script>
 import { defineComponent } from '@kalxjs/core';
 
 export default defineComponent({
