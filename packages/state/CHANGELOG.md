@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.2.41 (2025-05-14)
+
+**Note:** Version bump only for package @kalxjs/store
+
+
+
+
+
 ## 1.2.40 (2025-05-14)
 
 **Note:** Version bump only for package @kalxjs/store
