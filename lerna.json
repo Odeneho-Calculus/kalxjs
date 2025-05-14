@@ -12,12 +12,16 @@
                 "*.md"
             ],
             "message": "chore(release): publish",
-            "registry": "https://registry.npmjs.org/"
+            "registry": "https://registry.npmjs.org/",
+            "npmClientArgs": [
+                "--legacy-peer-deps"
+            ]
         },
         "bootstrap": {
             "hoist": true,
             "npmClientArgs": [
-                "--no-package-lock"
+                "--no-package-lock",
+                "--legacy-peer-deps"
             ]
         }
     }
