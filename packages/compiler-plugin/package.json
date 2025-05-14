@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/compiler-plugin",
-  "version": "1.2.18",
+  "version": "1.2.19",
   "description": "Webpack and Rollup plugin for KalxJS single-file components",
   "type": "module",
   "author": "kalxjs Team",
@@ -41,7 +41,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@kalxjs/compiler": "^1.2.18"
+    "@kalxjs/compiler": "^1.2.19"
   },
   "peerDependencies": {
     "webpack": "^5.0.0"

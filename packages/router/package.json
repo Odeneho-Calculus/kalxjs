@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/router",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Advanced router package for KalxJs framework with features that surpass Vue Router",
   "type": "module",
   "author": "kalxjs Team",
@@ -44,7 +44,7 @@
     "prepublishOnly": "npm run build && npm run docs"
   },
   "dependencies": {
-    "@kalxjs/core": "^0.1.0"
+    "@kalxjs/core": "^0.1.1"
   },
   "peerDependencies": {
     "@kalxjs/core": "^0.1.0"
