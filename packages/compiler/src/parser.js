@@ -37,40 +37,81 @@ export function parse(source) {
         }
 
         // Find main script section - improved to handle multiple script sections
-        const scriptMatches = Array.from(source.matchAll(/<script(?:\s+[^>]*)?>([\s\S]*?)<\/script>/gi));
+        // Use a more robust regex that handles newlines and whitespace better
+        const scriptRegex = /<script(?:\s+([^>]*))?>([\s\S]*?)<\/script>/gi;
+        let scriptContent = '';
+        let scriptMatch;
 
-        if (scriptMatches && scriptMatches.length > 0) {
-            console.log('Found', scriptMatches.length, 'script sections');
+        // Reset the regex index
+        scriptRegex.lastIndex = 0;
 
-            // Use the first script section without setup attribute as the main script
-            const mainScriptMatch = scriptMatches.find(match => !match[0].includes('setup'));
+        // Test if there's at least one script tag
+        if (scriptRegex.test(source)) {
+            // Reset the regex index again
+            scriptRegex.lastIndex = 0;
 
-            if (mainScriptMatch) {
-                result.script = {
-                    content: mainScriptMatch[1].trim(),
-                    start: mainScriptMatch.index,
-                    end: mainScriptMatch.index + mainScriptMatch[0].length
-                };
-                console.log('Main script section found with length:', mainScriptMatch[1].trim().length);
-            } else {
-                // If no main script found, use the first script section
-                result.script = {
-                    content: scriptMatches[0][1].trim(),
-                    start: scriptMatches[0].index,
-                    end: scriptMatches[0].index + scriptMatches[0][0].length
-                };
-                console.log('Using first script section with length:', scriptMatches[0][1].trim().length);
+            // Get all script matches
+            const scriptMatches = [];
+            while ((scriptMatch = scriptRegex.exec(source)) !== null) {
+                const attrs = scriptMatch[1] || '';
+                const content = scriptMatch[2].trim();
+
+                // Log detailed information about the script match for debugging
+                console.log('Script match details:');
+                console.log('- Full match length:', scriptMatch[0].length);
+                console.log('- Attributes:', attrs);
+                console.log('- Content length:', content.length);
+                console.log('- Content starts with:', content.substring(0, 50));
+                console.log('- Is setup script:', attrs && attrs.includes('setup'));
+
+                // Skip empty script tags
+                if (content.length === 0) {
+                    console.warn('Empty script tag found, skipping');
+                    continue;
+                }
+
+                scriptMatches.push({
+                    fullMatch: scriptMatch[0],
+                    attrs: attrs,
+                    content: content,
+                    index: scriptMatch.index,
+                    isSetup: attrs && attrs.includes('setup')
+                });
             }
 
-            // Handle script setup if present
-            const setupScriptMatch = scriptMatches.find(match => match[0].includes('setup'));
-            if (setupScriptMatch) {
-                result.scriptSetup = {
-                    content: setupScriptMatch[1].trim(),
-                    start: setupScriptMatch.index,
-                    end: setupScriptMatch.index + setupScriptMatch[0].length
-                };
-                console.log('Script setup section found with length:', setupScriptMatch[1].trim().length);
+            console.log('Found', scriptMatches.length, 'script sections');
+
+            if (scriptMatches.length > 0) {
+                // Use the first script section without setup attribute as the main script
+                const mainScriptMatch = scriptMatches.find(match => !match.isSetup);
+
+                if (mainScriptMatch) {
+                    result.script = {
+                        content: mainScriptMatch.content,
+                        start: mainScriptMatch.index,
+                        end: mainScriptMatch.index + mainScriptMatch.fullMatch.length
+                    };
+                    console.log('Main script section found with length:', mainScriptMatch.content.length);
+                } else {
+                    // If no main script found, use the first script section
+                    result.script = {
+                        content: scriptMatches[0].content,
+                        start: scriptMatches[0].index,
+                        end: scriptMatches[0].index + scriptMatches[0].fullMatch.length
+                    };
+                    console.log('Using first script section with length:', scriptMatches[0].content.length);
+                }
+
+                // Handle script setup if present
+                const setupScriptMatch = scriptMatches.find(match => match.isSetup);
+                if (setupScriptMatch) {
+                    result.scriptSetup = {
+                        content: setupScriptMatch.content,
+                        start: setupScriptMatch.index,
+                        end: setupScriptMatch.index + setupScriptMatch.fullMatch.length
+                    };
+                    console.log('Script setup section found with length:', setupScriptMatch.content.length);
+                }
             }
         } else {
             result.errors.push('No <script> section found');
@@ -109,10 +150,13 @@ export function parseTemplate(template) {
             children: []
         };
 
+        // Clean up the template - remove leading/trailing whitespace and newlines
+        const cleanTemplate = template.trim();
+
         // Improved regex-based parsing
         // First, let's handle the root element
         const rootElementRegex = /<([a-z0-9-]+)(?:\s+([^>]*))?>([\s\S]*?)<\/\1>/i;
-        const rootMatch = rootElementRegex.exec(template);
+        const rootMatch = rootElementRegex.exec(cleanTemplate);
 
         if (!rootMatch) {
             // If no root element is found, create a fallback div
@@ -121,10 +165,13 @@ export function parseTemplate(template) {
                 type: 'Element',
                 tag: 'div',
                 attrs: {},
-                children: [{ type: 'Text', content: template }]
+                children: [{ type: 'Text', content: cleanTemplate }]
             });
             return ast;
         }
+
+        // Log the root element for debugging
+        console.log('Root element found:', rootMatch[1]);
 
         const [, rootTag, rootAttrs, rootContent] = rootMatch;
 
@@ -168,14 +215,46 @@ function parseContent(content, children) {
     // First, remove HTML comments for processing
     const contentWithoutComments = content.replace(/<!--[\s\S]*?-->/g, '');
 
-    // Handle elements
-    const elementRegex = /<([a-z0-9-]+)(?:\s+([^>]*))?(?:\/>|>([\s\S]*?)<\/\1>)/gi;
+    // If the content is just whitespace, return early
+    if (!contentWithoutComments.trim()) {
+        return;
+    }
+
+    // Handle self-closing tags first
+    const selfClosingRegex = /<([a-z0-9-]+)(?:\s+([^>]*))?\s*\/>/gi;
+    let processedContent = contentWithoutComments;
+    let selfClosingMatch;
+
+    // Process all self-closing tags
+    while ((selfClosingMatch = selfClosingRegex.exec(contentWithoutComments))) {
+        const [fullMatch, tag, attrs] = selfClosingMatch;
+        const matchIndex = selfClosingMatch.index;
+
+        // Create the element node for self-closing tag
+        const elementNode = {
+            type: 'Element',
+            tag,
+            attrs: parseAttributes(attrs || ''),
+            children: [],
+            selfClosing: true
+        };
+
+        // Add the element node to the children
+        children.push(elementNode);
+    }
+
+    // Now handle regular elements with opening and closing tags
+    const elementRegex = /<([a-z0-9-]+)(?:\s+([^>]*))?>([\s\S]*?)<\/\1>/gi;
     let lastIndex = 0;
     let match;
+
+    // Reset the regex
+    elementRegex.lastIndex = 0;
 
     // Keep track of processed positions to avoid infinite loops
     const processedPositions = new Set();
 
+    // Process all regular elements
     while ((match = elementRegex.exec(contentWithoutComments))) {
         const [fullMatch, tag, attrs, elementContent] = match;
         const matchIndex = match.index;
@@ -202,18 +281,16 @@ function parseContent(content, children) {
             children: []
         };
 
-        // Parse the content of the element if it's not self-closing
-        if (elementContent !== undefined) {
+        // Parse the content of the element
+        if (elementContent) {
             parseContent(elementContent, elementNode.children);
         }
-
 
         // Add the element node to the children
         children.push(elementNode);
 
         lastIndex = matchIndex + fullMatch.length;
     }
-
 
     // Add any remaining text
     if (lastIndex < contentWithoutComments.length) {

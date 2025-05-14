@@ -20,8 +20,22 @@ export function compile(ast, options = {}) {
     if (ast.template) {
         try {
             console.log(`[compiler] Parsing template for ${options.filename || 'unknown'}`);
-            const templateAst = parseTemplate(ast.template.content);
-            result.template = compileTemplate(templateAst, options);
+
+            // Check if this is a default template
+            if (ast.template.isDefault) {
+                console.log(`[compiler] Using default template for ${options.filename || 'unknown'}`);
+
+                // Create a simple render function for the default template
+                result.template = {
+                    code: `function render() {
+  return h('div', { class: 'default-template' }, ['Default Template Content']);
+}`
+                };
+            } else {
+                // Parse and compile the actual template
+                const templateAst = parseTemplate(ast.template.content);
+                result.template = compileTemplate(templateAst, options);
+            }
         } catch (error) {
             console.error(`[compiler] Template compilation error:`, error);
             result.errors.push(`Template compilation error: ${error.message}`);
@@ -74,6 +88,9 @@ export function compile(ast, options = {}) {
     if (ast.script) {
         try {
             console.log(`[compiler] Processing script for ${options.filename || 'unknown'}`);
+            console.log(`[compiler] Script content length: ${ast.script.content.length}`);
+            console.log(`[compiler] Script content starts with: ${ast.script.content.substring(0, 50)}...`);
+
             result.script = processScript(ast.script.content, options);
 
             // Process script setup if present
@@ -86,7 +103,16 @@ export function compile(ast, options = {}) {
             result.errors.push(`Script compilation error: ${error.message}`);
         }
     } else {
+        console.warn(`[compiler] No script section found for ${options.filename || 'unknown'}`);
         result.errors.push('No script section found');
+
+        // Create a default script to avoid errors
+        result.script = {
+            code: `// Default script created by compiler
+export default {
+  name: 'DefaultComponent'
+}`
+        };
     }
 
     // Process style
@@ -176,6 +202,11 @@ function generateElementCode(node) {
 
     try {
         if (node.type === 'Text') {
+            // Trim whitespace and check if the content is just whitespace
+            const trimmed = node.content.trim();
+            if (!trimmed) {
+                return '""'; // Return empty string for whitespace-only nodes
+            }
             return JSON.stringify(node.content);
         }
 
@@ -227,12 +258,18 @@ function generateElementCode(node) {
             // Generate children
             if (node.children && node.children.length) {
                 code += '[';
-                for (const child of node.children) {
+                for (let i = 0; i < node.children.length; i++) {
+                    const child = node.children[i];
                     // For element children, we need to use h() function
                     if (child.type === 'Element') {
-                        code += `h(${generateElementCode(child)}), `;
+                        code += `h(${generateElementCode(child)})`;
                     } else {
-                        code += generateElementCode(child) + ', ';
+                        code += generateElementCode(child);
+                    }
+
+                    // Add comma only if not the last child
+                    if (i < node.children.length - 1) {
+                        code += ', ';
                     }
                 }
                 code += ']';

@@ -10,11 +10,10 @@ export function generateCode(compiled, options = {}) {
     const { template, script, scriptSetup, style } = compiled;
 
     try {
-        // Start with the imports
-        let code = `import { h, defineComponent } from '@kalxjs/core';\n\n`;
-
         // Track imports from the script sections
         const imports = [];
+        let hasHImport = false;
+        let hasDefineComponentImport = false;
 
         // Process script content
         let scriptContent = '';
@@ -26,6 +25,14 @@ export function generateCode(compiled, options = {}) {
 
             while ((match = importRegex.exec(scriptCode))) {
                 imports.push(match[0]);
+
+                // Check if h and defineComponent are already imported
+                if (match[0].includes('h') && match[0].includes('@kalxjs/core')) {
+                    hasHImport = true;
+                }
+                if (match[0].includes('defineComponent') && match[0].includes('@kalxjs/core')) {
+                    hasDefineComponentImport = true;
+                }
             }
 
             // Remove imports from script content
@@ -62,10 +69,27 @@ export function generateCode(compiled, options = {}) {
             setupContent = setupCode.trim();
         }
 
+        // Start with the imports
+        let code = '';
+
         // Add imports at the top
         if (imports.length > 0) {
-            code = imports.join('') + code;
+            code = imports.join('');
         }
+
+        // Add h and defineComponent imports if not already imported
+        if (!hasHImport || !hasDefineComponentImport) {
+            let coreImports = [];
+            if (!hasHImport) coreImports.push('h');
+            if (!hasDefineComponentImport) coreImports.push('defineComponent');
+
+            if (coreImports.length > 0) {
+                code += `import { ${coreImports.join(', ')} } from '@kalxjs/core';\n`;
+            }
+        }
+
+        // Add a newline after imports
+        code += '\n';
 
         // Add the component definition
         code += `export default defineComponent({\n`;
@@ -110,8 +134,13 @@ export function generateCode(compiled, options = {}) {
             }
         }
 
-        // Add the render function
+        // Always add the render function from the template if available
         if (template && template.code) {
+            // Remove any existing render function from the script content
+            if (scriptContent.includes('render(') || scriptContent.includes('render :')) {
+                console.warn('Render function found in script, but using template-generated render function instead');
+            }
+
             code += `  render() {\n`;
 
             // Extract the render function body
@@ -124,7 +153,7 @@ export function generateCode(compiled, options = {}) {
 
             code += renderBody + '\n';
             code += `  }\n`;
-        } else {
+        } else if (!template || !template.code) {
             // Enhanced fallback render function with better UI and guidance
             code += `  render() {
     return h('div', { 
@@ -147,6 +176,19 @@ export function generateCode(compiled, options = {}) {
       ])
     ]);
   }\n`;
+        }
+
+        // Clean up any trailing commas or syntax errors before closing the component definition
+        // First, find the last occurrence of ']);' followed by a comma
+        const lastRenderFunctionEnd = code.lastIndexOf(']);');
+        if (lastRenderFunctionEnd !== -1) {
+            // Check if there's a comma after the closing bracket
+            const nextChar = code.substring(lastRenderFunctionEnd + 3, lastRenderFunctionEnd + 4);
+            if (nextChar === ',') {
+                // Replace the comma with nothing
+                code = code.substring(0, lastRenderFunctionEnd + 3) +
+                    code.substring(lastRenderFunctionEnd + 4);
+            }
         }
 
         // Close the component definition

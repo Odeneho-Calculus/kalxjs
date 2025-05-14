@@ -6,7 +6,6 @@ const ora = require('ora');
 const inquirer = require('inquirer');
 const deepmerge = require('deepmerge');
 const execa = require('execa');
-const https = require('https');
 
 /**
  * Creates a new KalxJS project
@@ -45,14 +44,13 @@ async function create(projectName, options = {}) {
     spinner.stop();
 
     // Get feature flags
-    const promptAnswers = options.default ? {
-      router: true,
-      state: true,
-      scss: true,
-      testing: true,
-      linting: true,
+    const promptAnswers = options.skipPrompts ? {
+      router: options.router || true,
+      state: options.state || true,
+      scss: options.scss || true,
+      testing: options.testing || true,
+      linting: options.linting || true,
       sfc: true,
-      ai: false,
       api: true,
       composition: true,
       performance: true,
@@ -109,12 +107,6 @@ async function create(projectName, options = {}) {
       },
       {
         type: 'confirm',
-        name: 'ai',
-        message: 'Add AI features support?',
-        default: false
-      },
-      {
-        type: 'confirm',
         name: 'testing',
         message: 'Add Testing setup?',
         default: true
@@ -150,8 +142,12 @@ async function create(projectName, options = {}) {
 
     // Install dependencies
     if (!options.skipInstall) {
-      spinner.text = 'Checking for latest package versions...';
-      await installDependencies(targetDir, projectConfig);
+      spinner.text = 'Installing dependencies...';
+      const installSuccess = await installDependencies(targetDir, projectConfig);
+      
+      if (!installSuccess) {
+        spinner.warn('Dependencies installation failed. You will need to run npm install manually.');
+      }
     }
 
     spinner.succeed(`Project created successfully at ${chalk.cyan(targetDir)}`);
@@ -159,7 +155,7 @@ async function create(projectName, options = {}) {
     // Show next steps
     console.log('\n  Done. Now run:\n');
     console.log(chalk.cyan(`  cd ${projectName}`));
-    if (options.skipInstall) console.log(chalk.cyan('  npm install'));
+    if (options.skipInstall || !installSuccess) console.log(chalk.cyan('  npm install'));
     console.log(chalk.cyan('  npm run dev\n'));
 
   } catch (err) {
@@ -192,7 +188,6 @@ async function generateProject(targetDir, config) {
     config.features.state && 'src/store',
     config.features.scss && 'src/styles',
     config.features.sfc && 'src/components/sfc',
-    config.features.ai && 'src/ai',
     config.features.api && 'src/api',
     config.features.composition && 'src/composables',
     config.features.performance && 'src/utils/performance',
@@ -212,7 +207,6 @@ async function generateProject(targetDir, config) {
     'src/assets/.gitkeep': '',
     'src/components/.gitkeep': '',
     ...(config.features.sfc ? { 'src/components/sfc/.gitkeep': '' } : {}),
-    ...(config.features.ai ? { 'src/ai/.gitkeep': '' } : {}),
     ...(config.features.api ? { 'src/api/.gitkeep': '' } : {}),
     ...(config.features.composition ? { 'src/composables/.gitkeep': '' } : {}),
     ...(config.features.performance ? { 'src/utils/performance/.gitkeep': '' } : {}),
@@ -222,98 +216,6 @@ async function generateProject(targetDir, config) {
       'src/renderer/.gitkeep': '',
       'src/utils/.gitkeep': ''
     } : {}),
-    ...(config.features.scss ? {
-      'src/styles/main.scss': `// Main SCSS file for the application
-
-// Import the color module
-@use "sass:color";
-
-// Variables
-$primary-color: #42b883;
-$secondary-color: #35495e;
-$light-color: #f8f9fa;
-$dark-color: #343a40;
-$border-radius: 4px;
-
-// Global styles
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
-  color: $dark-color;
-  background-color: white;
-  margin: 0;
-  padding: 0;
-}
-
-a {
-  color: $primary-color;
-  text-decoration: none;
-  
-  &:hover {
-    text-decoration: underline;
-  }
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 15px;
-}
-
-// Button styles
-.btn {
-  display: inline-block;
-  background-color: $primary-color;
-  color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: $border-radius;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  
-  &:hover {
-    background-color: color.adjust($primary-color, $lightness: -10%);
-  }
-  
-  &.btn-secondary {
-    background-color: $secondary-color;
-    
-    &:hover {
-      background-color: color.adjust($secondary-color, $lightness: -10%);
-    }
-  }
-}
-
-// Card component
-.card {
-  background-color: white;
-  border-radius: $border-radius;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  
-  .card-title {
-    margin-top: 0;
-    color: $primary-color;
-  }
-}
-
-// Utility classes
-.text-center {
-  text-align: center;
-}
-
-.mt-1 { margin-top: 0.5rem; }
-.mt-2 { margin-top: 1rem; }
-.mt-3 { margin-top: 1.5rem; }
-.mt-4 { margin-top: 2rem; }
-
-.mb-1 { margin-bottom: 0.5rem; }
-.mb-2 { margin-bottom: 1rem; }
-.mb-3 { margin-bottom: 1.5rem; }
-.mb-4 { margin-bottom: 2rem; }
-`
-    } : {})
   };
 
   // Add logo.svg file
@@ -333,8 +235,17 @@ export function registerPlugins(app) {
   // You can also register global components
   // app.component('GlobalComponent', YourComponent)
   
-  // Or add global properties
-  app.config.globalProperties.$formatDate = (date) => {
+  // Add global properties
+  // In KalxJS, we need to use a different approach since app.config.globalProperties is not available
+  // We can use app.provide to make values available to all components
+  app.provide('formatDate', (date) => {
+    return new Date(date).toLocaleDateString();
+  });
+  
+  // Alternatively, we can add methods directly to the app instance
+  app._context = app._context || {};
+  app._context.helpers = app._context.helpers || {};
+  app._context.helpers.formatDate = (date) => {
     return new Date(date).toLocaleDateString();
   };
   
@@ -349,9 +260,10 @@ export function registerPlugins(app) {
 import Home from '../views/Home.klx';
 import About from '../views/About.klx';
 import NotFound from '../views/NotFound.klx';
+import { h, createApp } from '@kalxjs/core';
 
 export function createRouter() {
-  return createKalRouter({
+  const router = createKalRouter({
     history: 'hash', // Use hash history instead of createHistory()
     routes: [
       {
@@ -371,6 +283,52 @@ export function createRouter() {
       }
     ]
   });
+
+  // Custom rendering logic for router views
+  router.afterEach((to, from) => {
+    console.log(\`Router navigation complete: \${from.path} -> \${to.path}\`);
+    
+    // Get the matched component
+    const matchedRoute = to.matched[0];
+    if (!matchedRoute) {
+      console.error('No matching route found');
+      return;
+    }
+    
+    const component = matchedRoute.component;
+    if (!component) {
+      console.error('No component defined for route');
+      return;
+    }
+    
+    // Get the router view container
+    const routerViewContainer = document.getElementById('router-view');
+    if (!routerViewContainer) {
+      console.error('Router view container not found');
+      return;
+    }
+    
+    // Clear the container
+    routerViewContainer.innerHTML = '';
+    
+    // Render the component
+    try {
+      console.log('Rendering component:', component.name || 'Unnamed Component');
+      
+      // Create a new app instance with the component
+      const app = createApp(component);
+      
+      // Mount it to the container
+      app.mount(routerViewContainer);
+      
+      console.log('Component rendered successfully');
+    } catch (error) {
+      console.error('Error rendering component:', error);
+      routerViewContainer.innerHTML = \`<div class="error">Error rendering view: \${error.message}</div>\`;
+    }
+  });
+
+  return router;
 }
 `;
 
@@ -654,9 +612,9 @@ h2 {
 </style>`;
 
     files['src/views/NotFound.klx'] = `<template>
-  <div class="not-found">
+  <div class="not-found-view">
     <h1>404 - Page Not Found</h1>
-    <p>The page you are looking for doesn't exist or has been moved.</p>
+    <p>The page you are looking for does not exist.</p>
     <div class="navigation">
       <router-link to="/">Go to Home Page</router-link>
     </div>
@@ -667,12 +625,12 @@ h2 {
 import { h } from '@kalxjs/core';
 
 export default {
-  name: 'NotFound',
+  name: 'NotFoundView',
   
   render() {
-    return h('div', { class: 'not-found' }, [
+    return h('div', { class: 'not-found-view' }, [
       h('h1', {}, ['404 - Page Not Found']),
-      h('p', {}, ['The page you are looking for doesn\\'t exist or has been moved.']),
+      h('p', {}, ['The page you are looking for does not exist.']),
       h('div', { class: 'navigation' }, [
         h('a', { href: '/', onClick: (e) => {
           e.preventDefault();
@@ -685,7 +643,7 @@ export default {
 </script>
 
 <style>
-.not-found {
+.not-found-view {
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
@@ -697,9 +655,8 @@ h1 {
   margin-bottom: 1rem;
 }
 
-p {
-  margin-bottom: 2rem;
-  color: #6c757d;
+.navigation {
+  margin-top: 2rem;
 }
 
 .navigation a {
@@ -719,9 +676,9 @@ p {
 </style>`;
   }
 
-  // Add store files if state feature is enabled
+  // Add state management files if state feature is enabled
   if (config.features.state) {
-    files['src/store/index.js'] = `import { createStore as createKalStore } from '@kalxjs/store';
+    files['src/store/index.js'] = `import { createStore as createKalStore } from '@kalxjs/state';
 
 export function createStore() {
   return createKalStore({
@@ -735,10 +692,17 @@ export function createStore() {
     },
     
     getters: {
-      doubleCount: state => state.count * 2,
-      isEven: state => state.count % 2 === 0,
-      completedTodos: state => state.todos.filter(todo => todo.completed),
-      incompleteTodos: state => state.todos.filter(todo => !todo.completed)
+      completedTodos: (state) => {
+        return state.todos.filter(todo => todo.completed);
+      },
+      
+      incompleteTodos: (state) => {
+        return state.todos.filter(todo => !todo.completed);
+      },
+      
+      todoCount: (state) => {
+        return state.todos.length;
+      }
     },
     
     mutations: {
@@ -756,6 +720,10 @@ export function createStore() {
       
       addTodo(state, todo) {
         state.todos.push(todo);
+      },
+      
+      removeTodo(state, id) {
+        state.todos = state.todos.filter(todo => todo.id !== id);
       },
       
       toggleTodo(state, id) {
@@ -794,7 +762,7 @@ export function createStore() {
             const todos = [
               { id: 1, text: 'Learn KalxJS', completed: true },
               { id: 2, text: 'Build an app', completed: false },
-              { id: 3, text: 'Share with the community', completed: false }
+              { id: 3, text: 'Deploy to production', completed: false }
             ];
             
             todos.forEach(todo => {
@@ -809,188 +777,133 @@ export function createStore() {
   });
 }
 `;
+  }
 
-    files['src/store/useStore.js'] = `import { inject } from '@kalxjs/core';
+  // Add SCSS files if SCSS feature is enabled
+  if (config.features.scss) {
+    files['src/styles/main.scss'] = `// Main SCSS file for the application
 
-export function useStore() {
-  const store = inject('store');
+// Import the color module
+@use "sass:color";
+
+// Variables
+$primary-color: #42b883;
+$secondary-color: #35495e;
+$light-color: #f8f9fa;
+$dark-color: #343a40;
+$border-radius: 4px;
+
+// Global styles
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: $dark-color;
+  background-color: white;
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: $primary-color;
+  text-decoration: none;
   
-  if (!store) {
-    throw new Error('Store not found. Make sure to call app.use(store) before using useStore()');
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+// Button styles
+.btn {
+  display: inline-block;
+  background-color: $primary-color;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: $border-radius;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  
+  &:hover {
+    background-color: color.adjust($primary-color, $lightness: -10%);
   }
   
-  return store;
+  &.btn-secondary {
+    background-color: $secondary-color;
+    
+    &:hover {
+      background-color: color.adjust($secondary-color, $lightness: -10%);
+    }
+  }
+}
+
+// Card component
+.card {
+  background-color: white;
+  border-radius: $border-radius;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  
+  .card-title {
+    margin-top: 0;
+    color: $primary-color;
+  }
+}
+
+// Utility classes
+.text-center {
+  text-align: center;
+}
+
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+
+// CSS Variables for theming
+:root {
+  --primary-color: #{$primary-color};
+  --secondary-color: #{$secondary-color};
+  --light-color: #{$light-color};
+  --dark-color: #{$dark-color};
+  --border-radius: #{$border-radius};
+  --bg-color: white;
+  --bg-secondary: #{$light-color};
+  --text-color: #{$dark-color};
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #1a1a1a;
+    --bg-secondary: #2a2a2a;
+    --text-color: #f0f0f0;
+  }
+  
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+  }
+  
+  .card {
+    background-color: var(--bg-secondary);
+  }
 }
 `;
   }
 
-  // Add main.js file with router support
-  files['src/main.js'] = `import { createApp } from '@kalxjs/core';
-import App from './App.klx';
-${config.features.router ? "import { createRouter } from './router';" : ''}
-${config.features.state ? "import { createStore } from './store';" : ''}
-${config.features.plugins ? "import { registerPlugins } from './plugins';" : ''}
-${config.features.scss ? "// Import global styles\nimport './styles/main.scss';" : ''}
-
-// Create the app instance
-const app = createApp(App);
-
-// Register global error handler
-app.config.errorHandler = (err, instance, info) => {
-  console.error('Application Error:', err);
-  console.log('Error occurred in component:', instance);
-  console.log('Error info:', info);
-  
-  // You could also send errors to a monitoring service here
-};
-
-// Also catch unhandled errors
-window.addEventListener('error', (event) => {
-  console.error('Unhandled Error:', event.error);
-});
-
-${config.features.router ? `
-// Initialize router
-const router = createRouter();
-app.use(router);
-` : ''}
-
-${config.features.state ? `
-// Initialize store
-const store = createStore();
-app.use(store);
-` : ''}
-
-${config.features.plugins ? `
-// Register plugins
-registerPlugins(app);
-` : ''}
-
-// Function to mount the app when the DOM is fully loaded
-function mountApp() {
-  // Mount the app to the DOM
-  app.mount('#app');
-}
-
-// Wait for the DOM and stylesheets to be fully loaded before mounting
-if (document.readyState === 'complete') {
-  // If already loaded, mount immediately
-  mountApp();
-} else {
-  // Otherwise, wait for the load event
-  window.addEventListener('load', mountApp);
-}
-
-console.log('KalxJS application successfully mounted');
-
-// Add fallback rendering in case the main mounting fails
-setTimeout(() => {
-  const appElement = document.getElementById('app');
-  if (appElement && (appElement.innerHTML.includes('<!--empty node-->') || appElement.innerHTML.trim() === '')) {
-    console.log('Fallback rendering activated');
-    appElement.innerHTML = \`
-      <div style="max-width: 800px; margin: 0 auto; padding: 2rem; text-align: center;">
-        <h1 style="color: #42b883;">Welcome to KalxJS</h1>
-        <p>This is a simple counter example:</p>
-        <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 2rem;">
-          <button id="decrement-btn" style="background-color: #42b883; color: white; border: none; border-radius: 4px; padding: 0.5rem 1rem; font-size: 1.2rem; cursor: pointer;">-</button>
-          <span id="counter-value" style="font-size: 2rem; font-weight: bold;">0</span>
-          <button id="increment-btn" style="background-color: #42b883; color: white; border: none; border-radius: 4px; padding: 0.5rem 1rem; font-size: 1.2rem; cursor: pointer;">+</button>
-        </div>
-      </div>
-    \`;
-    
-    // Add minimal interactivity
-    const counterValue = document.getElementById('counter-value');
-    const decrementBtn = document.getElementById('decrement-btn');
-    const incrementBtn = document.getElementById('increment-btn');
-    
-    let count = 0;
-    
-    decrementBtn.addEventListener('click', () => {
-      count--;
-      counterValue.textContent = count;
-    });
-    
-    incrementBtn.addEventListener('click', () => {
-      count++;
-      counterValue.textContent = count;
-    });
-  }
-}, 1000);
-`;
-
-  // Add index.html
-  files['index.html'] = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${config.projectName} - KalxJS App</title>
-  <link rel="icon" href="/src/assets/logo.svg" type="image/svg+xml">
-  <meta name="description" content="A KalxJS application">
-  ${config.features.scss ? '<link rel="stylesheet" href="/src/styles/main.scss">' : ''}
-  <style>
-    :root {
-      --primary-color: #42b883;
-      --secondary-color: #35495e;
-      --accent-color: #3b82f6;
-      --text-color: #333;
-      --text-muted: #6c757d;
-      --bg-color: #fff;
-      --bg-secondary: #f8f9fa;
-      --border-color: #dee2e6;
-    }
-    
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-      color: var(--text-color);
-      background-color: var(--bg-color);
-      margin: 0;
-      padding: 0;
-      line-height: 1.6;
-    }
-    
-    * {
-      box-sizing: border-box;
-    }
-    
-    #app {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .loading {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      font-size: 1.5rem;
-      color: var(--primary-color);
-    }
-    
-    .loading::after {
-      content: "...";
-      animation: dots 1.5s infinite;
-    }
-    
-    @keyframes dots {
-      0%, 20% { content: "."; }
-      40% { content: ".."; }
-      60%, 100% { content: "..."; }
-    }
-  </style>
-</head>
-<body>
-  <div id="app">
-    <div class="loading">Loading KalxJS Application</div>
-  </div>
-  <script type="module" src="/src/main.js"></script>
-</body>
-</html>`;
-
-  // Add App.klx
+  // Create App.klx file
   files['src/App.klx'] = `<template>
   <div class="app">
     <header class="app-header">
@@ -998,11 +911,11 @@ setTimeout(() => {
         <img src="./assets/logo.svg" alt="KalxJS Logo" class="logo" />
         <h1 class="app-title">${config.projectName}</h1>
       </div>
-      ${config.features.router ? `
+      
       <nav class="app-nav">
-        <RouterLink to="/" active-class="active" exact-active-class="exact-active">Home</RouterLink>
-        <RouterLink to="/about" active-class="active" exact-active-class="exact-active">About</RouterLink>
-      </nav>` : ''}
+        <a href="/" class="nav-link" @click.prevent="navigateTo('/')">Home</a>
+        <a href="/about" class="nav-link" @click.prevent="navigateTo('/about')">About</a>
+      </nav>
     </header>
 
     <main class="app-main">
@@ -1010,29 +923,23 @@ setTimeout(() => {
       <section class="features-section">
         <h2>Enabled Features:</h2>
         <ul class="features-list">
-          ${config.features.router ? `<li class="feature-item router">✓ Router</li>` : ''}
-          ${config.features.state ? `<li class="feature-item state">✓ State Management</li>` : ''}
-          ${config.features.scss ? `<li class="feature-item scss">✓ SCSS Support</li>` : ''}
-          ${config.features.sfc ? `<li class="feature-item sfc">✓ Single File Components</li>` : ''}
-          ${config.features.api ? `<li class="feature-item api">✓ API Integration</li>` : ''}
-          ${config.features.composition ? `<li class="feature-item composition">✓ Composition API</li>` : ''}
-          ${config.features.performance ? `<li class="feature-item performance">✓ Performance Utilities</li>` : ''}
-          ${config.features.plugins ? `<li class="feature-item plugins">✓ Plugin System</li>` : ''}
-          ${config.features.ai ? `<li class="feature-item ai">✓ AI Features</li>` : ''}
-          ${config.features.testing ? `<li class="feature-item testing">✓ Testing</li>` : ''}
-          ${config.features.linting ? `<li class="feature-item linting">✓ Linting</li>` : ''}
+          ${config.features.router ? '<li class="feature-item router">✓ Router</li>' : ''}
+          ${config.features.state ? '<li class="feature-item state">✓ State Management</li>' : ''}
+          ${config.features.scss ? '<li class="feature-item scss">✓ SCSS Support</li>' : ''}
+          ${config.features.sfc ? '<li class="feature-item sfc">✓ Single File Components</li>' : ''}
+          ${config.features.api ? '<li class="feature-item api">✓ API Integration</li>' : ''}
+          ${config.features.composition ? '<li class="feature-item composition">✓ Composition API</li>' : ''}
+          ${config.features.performance ? '<li class="feature-item performance">✓ Performance Utilities</li>' : ''}
+          ${config.features.plugins ? '<li class="feature-item plugins">✓ Plugin System</li>' : ''}
+          ${config.features.testing ? '<li class="feature-item testing">✓ Testing</li>' : ''}
+          ${config.features.linting ? '<li class="feature-item linting">✓ Linting</li>' : ''}
         </ul>
       </section>
 
-      <!-- Router view if router is enabled -->
-      ${config.features.router ?
-      `<section class="router-view-container">
-        <!-- Use transition for smooth page transitions -->
-        <Transition name="fade" mode="out-in">
-          <RouterView />
-        </Transition>
-      </section>` :
-      '<p class="edit-prompt">Edit src/App.klx to get started</p>'}
+      <!-- Router view container -->
+      <section class="router-view-container">
+        <div id="router-view"></div>
+      </section>
     </main>
 
     <footer class="app-footer">
@@ -1043,59 +950,42 @@ setTimeout(() => {
 
 <script>
 import { defineComponent, onMounted, h } from '@kalxjs/core';
-${config.features.router ? "import { useRouter, RouterLink, RouterView } from '@kalxjs/router';" : ''}
-${config.features.state ? "import { useStore } from './store/useStore';" : ''}
-${config.features.api ? "import { useApi } from './api/useApi';" : ''}
-${config.features.composition ? "import { useWindowSize } from './composables/useWindowSize';" : ''}
-${config.features.performance ? "import { useLazyLoad } from './utils/performance/lazyLoad';" : ''}
-${config.features.plugins ? "import { plugins } from './plugins';" : ''}
-${config.features.ai ? "import { aiManager, generateText, useAI } from './ai/aiManager';" : ''}
 
 export default defineComponent({
   name: 'App',
-
-  // Register components
-  components: {
-    ${config.features.router ? 'RouterLink,\n    RouterView,' : ''}
-  },
 
   // Component setup with composition API
   setup() {
     console.log('App component setup called');
 
-    // Initialize features based on configuration
-    ${config.features.router ? `const { route, meta, beforeEach } = useRouter();
-
-    // Set page title based on route meta
-    beforeEach((to, from, next) => {
-      // You can add global navigation guards here
-      console.log(\`Navigating from \${from.path} to \${to.path}\`);
-      next();
-    });` : ''}
-
-    ${config.features.state ? `const store = useStore();` : ''}
-
-    ${config.features.api ? `const api = useApi({
-      baseUrl: 'https://api.example.com'
-    });` : ''}
-
-    ${config.features.composition ? `const { width, height, isMobile } = useWindowSize();` : ''}
-
-    ${config.features.plugins ? `// Register plugins
-    plugins.register('logger', {
-      install: () => console.log('Logger plugin installed')
-    });` : ''}
+    // Function to navigate programmatically
+    const navigateTo = (path) => {
+      console.log(\`Navigating to: \${path}\`);
+      if (window.router) {
+        window.router.push(path);
+      } else {
+        console.warn('Router not available');
+        window.location.hash = path;
+      }
+    };
 
     // Lifecycle hooks
     onMounted(() => {
       console.log('App component mounted');
+      
+      // Make sure the router view container is available
+      const routerViewContainer = document.getElementById('router-view');
+      if (routerViewContainer && window.router) {
+        console.log('Router view container found, initializing router view');
+        
+        // Force an initial navigation to the current route
+        const currentPath = window.location.hash.slice(1) || '/';
+        window.router.push(currentPath);
+      }
     });
 
     return {
-      ${config.features.router ? 'route,\n      meta,' : ''}
-      ${config.features.state ? 'store,' : ''}
-      ${config.features.api ? 'api,' : ''}
-      ${config.features.composition ? 'width, height, isMobile,' : ''}
+      navigateTo
     };
   },
   
@@ -1107,36 +997,47 @@ export default defineComponent({
           h('img', { src: './assets/logo.svg', alt: 'KalxJS Logo', class: 'logo' }),
           h('h1', { class: 'app-title' }, ['${config.projectName}'])
         ]),
-        ${config.features.router ? `
+        
         h('nav', { class: 'app-nav' }, [
-          h(RouterLink, { to: '/', activeClass: 'active', exactActiveClass: 'exact-active' }, ['Home']),
-          h(RouterLink, { to: '/about', activeClass: 'active', exactActiveClass: 'exact-active' }, ['About'])
-        ])` : 'null'}
+          h('a', { 
+            href: '/', 
+            class: 'nav-link',
+            onClick: (e) => {
+              e.preventDefault();
+              this.navigateTo('/');
+            }
+          }, ['Home']),
+          h('a', { 
+            href: '/about', 
+            class: 'nav-link',
+            onClick: (e) => {
+              e.preventDefault();
+              this.navigateTo('/about');
+            }
+          }, ['About'])
+        ])
       ]),
       
       h('main', { class: 'app-main' }, [
         h('section', { class: 'features-section' }, [
           h('h2', {}, ['Enabled Features:']),
           h('ul', { class: 'features-list' }, [
-            ${config.features.router ? `h('li', { class: 'feature-item router' }, ['✓ Router']),` : ''}
-            ${config.features.state ? `h('li', { class: 'feature-item state' }, ['✓ State Management']),` : ''}
-            ${config.features.scss ? `h('li', { class: 'feature-item scss' }, ['✓ SCSS Support']),` : ''}
-            ${config.features.sfc ? `h('li', { class: 'feature-item sfc' }, ['✓ Single File Components']),` : ''}
-            ${config.features.api ? `h('li', { class: 'feature-item api' }, ['✓ API Integration']),` : ''}
-            ${config.features.composition ? `h('li', { class: 'feature-item composition' }, ['✓ Composition API']),` : ''}
-            ${config.features.performance ? `h('li', { class: 'feature-item performance' }, ['✓ Performance Utilities']),` : ''}
-            ${config.features.plugins ? `h('li', { class: 'feature-item plugins' }, ['✓ Plugin System']),` : ''}
-            ${config.features.ai ? `h('li', { class: 'feature-item ai' }, ['✓ AI Features']),` : ''}
-            ${config.features.testing ? `h('li', { class: 'feature-item testing' }, ['✓ Testing']),` : ''}
-            ${config.features.linting ? `h('li', { class: 'feature-item linting' }, ['✓ Linting']),` : ''}
-          ].filter(Boolean))
+            ${config.features.router ? "h('li', { class: 'feature-item router' }, ['✓ Router'])," : ''}
+            ${config.features.state ? "h('li', { class: 'feature-item state' }, ['✓ State Management'])," : ''}
+            ${config.features.scss ? "h('li', { class: 'feature-item scss' }, ['✓ SCSS Support'])," : ''}
+            ${config.features.sfc ? "h('li', { class: 'feature-item sfc' }, ['✓ Single File Components'])," : ''}
+            ${config.features.api ? "h('li', { class: 'feature-item api' }, ['✓ API Integration'])," : ''}
+            ${config.features.composition ? "h('li', { class: 'feature-item composition' }, ['✓ Composition API'])," : ''}
+            ${config.features.performance ? "h('li', { class: 'feature-item performance' }, ['✓ Performance Utilities'])," : ''}
+            ${config.features.plugins ? "h('li', { class: 'feature-item plugins' }, ['✓ Plugin System'])," : ''}
+            ${config.features.testing ? "h('li', { class: 'feature-item testing' }, ['✓ Testing'])," : ''}
+            ${config.features.linting ? "h('li', { class: 'feature-item linting' }, ['✓ Linting'])," : ''}
+          ])
         ]),
         
-        ${config.features.router ?
-      `h('section', { class: 'router-view-container' }, [
-          h(RouterView)
-        ])` :
-      `h('p', { class: 'edit-prompt' }, ['Edit src/App.klx to get started'])`}
+        h('section', { class: 'router-view-container' }, [
+          h('div', { id: 'router-view' })
+        ])
       ]),
       
       h('footer', { class: 'app-footer' }, [
@@ -1252,6 +1153,19 @@ export default defineComponent({
 
 .router-view-container {
   margin-top: 2rem;
+  padding: 2rem;
+  background-color: var(--bg-color);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.welcome-message {
+  text-align: center;
+}
+
+.welcome-message h2 {
+  color: var(--primary-color);
+  margin-top: 0;
 }
 
 .app-footer {
@@ -1260,13 +1174,6 @@ export default defineComponent({
   text-align: center;
   padding: 1rem;
   margin-top: 2rem;
-}
-
-.edit-prompt {
-  text-align: center;
-  margin: 3rem 0;
-  color: var(--text-muted);
-  font-style: italic;
 }
 
 /* Transitions */
@@ -1281,399 +1188,394 @@ export default defineComponent({
 }
 </style>`;
 
-  // Add README.md
+  // Create main.js file
+  files['src/main.js'] = `import { createApp } from '@kalxjs/core';
+import App from './App.klx';
+${config.features.router ? "import { createRouter } from './router';" : ''}
+${config.features.state ? "import { createStore } from './store';" : ''}
+${config.features.plugins ? "import { registerPlugins } from './plugins';" : ''}
+${config.features.scss ? "// Import global styles\nimport './styles/main.scss';" : ''}
+
+// Create the app instance
+const app = createApp(App);
+
+// Register global error handler
+app.config.errorHandler = (err, instance, info) => {
+  console.error('Application Error:', err);
+  console.log('Error occurred in component:', instance);
+  console.log('Error info:', info);
+  
+  // You could also send errors to a monitoring service here
+};
+
+// Also catch unhandled errors
+window.addEventListener('error', (event) => {
+  console.error('Unhandled Error:', event.error);
+});
+
+${config.features.router ? `
+// Initialize router
+const router = createRouter();
+app.use(router);
+
+// Expose router globally for direct access
+window.router = router;
+` : ''}
+
+${config.features.state ? `
+// Initialize store
+const store = createStore();
+app.use(store);
+` : ''}
+
+${config.features.plugins ? `
+// Register plugins
+registerPlugins(app);
+` : ''}
+
+// Function to mount the app when the DOM is fully loaded
+function mountApp() {
+  // Mount the app to the DOM
+  app.mount('#app');
+}
+
+// Wait for the DOM and stylesheets to be fully loaded before mounting
+if (document.readyState === 'complete') {
+  // If already loaded, mount immediately
+  mountApp();
+} else {
+  // Otherwise, wait for the load event
+  window.addEventListener('load', mountApp);
+}
+
+console.log('KalxJS application successfully mounted');
+
+// Add fallback rendering in case the main mounting fails
+setTimeout(() => {
+  const appElement = document.getElementById('app');
+  if (appElement && (appElement.innerHTML.includes('<!--empty node-->') || appElement.innerHTML.trim() === '')) {
+    console.log('Fallback rendering activated');
+    appElement.innerHTML = \`
+      <div style="max-width: 800px; margin: 0 auto; padding: 2rem; text-align: center;">
+        <h1 style="color: #42b883;">Welcome to KalxJS</h1>
+        <p>This is a simple counter example:</p>
+        <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 2rem;">
+          <button id="decrement-btn" style="background-color: #42b883; color: white; border: none; border-radius: 4px; padding: 0.5rem 1rem; font-size: 1.2rem; cursor: pointer;">-</button>
+          <span id="counter-value" style="font-size: 2rem; font-weight: bold;">0</span>
+          <button id="increment-btn" style="background-color: #42b883; color: white; border: none; border-radius: 4px; padding: 0.5rem 1rem; font-size: 1.2rem; cursor: pointer;">+</button>
+        </div>
+      </div>
+    \`;
+    
+    // Add minimal interactivity
+    const counterValue = document.getElementById('counter-value');
+    const decrementBtn = document.getElementById('decrement-btn');
+    const incrementBtn = document.getElementById('increment-btn');
+    
+    let count = 0;
+    
+    decrementBtn.addEventListener('click', () => {
+      count--;
+      counterValue.textContent = count;
+    });
+    
+    incrementBtn.addEventListener('click', () => {
+      count++;
+      counterValue.textContent = count;
+    });
+  }
+}, 1000);`;
+
+  // Create index.html file
+  files['public/index.html'] = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${config.projectName}</title>
+  <link rel="icon" href="favicon.ico">
+  <style>
+    :root {
+      --primary-color: #42b883;
+      --secondary-color: #35495e;
+      --bg-color: white;
+      --text-color: #333;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+    
+    #app {
+      min-height: 100vh;
+    }
+    
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+    
+    .loading h1 {
+      color: var(--primary-color);
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+    
+    .loading p {
+      color: var(--secondary-color);
+      margin-bottom: 2rem;
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(66, 184, 131, 0.2);
+      border-radius: 50%;
+      border-top-color: var(--primary-color);
+      animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg-color: #1a1a1a;
+        --text-color: #f0f0f0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="loading">
+      <h1>${config.projectName}</h1>
+      <p>Loading KalxJS application...</p>
+      <div class="spinner"></div>
+    </div>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>`;
+
+  // Create package.json file
+  files['package.json'] = `{
+  "name": "${config.projectName}",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"${config.features.testing ? ',\n    "test": "vitest run",\n    "test:watch": "vitest"' : ''}${config.features.linting ? ',\n    "lint": "eslint . --ext .js,.klx",\n    "lint:fix": "eslint . --ext .js,.klx --fix"' : ''}
+  },
+  "dependencies": {
+    "@kalxjs/core": "^1.0.0"${config.features.router ? ',\n    "@kalxjs/router": "^1.0.0"' : ''}${config.features.state ? ',\n    "@kalxjs/state": "^1.0.0"' : ''}
+  },
+  "devDependencies": {
+    "vite": "^4.3.9"${config.features.scss ? ',\n    "sass": "^1.62.1"' : ''}${config.features.testing ? ',\n    "vitest": "^0.31.1",\n    "@testing-library/dom": "^9.3.0"' : ''}${config.features.linting ? ',\n    "eslint": "^8.41.0",\n    "eslint-plugin-javascript": "^1.0.0"' : ''}
+  }
+}`;
+
+  // Create vite.config.js file
+  files['vite.config.js'] = `import { defineConfig } from 'vite';
+import path from 'path';
+
+export default defineConfig({
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
+  },
+  server: {
+    port: 3000,
+    open: true
+  },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    minify: 'terser',
+    sourcemap: true
+  }${config.features.testing ? ',\n  test: {\n    globals: true,\n    environment: "jsdom"\n  }' : ''}
+});`;
+
+  // Create .gitignore file
+  files['.gitignore'] = `# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+`;
+
+  // Create README.md file
   files['README.md'] = `# ${config.projectName}
 
-This project was generated with KalxJS CLI.
+This project was created with KalxJS CLI.
 
 ## Project Setup
 
-\`\`\`bash
+\`\`\`
 npm install
 \`\`\`
 
 ### Compile and Hot-Reload for Development
 
-\`\`\`bash
+\`\`\`
 npm run dev
 \`\`\`
 
 ### Compile and Minify for Production
 
-\`\`\`bash
+\`\`\`
 npm run build
 \`\`\`
 
-${config.features.testing ? `
-### Run Unit Tests
-
-\`\`\`bash
-npm run test
-\`\`\`
-` : ''}
-
-${config.features.linting ? `
-### Lint and Fix Files
-
-\`\`\`bash
-npm run lint
-\`\`\`
-` : ''}
+${config.features.testing ? '### Run Tests\n\n```\nnpm run test\n```\n\n### Run Tests in Watch Mode\n\n```\nnpm run test:watch\n```\n' : ''}
+${config.features.linting ? '### Lint Files\n\n```\nnpm run lint\n```\n\n### Fix Linting Issues\n\n```\nnpm run lint:fix\n```\n' : ''}
 
 ## Features
 
-This project includes the following features:
-
-${config.features.router ? '- ✅ Router\n' : ''}
-${config.features.state ? '- ✅ State Management\n' : ''}
-${config.features.scss ? '- ✅ SCSS Support\n' : ''}
-${config.features.sfc ? '- ✅ Single File Components\n' : ''}
-${config.features.api ? '- ✅ API Integration\n' : ''}
-${config.features.composition ? '- ✅ Composition API\n' : ''}
-${config.features.performance ? '- ✅ Performance Utilities\n' : ''}
-${config.features.plugins ? '- ✅ Plugin System\n' : ''}
-${config.features.ai ? '- ✅ AI Features\n' : ''}
-${config.features.testing ? '- ✅ Testing\n' : ''}
-${config.features.linting ? '- ✅ Linting\n' : ''}
-${config.features.customRenderer ? '- ✅ Custom Renderer\n' : ''}
+${config.features.router ? '- ✅ Router\n' : ''}${config.features.state ? '- ✅ State Management\n' : ''}${config.features.scss ? '- ✅ SCSS Support\n' : ''}${config.features.sfc ? '- ✅ Single File Components\n' : ''}${config.features.api ? '- ✅ API Integration\n' : ''}${config.features.composition ? '- ✅ Composition API\n' : ''}${config.features.performance ? '- ✅ Performance Utilities\n' : ''}${config.features.plugins ? '- ✅ Plugin System\n' : ''}${config.features.testing ? '- ✅ Testing\n' : ''}${config.features.linting ? '- ✅ Linting\n' : ''}${config.features.customRenderer ? '- ✅ Custom Renderer\n' : ''}
 
 ## Documentation
 
-For more information, please refer to the [KalxJS Documentation](https://kalxjs.dev/docs).
+For more information, please refer to the [KalxJS documentation](https://github.com/Odeneho-Calculus/kalxjs).
 `;
 
-  // Add vite.config.js
-  files['vite.config.js'] = `import { defineConfig } from 'vite';
-import { vitePlugin } from '@kalxjs/compiler';
-import path from 'path';
-${config.features.testing ? "import { defineConfig as defineVitestConfig } from 'vitest/config';" : ''}
-
-export default ${config.features.testing ? `defineVitestConfig(defineConfig({
-  plugins: [
-    vitePlugin()
-  ],
-  assetsInclude: ['**/*.klx'], // Include .klx files as assets
-  optimizeDeps: {
-    exclude: ['@kalxjs/compiler'] // Exclude compiler from optimization
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src')
-    }
-  },
-  server: {
-    port: 3000,
-    open: true
-  },
-  build: {
-    outDir: 'dist',
-    minify: 'terser',
-    sourcemap: true
-  },
-  test: {
-    environment: 'jsdom',
-    globals: true,
-    include: ['**/*.{test,spec}.{js,klx}']
-  }
-}));` : `defineConfig({
-  plugins: [
-    vitePlugin()
-  ],
-  assetsInclude: ['**/*.klx'], // Include .klx files as assets
-  optimizeDeps: {
-    exclude: ['@kalxjs/compiler'] // Exclude compiler from optimization
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src')
-    }
-  },
-  server: {
-    port: 3000,
-    open: true
-  },
-  build: {
-    outDir: 'dist',
-    minify: 'terser',
-    sourcemap: true
-  }
-});`}
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src')
-    }
-  },
-  server: {
-    port: 3000,
-    open: true
-  },
-  build: {
-    outDir: 'dist',
-    minify: 'terser',
-    sourcemap: true
-  }
-});
-`;
-
-  // Add ESLint configuration if linting is enabled
-  if (config.features.linting) {
-    files['.eslintrc.js'] = `module.exports = {
-  root: true,
-  env: {
-    browser: true,
-    es2021: true,
-    node: true${config.features.testing ? ',\n    "vitest/globals": true' : ''}
-  },
-  extends: [
-    'eslint:recommended'
-  ],
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module'
-  },
-  rules: {
-    'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off'
-  }
-}`;
-  }
-
-  // Add test directory and example test if testing is enabled
-  if (config.features.testing) {
-    await fs.ensureDir(path.join(targetDir, 'tests'));
-    files['tests/example.test.js'] = `import { describe, it, expect } from 'vitest';
-
-describe('Example test suite', () => {
-  it('should pass a simple test', () => {
-    expect(1 + 1).toBe(2);
-  });
-
-  it('should handle async operations', async () => {
-    const result = await Promise.resolve(42);
-    expect(result).toBe(42);
-  });
-});`;
-  }
-
-  // Write all files
-  for (const [file, content] of Object.entries(files)) {
-    await fs.writeFile(path.join(targetDir, file), content);
+  // Create all files
+  for (const [filePath, content] of Object.entries(files)) {
+    await fs.writeFile(path.join(targetDir, filePath), content);
   }
 }
 
 /**
- * Installs dependencies for the project
- * @param {string} targetDir - Target project directory
- * @param {Object} config - Project configuration
- */
-async function installDependencies(targetDir, config) {
-  // Get the latest versions of all packages
-  const latestVersions = await getLatestPackageVersions();
-
-  const pkg = {
-    name: config.projectName,
-    version: '0.1.0',
-    private: true,
-    type: 'module',
-    scripts: {
-      "dev": "vite",
-      "build": "vite build",
-      "preview": "vite preview"
-    },
-    dependencies: {
-      "@kalxjs/core": latestVersions["@kalxjs/core"] || "^2.1.12" // Fallback to current version
-    },
-    devDependencies: {
-      "vite": "^5.0.0"
-    }
-  };
-
-  // Add feature-spec dependencies with latest versions
-  if (config.features.router) pkg.dependencies["@kalxjs/router"] = latestVersions["@kalxjs/router"] || "^2.0.0";
-  if (config.features.state) pkg.dependencies["@kalxjs/state"] = latestVersions["@kalxjs/state"] || "^1.2.26";
-  if (config.features.scss) {
-    pkg.devDependencies["sass"] = "^1.69.0";
-  }
-
-  // Always include compiler for .klx files since we're using App.klx
-  pkg.dependencies["@kalxjs/compiler"] = latestVersions["@kalxjs/compiler"] || "^1.2.2";
-  // Remove compiler-plugin as we're using the vitePlugin from @kalxjs/compiler
-
-  // Add testing dependencies if testing is enabled
-  if (config.features.testing) {
-    pkg.devDependencies["vitest"] = "^0.34.6";
-    pkg.devDependencies["@testing-library/dom"] = "^9.3.3";
-    pkg.devDependencies["jsdom"] = "^22.1.0";
-    pkg.scripts["test"] = "vitest run";
-    pkg.scripts["test:watch"] = "vitest";
-  }
-
-  // Add ESLint dependencies if linting is enabled
-  if (config.features.linting) {
-    pkg.devDependencies["eslint"] = "^8.53.0";
-    pkg.devDependencies["eslint-plugin-import"] = "^2.29.0";
-    pkg.scripts["lint"] = "eslint src --ext .js,.klx";
-    pkg.scripts["lint:fix"] = "eslint src --ext .js,.klx --fix";
-  }
-
-  // Add the newly created packages with latest versions
-  if (config.features.ai) {
-    pkg.dependencies["@kalxjs/ai"] = latestVersions["@kalxjs/ai"] || "^1.2.2";
-  }
-  if (config.features.api) {
-    pkg.dependencies["@kalxjs/api"] = latestVersions["@kalxjs/api"] || "^1.2.2";
-  }
-  if (config.features.composition) {
-    pkg.dependencies["@kalxjs/composition"] = latestVersions["@kalxjs/composition"] || "^1.2.2";
-  }
-  if (config.features.performance) {
-    pkg.dependencies["@kalxjs/performance"] = latestVersions["@kalxjs/performance"] || "^1.2.2";
-  }
-  if (config.features.plugins) {
-    pkg.dependencies["@kalxjs/plugins"] = latestVersions["@kalxjs/plugins"] || "^1.2.2";
-  }
-
-  // Write package.json
-  await fs.writeJSON(path.join(targetDir, 'package.json'), pkg, { spaces: 2 });
-
-  // Log the versions being used
-  console.log('\n' + chalk.cyan('Using the following package versions:'));
-  Object.entries(pkg.dependencies).forEach(([name, version]) => {
-    console.log(`  ${chalk.green(name)}: ${version}`);
-  });
-
-  try {
-    console.log('\n' + chalk.cyan('Installing dependencies...'));
-
-    // Use child_process instead of execa
-    const { execSync } = require('child_process');
-    execSync('npm install', {
-      cwd: targetDir,
-      stdio: 'inherit',
-      env: { ...process.env, FORCE_COLOR: true }
-    });
-  } catch (err) {
-    throw new Error('Failed to install dependencies: ' + err.message);
-  }
-}
-
-/**
- * Fetches the latest versions of KalxJS packages from npm
- * @returns {Promise<Object>} Object with package names as keys and version strings as values
- */
-async function getLatestPackageVersions() {
-  const packages = [
-    '@kalxjs/core',
-    '@kalxjs/router',
-    '@kalxjs/state',
-    '@kalxjs/compiler',
-    '@kalxjs/compiler-plugin',
-    '@kalxjs/ai',
-    '@kalxjs/api',
-    '@kalxjs/composition',
-    '@kalxjs/performance',
-    '@kalxjs/plugins',
-    '@kalxjs/devtools',
-    '@kalxjs/cli'
-  ];
-
-  const versions = {};
-
-  // Create a promise for each package
-  const promises = packages.map(pkg => {
-    return new Promise((resolve) => {
-      https.get(`https://registry.npmjs.org/${pkg}/latest`, (res) => {
-        if (res.statusCode !== 200) {
-          // If we can't get the latest version, resolve with null
-          console.warn(chalk.yellow(`Could not fetch latest version for ${pkg}`));
-          resolve();
-          return;
-        }
-
-        let data = '';
-        res.on('data', chunk => { data += chunk; });
-        res.on('end', () => {
-          try {
-            const pkgData = JSON.parse(data);
-            versions[pkg] = `^${pkgData.version}`;
-            resolve();
-          } catch (err) {
-            console.warn(chalk.yellow(`Error parsing version data for ${pkg}: ${err.message}`));
-            resolve();
-          }
-        });
-      }).on('error', (err) => {
-        console.warn(chalk.yellow(`Network error fetching version for ${pkg}: ${err.message}`));
-        resolve();
-      });
-    });
-  });
-
-  // Wait for all requests to complete
-  await Promise.all(promises);
-  return versions;
-}
-
-/**
- * Process template files and replace placeholders with configuration values
+ * Process template files
  * @param {string} targetDir - Target project directory
  * @param {Object} config - Project configuration
  */
 async function processTemplates(targetDir, config) {
-  const templateFiles = [
-    'src/App.js',
-    'src/main.js',
-    'index.html',
-    'README.md',
-    'vite.config.js'
-  ];
+  // This function would normally process template files with placeholders
+  // For now, we'll just create a simple component as an example
+  
+  const testComponentPath = path.join(targetDir, 'src/components/TestComponent.klx');
+  const testComponentContent = `<template>
+  <div class="test-component">
+    <h3>Test Component</h3>
+    <p>This is a simple test component to demonstrate component functionality.</p>
+    <button @click="incrementCounter">Clicked {{ counter }} times</button>
+  </div>
+</template>
 
-  // Add feature-specific template files
-  if (config.features.router) {
-    templateFiles.push('src/router/index.js');
-    templateFiles.push('src/views/Home.js');
-  }
+<script>
+import { h } from '@kalxjs/core';
 
-  if (config.features.state) {
-    templateFiles.push('src/store/index.js');
-    templateFiles.push('src/store/useStore.js');
-  }
-
-  if (config.features.scss) {
-    templateFiles.push('src/styles/main.scss');
-  }
-
-  if (config.features.api) {
-    templateFiles.push('src/api/useApi.js');
-  }
-
-  if (config.features.composition) {
-    templateFiles.push('src/composables/useWindowSize.js');
-    templateFiles.push('src/composables/useLocalStorage.js');
-  }
-
-  if (config.features.performance) {
-    templateFiles.push('src/utils/performance/lazyLoad.js');
-    templateFiles.push('src/utils/performance/debounce.js');
-  }
-
-  // Process each template file
-  for (const file of templateFiles) {
-    const filePath = path.join(targetDir, file);
-    if (await fs.pathExists(filePath)) {
-      let content = await fs.readFile(filePath, 'utf8');
-
-      // Replace placeholders with config values
-      content = content.replace(/\{\{projectName\}\}/g, config.projectName);
-
-      // Replace feature flags
-      Object.entries(config.features).forEach(([feature, enabled]) => {
-        const regex = new RegExp(`\\{\\{features\\.${feature}\\}\\}`, 'g');
-        content = content.replace(regex, enabled.toString());
-      });
-
-      await fs.writeFile(filePath, content);
+export default {
+  name: 'TestComponent',
+  
+  data() {
+    return {
+      counter: 0
+    };
+  },
+  
+  methods: {
+    incrementCounter() {
+      this.counter++;
+      this.$update();
     }
+  },
+  
+  render() {
+    return h('div', { class: 'test-component' }, [
+      h('h3', {}, ['Test Component']),
+      h('p', {}, ['This is a simple test component to demonstrate component functionality.']),
+      h('button', { onClick: this.incrementCounter }, [\`Clicked \${this.counter} times\`])
+    ]);
+  }
+};
+</script>
+
+<style>
+.test-component {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+.test-component h3 {
+  color: #42b883;
+  margin-top: 0;
+}
+
+.test-component button {
+  background-color: #42b883;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  margin-top: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.test-component button:hover {
+  background-color: #3aa876;
+}
+</style>`;
+
+  await fs.writeFile(testComponentPath, testComponentContent);
+}
+
+/**
+ * Install dependencies
+ * @param {string} targetDir - Target project directory
+ * @param {Object} config - Project configuration
+ */
+async function installDependencies(targetDir, config) {
+  try {
+    await execa('npm', ['install'], { cwd: targetDir });
+    return true;
+  } catch (error) {
+    console.error('Failed to install dependencies:', error.message);
+    
+    // Create a .dependencies-failed file to indicate installation failed
+    await fs.writeFile(
+      path.join(targetDir, '.dependencies-failed'),
+      `Installation failed: ${error.message}\n\nPlease run 'npm install' manually after fixing any issues.`
+    );
+    
+    // Don't throw error, just return false to indicate failure
+    console.warn(chalk.yellow('Continuing without installing dependencies. Please run npm install manually.'));
+    return false;
   }
 }
 

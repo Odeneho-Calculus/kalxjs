@@ -1,326 +1,79 @@
 // Test script for the KLX parser
 import { parse } from './src/parser.js';
+import fs from 'fs';
+import path from 'path';
 
-// Sample KLX content from your App.klx
-const sampleKlx = `<template>
-  <div class="app">
-    <header class="app-header">
-      <h1>Welcome to KalxJS</h1>
-      <!-- Navigation if router is enabled -->
-      <nav class="app-nav">
-        <RouterLink to="/" active-class="active" exact-active-class="exact-active">Home</RouterLink>
-        <RouterLink to="/about" active-class="active" exact-active-class="exact-active">About</RouterLink>
-        <RouterLink to="/user/1" active-class="active" exact-active-class="exact-active">User Profile</RouterLink>
-      </nav>
-    </header>
-    <main class="app-main">
-      <!-- Feature information section -->
-      <section class="features-section">
-        <h2>Enabled Features:</h2>
-        <ul class="features-list">
-          <li class="feature-item router">✓ Advanced Router (v2.0)</li>
-          <li class="feature-item state">✓ State Management</li>
-          <li class="feature-item scss">✓ SCSS Support</li>
-          <li class="feature-item sfc">✓ Single File Components (.klx)</li>
-          <li class="feature-item api">✓ API Integration</li>
-          <li class="feature-item composition">✓ Composition API</li>
-          <li class="feature-item performance">✓ Performance Utilities</li>
-          <li class="feature-item plugins">✓ Plugin System</li>
-          <li class="feature-item ai">✓ AI Features</li>
-          <li class="feature-item testing">✓ Testing</li>
-          <li class="feature-item linting">✓ Linting</li>
-        </ul>
-      </section>
-      <!-- Router view if router is enabled -->
-      <section class="router-view-container">
-        <!-- Use transition for smooth page transitions -->
-        <Transition name="fade" mode="out-in">
-          <RouterView />
-        </Transition>
-      </section>
-    </main>
-    <footer class="app-footer">
-      <p>Powered by KalxJS - More powerful than Vue</p>
-    </footer>
-  </div>
+// Read the actual App.klx file from the test-app
+const appKlxPath = path.resolve('../../test-app/src/App.klx');
+console.log('Reading file from:', appKlxPath);
+
+try {
+  // Read the file content
+  const appKlxContent = fs.readFileSync(appKlxPath, 'utf-8');
+  console.log('File read successfully');
+  console.log('File content length:', appKlxContent.length);
+  console.log('First 100 characters:', appKlxContent.substring(0, 100));
+
+  // Check if the file contains template and script tags
+  console.log('Contains <template> tag:', appKlxContent.includes('<template>'));
+  console.log('Contains <script> tag:', appKlxContent.includes('<script>'));
+  console.log('Contains <style> tag:', appKlxContent.includes('<style>'));
+
+  // Parse the file content
+  console.log('Parsing file content...');
+  const result = parse(appKlxContent);
+
+  // Log the result
+  console.log('\nParse result:');
+  console.log('Template found:', !!result.template);
+  console.log('Script found:', !!result.script);
+  console.log('Style found:', !!result.style);
+  console.log('Errors:', result.errors);
+
+  if (result.template) {
+    console.log('\nTemplate details:');
+    console.log('Is default template:', result.template.isDefault === true);
+    console.log('Template content length:', result.template.content.length);
+    console.log('Template content (first 100 chars):', result.template.content.substring(0, 100) + '...');
+  }
+
+  if (result.script) {
+    console.log('\nScript details:');
+    console.log('Script content length:', result.script.content.length);
+    console.log('Script content (first 100 chars):', result.script.content.substring(0, 100) + '...');
+  }
+
+  if (result.style) {
+    console.log('\nStyle details:');
+    console.log('Style content length:', result.style.content.length);
+    console.log('Style content (first 100 chars):', result.style.content.substring(0, 100) + '...');
+  }
+
+  // Test with a simple string that definitely has template and script tags
+  console.log('\n\nTesting with a simple test string:');
+  const testString = `<template>
+  <div>Hello World</div>
 </template>
 <script>
-import { defineComponent, onMounted } from '@kalxjs/core';
-import { useRouter, RouterLink, RouterView } from '@kalxjs/router';
-import { useStore } from './store/useStore';
-import { useApi } from './api/useApi';
-import { useWindowSize } from './composables/useWindowSize';
-import { useLazyLoad } from './utils/performance/lazyLoad';
-import { plugins } from './plugins';
-import { aiManager, generateText, useAI } from './ai/aiManager';
-export default defineComponent({
-  name: 'App',
-  // Register components
-  components: {
-    RouterLink,
-    RouterView,
-  },
-  // Component setup with composition API
-  setup() {
-    console.log('App component setup called');
-    // Initialize features based on configuration
-    const { route, meta, beforeEach } = useRouter();
-    // Set page title based on route meta
-    beforeEach((to, from, next) => {
-      // You can add global navigation guards here
-      console.log(\`Navigating from \${from.path} to \${to.path}\`);
-      next();
-    });
-    const store = useStore();
-    const api = useApi({
-      baseUrl: 'https://api.example.com'
-    });
-    const { width, height, isMobile } = useWindowSize();
-    // Register plugins
-    plugins.register('logger', {
-      install: () => console.log('Logger plugin installed')
-    });
-    // Lifecycle hooks
-    onMounted(() => {
-      console.log('App component mounted');
-    });
-    return {
-      route,
-      meta,
-      store,
-      api,
-      width, height, isMobile,
-    };
-  }
-});
-</script>
-<style lang="scss">
-/* Global styles */
-:root {
-  --primary-color: #4299e1;
-  --secondary-color: #2d3748;
-  --background-color: #f8f9fa;
-  --text-color: #333;
-  --border-radius: 8px;
-  --box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  --transition-duration: 0.3s;
+export default {
+  name: 'TestComponent'
 }
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
-  color: var(--text-color);
-  background-color: #f5f7fa;
-}
-.app {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-  &-header {
-    text-align: center;
-    margin-bottom: 2rem;
-    h1 {
-      color: var(--secondary-color);
-      margin-bottom: 1rem;
-      font-size: 2.5rem;
-    }
-  }
-  &-nav {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin: 1rem 0;
-    padding: 0.5rem;
-    background-color: var(--background-color);
-    border-radius: var(--border-radius);
-    a {
-      color: var(--primary-color);
-      text-decoration: none;
-      padding: 0.5rem 1rem;
-      border-radius: 4px;
-      transition: background-color var(--transition-duration);
-      &:hover {
-        background-color: rgba(66, 153, 225, 0.1);
-      }
-      &.active {
-        background-color: rgba(66, 153, 225, 0.2);
-      }
-      &.exact-active {
-        background-color: var(--primary-color);
-        color: white;
-      }
-    }
-  }
-  &-main {
-    margin-bottom: 2rem;
-  }
-  &-footer {
-    text-align: center;
-    margin-top: 2rem;
-    padding-top: 1rem;
-    border-top: 1px solid #e2e8f0;
-    color: #718096;
-    font-size: 0.875rem;
-  }
-}
-.features-section {
-  margin-top: 1rem;
-  padding: 1.5rem;
-  background-color: white;
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  h2 {
-    margin-top: 0;
-    color: var(--secondary-color);
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
-  }
-}
-.features-list {
-  list-style-type: none;
-  padding-left: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
-}
-.feature-item {
-  margin: 0.5rem 0;
-  padding: 1rem;
-  background-color: #ebf8ff;
-  border-radius: 4px;
-  transition: transform var(--transition-duration);
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-  &.router { background-color: #ebf8ff; }
-  &.state { background-color: #e6fffa; }
-  &.scss { background-color: #fefcbf; }
-  &.sfc { background-color: #feebc8; }
-  &.api { background-color: #fed7d7; }
-  &.composition { background-color: #e9d8fd; }
-  &.performance { background-color: #c6f6d5; }
-  &.plugins { background-color: #bee3f8; }
-  &.ai { background-color: #fbd38d; }
-  &.testing { background-color: #b2f5ea; }
-  &.linting { background-color: #d6bcfa; }
-}
-.router-view-container {
-  padding: 1.5rem;
-  margin-top: 1.5rem;
-  border-radius: var(--border-radius);
-  background-color: white;
-  box-shadow: var(--box-shadow);
-}
-.edit-prompt {
-  margin-top: 1rem;
-  text-align: center;
-  color: #718096;
-}
-/* Transition animations */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity var(--transition-duration);
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>
-<!-- Advanced features section -->
-<script setup>
-import { onMounted, onUnmounted, ref, watch } from '@kalxjs/core';
-// Component-specific state
-const darkMode = ref(false);
-// Toggle dark mode function
-function toggleDarkMode() {
-  darkMode.value = !darkMode.value;
-  document.body.classList.toggle('dark-theme', darkMode.value);
-}
-// Lifecycle hooks
-onMounted(() => {
-  // Check user preference
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  if (prefersDark) {
-    darkMode.value = true;
-    document.body.classList.add('dark-theme');
-  }
-  // Add event listener for theme changes
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-    darkMode.value = e.matches;
-    document.body.classList.toggle('dark-theme', e.matches);
-  });
-});
-onUnmounted(() => {
-  // Clean up event listeners
-  window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', () => {});
-});
-// Watch for changes
-watch(darkMode, (newValue) => {
-  console.log(\`Dark mode is now \${newValue ? 'enabled' : 'disabled'}\`);
-});
-</script>
-<!-- Custom blocks - KalxJS specific features that surpass Vue -->
-<i18n>
-{
-  "en": {
-    "welcome": "Welcome to KalxJS",
-    "features": "Enabled Features",
-    "footer": "Powered by KalxJS - More powerful than Vue"
-  },
-  "es": {
-    "welcome": "Bienvenido a KalxJS",
-    "features": "Características habilitadas",
-    "footer": "Desarrollado con KalxJS - Más potente que Vue"
-  }
-}
-</i18n>
-<documentation>
-# App Component
-This is the root component of the application. It demonstrates the following features:
-- Single File Component (.klx) structure
-- Template with conditional rendering
-- Script with component definition
-- Style with CSS/SCSS
-- Script setup for composition API
-- i18n for internationalization
-- Documentation block for component documentation
-## Usage
-This component is automatically imported and used in main.js.
-</documentation>
-<tests>
-import { mount } from '@kalxjs/test-utils';
-import App from './App.klx';
-describe('App.klx', () => {
-  test('renders correctly', () => {
-    const wrapper = mount(App);
-    expect(wrapper.find('h1').text()).toBe('Welcome to KalxJS');
-  });
-  test('toggles dark mode', async () => {
-    const wrapper = mount(App);
-    await wrapper.vm.toggleDarkMode();
-    expect(document.body.classList.contains('dark-theme')).toBe(true);
-  });
-});
-</tests>`;
+</script>`;
 
-// Parse the sample
-const result = parse(sampleKlx);
+  const testResult = parse(testString);
+  console.log('Test parse result:');
+  console.log('Template found:', !!testResult.template);
+  console.log('Script found:', !!testResult.script);
+  console.log('Errors:', testResult.errors);
 
-// Log the result
-console.log('Parse result:');
-console.log('Template found:', !!result.template);
-console.log('Script found:', !!result.script);
-console.log('Errors:', result.errors);
+  if (testResult.template) {
+    console.log('Template content:', testResult.template.content);
+  }
 
-if (result.template) {
-  console.log('Template content (first 50 chars):', result.template.content.substring(0, 50) + '...');
-}
+  if (testResult.script) {
+    console.log('Script content:', testResult.script.content);
+  }
 
-if (result.script) {
-  console.log('Script content (first 50 chars):', result.script.content.substring(0, 50) + '...');
+} catch (error) {
+  console.error('Error reading or parsing file:', error);
 }
