@@ -1,6 +1,6 @@
 {
     "name": "kalxjs-monorepo",
-    "version": "0.1.0",
+    "version": "0.1.1s",
     "workspaces": [
         "packages/*"
     ],

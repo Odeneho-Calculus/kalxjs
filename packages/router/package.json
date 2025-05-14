@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/router",
-  "version": "0.1.3",
+  "version": "2.0.10",
   "description": "Advanced router package for KalxJs framework with features that surpass Vue Router",
   "type": "module",
   "author": "kalxjs Team",
@@ -58,5 +58,5 @@
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "gitHead": "d859e98a1fa767f539d794e35bfdac2dee6b79de"
+  "gitHead": "7fd2a04b82eb46847d177e10454dc1c716d25790"
 }
