@@ -187,7 +187,18 @@ function createComponent(options) {
                 console.log('Render result:', result);
                 return result;
             } catch (error) {
-                console.error('Error in render method:', error);
+                // Use the app's error handler if available
+                if (instance.$app && instance.$app.config && instance.$app.config.errorHandler) {
+                    try {
+                        instance.$app.config.errorHandler(error, instance, 'render');
+                    } catch (handlerError) {
+                        console.error('Error in errorHandler:', handlerError);
+                        console.error('Original error:', error);
+                    }
+                } else {
+                    console.error('Error in render method:', error);
+                }
+
                 return h('div', {
                     style: 'color: red; border: 1px solid red; padding: 10px; margin: 10px 0;'
                 }, [
@@ -457,6 +468,14 @@ function createApp(component) {
         // Store store
         _store: null,
 
+        // Configuration options
+        config: {
+            errorHandler: null,
+            warnHandler: null,
+            performance: false,
+            devtools: process.env.NODE_ENV !== 'production'
+        },
+
         // Use a plugin
         use(plugin, options) {
             if (typeof plugin === 'function') {
@@ -532,7 +551,17 @@ function createApp(component) {
                         resolve(instance);
                     }
                 } catch (error) {
-                    console.error('Error mounting application:', error);
+                    // Use the error handler if it's set
+                    if (this.config.errorHandler) {
+                        try {
+                            this.config.errorHandler(error, this, 'mount');
+                        } catch (handlerError) {
+                            console.error('Error in errorHandler:', handlerError);
+                            console.error('Original error:', error);
+                        }
+                    } else {
+                        console.error('Error mounting application:', error);
+                    }
                     reject(error);
                 }
             });

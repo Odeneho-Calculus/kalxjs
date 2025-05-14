@@ -225,6 +225,9 @@ async function generateProject(targetDir, config) {
     ...(config.features.scss ? {
       'src/styles/main.scss': `// Main SCSS file for the application
 
+// Import the color module
+@use "sass:color";
+
 // Variables
 $primary-color: #42b883;
 $secondary-color: #35495e;
@@ -269,14 +272,14 @@ a {
   transition: background-color 0.2s;
   
   &:hover {
-    background-color: darken($primary-color, 10%);
+    background-color: color.adjust($primary-color, $lightness: -10%);
   }
   
   &.btn-secondary {
     background-color: $secondary-color;
     
     &:hover {
-      background-color: darken($secondary-color, 10%);
+      background-color: color.adjust($secondary-color, $lightness: -10%);
     }
   }
 }
@@ -841,6 +844,11 @@ app.config.errorHandler = (err, instance, info) => {
   // You could also send errors to a monitoring service here
 };
 
+// Also catch unhandled errors
+window.addEventListener('error', (event) => {
+  console.error('Unhandled Error:', event.error);
+});
+
 ${config.features.router ? `
 // Initialize router
 const router = createRouter();
@@ -858,8 +866,20 @@ ${config.features.plugins ? `
 registerPlugins(app);
 ` : ''}
 
-// Mount the app to the DOM
-app.mount('#app');
+// Function to mount the app when the DOM is fully loaded
+function mountApp() {
+  // Mount the app to the DOM
+  app.mount('#app');
+}
+
+// Wait for the DOM and stylesheets to be fully loaded before mounting
+if (document.readyState === 'complete') {
+  // If already loaded, mount immediately
+  mountApp();
+} else {
+  // Otherwise, wait for the load event
+  window.addEventListener('load', mountApp);
+}
 
 console.log('KalxJS application successfully mounted');
 
@@ -1328,7 +1348,7 @@ import { vitePlugin } from '@kalxjs/compiler';
 import path from 'path';
 ${config.features.testing ? "import { defineConfig as defineVitestConfig } from 'vitest/config';" : ''}
 
-export default ${config.features.testing ? 'defineVitestConfig(' : ''}defineConfig({
+export default ${config.features.testing ? `defineVitestConfig(defineConfig({
   plugins: [
     vitePlugin()
   ],
@@ -1336,12 +1356,48 @@ export default ${config.features.testing ? 'defineVitestConfig(' : ''}defineConf
   optimizeDeps: {
     exclude: ['@kalxjs/compiler'] // Exclude compiler from optimization
   },
-  ${config.features.testing ? `test: {
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
+  },
+  server: {
+    port: 3000,
+    open: true
+  },
+  build: {
+    outDir: 'dist',
+    minify: 'terser',
+    sourcemap: true
+  },
+  test: {
     environment: 'jsdom',
     globals: true,
     include: ['**/*.{test,spec}.{js,klx}']
-  },` : ''}
-})${config.features.testing ? ');' : ';'}
+  }
+}));` : `defineConfig({
+  plugins: [
+    vitePlugin()
+  ],
+  assetsInclude: ['**/*.klx'], // Include .klx files as assets
+  optimizeDeps: {
+    exclude: ['@kalxjs/compiler'] // Exclude compiler from optimization
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
+  },
+  server: {
+    port: 3000,
+    open: true
+  },
+  build: {
+    outDir: 'dist',
+    minify: 'terser',
+    sourcemap: true
+  }
+});`}
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src')
@@ -1366,7 +1422,7 @@ export default ${config.features.testing ? 'defineVitestConfig(' : ''}defineConf
   env: {
     browser: true,
     es2021: true,
-    node: true${config.features.testing ? ',\n    "vitest-globals/env": true' : ''}
+    node: true${config.features.testing ? ',\n    "vitest/globals": true' : ''}
   },
   extends: [
     'eslint:recommended'
