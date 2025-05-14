@@ -3,61 +3,37 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## 1.2.42 (2025-05-14)
+## 1.2.43 (2025-05-14)
 
 **Note:** Version bump only for package @kalxjs/store
 
+## 1.2.42 (2025-05-14)
 
-
-
+**Note:** Version bump only for package @kalxjs/store
 
 ## 1.2.41 (2025-05-14)
 
 **Note:** Version bump only for package @kalxjs/store
 
-
-
-
-
 ## 1.2.40 (2025-05-14)
 
 **Note:** Version bump only for package @kalxjs/store
-
-
-
-
 
 ## 1.2.39 (2025-05-14)
 
 **Note:** Version bump only for package @kalxjs/store
 
-
-
-
-
 ## 0.1.3 (2025-05-14)
 
 **Note:** Version bump only for package @kalxjs/store
-
-
-
-
 
 ## 0.1.2 (2025-05-14)
 
 **Note:** Version bump only for package @kalxjs/store
 
-
-
-
-
 ## 0.1.1 (2025-05-14)
 
 **Note:** Version bump only for package @kalxjs/store
-
-
-
-
 
 ## [1.2.38](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/state@1.2.37...@kalxjs/state@1.2.38) (2025-05-14)
 

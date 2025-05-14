@@ -3,61 +3,37 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [2.1.29](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/core@2.1.24...@kalxjs/core@2.1.29) (2025-05-14)
+## [2.1.30](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/core@2.1.24...@kalxjs/core@2.1.30) (2025-05-14)
 
 **Note:** Version bump only for package @kalxjs/core
 
+## [2.1.29](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/core@2.1.24...@kalxjs/core@2.1.29) (2025-05-14)
 
-
-
+**Note:** Version bump only for package @kalxjs/core
 
 ## [2.1.28](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/core@2.1.24...@kalxjs/core@2.1.28) (2025-05-14)
 
 **Note:** Version bump only for package @kalxjs/core
 
-
-
-
-
 ## [2.1.27](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/core@2.1.24...@kalxjs/core@2.1.27) (2025-05-14)
 
 **Note:** Version bump only for package @kalxjs/core
-
-
-
-
 
 ## [2.1.26](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/core@2.1.24...@kalxjs/core@2.1.26) (2025-05-14)
 
 **Note:** Version bump only for package @kalxjs/core
 
-
-
-
-
 ## [0.1.3](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/core@2.1.24...@kalxjs/core@0.1.3) (2025-05-14)
 
 **Note:** Version bump only for package @kalxjs/core
-
-
-
-
 
 ## [0.1.2](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/core@2.1.24...@kalxjs/core@0.1.2) (2025-05-14)
 
 **Note:** Version bump only for package @kalxjs/core
 
-
-
-
-
 ## [0.1.1](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/core@2.1.24...@kalxjs/core@0.1.1) (2025-05-14)
 
 **Note:** Version bump only for package @kalxjs/core
-
-
-
-
 
 ## [2.1.24](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/core@2.1.23...@kalxjs/core@2.1.24) (2025-05-14)
 
