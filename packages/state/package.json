@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/store",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Centralized state management for KalxJS framework with Vuex-like API",
   "type": "module",
   "author": "kalxjs Team",
@@ -32,7 +32,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@kalxjs/core": "^0.1.1"
+    "@kalxjs/core": "^0.1.2"
   },
   "peerDependencies": {
     "@kalxjs/core": "^0.1.0"

@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/compiler",
-  "version": "1.2.19",
+  "version": "1.2.20",
   "description": "Compiler for KalxJS single-file components (.klx files)",
   "type": "module",
   "author": "kalxjs Team",
