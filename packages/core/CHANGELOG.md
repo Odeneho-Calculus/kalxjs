@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.1.24](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/core@2.1.23...@kalxjs/core@2.1.24) (2025-05-14)
+
+**Note:** Version bump only for package @kalxjs/core
+
 ## [2.1.23](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/core@2.1.22...@kalxjs/core@2.1.23) (2025-05-14)
 
 **Note:** Version bump only for package @kalxjs/core
