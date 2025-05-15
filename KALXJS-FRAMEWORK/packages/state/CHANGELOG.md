@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.2.49 (2025-05-15)
+
+**Note:** Version bump only for package @kalxjs/state
+
 ## [1.2.48](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/state@1.2.47...@kalxjs/state@1.2.48) (2025-05-15)
 
 **Note:** Version bump only for package @kalxjs/state

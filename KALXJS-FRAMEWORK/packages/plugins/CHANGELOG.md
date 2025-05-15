@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.2.9 (2025-05-15)
+
+**Note:** Version bump only for package @kalxjs/plugins
+
 ## 1.2.8 (2025-05-14)
 
 **Note:** Version bump only for package @kalxjs/plugins

@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/ai",
-  "version": "1.2.10",
+  "version": "1.2.11",
   "description": "AI integration utilities for KalxJS applications",
   "type": "module",
   "author": "kalxjs Team",
