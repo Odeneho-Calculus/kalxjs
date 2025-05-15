@@ -113,7 +113,8 @@ npm run dev
 
 ## Documentation
 
-For detailed documentation, visit [https://kalxjs.dev](https://kalxjs.dev)
+For detailed documentation, 
+Documentation still under development
 
 ## License
 
