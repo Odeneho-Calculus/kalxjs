@@ -503,6 +503,12 @@ export function createRouter() {
     ]
   });
 
+  // Add onError method to the router
+  router.onError = function(callback) {
+    router.errorHandler = callback;
+    return router;
+  };
+
   // Custom rendering logic for router views
   router.afterEach((to, from) => {
     console.log(\`Router navigation complete: \${from.path} -> \${to.path}\`);
@@ -850,33 +856,60 @@ export default defineComponent({
   // Add SCSS files if SCSS feature is enabled
   if (config.features.scss) {
     files['app/styles/main.scss'] = `// Main SCSS file for the application
+@use "sass:color";
+@use "sass:map";
 
-    // Import the color module
-    @use "sass:color";
+// Theme Variables
+$themes: (
+  "default": (
+    primary-color: #42b883,
+    secondary-color: #35495e,
+    accent-color: #e7c000
+  ),
+  "blue": (
+    primary-color: #3498db,
+    secondary-color: #2c3e50,
+    accent-color: #f39c12
+  ),
+  "purple": (
+    primary-color: #9b59b6,
+    secondary-color: #34495e,
+    accent-color: #f1c40f
+  ),
+  "orange": (
+    primary-color: #e67e22,
+    secondary-color: #2c3e50,
+    accent-color: #3498db
+  )
+);
 
-// Variables
+// Base Variables
 $primary-color: #42b883;
 $secondary-color: #35495e;
 $light-color: #f8f9fa;
 $dark-color: #343a40;
-$border-radius: 4px;
+$border-radius: 8px;
+$box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+$transition-speed: 0.3s;
 
 // Global styles
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
-  color: $dark-color;
-  background-color: white;
+  color: var(--text-color);
+  background-color: var(--bg-color);
   margin: 0;
   padding: 0;
+  transition: background-color $transition-speed ease, color $transition-speed ease;
 }
 
 a {
-  color: $primary-color;
+  color: var(--primary-color);
   text-decoration: none;
-  
+  transition: color $transition-speed ease;
+
   &:hover {
-    text-decoration: underline;
+    color: color.adjust($primary-color, $lightness: -10%);
   }
 }
 
@@ -889,45 +922,90 @@ a {
 // Button styles
 .btn {
   display: inline-block;
-  background-color: $primary-color;
+  background-color: var(--primary-color);
   color: white;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 1.5rem;
   border: none;
   border-radius: $border-radius;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all $transition-speed ease;
+  font-weight: 500;
   
   &:hover {
-    background-color: color.adjust($primary-color, $lightness: -10%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  &:active {
+    transform: translateY(0);
   }
   
   &.btn-secondary {
-    background-color: $secondary-color;
+    background-color: var(--secondary-color);
+  }
+  
+  &.btn-outline {
+    background-color: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
     
     &:hover {
-      background-color: color.adjust($secondary-color, $lightness: -10%);
+      background-color: var(--primary-color);
+      color: white;
     }
   }
 }
 
 // Card component
 .card {
-  background-color: white;
+  background-color: var(--card-bg);
   border-radius: $border-radius;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: $box-shadow;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
+  transition: transform $transition-speed ease, box-shadow $transition-speed ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  }
   
   .card-title {
     margin-top: 0;
-    color: $primary-color;
+    color: var(--primary-color);
+    font-weight: 600;
+  }
+}
+
+// Form elements
+input, textarea, select {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--input-border);
+  border-radius: $border-radius;
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  transition: border-color $transition-speed ease, box-shadow $transition-speed ease;
+  
+  &:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
   }
 }
 
 // Utility classes
-.text-center {
-  text-align: center;
-}
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-left { text-align: left; }
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.flex-grow { flex-grow: 1; }
 
 .mt-1 { margin-top: 0.5rem; }
 .mt-2 { margin-top: 1rem; }
@@ -939,42 +1017,618 @@ a {
 .mb-3 { margin-bottom: 1.5rem; }
 .mb-4 { margin-bottom: 2rem; }
 
+.p-1 { padding: 0.5rem; }
+.p-2 { padding: 1rem; }
+.p-3 { padding: 1.5rem; }
+.p-4 { padding: 2rem; }
+
 // CSS Variables for theming
 :root {
+  // Default theme (light)
   --primary-color: #{$primary-color};
   --secondary-color: #{$secondary-color};
   --light-color: #{$light-color};
   --dark-color: #{$dark-color};
   --border-radius: #{$border-radius};
-  --bg-color: white;
+  --box-shadow: #{$box-shadow};
+
+  // Light theme colors
+  --bg-color: #ffffff;
   --bg-secondary: #{$light-color};
   --text-color: #{$dark-color};
+  --border-color: #e1e1e1;
+  --card-bg: #ffffff;
+  --input-bg: #ffffff;
+  --input-border: #d1d1d1;
+  --code-bg: #f5f5f5;
 }
 
-// Dark mode support
-@media(prefers-color-scheme: dark) {
-  :root {
-    --bg-color: #1a1a1a;
-    --bg-secondary: #2a2a2a;
-    --text-color: #f0f0f0;
-  }
-  
-  body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
-  }
-  
+// Dark theme
+[data-theme="dark"] {
+  --bg-color: #121212;
+  --bg-secondary: #1e1e1e;
+  --text-color: #f0f0f0;
+  --border-color: #333333;
+  --card-bg: #1e1e1e;
+  --input-bg: #2a2a2a;
+  --input-border: #444444;
+  --code-bg: #2a2a2a;
+
   .card {
-    background-color: var(--bg-secondary);
+    background-color: var(--card-bg);
+  }
+
+  .btn-outline {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+  }
+
+  code {
+    background-color: var(--code-bg);
+    color: #e83e8c;
   }
 }
-    `;
+
+// Generate theme color variables
+@each $theme-name, $theme-colors in $themes {
+  [data-color-theme="#{$theme-name}"] {
+    --primary-color: #{map.get($theme-colors, primary-color)};
+    --secondary-color: #{map.get($theme-colors, secondary-color)};
+    --accent-color: #{map.get($theme-colors, accent-color)};
+  }
+}
+
+// Responsive utilities
+@media (max-width: 768px) {
+  .hide-mobile {
+    display: none !important;
+  }
+  
+  .container {
+    padding: 0 10px;
+  }
+}`;
+
+    files['app/styles/animations.scss'] = `// Animation styles
+
+// Animated Counter
+.animated-counter {
+    display: inline-block;
+
+    .counter-value {
+        font-size: 3rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition: color 0.3s ease;
+    }
+}
+
+// Page transitions
+.page-enter {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.page-enter-active {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.page-enter-to {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.page-leave {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.page-leave-active {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.page-leave-to {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+// Button animations
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+    }
+
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+    }
+}
+
+.btn-pulse {
+    animation: pulse 1.5s infinite;
+}
+
+// Loading spinner
+.spinner {
+    width: 40px;
+    height: 40px;
+    margin: 20px auto;
+    border: 4px solid rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--primary-color);
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// Fade animations
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.fade-out {
+    animation: fadeOut 0.5s ease-out;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+// Slide animations
+.slide-in-right {
+    animation: slideInRight 0.5s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.slide-in-left {
+    animation: slideInLeft 0.5s ease-out;
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+// Bounce animation
+.bounce {
+    animation: bounce 0.5s;
+}
+
+@keyframes bounce {
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0);
+    }
+
+    40% {
+        transform: translateY(-20px);
+    }
+
+    60% {
+        transform: translateY(-10px);
+    }
+}`;
+
+    files['app/styles/theme-switcher.scss'] = `// Theme Switcher Component Styles
+
+.theme-switcher {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+// Dark/Light Mode Toggle
+.mode-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: var(--bg-secondary);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+  &.light {
+    background-color: #f8f9fa;
+    color: #ffa41b;
+  }
+
+  &.dark {
+    background-color: #2a2a2a;
+    color: #f0f0f0;
+  }
+
+  .mode-icon {
+    font-size: 1.2rem;
+  }
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+// Theme Selector
+.theme-selector {
+  position: relative;
+}
+
+.theme-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 2px solid var(--theme-color, var(--primary-color));
+  background-color: transparent;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  .theme-indicator {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: var(--theme-color, var(--primary-color));
+  }
+
+  .dropdown-arrow {
+    font-size: 0.8rem;
+    transition: transform 0.2s ease;
+  }
+
+  &:hover .dropdown-arrow {
+    transform: translateY(2px);
+  }
+}
+
+.theme-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 0.5rem;
+  background-color: var(--bg-color);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 150px;
+  z-index: 100;
+  overflow: hidden;
+  animation: dropdown-appear 0.2s ease-out;
+}
+
+@keyframes dropdown-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: var(--bg-secondary);
+  }
+
+  &.active {
+    background-color: rgba(0, 0, 0, 0.1);
+  }
+
+  .theme-color-preview {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background-color: var(--theme-color);
+  }
+}`;
+
+    files['app/styles/app.scss'] = `// App-specific styles
+
+// Variables
+$header-height: 60px;
+$footer-height: 60px;
+$primary-color: #42b883;
+$secondary-color: #35495e;
+$light-bg: #ffffff;
+$dark-bg: #1a1a1a;
+$light-text: #333333;
+$dark-text: #f0f0f0;
+$border-radius: 4px;
+$box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+// App container
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bg-color, $light-bg);
+  color: var(--text-color, $light-text);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+// Header styles
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: $header-height;
+  padding: 0 20px;
+  background-color: var(--bg-secondary, $secondary-color);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  
+  .logo-container {
+    display: flex;
+    align-items: center;
+    
+    .logo {
+      height: 40px;
+      margin-right: 10px;
+      cursor: pointer;
+    }
+    
+    .app-title {
+      font-size: 1.5rem;
+      margin: 0;
+    }
+  }
+  
+  .app-nav {
+    display: flex;
+    gap: 20px;
+    
+    .nav-link {
+      color: white;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+      
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+      
+      &.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        font-weight: bold;
+      }
+    }
+    
+    .theme-switcher-container {
+      display: flex;
+      align-items: center;
+    }
+    
+    .theme-switcher {
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: $border-radius;
+      display: flex;
+      align-items: center;
+      transition: all 0.2s ease;
+      
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+      
+      .theme-icon {
+        margin-right: 8px;
+        font-size: 1.2rem;
+      }
+      
+      .theme-text {
+        font-size: 0.9rem;
+      }
+    }
+    
+    .theme-toggle {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 4px;
+      
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+    }
+  }
+}
+
+// Main content area
+.app-main {
+  flex: 1;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+// Footer styles
+.app-footer {
+  height: $footer-height;
+  background-color: var(--bg-secondary, $secondary-color);
+  color: white;
+  
+  .footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    padding: 0 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  
+  .copyright {
+    margin: 0;
+  }
+  
+  .footer-links {
+    display: flex;
+    gap: 20px;
+    
+    a {
+      color: white;
+      text-decoration: none;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Dark theme
+.dark-theme {
+  --bg-color: #{$dark-bg};
+  --text-color: #{$dark-text};
+  --bg-secondary: #2a2a2a;
+  --border-color: #444444;
+  --card-bg: #2a2a2a;
+  --input-bg: #333333;
+  --input-border: #555555;
+  --code-bg: #333333;
+  
+  .app-header, .app-footer {
+    background-color: #2a2a2a;
+  }
+  
+  .theme-switcher {
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  
+  button, .button {
+    &.primary {
+      background-color: darken($primary-color, 10%);
+    }
+    
+    &.secondary {
+      background-color: darken($secondary-color, 10%);
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .app-header {
+    flex-direction: column;
+    height: auto;
+    padding: 10px;
+    
+    .logo-container {
+      margin-bottom: 10px;
+    }
+    
+    .app-nav {
+      width: 100%;
+      justify-content: center;
+      flex-wrap: wrap;
+      
+      .theme-switcher {
+        .theme-text {
+          display: none;
+        }
+        
+        .theme-icon {
+          margin-right: 0;
+        }
+      }
+    }
+  }
+  
+  .app-footer {
+    .footer-content {
+      flex-direction: column;
+      padding: 10px;
+      height: auto;
+      
+      .copyright {
+        margin-bottom: 10px;
+      }
+    }
+  }
+}`;
+
   }
 
   // Create App.js file
   files['app/core/App.js'] = `import { h, defineComponent, onMounted, ref } from '@kalxjs/core';
     // Import the app styles
     import '../styles/app.scss';
+    // Import ThemeSwitcher component
+    import ThemeSwitcher from '../components/ThemeSwitcher.js';
 
     export default defineComponent({
       name: 'App',
@@ -999,13 +1653,19 @@ a {
       }
     };
 
-    // Theme toggle state
+    // Theme state
     const isDarkTheme = ref(false);
+
+    // Apply theme function
+    const applyTheme = () => {
+      document.documentElement.classList.toggle('dark-theme', isDarkTheme.value);
+      localStorage.setItem('theme', isDarkTheme.value ? 'dark' : 'light');
+    };
 
     // Toggle theme function
     const toggleTheme = () => {
       isDarkTheme.value = !isDarkTheme.value;
-      document.body.classList.toggle('dark-theme', isDarkTheme.value);
+      applyTheme();
     };
 
     // Lifecycle hooks
@@ -1014,10 +1674,16 @@ a {
 
       // Check for saved theme preference
       const savedTheme = localStorage.getItem('theme');
-      if (savedTheme === 'dark') {
-        isDarkTheme.value = true;
-        document.body.classList.add('dark-theme');
+      if (savedTheme) {
+        isDarkTheme.value = savedTheme === 'dark';
+      } else {
+        // Check if user prefers dark mode via system settings
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        isDarkTheme.value = prefersDark;
       }
+      
+      // Apply theme on initial load
+      applyTheme();
 
       // Make sure the router view container is available
       const routerViewContainer = document.getElementById('router-view');
@@ -1042,7 +1708,7 @@ a {
   // Add render function to ensure it works properly
   render() {
     return h('div', {
-      class: ['app', { 'dark-theme': this.isDarkTheme }]
+      class: 'app'
     }, [
       // Header with navigation
       h('header', { class: 'app-header' }, [
@@ -1057,6 +1723,10 @@ a {
         ]),
 
         h('nav', { class: 'app-nav' }, [
+          // Import and use ThemeSwitcher component
+          h('div', { class: 'theme-switcher-container' }, [
+            h(ThemeSwitcher)
+          ]),
           h('a', {
             href: '/',
             class: ['nav-link', { 'active': this.activeRoute === '/' }],
@@ -1168,7 +1838,7 @@ async function getPackageVersions() {
     try {
       // Try to dynamically import the package to get its version
       try {
-        const module = await import(packageName);
+        const module = await import(/* @vite-ignore */ packageName);
         if (module.version) {
           return module.version;
         }
@@ -1221,8 +1891,8 @@ return versions;
 
 // Initialize with fallback versions first
 let coreVersion = '${config.packageVersions['@kalxjs/core']}';
-${config.features.router ? "let routerVersion = '${config.packageVersions['@kalxjs/router']}';" : ''}
-${config.features.state ? "let stateVersion = '${config.packageVersions['@kalxjs/state']}';" : ''}
+${config.features.router ? `let routerVersion = '${config.packageVersions['@kalxjs/router']}';` : ''}
+${config.features.state ? `let stateVersion = '${config.packageVersions['@kalxjs/state']}';` : ''}
 let utilsVersion = '${config.packageVersions['@kalxjs/utils']}';
 let devtoolsVersion = '${config.packageVersions['@kalxjs/devtools']}';
 
@@ -1952,9 +2622,6 @@ async function startApp() {
 
 // Run the app
 startApp();
-*.njsproj
-*.sln
-*.sw?
 `;
 
   // Create README.md file
@@ -2035,6 +2702,695 @@ export default defineComponent({
 });`;
 
   await fs.writeFile(testComponentPath, testComponentContent);
+
+  // Create a ThemeSwitcher component
+  const themeSwitcherPath = path.join(targetDir, 'app/components/ThemeSwitcher.js');
+  const themeSwitcherContent = `import { h, defineComponent, ref, watch } from '@kalxjs/core';
+
+export default defineComponent({
+  name: 'ThemeSwitcher',
+  
+  setup() {
+    const isDarkTheme = ref(false);
+    
+    // Check if user has a theme preference stored
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme) {
+      isDarkTheme.value = storedTheme === 'dark';
+    } else {
+      // Check if user prefers dark mode via system settings
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      isDarkTheme.value = prefersDark;
+    }
+    
+    // Apply theme when component mounts and when theme changes
+    const applyTheme = () => {
+      if (isDarkTheme.value) {
+        document.documentElement.classList.add('dark-theme');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark-theme');
+        localStorage.setItem('theme', 'light');
+      }
+    };
+    
+    // Call once on setup
+    applyTheme();
+    
+    // Watch for changes to isDarkTheme
+    watch(isDarkTheme, () => {
+      applyTheme();
+    });
+    
+    const toggleTheme = () => {
+      isDarkTheme.value = !isDarkTheme.value;
+    };
+    
+    return {
+      isDarkTheme,
+      toggleTheme
+    };
+  },
+  
+  render() {
+    return h('button', { 
+      class: 'theme-switcher',
+      onClick: this.toggleTheme,
+      title: this.isDarkTheme ? 'Switch to Light Mode' : 'Switch to Dark Mode'
+    }, [
+      h('span', { class: 'theme-icon' }, [
+        this.isDarkTheme ? '☀️' : '🌙'
+      ]),
+      h('span', { class: 'theme-text' }, [
+        this.isDarkTheme ? 'Light Mode' : 'Dark Mode'
+      ])
+    ]);
+  }
+});`;
+
+  await fs.writeFile(themeSwitcherPath, themeSwitcherContent);
+
+  // Create an AnimatedCounter component
+  const animatedCounterPath = path.join(targetDir, 'app/components/AnimatedCounter.js');
+  const animatedCounterContent = `import { h, defineComponent } from '@kalxjs/core';
+
+export default defineComponent({
+    name: 'AnimatedCounter',
+
+    props: {
+        value: {
+            type: Number,
+            default: 0
+        },
+        duration: {
+            type: Number,
+            default: 1000
+        }
+    },
+
+    data() {
+        return {
+            displayValue: 0,
+            animationId: null
+        };
+    },
+
+    mounted() {
+        this.animateToValue(this.value);
+    },
+
+    updated() {
+        if (this.value !== this.displayValue) {
+            this.animateToValue(this.value);
+        }
+    },
+
+    beforeUnmount() {
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+        }
+    },
+
+    methods: {
+        animateToValue(targetValue) {
+            // Cancel any ongoing animation
+            if (this.animationId) {
+                cancelAnimationFrame(this.animationId);
+            }
+
+            const startValue = this.displayValue;
+            const startTime = performance.now();
+            const changeInValue = targetValue - startValue;
+
+            const animate = (currentTime) => {
+                const elapsedTime = currentTime - startTime;
+                const progress = Math.min(elapsedTime / this.duration, 1);
+
+                // Easing function (ease-out-cubic)
+                const easedProgress = 1 - Math.pow(1 - progress, 3);
+
+                this.displayValue = Math.round(startValue + changeInValue * easedProgress);
+                this.$update();
+
+                if (progress < 1) {
+                    this.animationId = requestAnimationFrame(animate);
+                } else {
+                    this.displayValue = targetValue;
+                    this.animationId = null;
+                    this.$update();
+                }
+            };
+
+            this.animationId = requestAnimationFrame(animate);
+        }
+    },
+
+    render() {
+        return h('div', { class: 'animated-counter' }, [
+            h('span', { class: 'counter-value' }, [String(this.displayValue)])
+        ]);
+    }
+});`;
+
+  await fs.writeFile(animatedCounterPath, animatedCounterContent);
+
+  // Create the theme-switcher.scss file
+  const themeSwitcherStylePath = path.join(targetDir, 'app/styles/theme-switcher.scss');
+  const themeSwitcherStyleContent = `// Theme Switcher Styles
+
+.theme-switcher {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+// Dark Mode Toggle
+.mode-toggle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: var(--bg-secondary);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
+    &.light {
+        background-color: #f8f9fa;
+        color: #ffa41b;
+    }
+
+    &.dark {
+        background-color: #2a2a2a;
+        color: #f0f0f0;
+    }
+
+    .mode-icon {
+        font-size: 1.2rem;
+    }
+
+    &:hover {
+        transform: scale(1.1);
+    }
+}
+
+// Theme Selector
+.theme-selector {
+    position: relative;
+}
+
+.theme-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 2px solid var(--theme-color, var(--primary-color));
+    background-color: transparent;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .theme-indicator {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background-color: var(--theme-color, var(--primary-color));
+    }
+
+    .dropdown-arrow {
+        font-size: 0.8rem;
+        transition: transform 0.2s ease;
+    }
+
+    &:hover .dropdown-arrow {
+        transform: translateY(2px);
+    }
+}
+
+.theme-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 0.5rem;
+    background-color: var(--bg-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 150px;
+    z-index: 100;
+    overflow: hidden;
+    animation: dropdown-appear 0.2s ease-out;
+}
+
+@keyframes dropdown-appear {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.theme-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: var(--bg-secondary);
+    }
+
+    &.active {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    .theme-color-preview {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background-color: var(--theme-color);
+    }
+}`;
+
+  await fs.writeFile(themeSwitcherStylePath, themeSwitcherStyleContent);
+
+  // Create the animations.scss file
+  const animationsStylePath = path.join(targetDir, 'app/styles/animations.scss');
+  const animationsStyleContent = `// Animation styles
+
+// Animated Counter
+.animated-counter {
+    display: inline-block;
+
+    .counter-value {
+        font-size: 3rem;
+        font-weight: bold;
+        color: var(--primary-color);
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition: color 0.3s ease;
+    }
+}
+
+// Page transitions
+.page-enter {
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.page-enter-active {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.page-enter-to {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.page-leave {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.page-leave-active {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.page-leave-to {
+    opacity: 0;
+    transform: translateY(-20px);
+}
+
+// Button animations
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(var(--primary-color), 0.7);
+    }
+
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(var(--primary-color), 0);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(var(--primary-color), 0);
+    }
+}
+
+.btn-pulse {
+    animation: pulse 1.5s infinite;
+}
+
+// Loading spinner
+.spinner {
+    width: 40px;
+    height: 40px;
+    margin: 20px auto;
+    border: 4px solid rgba(var(--primary-color), 0.3);
+    border-radius: 50%;
+    border-top-color: var(--primary-color);
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// Fade animations
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.fade-out {
+    animation: fadeOut 0.5s ease-out;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+// Slide animations
+.slide-in-right {
+    animation: slideInRight 0.5s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.slide-in-left {
+    animation: slideInLeft 0.5s ease-out;
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+// Bounce animation
+.bounce {
+    animation: bounce 0.5s;
+}
+
+@keyframes bounce {
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateY(0);
+    }
+
+    40% {
+        transform: translateY(-20px);
+    }
+
+    60% {
+        transform: translateY(-10px);
+    }
+}`;
+
+  await fs.writeFile(animationsStylePath, animationsStyleContent);
+
+  // Update the main.scss file to import the new styles
+  const mainScssPath = path.join(targetDir, 'app/styles/main.scss');
+  const mainScssContent = `// Main Styles for KalxJS Application
+
+// Import variables and theme
+@import './variables';
+
+// Import component styles
+@import './theme-switcher';
+@import './animations';
+
+// Global styles
+:root {
+  --primary-color: #42b883;
+  --secondary-color: #35495e;
+  --accent-color: #ff7e67;
+  --bg-color: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --text-color: #333333;
+  --text-secondary: #666666;
+  --border-color: #dddddd;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --success-color: #4caf50;
+  --warning-color: #ff9800;
+  --error-color: #f44336;
+  --info-color: #2196f3;
+}
+
+// Dark theme variables
+.dark-theme {
+  --primary-color: #42d392;
+  --secondary-color: #2c3e50;
+  --accent-color: #ff9e7d;
+  --bg-color: #1a1a1a;
+  --bg-secondary: #2a2a2a;
+  --text-color: #f0f0f0;
+  --text-secondary: #aaaaaa;
+  --border-color: #444444;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+button, .btn {
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  border: none;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  
+  &:focus {
+    outline: none;
+  }
+  
+  &.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    
+    &:hover {
+      background-color: darken(#42b883, 10%);
+    }
+  }
+  
+  &.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+    
+    &:hover {
+      background-color: darken(#35495e, 10%);
+    }
+  }
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+// Utility classes
+.text-center {
+  text-align: center;
+}
+
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mt-3 { margin-top: 1.5rem; }
+.mt-4 { margin-top: 2rem; }
+
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+
+.p-1 { padding: 0.5rem; }
+.p-2 { padding: 1rem; }
+.p-3 { padding: 1.5rem; }
+.p-4 { padding: 2rem; }
+
+// Responsive grid
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}`;
+
+  await fs.writeFile(mainScssPath, mainScssContent);
+
+  // Create variables.scss file
+  const variablesScssPath = path.join(targetDir, 'app/styles/variables.scss');
+  const variablesScssContent = `// Variables for KalxJS Application
+
+// Colors
+$primary-color: #42b883;
+$secondary-color: #35495e;
+$accent-color: #ff7e67;
+$bg-color: #ffffff;
+$bg-secondary: #f5f5f5;
+$text-color: #333333;
+$text-secondary: #666666;
+$border-color: #dddddd;
+$shadow-color: rgba(0, 0, 0, 0.1);
+$success-color: #4caf50;
+$warning-color: #ff9800;
+$error-color: #f44336;
+$info-color: #2196f3;
+
+// Dark theme colors
+$dark-primary-color: #42d392;
+$dark-secondary-color: #2c3e50;
+$dark-accent-color: #ff9e7d;
+$dark-bg-color: #1a1a1a;
+$dark-bg-secondary: #2a2a2a;
+$dark-text-color: #f0f0f0;
+$dark-text-secondary: #aaaaaa;
+$dark-border-color: #444444;
+$dark-shadow-color: rgba(0, 0, 0, 0.3);
+
+// Spacing
+$spacing-xs: 0.25rem;
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+$spacing-xl: 2rem;
+$spacing-xxl: 3rem;
+
+// Breakpoints
+$breakpoint-xs: 480px;
+$breakpoint-sm: 768px;
+$breakpoint-md: 992px;
+$breakpoint-lg: 1200px;
+
+// Typography
+$font-family-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+$font-family-heading: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+$font-family-mono: 'Courier New', Courier, monospace;
+
+$font-size-xs: 0.75rem;
+$font-size-sm: 0.875rem;
+$font-size-md: 1rem;
+$font-size-lg: 1.25rem;
+$font-size-xl: 1.5rem;
+$font-size-xxl: 2rem;
+$font-size-xxxl: 3rem;
+
+// Border radius
+$border-radius-sm: 2px;
+$border-radius-md: 4px;
+$border-radius-lg: 8px;
+$border-radius-xl: 16px;
+$border-radius-circle: 50%;
+
+// Shadows
+$shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+$shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
+
+// Transitions
+$transition-fast: 0.2s ease;
+$transition-normal: 0.3s ease;
+$transition-slow: 0.5s ease;
+
+// Z-index
+$z-index-dropdown: 1000;
+$z-index-sticky: 1020;
+$z-index-fixed: 1030;
+$z-index-modal-backdrop: 1040;
+$z-index-modal: 1050;
+$z-index-popover: 1060;
+$z-index-tooltip: 1070;`;
+
+  await fs.writeFile(variablesScssPath, variablesScssContent);
 }
 
 /**

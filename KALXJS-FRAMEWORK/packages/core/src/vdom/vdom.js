@@ -31,7 +31,7 @@ function flattenArray(arr, depth = 1) {
 
 /**
  * Creates a virtual DOM node
- * @param {string} tag - HTML tag name
+ * @param {string|function} tag - HTML tag name or component function
  * @param {Object} props - Node properties
  * @param {Array} children - Child nodes
  */
@@ -44,6 +44,17 @@ export function h(tag, props = {}, children = []) {
 
     // Ensure children is always an array
     const childArray = Array.isArray(children) ? children : (children ? [children] : []);
+
+    // If tag is a component function, mark it as a component
+    if (typeof tag === 'function') {
+        return {
+            tag: 'component-placeholder', // Use a placeholder tag for the vnode
+            props: props || {},
+            children: flattenArray(childArray),
+            component: tag, // Store the component function
+            isComponent: true // Mark as a component
+        };
+    }
 
     return {
         tag,
@@ -87,24 +98,31 @@ export function createElement(vnode) {
         return fallbackElement;
     }
 
-    // Handle case where vnode might be a function (component)
-    if (typeof vnode === 'function') {
+    // Handle case where vnode might be a component
+    if (vnode.isComponent && vnode.component) {
         try {
-            console.log('Rendering component function:', vnode.name || 'anonymous');
+            console.log('Rendering component:', vnode.component.name || 'anonymous');
 
             // Check if this is a component factory from defineComponent
-            if (vnode.options) {
-                console.log('Detected component factory with options:', vnode.options.name);
+            if (vnode.component.options) {
+                console.log('Detected component factory with options:', vnode.component.options.name);
             }
 
-            // Call the function with empty props if none provided
-            const result = vnode({});
+            // Call the component function with the props
+            const result = vnode.component(vnode.props);
 
             if (!result) {
                 throw new Error('Component function returned null or undefined');
             }
 
             console.log('Component function result:', result);
+
+            // If the result is a component instance with a render method, call it
+            if (result.render && typeof result.render === 'function') {
+                const renderResult = result.render();
+                console.log('Component render result:', renderResult);
+                return createElement(renderResult);
+            }
 
             // If the result doesn't have a tag property, add one
             if (typeof result === 'object' && !result.tag) {
@@ -114,7 +132,7 @@ export function createElement(vnode) {
 
             return createElement(result);
         } catch (error) {
-            console.error('Error rendering component function:', error);
+            console.error('Error rendering component:', error);
             const errorElement = document.createElement('div');
             errorElement.style.color = 'red';
             errorElement.style.border = '1px solid red';
@@ -125,6 +143,22 @@ export function createElement(vnode) {
                 <p>${error.message}</p>
                 <pre style="font-size: 12px; overflow: auto; max-height: 200px; background: #f5f5f5; padding: 5px;">${error.stack}</pre>
             `;
+            return errorElement;
+        }
+    }
+
+    // Handle case where vnode might be a function (legacy support)
+    if (typeof vnode === 'function') {
+        console.warn('Function passed directly to createElement. This is deprecated, use h(Component, props, children) instead.');
+        try {
+            // Call the function with empty props
+            const result = vnode({});
+            return createElement(result);
+        } catch (error) {
+            console.error('Error rendering function component:', error);
+            const errorElement = document.createElement('div');
+            errorElement.style.color = 'red';
+            errorElement.innerHTML = `<p>Error: ${error.message}</p>`;
             return errorElement;
         }
     }
