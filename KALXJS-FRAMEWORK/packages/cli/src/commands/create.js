@@ -4226,6 +4226,7 @@ button, .btn {
 $primary-color: #42b883;
 $primary-color-dark: #35a070;
 $secondary-color: #35495e;
+$secondary-color-dark: #2c3c4f;
 $accent-color: #ff7e67;
 $bg-color: #ffffff;
 $bg-secondary: #f5f5f5;
@@ -4540,7 +4541,7 @@ $z-index-tooltip: 1070;`;
     color: white;
 
     &:hover {
-      background-color: vars.$primary-color-dark;
+      background-color: $primary-color-dark;
       transform: translateY(-2px);
     }
   }
@@ -4550,7 +4551,7 @@ $z-index-tooltip: 1070;`;
     color: white;
 
     &:hover {
-      background-color: vars.$secondary-color-dark;
+      background-color: $secondary-color-dark;
       transform: translateY(-2px);
     }
   }
