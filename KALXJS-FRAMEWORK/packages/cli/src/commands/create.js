@@ -3303,7 +3303,7 @@ export default defineComponent({
         
         return h('div', { 
             class: 'animated-counter',
-            style: 'font-size: 3rem; font-weight: bold; color: var(--primary-color); min-width: 80px; text-align: center;'
+            style: 'font-size: 3.5rem; font-weight: bold; color: var(--primary-color); min-width: 100px; text-align: center; background-color: var(--bg-color); padding: 1rem; border-radius: 12px; box-shadow: 0 4px 10px var(--shadow-color);'
         }, [
             h('span', { 
                 class: 'counter-value',
@@ -4319,6 +4319,16 @@ $z-index-tooltip: 1070;`;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+// Disable all fade animations on scrolling
+.fade-in,
+.fade-out,
+.slide-in-right,
+.slide-in-left {
+  animation: none !important;
+  opacity: 1 !important;
+  transform: none !important;
+}
+
 // Header styles
 .app-header {
   display: flex;
@@ -4359,14 +4369,19 @@ $z-index-tooltip: 1070;`;
     display: flex;
     align-items: center;
     gap: 1.5rem;
+    padding: 0.75rem 1.25rem;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px var(--shadow-color);
 
     .nav-link {
       color: var(--text-color);
       text-decoration: none;
-      font-weight: 500;
-      padding: 0.5rem 0;
+      font-weight: 600;
+      padding: 0.75rem 1rem;
       position: relative;
-      transition: color 0.3s ease;
+      transition: color 0.3s ease, background-color 0.3s ease;
+      border-radius: 6px;
 
       &:after {
         content: '';
@@ -4374,13 +4389,14 @@ $z-index-tooltip: 1070;`;
         bottom: 0;
         left: 0;
         width: 0;
-        height: 2px;
+        height: 3px;
         background-color: var(--primary-color);
         transition: width 0.3s ease;
       }
 
       &:hover, &.active {
         color: var(--primary-color);
+        background-color: var(--bg-color);
 
         &:after {
           width: 100%;
@@ -4411,6 +4427,53 @@ $z-index-tooltip: 1070;`;
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+}
+
+// Home view styling
+.home-view {
+  padding: 1.5rem;
+  background-color: var(--bg-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  margin-bottom: 2rem;
+}
+
+// Page header styling
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  background-color: var(--bg-secondary);
+  border-radius: 10px;
+  box-shadow: 0 3px 10px var(--shadow-color);
+  
+  .logo {
+    display: flex;
+    flex-direction: column;
+    
+    .logo-text {
+      margin: 0;
+      color: var(--primary-color);
+      font-size: 2.2rem;
+    }
+    
+    .logo-tagline {
+      color: var(--text-secondary);
+      font-size: 1rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+    
+    .logo {
+      align-items: center;
+    }
+  }
 }
 
 // Welcome banner
@@ -4528,21 +4591,24 @@ $z-index-tooltip: 1070;`;
 
 // Button styles
 .btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: 4px;
-  font-weight: 500;
+  padding: 0.85rem 1.75rem;
+  border-radius: 6px;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   border: none;
   outline: none;
+  box-shadow: 0 3px 6px var(--shadow-color);
+  margin-bottom: 1rem;
 
   &.btn-primary {
     background-color: var(--primary-color);
     color: white;
 
     &:hover {
-      background-color: $primary-color-dark;
+      background-color: vars.$primary-color-dark;
       transform: translateY(-2px);
+      box-shadow: 0 5px 10px var(--shadow-color);
     }
   }
 
@@ -4551,9 +4617,132 @@ $z-index-tooltip: 1070;`;
     color: white;
 
     &:hover {
-      background-color: $secondary-color-dark;
+      background-color: vars.$secondary-color-dark;
       transform: translateY(-2px);
+      box-shadow: 0 5px 10px var(--shadow-color);
     }
+  }
+  
+  &.btn-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    padding: 0;
+    background-color: var(--primary-color);
+    color: white;
+    
+    &:hover {
+      background-color: vars.$primary-color-dark;
+      transform: scale(1.1);
+    }
+  }
+  
+  &.btn-pulse {
+    background-color: var(--primary-color);
+    color: white !important; /* Always keep text white */
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    position: relative;
+    overflow: hidden;
+    
+    &:hover {
+      background-color: vars.$primary-color-dark;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 12px var(--shadow-color);
+      color: white !important;
+      
+      &:after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 150%;
+        height: 150%;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        animation: pulse 0.8s ease-out;
+      }
+    }
+    
+    /* Ensure text is always white in all states */
+    &:active, &:focus, &:visited {
+      color: white !important;
+    }
+  }
+}
+
+// Tab buttons styling
+.tab-btn {
+  padding: 0.85rem 1.5rem;
+  background-color: var(--bg-secondary);
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 0 0.5rem 1rem 0.5rem;
+  box-shadow: 0 2px 5px var(--shadow-color);
+  
+  &.active {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  &:hover:not(.active) {
+    background-color: var(--bg-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+  }
+}
+
+// Counter demo styling
+.counter-demo {
+  background-color: var(--bg-secondary);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  margin-bottom: 1.5rem;
+  
+  .counter {
+    margin: 2rem 0;
+    gap: 1.5rem;
+  }
+}
+
+// Features styling
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  
+  .feature-card {
+    background-color: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px var(--shadow-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px var(--shadow-color);
+    }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
   }
 }
 
