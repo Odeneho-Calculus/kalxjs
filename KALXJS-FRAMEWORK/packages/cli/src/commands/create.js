@@ -1224,21 +1224,25 @@ export default defineComponent({
 $themes: (
   "default": (
     primary-color: #42b883,
+    primary-color-dark: #35a070,
     secondary-color: #35495e,
     accent-color: #e7c000
   ),
   "blue": (
     primary-color: #3498db,
+    primary-color-dark: #2980b9,
     secondary-color: #2c3e50,
     accent-color: #f39c12
   ),
   "purple": (
     primary-color: #9b59b6,
+    primary-color-dark: #8e44ad,
     secondary-color: #34495e,
     accent-color: #f1c40f
   ),
   "orange": (
     primary-color: #e67e22,
+    primary-color-dark: #d35400,
     secondary-color: #2c3e50,
     accent-color: #3498db
   )
@@ -1270,7 +1274,7 @@ a {
   transition: color $transition-speed ease;
 
   &:hover {
-    color: color.adjust(vars.$primary-color, $lightness: -10%);
+    color: vars.$primary-color-dark;
   }
 }
 
@@ -1322,9 +1326,10 @@ a {
   background-color: var(--card-bg);
   border-radius: $border-radius;
   box-shadow: $box-shadow;
-  padding: 1.5rem;
+  padding: 2rem;
   margin-bottom: 1.5rem;
   transition: transform $transition-speed ease, box-shadow $transition-speed ease;
+  border: 1px solid var(--border-color);
   
   &:hover {
     transform: translateY(-5px);
@@ -1387,6 +1392,7 @@ input, textarea, select {
 :root {
   // Default theme (light)
   --primary-color: #{$primary-color};
+  --primary-color-dark: #{$primary-color-dark};
   --secondary-color: #{$secondary-color};
   --light-color: #{$light-color};
   --dark-color: #{$dark-color};
@@ -1501,6 +1507,7 @@ body,
 @each $theme-name, $theme-colors in $themes {
   [data-color-theme="#{$theme-name}"] {
     --primary-color: #{map.get($theme-colors, primary-color)};
+    --primary-color-dark: #{map.get($theme-colors, primary-color-dark)};
     --secondary-color: #{map.get($theme-colors, secondary-color)};
     --accent-color: #{map.get($theme-colors, accent-color)};
   }
@@ -1940,7 +1947,7 @@ $box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   
   button, .button {
     &.primary {
-      background-color: darken($primary-color, 10%);
+      background-color: $primary-color-dark;
     }
     
     &.secondary {
@@ -2479,6 +2486,7 @@ try {
   <style>
     :root {
       --primary-color: #42b883;
+      --primary-color-dark: #35a070;
       --secondary-color: #35495e;
       --bg-color: white;
       --text-color: #333;
@@ -2489,6 +2497,7 @@ try {
     /* Dark theme variables - applied by default */
     .dark-theme {
       --primary-color: #4ecca3;
+      --primary-color-dark: #3db892;
       --secondary-color: #30475e;
       --bg-color: #121212;
       --text-color: #ffffff;
@@ -2799,6 +2808,7 @@ function checkIndexHtml() {
   <style>
     :root {
       --primary-color: #42b883;
+      --primary-color-dark: #35a070;
       --secondary-color: #35495e;
       --bg-color: white;
       --text-color: #333;
@@ -3323,8 +3333,7 @@ export default defineComponent({
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
-    z-index: 10;
-    /* Ensure it's above other elements */
+    z-index: 10; /* Ensure it's above other elements */
     font-weight: 500;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
     outline: none;
@@ -3615,6 +3624,134 @@ html.dark-theme .theme-switcher {
     }
 }
 
+// Loading spinner
+.spinner {
+    width: 40px;
+    height: 40px;
+    margin: 20px auto;
+    border: 4px solid rgba(var(--primary-color), 0.3);
+    border-radius: 50%;
+    border-top-color: var(--primary-color);
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// Fade animations
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.fade-out {
+    animation: fadeOut 0.5s ease-out;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+// Slide animations
+.slide-in-right {
+    animation: slideInRight 0.5s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.slide-in-left {
+    animation: slideInLeft 0.5s ease-out;
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+// Button pulse animation
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+}
+
+.btn-pulse {
+    animation: pulse 2s infinite;
+    position: relative;
+}
+
+.btn-pulse::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 8px;
+    box-shadow: 0 0 0 0 rgba(66, 184, 131, 0.7);
+    animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+    0% {
+        box-shadow: 0 0 0 0 rgba(66, 184, 131, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 10px rgba(66, 184, 131, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(66, 184, 131, 0);
+    }
+}
+
 // Theme switcher animation
 .theme-button {
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -3642,6 +3779,7 @@ html.dark-theme .theme-switcher {
 // Global styles
 :root {
   --primary-color: #42b883;
+  --primary-color-dark: #35a070;
   --secondary-color: #35495e;
   --accent-color: #ff7e67;
   --bg-color: #ffffff;
@@ -3659,6 +3797,7 @@ html.dark-theme .theme-switcher {
 // Dark theme variables - enhanced for better visual appeal
 .dark-theme {
   --primary-color: #4ecca3; // Brighter green for better visibility
+  --primary-color-dark: #3db892; // Darker shade of primary color
   --secondary-color: #30475e; // Richer blue-gray
   --accent-color: #ff7f50; // Coral accent for better contrast
   --bg-color: #121212; // Deeper dark background (Material dark theme standard)
@@ -3679,54 +3818,172 @@ html.dark-theme body {
   color: #ffffff !important;
 }
 
-.dark-theme .app-header {
+html.dark-theme .app-header,
+html.dark-theme header,
+html.dark-theme nav {
   background-color: #1e1e1e !important;
   border-bottom: 1px solid #333333 !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5) !important;
 }
 
-.dark-theme .welcome-banner,
-.dark-theme .features-section,
-.dark-theme .card {
+html.dark-theme .welcome-banner,
+html.dark-theme .features-section,
+html.dark-theme .card,
+html.dark-theme .tab-content,
+html.dark-theme .counter-demo {
   background-color: #1e1e1e !important;
   color: #ffffff !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.5) !important;
   border: 1px solid #333333 !important;
 }
 
-.dark-theme .btn-primary {
+html.dark-theme .btn-primary {
   background-color: #4ecca3 !important;
   color: white !important;
-  font-weight: 700 !important;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
 }
 
-.dark-theme .btn-primary:hover {
+html.dark-theme .btn-primary:hover {
   transform: translateY(-2px) !important;
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4) !important;
   text-decoration: none !important;
 }
 
-.dark-theme .btn-secondary {
+html.dark-theme .btn-secondary {
   background-color: #30475e !important;
   color: white !important;
   font-weight: 600 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
 }
 
-.dark-theme a {
+html.dark-theme .btn-secondary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4) !important;
+  text-decoration: none !important;
+}
+
+html.dark-theme a {
   color: #4ecca3 !important;
   text-decoration: none !important;
   transition: all 0.3s ease !important;
 }
 
-.dark-theme a:hover {
-  color: #5fddaf !important;
+html.dark-theme a:hover {
   text-decoration: underline !important;
+  color: #5fddB4 !important;
 }
 
-.dark-theme .text-secondary {
-  color: #aaaaaa !important;
+html.dark-theme .btn-pulse {
+  color: white !important;
+  background-color: #4ecca3 !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark-theme .btn-pulse:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5) !important;
+  background-color: #5fddB4 !important;
+  text-decoration: none !important;
+}
+
+html.dark-theme .text-secondary {
+  color: #b0b0b0 !important;
+}
+
+html.dark-theme h1,
+html.dark-theme h2,
+html.dark-theme h3,
+html.dark-theme h4,
+html.dark-theme h5,
+html.dark-theme h6 {
+  color: #ffffff !important;
+}
+
+html.dark-theme .counter-value {
+  color: #4ecca3 !important;
+}
+
+html.dark-theme .feature-item {
+  background-color: #252525 !important;
+  border: 1px solid #333333 !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease !important;
+  padding: 1.75rem !important;
+  margin-bottom: 1rem !important;
+}
+
+html.dark-theme .feature-item:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5) !important;
+  border-color: #4ecca3 !important;
+}
+
+html.dark-theme .card {
+  padding: 2rem !important;
+  background-color: #1e1e1e !important;
+  border: 1px solid #333333 !important;
+}
+
+html.dark-theme .counter-value {
+  color: #4ecca3 !important;
+}
+
+html.dark-theme .welcome-banner {
+  background-color: #252525 !important;
+  border-color: #333333 !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.dark-theme .feature-item {
+  background-color: #252525 !important;
+  border: 1px solid #333333 !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
+  padding: 1.75rem !important;
+}
+
+html.dark-theme .feature-item:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5) !important;
+  border-color: #4ecca3 !important;
+}
+
+html.dark-theme .btn-pulse {
+  color: white !important;
+  background-color: #4ecca3 !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+html.dark-theme .btn-pulse:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5) !important;
+  background-color: #5fddB4 !important;
+  text-decoration: none !important;
+}
+
+html.dark-theme .text-secondary {
+  color: #b0b0b0 !important;
+}
+
+html.dark-theme h1,
+html.dark-theme h2,
+html.dark-theme h3,
+html.dark-theme h4,
+html.dark-theme h5,
+html.dark-theme h6 {
+  color: #ffffff !important;
+}
+
+/* Ensure theme transition is smooth */
+html,
+body,
+.app-header,
+.card,
+.welcome-banner,
+.features-section {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
 }
 
 * {
@@ -3760,6 +4017,12 @@ button, .btn {
   border: none;
   font-size: 1rem;
   transition: all 0.3s ease;
+  box-shadow: 0 2px 4px var(--shadow-color);
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+  }
   
   &:focus {
     outline: none;
@@ -3768,18 +4031,33 @@ button, .btn {
   &.btn-primary {
     background-color: var(--primary-color);
     color: white;
+    font-weight: 600;
     
     &:hover {
-      background-color: color.adjust(#42b883, $lightness: -10%);
+      background-color: #389f6e; /* Darker shade of Vue.js green */
     }
   }
   
   &.btn-secondary {
     background-color: var(--secondary-color);
     color: white;
+    font-weight: 600;
     
     &:hover {
-      background-color: color.adjust(#35495e, $lightness: -10%);
+      background-color: #2c3c4f; /* Darker shade of Vue.js blue */
+    }
+  }
+  
+  &.btn-pulse {
+    color: white;
+    background-color: var(--primary-color);
+    box-shadow: 0 4px 10px var(--shadow-color);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px var(--shadow-color);
+      background-color: #4ac28e; /* Lighter shade of Vue.js green */
     }
   }
 }
@@ -3788,6 +4066,115 @@ button, .btn {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
+}
+
+// Card styles with enhanced padding
+.card {
+  padding: 1.5rem;
+  border-radius: 8px;
+  background-color: var(--bg-secondary);
+  box-shadow: 0 4px 8px var(--shadow-color);
+  margin-bottom: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 6px 12px var(--shadow-color);
+  }
+
+  .card-title {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+  }
+}
+
+// Feature item styles
+.feature-item {
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  padding: 1.75rem;
+  margin-bottom: 1rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px var(--shadow-color);
+    border-color: var(--primary-color);
+  }
+}
+
+// Welcome banner
+.welcome-banner {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 6px 15px var(--shadow-color);
+  text-align: center;
+  
+  h1 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+  }
+}
+
+// Button styles
+.btn {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+  }
+  
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  color: white;
+  
+  &:hover {
+    background-color: var(--primary-color-dark);
+  }
+}
+
+.btn-secondary {
+  background-color: var(--bg-secondary);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  
+  &:hover {
+    background-color: var(--bg-tertiary);
+  }
+}
+
+.btn-pulse {
+  animation: pulse 2s infinite;
+  position: relative;
+  background-color: var(--primary-color);
+  color: white;
+  
+  &:hover {
+    animation: none;
+    background-color: var(--primary-color-dark);
+  }
 }
 
 // Utility classes
@@ -3837,6 +4224,7 @@ button, .btn {
 
 // Colors
 $primary-color: #42b883;
+$primary-color-dark: #35a070;
 $secondary-color: #35495e;
 $accent-color: #ff7e67;
 $bg-color: #ffffff;
@@ -3852,6 +4240,7 @@ $info-color: #2196f3;
 
 // Dark theme colors
 $dark-primary-color: #42d392;
+$dark-primary-color-dark: #35b87c;
 $dark-secondary-color: #2c3e50;
 $dark-accent-color: #ff9e7d;
 $dark-bg-color: #1a1a1a;
@@ -4076,15 +4465,18 @@ $z-index-tooltip: 1070;`;
     padding: 0;
 
     .feature-item {
-      padding: 1rem;
+      padding: 1.5rem;
       background-color: var(--bg-color);
-      border-radius: 4px;
-      box-shadow: 0 2px 4px var(--shadow-color);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 8px var(--shadow-color);
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      margin-bottom: 1rem;
 
       &:hover {
         transform: translateY(-5px);
-        box-shadow: 0 6px 12px var(--shadow-color);
+        box-shadow: 0 8px 15px var(--shadow-color);
+        border-color: var(--primary-color);
       }
     }
   }
@@ -4148,7 +4540,7 @@ $z-index-tooltip: 1070;`;
     color: white;
 
     &:hover {
-      background-color: color.adjust(vars.$primary-color, $lightness: -10%);
+      background-color: vars.$primary-color-dark;
       transform: translateY(-2px);
     }
   }
@@ -4158,7 +4550,7 @@ $z-index-tooltip: 1070;`;
     color: white;
 
     &:hover {
-      background-color: color.adjust(vars.$secondary-color, $lightness: -10%);
+      background-color: vars.$secondary-color-dark;
       transform: translateY(-2px);
     }
   }
