@@ -299,7 +299,91 @@ async function generateProject(targetDir, config) {
     'app/components/.gitkeep': '',
     'app/core/.gitkeep': '',
     'config/.gitkeep': '',
-    'docs/README.md': `# ${config.projectName}\n\nDocumentation for your KALXJS project.\n`,
+    'docs/README.md': `# ${config.projectName} - KalxJS Documentation
+
+## Introduction to KalxJS
+
+KalxJS is a modern JavaScript framework for building user interfaces with a focus on simplicity, performance, and developer experience. It features a virtual DOM implementation, reactive components, and a modular architecture.
+
+## Key Concepts
+
+### Components
+
+Components are the building blocks of KalxJS applications. Each component encapsulates its own state, logic, and UI.
+
+\`\`\`javascript
+// Example component
+import { h, defineComponent } from '@kalxjs/core';
+
+export default defineComponent({
+  name: 'HelloWorld',
+  
+  data() {
+    return {
+      message: 'Hello, KalxJS!'
+    };
+  },
+  
+  methods: {
+    updateMessage() {
+      this.message = 'Updated message!';
+      this.$update(); // Trigger re-render
+    }
+  },
+  
+  render() {
+    return h('div', {}, [
+      h('h1', {}, [this.message]),
+      h('button', { onClick: this.updateMessage }, ['Update Message'])
+    ]);
+  }
+});
+\`\`\`
+
+### Virtual DOM
+
+KalxJS uses a virtual DOM to efficiently update the UI. When your component's state changes, KalxJS creates a new virtual DOM tree, compares it with the previous one, and applies only the necessary changes to the real DOM.
+
+### Reactivity
+
+When you modify data in your component and call \`this.$update()\`, KalxJS automatically re-renders the component with the updated state.
+
+### Routing
+
+KalxJS includes a built-in router for creating single-page applications:
+
+\`\`\`javascript
+// Access the router in your components
+this.navigateTo('/about');
+
+// Or use the global router
+window.router.push('/about');
+\`\`\`
+
+## Project Structure
+
+\`\`\`
+${config.projectName}/
+├── app/                  # Application source code
+│   ├── components/       # Reusable components
+│   ├── core/             # Core application files
+│   ├── navigation/       # Router configuration
+│   ├── pages/            # Page components
+│   ├── state/            # State management
+│   ├── styles/           # Global styles
+│   ├── utils/            # Utility functions
+│   └── main.js           # Application entry point
+├── assets/               # Static assets
+├── config/               # Configuration files
+├── docs/                 # Documentation
+├── public/               # Public files
+└── index.html            # HTML entry point
+\`\`\`
+
+## Further Reading
+
+For more detailed documentation, visit the [KalxJS GitHub repository](https://github.com/Odeneho-Calculus/kalxjs).
+`,
     ...(config.features.sfc ? { 'app/components/single-file/.gitkeep': '' } : {}),
     ...(config.features.api ? { 'app/services/.gitkeep': '' } : {}),
     ...(config.features.composition ? { 'app/hooks/.gitkeep': '' } : {}),
@@ -364,34 +448,7 @@ if (typeof module !== 'undefined') {
   <text x="100" y="105" font-family="Arial" font-size="24" font-weight="bold" fill="white" text-anchor="middle">KALXJS</text>
 </svg>`;
 
-  // Add favicon.ico file
-  files['public/assets/favicon.ico'] = Buffer.from(
-    'AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAABILAAASCwAAAAAA' +
-    'AAAAAAD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A' +
-    '////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD/' +
-    '//8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP//' +
-    '/wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////' +
-    'AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A' +
-    '////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD/' +
-    '//8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP//' +
-    '/wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////' +
-    'AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A' +
-    '////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD/' +
-    '//8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP//' +
-    '/wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////' +
-    'AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A' +
-    '////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD/' +
-    '//8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP//' +
-    '/wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////' +
-    'AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A' +
-    '////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD/' +
-    '//8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP//' +
-    '/wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////' +
-    'AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A' +
-    '////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD/' +
-    '//8A////AP///wA=',
-    'base64'
-  );
+  // We'll copy the favicon.ico file from templates during file creation
 
   // Add modern logo.svg file for the public assets
   files['public/assets/logo.svg'] = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -557,194 +614,498 @@ export function createRouter() {
 }
 `;
 
-    files['app/pages/Home.js'] = `import { h } from '@kalxjs/core';
+    files['app/pages/Home.js'] = `import { h, defineComponent } from '@kalxjs/core';
+import ThemeSwitcher from '../components/ThemeSwitcher.js';
+import AnimatedCounter from '../components/AnimatedCounter.js';
 
-export default {
+export default defineComponent({
   name: 'HomeView',
-  
+
+  components: {
+    ThemeSwitcher,
+    AnimatedCounter
+  },
+
   data() {
     return {
-      count: 0
+      count: 0,
+      features: [
+        { id: 1, title: 'Virtual DOM', description: 'Efficient DOM updates with virtual DOM diffing' },
+        { id: 2, title: 'Component System', description: 'Modular, reusable component architecture' },
+        { id: 3, title: 'Reactive Data', description: 'Automatic UI updates when data changes' },
+        { id: 4, title: 'Routing', description: 'Built-in client-side routing system' }
+      ],
+      showFeatures: false,
+      activeTab: 'counter'
     };
   },
-  
+
+  mounted() {
+    // Animate features in after a short delay
+    setTimeout(() => {
+      this.showFeatures = true;
+      this.$update();
+    }, 500);
+  },
+
   methods: {
     increment() {
       console.log('Incrementing count');
       this.count++;
       this.$update();
     },
-    
+
     decrement() {
       console.log('Decrementing count');
       this.count--;
       this.$update();
     },
-    
+
     resetCount() {
       console.log('Resetting count');
       this.count = 0;
       this.$update();
+    },
+
+    setActiveTab(tab) {
+      this.activeTab = tab;
+      this.$update();
+    },
+
+    navigateToAbout(e) {
+      e.preventDefault();
+
+      // Add a small animation before navigation
+      const homeView = document.querySelector('.home-view');
+      if (homeView) {
+        homeView.classList.add('fade-out');
+
+        setTimeout(() => {
+          window.router.push('/about');
+        }, 300);
+      } else {
+        window.router.push('/about');
+      }
     }
   },
-  
+
   render() {
-    return h('div', { class: 'home-view' }, [
-      h('h1', {}, ['Home Page']),
-      h('p', {}, ['Welcome to the KalxJS demo application!']),
-      
-      h('div', { class: 'counter-demo' }, [
-        h('h2', {}, ['Interactive Counter']),
-        h('div', { class: 'counter' }, [
-          h('button', { onClick: this.decrement }, ['-']),
-          h('span', {}, [String(this.count)]),
-          h('button', { onClick: this.increment }, ['+']),
+    return h('div', { class: 'home-view fade-in' }, [
+      h('div', { class: 'container' }, [
+        // Header section
+        h('header', { class: 'page-header flex flex-between' }, [
+          h('div', { class: 'logo' }, [
+            h('h1', { class: 'logo-text' }, ['KalxJS']),
+            h('span', { class: 'logo-tagline' }, ['Modern JavaScript Framework'])
+          ]),
+
+          // Theme switcher component
+          h(ThemeSwitcher)
         ]),
-        h('button', { class: 'reset-button', onClick: this.resetCount }, ['Reset'])
-      ]),
-      
-      h('div', { class: 'navigation' }, [
-        h('a', { href: '/about', onClick: (e) => {
-          e.preventDefault();
-          window.router.push('/about');
-        }}, ['Go to About Page'])
+
+        // Hero section
+        h('section', { class: 'hero text-center' }, [
+          h('h2', { class: 'hero-title' }, ['Welcome to KalxJS']),
+          h('p', { class: 'hero-subtitle' }, [
+            'A lightweight, modern JavaScript framework for building user interfaces'
+          ]),
+
+          // Tabs navigation
+          h('div', { class: 'tabs mt-4' }, [
+            h('div', { class: 'tab-nav' }, [
+              h('button', {
+                class: \`tab-btn \${this.activeTab === 'counter' ? 'active' : ''}\`,
+                onClick: () => this.setActiveTab('counter')
+              }, ['Counter Demo']),
+
+              h('button', {
+                class: \`tab-btn \${this.activeTab === 'features' ? 'active' : ''}\`,
+                onClick: () => this.setActiveTab('features')
+              }, ['Features'])
+            ]),
+
+            // Tab content
+            h('div', { class: 'tab-content' }, [
+              // Counter tab
+              this.activeTab === 'counter' ? h('div', { class: 'tab-pane fade-in' }, [
+                h('div', { class: 'card counter-demo' }, [
+                  h('h3', { class: 'card-title' }, ['Interactive Counter']),
+
+                  h('div', { class: 'counter flex flex-center' }, [
+                    h('button', {
+                      class: 'btn btn-circle',
+                      onClick: this.decrement
+                    }, ['-']),
+
+                    h(AnimatedCounter, {
+                      value: this.count,
+                      duration: 500
+                    }),
+
+                    h('button', {
+                      class: 'btn btn-circle',
+                      onClick: this.increment
+                    }, ['+'])
+                  ]),
+
+                  h('div', { class: 'text-center mt-3' }, [
+                    h('button', {
+                      class: 'btn btn-secondary',
+                      onClick: this.resetCount
+                    }, ['Reset'])
+                  ])
+                ])
+              ]) : null,
+
+              // Features tab
+              this.activeTab === 'features' ? h('div', { class: 'tab-pane fade-in' }, [
+                h('div', { class: 'features-grid' },
+                  this.features.map((feature, index) =>
+                    h('div', {
+                      class: \`card feature-card \${this.showFeatures ? 'slide-in-right' : ''}\`,
+                      style: \`animation-delay: \${index * 100}ms\`
+                    }, [
+                      h('h3', { class: 'card-title' }, [feature.title]),
+                      h('p', {}, [feature.description])
+                    ])
+                  )
+                )
+              ]) : null
+            ])
+          ])
+        ]),
+
+        // Call to action
+        h('div', { class: 'cta-container text-center mt-4' }, [
+          h('a', {
+            class: 'btn btn-pulse',
+            href: '/about',
+            onClick: this.navigateToAbout
+          }, ['Explore More Features'])
+        ])
       ])
     ]);
   }
-};
-
-/* CSS styles
-.home-view {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-h1 {
-  color: #42b883;
-  margin-bottom: 1rem;
-}
-
-.counter-demo {
-  margin: 2rem 0;
-  padding: 1.5rem;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.counter {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  margin: 1rem 0;
-}
-
-button {
-  background-color: #42b883;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-button:hover {
-  background-color: #3aa876;
-}
-
-.reset-button {
-  background-color: #6c757d;
-  margin-top: 0.5rem;
-}
-
-.reset-button:hover {
-  background-color: #5a6268;
-}
-
-span {
-  font-size: 2rem;
-  font-weight: bold;
-  min-width: 3rem;
-}
-
-.navigation {
-  margin-top: 2rem;
-}
-
-.navigation a {
-  color: #42b883;
-  text-decoration: none;
-  font-weight: 600;
-  padding: 0.5rem 1rem;
-  border: 2px solid #42b883;
-  border-radius: 4px;
-  transition: all 0.2s;
-}
-
-.navigation a:hover {
-  background-color: #42b883;
-  color: white;
-}
-*/`;
+});`;
 
     files['app/pages/About.js'] = `import { h, defineComponent } from '@kalxjs/core';
+import ThemeSwitcher from '../components/ThemeSwitcher.js';
 
 export default defineComponent({
   name: 'AboutView',
+
+  components: {
+    ThemeSwitcher
+  },
+
+  data() {
+    return {
+      features: [
+        {
+          title: 'Virtual DOM',
+          description: 'Efficiently updates the UI by comparing virtual DOM representations and applying only the necessary changes to the real DOM.',
+          icon: '🔄'
+        },
+        {
+          title: 'Component System',
+          description: 'Build encapsulated, reusable components that manage their own state and can be composed to create complex UIs.',
+          icon: '🧩'
+        },
+        {
+          title: 'Reactive Data',
+          description: 'Automatically updates the UI when the underlying data changes, making state management simple and intuitive.',
+          icon: '⚡'
+        },
+        {
+          title: 'Routing',
+          description: 'Built-in client-side routing with support for nested routes, route parameters, and navigation guards.',
+          icon: '🧭'
+        },
+        {
+          title: 'State Management',
+          description: 'Centralized state management for complex applications with predictable state mutations.',
+          icon: '📦'
+        },
+        {
+          title: 'Developer Tools',
+          description: 'Comprehensive developer tools for debugging, performance monitoring, and state inspection.',
+          icon: '🛠️'
+        }
+      ],
+      activeFeature: null,
+      showBackToTop: false
+    };
+  },
+
+  mounted() {
+    // Add scroll listener for back-to-top button
+    window.addEventListener('scroll', this.handleScroll);
+
+    // Animate features in sequence
+    this.animateFeaturesSequentially();
+  },
+
+  beforeUnmount() {
+    window.removeEventListener('scroll', this.handleScroll);
+  },
+
+  methods: {
+    handleScroll() {
+      this.showBackToTop = window.scrollY > 300;
+      this.$update();
+    },
+
+    scrollToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    },
+
+    setActiveFeature(index) {
+      this.activeFeature = this.activeFeature === index ? null : index;
+      this.$update();
+    },
+
+    animateFeaturesSequentially() {
+      const featureElements = document.querySelectorAll('.feature-card');
+
+      featureElements.forEach((el, index) => {
+        setTimeout(() => {
+          el.classList.add('fade-in');
+        }, 100 * index);
+      });
+    },
+
+    navigateToHome(e) {
+      e.preventDefault();
+
+      // Add a small animation before navigation
+      const aboutView = document.querySelector('.about-view');
+      if (aboutView) {
+        aboutView.classList.add('fade-out');
+
+        setTimeout(() => {
+          window.router.push('/');
+        }, 300);
+      } else {
+        window.router.push('/');
+      }
+    }
+  },
+
+  render() {
+    return h('div', { class: 'about-view fade-in' }, [
+      h('div', { class: 'container' }, [
+        // Header section
+        h('header', { class: 'page-header flex flex-between' }, [
+          h('div', { class: 'logo' }, [
+            h('h1', { class: 'logo-text' }, ['KalxJS']),
+            h('span', { class: 'logo-tagline' }, ['Modern JavaScript Framework'])
+          ]),
+
+          // Theme switcher component
+          h(ThemeSwitcher)
+        ]),
+
+        // About section
+        h('section', { class: 'about-section' }, [
+          h('h2', { class: 'section-title' }, ['About KalxJS']),
+
+          h('div', { class: 'about-content' }, [
+            h('p', { class: 'lead-text' }, [
+              'KalxJS is a modern JavaScript framework designed for building fast, interactive user interfaces with a focus on simplicity and performance.'
+            ]),
+
+            h('p', {}, [
+              'Built with a virtual DOM implementation and a reactive component system, KalxJS makes it easy to create complex applications that respond instantly to data changes.'
+            ]),
+
+            h('div', { class: 'tech-stack mt-4' }, [
+              h('h3', {}, ['Technology Stack']),
+
+              h('div', { class: 'tech-badges' }, [
+                h('span', { class: 'badge' }, ['JavaScript']),
+                h('span', { class: 'badge' }, ['Virtual DOM']),
+                h('span', { class: 'badge' }, ['Reactive']),
+                h('span', { class: 'badge' }, ['Component-Based']),
+                h('span', { class: 'badge' }, ['Router']),
+                h('span', { class: 'badge' }, ['State Management'])
+              ])
+            ])
+          ])
+        ]),
+
+        // Features section
+        h('section', { class: 'features-section mt-4' }, [
+          h('h2', { class: 'section-title' }, ['Key Features']),
+
+          h('div', { class: 'features-grid' },
+            this.features.map((feature, index) =>
+              h('div', {
+                class: \`feature-card \${this.activeFeature === index ? 'active' : ''}\`,
+                onClick: () => this.setActiveFeature(index)
+              }, [
+                h('div', { class: 'feature-icon' }, [feature.icon]),
+                h('h3', { class: 'feature-title' }, [feature.title]),
+                h('p', { class: 'feature-description' }, [feature.description])
+              ])
+            )
+          )
+        ]),
+
+        // Getting started section
+        h('section', { class: 'getting-started-section mt-4' }, [
+          h('h2', { class: 'section-title' }, ['Getting Started']),
+
+          h('div', { class: 'card code-card' }, [
+            h('h3', { class: 'card-title' }, ['Installation']),
+
+            h('pre', { class: 'code-block' }, [
+              h('code', {}, ['npm install @kalxjs/core @kalxjs/router @kalxjs/state'])
+            ]),
+
+            h('h3', { class: 'card-title mt-4' }, ['Create Your First Component']),
+
+            h('pre', { class: 'code-block' }, [
+              h('code', {}, [
+                \`import { h, defineComponent } from '@kalxjs/core';
+
+export default defineComponent({
+  name: 'HelloWorld',
+  
+  data() {
+    return {
+      message: 'Hello, KalxJS!'
+    };
+  },
   
   render() {
-    return h('div', { class: 'about-view' }, [
-      h('h1', {}, ['About KalxJS']),
-      h('div', { class: 'about-content' }, [
-        h('p', {}, ['KalxJS is a modern JavaScript framework for building user interfaces.']),
-        h('p', {}, ['It features a reactive component system, virtual DOM, and a modular architecture.']),
-        
-        h('h2', {}, ['Key Features']),
-        h('ul', { class: 'features-list' }, [
-          h('li', {}, ['Virtual DOM for efficient updates']),
-          h('li', {}, ['Reactive data binding']),
-          h('li', {}, ['Component-based architecture']),
-          h('li', {}, ['Single-file components']),
-          h('li', {}, ['Built-in routing system']),
-          h('li', {}, ['State management'])
-        ])
-      ]),
-      
-      h('div', { class: 'navigation' }, [
-        h('a', { href: '/', onClick: (e) => {
-          e.preventDefault();
-          window.router.push('/');
-        }}, ['Back to Home'])
+    return h('div', {}, [
+      h('h1', {}, [this.message])
+    ]);
+  }
+});\`
+              ])
+            ])
+          ])
+        ]),
+
+        // Navigation
+        h('div', { class: 'navigation-container text-center mt-4' }, [
+          h('a', {
+            class: 'btn btn-outline',
+            href: '/',
+            onClick: this.navigateToHome
+          }, ['Back to Home'])
+        ]),
+
+        // Back to top button
+        this.showBackToTop ? h('button', {
+          class: 'back-to-top-btn',
+          onClick: this.scrollToTop
+        }, ['↑']) : null
       ])
     ]);
   }
 });`;
 
     files['app/pages/NotFound.js'] = `import { h, defineComponent } from '@kalxjs/core';
+import ThemeSwitcher from '../components/ThemeSwitcher.js';
 
-    export default defineComponent({
-      name: 'NotFoundView',
+export default defineComponent({
+  name: 'NotFoundView',
 
-      render() {
-        return h('div', { class: 'not-found-view' }, [
-          h('h1', {}, ['404 - Page Not Found']),
-          h('p', {}, ['The page you are looking for does not exist.']),
-          h('div', { class: 'navigation' }, [
-            h('a', {
-              href: '/', onClick: (e) => {
-                e.preventDefault();
-                window.router.push('/');
-              }
-            }, ['Go to Home Page'])
-          ])
-        ]);
+  components: {
+    ThemeSwitcher
+  },
+
+  data() {
+    return {
+      animationActive: false
+    };
+  },
+
+  mounted() {
+    // Start animation after a short delay
+    setTimeout(() => {
+      this.animationActive = true;
+      this.$update();
+    }, 100);
+  },
+
+  methods: {
+    navigateToHome(e) {
+      e.preventDefault();
+
+      // Add a small animation before navigation
+      const notFoundView = document.querySelector('.not-found-view');
+      if (notFoundView) {
+        notFoundView.classList.add('fade-out');
+
+        setTimeout(() => {
+          window.router.push('/');
+        }, 300);
+      } else {
+        window.router.push('/');
       }
-    }); `;
+    }
+  },
+
+  render() {
+    return h('div', { class: 'not-found-view fade-in' }, [
+      h('div', { class: 'container' }, [
+        // Header with theme switcher
+        h('header', { class: 'page-header flex flex-between' }, [
+          h('div', { class: 'logo' }, [
+            h('h1', { class: 'logo-text' }, ['KalxJS']),
+            h('span', { class: 'logo-tagline' }, ['Modern JavaScript Framework'])
+          ]),
+
+          h(ThemeSwitcher)
+        ]),
+
+        // 404 content
+        h('div', { class: 'not-found-content text-center' }, [
+          h('div', {
+            class: \`error-code \${this.animationActive ? 'animate' : ''}\`
+          }, ['404']),
+
+          h('h1', { class: 'error-title' }, ['Page Not Found']),
+
+          h('p', { class: 'error-message' }, [
+            'The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.'
+          ]),
+
+          h('div', { class: 'error-illustration' }, [
+            h('div', { class: 'planet' }, []),
+            h('div', { class: 'astronaut' }, []),
+            h('div', { class: 'stars' }, [
+              ...[...Array(20)].map((_, i) =>
+                h('div', {
+                  class: 'star',
+                  style: \`
+                    top: \${Math.random() * 100}%;
+                    left: \${Math.random() * 100}%;
+                    animation-delay: \${Math.random() * 2}s;
+                  \`
+                }, [])
+              )
+            ])
+          ]),
+
+          h('div', { class: 'navigation-container mt-4' }, [
+            h('a', {
+              class: 'btn btn-pulse',
+              href: '/',
+              onClick: this.navigateToHome
+            }, ['Return to Home Page'])
+          ])
+        ])
+      ])
+    ]);
+  }
+}); `;
   }
 
   // Add state management files if state feature is enabled
@@ -1262,129 +1623,128 @@ input, textarea, select {
 .theme-switcher {
   display: flex;
   align-items: center;
-  gap: 1rem;
-}
-
-// Dark/Light Mode Toggle
-.mode-toggle {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 24px;
+  background-color: var(--bg-secondary, rgba(0, 0, 0, 0.05));
   border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  color: var(--text-color);
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
-  background-color: var(--bg-secondary);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-
-  &.light {
-    background-color: #f8f9fa;
-    color: #ffa41b;
-  }
-
-  &.dark {
-    background-color: #2a2a2a;
-    color: #f0f0f0;
-  }
-
-  .mode-icon {
-    font-size: 1.2rem;
-  }
-
-  &:hover {
-    transform: scale(1.1);
-  }
-}
-
-// Theme Selector
-.theme-selector {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   position: relative;
-}
-
-.theme-button {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  border: 2px solid var(--theme-color, var(--primary-color));
-  background-color: transparent;
-  color: var(--text-color);
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-  }
-
-  .theme-indicator {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background-color: var(--theme-color, var(--primary-color));
-  }
-
-  .dropdown-arrow {
-    font-size: 0.8rem;
-    transition: transform 0.2s ease;
-  }
-
-  &:hover .dropdown-arrow {
-    transform: translateY(2px);
-  }
-}
-
-.theme-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  margin-top: 0.5rem;
-  background-color: var(--bg-color);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  min-width: 150px;
-  z-index: 100;
   overflow: hidden;
-  animation: dropdown-appear 0.2s ease-out;
-}
-
-@keyframes dropdown-appear {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
-
-  to {
-    opacity: 1;
+  
+  &:active {
     transform: translateY(0);
   }
+  
+  &.theme-switch-animation {
+    animation: pulse 0.5s ease;
+  }
+  
+  .theme-switcher-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #42b883, #35495e);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .theme-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    
+    &.dark {
+      background: linear-gradient(135deg, #2c3e50, #1a1a2e);
+    }
+    
+    &.light {
+      background: linear-gradient(135deg, #f9d423, #ff4e50);
+    }
+  }
+  
+  .theme-text {
+    font-size: 0.9rem;
+    transition: opacity 0.3s;
+  }
+  
+  // Responsive styles
+  @media (max-width: 768px) {
+    padding: 0.5rem;
+    
+    .theme-text {
+      display: none;
+    }
+  }
 }
 
-.theme-option {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: var(--bg-secondary);
+// Dark theme specific styles
+.dark-theme {
+  .theme-switcher {
+    background-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
   }
+}
 
+// Animations
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(66, 184, 131, 0.7);
+  }
+  
+  70% {
+    box-shadow: 0 0 0 10px rgba(66, 184, 131, 0);
+  }
+  
+  100% {
+    box-shadow: 0 0 0 0 rgba(66, 184, 131, 0);
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Theme transition effect
+.theme-transition {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  
   &.active {
-    background-color: rgba(0, 0, 0, 0.1);
-  }
-
-  .theme-color-preview {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background-color: var(--theme-color);
+    opacity: 1;
   }
 }`;
 
@@ -1653,37 +2013,9 @@ $box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
     };
 
-    // Theme state
-    const isDarkTheme = ref(false);
-
-    // Apply theme function
-    const applyTheme = () => {
-      document.documentElement.classList.toggle('dark-theme', isDarkTheme.value);
-      localStorage.setItem('theme', isDarkTheme.value ? 'dark' : 'light');
-    };
-
-    // Toggle theme function
-    const toggleTheme = () => {
-      isDarkTheme.value = !isDarkTheme.value;
-      applyTheme();
-    };
-
     // Lifecycle hooks
     onMounted(() => {
       console.log('App component mounted');
-
-      // Check for saved theme preference
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme) {
-        isDarkTheme.value = savedTheme === 'dark';
-      } else {
-        // Check if user prefers dark mode via system settings
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        isDarkTheme.value = prefersDark;
-      }
-      
-      // Apply theme on initial load
-      applyTheme();
 
       // Make sure the router view container is available
       const routerViewContainer = document.getElementById('router-view');
@@ -1699,9 +2031,7 @@ $box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
     return {
       navigateTo,
-      activeRoute,
-      isDarkTheme,
-      toggleTheme
+      activeRoute
     };
   },
 
@@ -1750,14 +2080,7 @@ $box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
               e.preventDefault();
               this.navigateTo('/features');
             }
-          }, ['Features']),
-          h('button', {
-            class: 'btn theme-toggle',
-            onClick: this.toggleTheme,
-            title: this.isDarkTheme ? 'Switch to light theme' : 'Switch to dark theme'
-          }, [
-            this.isDarkTheme ? '☀️' : '🌙'
-          ])
+          }, ['Features'])
         ])
       ]),
 
@@ -2627,41 +2950,98 @@ startApp();
   // Create README.md file
   files['README.md'] = `# ${config.projectName}
 
-This project was created with KalxJS CLI.
+> This project was created with KalxJS CLI.
 
-## Project Setup
+## Description
 
-\`\`\`
-npm install
-\`\`\`
-
-### Compile and Hot-Reload for Development
-
-\`\`\`
-npm run dev
-\`\`\`
-
-### Compile and Minify for Production
-
-\`\`\`
-npm run build
-\`\`\`
-
-${config.features.testing ? '### Run Tests\n\n```\nnpm run test\n```\n\n### Run Tests in Watch Mode\n\n```\nnpm run test:watch\n```\n' : ''}
-${config.features.linting ? '### Lint Files\n\n```\nnpm run lint\n```\n\n### Fix Linting Issues\n\n```\nnpm run lint:fix\n```\n' : ''}
+*[Add your project description here]*
 
 ## Features
 
+- *[List your project features here]*
+- Built with KalxJS framework
+- Responsive design
+- Dark/light theme support
 ${config.features.router ? '- ✅ Router\n' : ''}${config.features.state ? '- ✅ State Management\n' : ''}${config.features.scss ? '- ✅ SCSS Support\n' : ''}${config.features.sfc ? '- ✅ Single File Components\n' : ''}${config.features.api ? '- ✅ API Integration\n' : ''}${config.features.composition ? '- ✅ Composition API\n' : ''}${config.features.performance ? '- ✅ Performance Utilities\n' : ''}${config.features.plugins ? '- ✅ Plugin System\n' : ''}${config.features.testing ? '- ✅ Testing\n' : ''}${config.features.linting ? '- ✅ Linting\n' : ''}${config.features.customRenderer ? '- ✅ Custom Renderer\n' : ''}
+
+## Project Setup
+
+\`\`\`bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+\`\`\`
+
+${config.features.testing ? '### Testing\n\n```bash\n# Run tests\nnpm run test\n\n# Run tests in watch mode\nnpm run test:watch\n```\n\n' : ''}
+${config.features.linting ? '### Linting\n\n```bash\n# Lint files\nnpm run lint\n\n# Fix linting issues\nnpm run lint:fix\n```\n\n' : ''}
+
+## KalxJS CLI Commands
+
+The following commands are available with KalxJS CLI:
+
+\`\`\`bash
+# Create a new component
+npx kalxjs create:component MyComponent
+
+# Create a new page
+npx kalxjs create:page MyPage
+
+# Create a new service
+npx kalxjs create:service MyService
+
+# Generate a new route
+npx kalxjs create:route /my-route MyPage
+\`\`\`
+
+## Project Structure
+
+See the [KalxJS Documentation](./docs/README.md) for more information about the project structure and framework concepts.
+
+## Customization
+
+### Configuration
+
+Edit the \`config/app.config.js\` file to customize your application settings.
+
+### Styling
+
+Global styles are located in \`app/styles/\`. The application uses ${config.features.scss ? 'SCSS' : 'CSS'} for styling.
 
 ## Documentation
 
 For more information, please refer to the [KalxJS documentation](https://github.com/Odeneho-Calculus/kalxjs).
+
+## License
+
+*[Add your license information here]*
 `;
 
   // Create all files
   for (const [filePath, content] of Object.entries(files)) {
     await fs.writeFile(path.join(targetDir, filePath), content);
+  }
+
+  // Copy favicon.ico from templates
+  const faviconSourcePath = path.join(__dirname, '../templates/favicon.ico');
+  const faviconTargetPath = path.join(targetDir, 'public/assets/favicon.ico');
+
+  try {
+    // Ensure the target directory exists
+    await fs.mkdir(path.dirname(faviconTargetPath), { recursive: true });
+
+    // Copy the favicon file
+    await fs.copyFile(faviconSourcePath, faviconTargetPath);
+    console.log('✅ Copied favicon.ico from templates');
+  } catch (error) {
+    console.error('⚠️ Error copying favicon.ico:', error.message);
   }
 }
 
@@ -2705,61 +3085,107 @@ export default defineComponent({
 
   // Create a ThemeSwitcher component
   const themeSwitcherPath = path.join(targetDir, 'app/components/ThemeSwitcher.js');
-  const themeSwitcherContent = `import { h, defineComponent, ref, watch } from '@kalxjs/core';
+  const themeSwitcherContent = `import { h, defineComponent } from '@kalxjs/core';
 
 export default defineComponent({
   name: 'ThemeSwitcher',
   
-  setup() {
-    const isDarkTheme = ref(false);
-    
+  data() {
+    return {
+      isDarkTheme: false,
+      isAnimating: false
+    };
+  },
+  
+  mounted() {
     // Check if user has a theme preference stored
     const storedTheme = localStorage.getItem('theme');
     if (storedTheme) {
-      isDarkTheme.value = storedTheme === 'dark';
+      this.isDarkTheme = storedTheme === 'dark';
     } else {
       // Check if user prefers dark mode via system settings
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      isDarkTheme.value = prefersDark;
+      this.isDarkTheme = prefersDark;
     }
     
-    // Apply theme when component mounts and when theme changes
-    const applyTheme = () => {
-      if (isDarkTheme.value) {
+    // Apply theme on initial load
+    this.applyTheme();
+    
+    // Add system theme change listener
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    
+    // Modern browsers
+    if (mediaQuery.addEventListener) {
+      mediaQuery.addEventListener('change', (e) => {
+        if (!localStorage.getItem('theme')) {
+          this.isDarkTheme = e.matches;
+          this.applyTheme();
+          this.$update();
+        }
+      });
+    }
+    
+    // Log to confirm component is mounted
+    console.log('ThemeSwitcher mounted, dark theme:', this.isDarkTheme);
+  },
+  
+  methods: {
+    // Apply theme to document
+    applyTheme() {
+      if (this.isDarkTheme) {
         document.documentElement.classList.add('dark-theme');
         localStorage.setItem('theme', 'dark');
       } else {
         document.documentElement.classList.remove('dark-theme');
         localStorage.setItem('theme', 'light');
       }
-    };
+    },
     
-    // Call once on setup
-    applyTheme();
-    
-    // Watch for changes to isDarkTheme
-    watch(isDarkTheme, () => {
-      applyTheme();
-    });
-    
-    const toggleTheme = () => {
-      isDarkTheme.value = !isDarkTheme.value;
-    };
-    
-    return {
-      isDarkTheme,
-      toggleTheme
-    };
+    // Toggle theme with animation
+    toggleTheme() {
+      console.log('Toggle theme clicked, current:', this.isDarkTheme);
+      
+      if (this.isAnimating) return;
+      
+      this.isAnimating = true;
+      
+      // Add animation class
+      const switcher = document.querySelector('.theme-switcher');
+      if (switcher) {
+        switcher.classList.add('theme-switch-animation');
+      }
+      
+      // Toggle theme after a short delay for animation
+      setTimeout(() => {
+        this.isDarkTheme = !this.isDarkTheme;
+        this.applyTheme();
+        this.$update();
+        
+        // Remove animation class after animation completes
+        setTimeout(() => {
+          if (switcher) {
+            switcher.classList.remove('theme-switch-animation');
+          }
+          this.isAnimating = false;
+          this.$update();
+        }, 300);
+      }, 150);
+    }
   },
   
   render() {
     return h('button', { 
       class: 'theme-switcher',
       onClick: this.toggleTheme,
-      title: this.isDarkTheme ? 'Switch to Light Mode' : 'Switch to Dark Mode'
+      title: this.isDarkTheme ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+      disabled: this.isAnimating
     }, [
-      h('span', { class: 'theme-icon' }, [
-        this.isDarkTheme ? '☀️' : '🌙'
+      h('div', { class: 'theme-switcher-icon-container' }, [
+        h('div', { 
+          class: \`theme-icon \${this.isDarkTheme ? 'dark' : 'light'}\`
+        }, [
+          this.isDarkTheme ? '☀️' : '🌙'
+        ])
       ]),
       h('span', { class: 'theme-text' }, [
         this.isDarkTheme ? 'Light Mode' : 'Dark Mode'
@@ -2857,6 +3283,8 @@ export default defineComponent({
   // Create the theme-switcher.scss file
   const themeSwitcherStylePath = path.join(targetDir, 'app/styles/theme-switcher.scss');
   const themeSwitcherStyleContent = `// Theme Switcher Styles
+@use 'sass:color';
+@use './variables' as vars;
 
 .theme-switcher {
     display: flex;
@@ -2993,6 +3421,8 @@ export default defineComponent({
   // Create the animations.scss file
   const animationsStylePath = path.join(targetDir, 'app/styles/animations.scss');
   const animationsStyleContent = `// Animation styles
+@use 'sass:color';
+@use './variables' as vars;
 
 // Animated Counter
 .animated-counter {
@@ -3168,11 +3598,12 @@ export default defineComponent({
   const mainScssContent = `// Main Styles for KalxJS Application
 
 // Import variables and theme
-@import './variables';
+@use './variables' as vars;
 
 // Import component styles
-@import './theme-switcher';
-@import './animations';
+@use './theme-switcher';
+@use './animations';
+@use 'sass:color';
 
 // Global styles
 :root {
@@ -3245,7 +3676,7 @@ button, .btn {
     color: white;
     
     &:hover {
-      background-color: darken(#42b883, 10%);
+      background-color: color.adjust(#42b883, $lightness: -10%);
     }
   }
   
@@ -3254,7 +3685,7 @@ button, .btn {
     color: white;
     
     &:hover {
-      background-color: darken(#35495e, 10%);
+      background-color: color.adjust(#35495e, $lightness: -10%);
     }
   }
 }
@@ -3390,7 +3821,296 @@ $z-index-modal: 1050;
 $z-index-popover: 1060;
 $z-index-tooltip: 1070;`;
 
+  // Create app.scss file
+  const appScssPath = path.join(targetDir, 'app/styles/app.scss');
+  const appScssContent = `// App-specific styles
+@use 'sass:color';
+@use './variables' as vars;
+
+// App layout
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+// Header styles
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: var(--bg-secondary);
+  box-shadow: 0 2px 4px var(--shadow-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+
+  .logo-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+
+    .logo {
+      height: 40px;
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+
+    .app-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary-color);
+      margin: 0;
+    }
+  }
+
+  .app-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+
+    .nav-link {
+      color: var(--text-color);
+      text-decoration: none;
+      font-weight: 500;
+      padding: 0.5rem 0;
+      position: relative;
+      transition: color 0.3s ease;
+
+      &:after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: var(--primary-color);
+        transition: width 0.3s ease;
+      }
+
+      &:hover, &.active {
+        color: var(--primary-color);
+
+        &:after {
+          width: 100%;
+        }
+      }
+    }
+
+    .theme-toggle {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: var(--bg-color);
+      }
+    }
+  }
+}
+
+// Main content area
+.app-main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+// Welcome banner
+.welcome-banner {
+  text-align: center;
+  padding: 3rem 1rem;
+  margin-bottom: 2rem;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px var(--shadow-color);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+
+  .welcome-title {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+  }
+
+  .welcome-subtitle {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+  }
+
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+}
+
+// Features section
+.features-section {
+  margin: 2rem 0;
+  padding: 2rem;
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px var(--shadow-color);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+
+  h2 {
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .features-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    list-style: none;
+    padding: 0;
+
+    .feature-item {
+      padding: 1rem;
+      background-color: var(--bg-color);
+      border-radius: 4px;
+      box-shadow: 0 2px 4px var(--shadow-color);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px var(--shadow-color);
+      }
+    }
+  }
+}
+
+// Router view container
+.router-view-container {
+  min-height: 300px;
+  margin: 2rem 0;
+}
+
+// Footer
+.app-footer {
+  background-color: var(--bg-secondary);
+  padding: 2rem;
+  margin-top: 2rem;
+  transition: background-color 0.3s ease;
+
+  .footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+
+    .copyright {
+      color: var(--text-secondary);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 1.5rem;
+
+      a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.3s ease;
+
+        &:hover {
+          color: var(--primary-color);
+        }
+      }
+    }
+  }
+}
+
+// Button styles
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  outline: none;
+
+  &.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+
+    &:hover {
+      background-color: color.adjust($primary-color, $lightness: -10%);
+      transform: translateY(-2px);
+    }
+  }
+
+  &.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+
+    &:hover {
+      background-color: color.adjust($secondary-color, $lightness: -10%);
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .app-header {
+    flex-direction: column;
+    padding: 1rem;
+
+    .logo-container {
+      margin-bottom: 1rem;
+    }
+
+    .app-nav {
+      width: 100%;
+      justify-content: space-around;
+      gap: 0.5rem;
+    }
+  }
+
+  .app-main {
+    padding: 1rem;
+  }
+
+  .welcome-banner {
+    padding: 2rem 1rem;
+
+    .welcome-title {
+      font-size: 2rem;
+    }
+  }
+
+  .app-footer .footer-content {
+    flex-direction: column;
+    text-align: center;
+
+    .footer-links {
+      justify-content: center;
+    }
+  }
+}`;
+
   await fs.writeFile(variablesScssPath, variablesScssContent);
+  await fs.writeFile(appScssPath, appScssContent);
 }
 
 /**
