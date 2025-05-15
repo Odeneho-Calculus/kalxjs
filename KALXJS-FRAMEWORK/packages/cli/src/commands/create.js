@@ -1430,6 +1430,73 @@ input, textarea, select {
   }
 }
 
+/* Dark theme styles - applied directly and aggressively */
+html.dark-theme {
+  background-color: #1a1a1a !important;
+}
+
+html.dark-theme body {
+  background-color: #1a1a1a !important;
+  color: #f0f0f0 !important;
+}
+
+html.dark-theme .app-header,
+html.dark-theme header,
+html.dark-theme nav {
+  background-color: #2a2a2a !important;
+  border-bottom: 1px solid #444444 !important;
+  color: #f0f0f0 !important;
+}
+
+html.dark-theme .welcome-banner,
+html.dark-theme .features-section,
+html.dark-theme .card,
+html.dark-theme .tab-content,
+html.dark-theme .counter-demo {
+  background-color: #2a2a2a !important;
+  color: #f0f0f0 !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.dark-theme .btn-primary {
+  background-color: #42d392 !important;
+}
+
+html.dark-theme .btn-secondary {
+  background-color: #2c3e50 !important;
+}
+
+html.dark-theme a {
+  color: #42d392 !important;
+}
+
+html.dark-theme .text-secondary {
+  color: #aaaaaa !important;
+}
+
+html.dark-theme h1, 
+html.dark-theme h2, 
+html.dark-theme h3, 
+html.dark-theme h4, 
+html.dark-theme h5, 
+html.dark-theme h6 {
+  color: #f0f0f0 !important;
+}
+
+html.dark-theme .counter-value {
+  color: #42d392 !important;
+}
+
+/* Ensure theme transition is smooth */
+html, 
+body, 
+.app-header, 
+.card, 
+.welcome-banner, 
+.features-section {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
 // Generate theme color variables
 @each $theme-name, $theme-colors in $themes {
   [data-color-theme="#{$theme-name}"] {
@@ -1619,132 +1686,74 @@ input, textarea, select {
 }`;
 
     files['app/styles/theme-switcher.scss'] = `// Theme Switcher Component Styles
+@use 'sass:color';
+@use './variables' as vars;
 
 .theme-switcher {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 1rem;
-  border-radius: 24px;
-  background-color: var(--bg-secondary, rgba(0, 0, 0, 0.05));
-  border: none;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background-color: var(--bg-secondary);
   color: var(--text-color);
-  font-weight: 500;
+  border: 1px solid var(--border-color);
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow: hidden;
   
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
   
   &:active {
     transform: translateY(0);
   }
   
-  &.theme-switch-animation {
-    animation: pulse 0.5s ease;
-  }
-  
-  .theme-switcher-icon-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #42b883, #35495e);
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .theme-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    
-    &.dark {
-      background: linear-gradient(135deg, #2c3e50, #1a1a2e);
-    }
-    
-    &.light {
-      background: linear-gradient(135deg, #f9d423, #ff4e50);
-    }
-  }
-  
-  .theme-text {
-    font-size: 0.9rem;
-    transition: opacity 0.3s;
-  }
-  
-  // Responsive styles
-  @media (max-width: 768px) {
-    padding: 0.5rem;
-    
-    .theme-text {
-      display: none;
-    }
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 }
 
-// Dark theme specific styles
-.dark-theme {
-  .theme-switcher {
-    background-color: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    
-    &:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    }
-  }
+.theme-icon {
+  font-size: 1.2rem;
+  transition: transform 0.5s ease;
 }
 
-// Animations
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(66, 184, 131, 0.7);
-  }
-  
-  70% {
-    box-shadow: 0 0 0 10px rgba(66, 184, 131, 0);
-  }
-  
-  100% {
-    box-shadow: 0 0 0 0 rgba(66, 184, 131, 0);
-  }
+.theme-text {
+  font-weight: 500;
 }
 
+// Animation for theme icon
 @keyframes rotate {
-  from {
+  0% {
     transform: rotate(0deg);
   }
-  
-  to {
+  100% {
     transform: rotate(360deg);
   }
 }
 
-// Theme transition effect
-.theme-transition {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.3);
-  z-index: 9999;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s ease;
-  
-  &.active {
-    opacity: 1;
+.rotate {
+  animation: rotate 0.5s ease-in-out;
+}
+
+// Dark theme specific styles for the switcher
+html.dark-theme .theme-switcher {
+  background-color: #2a2a2a;
+  color: #f0f0f0;
+  border-color: #444444;
+}
+
+// Responsive styles
+@media (max-width: 768px) {
+  .theme-switcher {
+    padding: 8px;
+    
+    .theme-text {
+      display: none;
+    }
   }
 }`;
 
@@ -2460,7 +2469,7 @@ try {
 
   // Create index.html file
   files['index.html'] = `<!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark-theme">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -2475,6 +2484,16 @@ try {
       --text-color: #333;
       --border-color: #eaeaea;
       --shadow-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Dark theme variables - applied by default */
+    .dark-theme {
+      --primary-color: #4ecca3;
+      --secondary-color: #30475e;
+      --bg-color: #121212;
+      --text-color: #ffffff;
+      --border-color: #333333;
+      --shadow-color: rgba(0, 0, 0, 0.5);
     }
     
     body {
@@ -3089,105 +3108,97 @@ export default defineComponent({
 
 export default defineComponent({
   name: 'ThemeSwitcher',
-  
+
   data() {
     return {
-      isDarkTheme: false,
-      isAnimating: false
+      isDarkTheme: true, // Set default to true for dark theme
     };
   },
-  
+
   mounted() {
+    console.log('ThemeSwitcher mounting...');
+
     // Check if user has a theme preference stored
     const storedTheme = localStorage.getItem('theme');
     if (storedTheme) {
+      console.log('Found stored theme preference:', storedTheme);
       this.isDarkTheme = storedTheme === 'dark';
     } else {
-      // Check if user prefers dark mode via system settings
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      this.isDarkTheme = prefersDark;
+      // Set dark theme as default
+      console.log('No stored theme, setting dark theme as default.');
+      this.isDarkTheme = true;
+      localStorage.setItem('theme', 'dark');
     }
-    
-    // Apply theme on initial load
+
+    // Apply theme immediately
     this.applyTheme();
-    
-    // Add system theme change listener
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
-    // Modern browsers
-    if (mediaQuery.addEventListener) {
-      mediaQuery.addEventListener('change', (e) => {
-        if (!localStorage.getItem('theme')) {
-          this.isDarkTheme = e.matches;
-          this.applyTheme();
-          this.$update();
-        }
-      });
-    }
-    
-    // Log to confirm component is mounted
+    this.$update();
+
     console.log('ThemeSwitcher mounted, dark theme:', this.isDarkTheme);
   },
-  
+
   methods: {
     // Apply theme to document
     applyTheme() {
+      console.log('Applying theme:', this.isDarkTheme ? 'dark' : 'light');
+
       if (this.isDarkTheme) {
         document.documentElement.classList.add('dark-theme');
         localStorage.setItem('theme', 'dark');
+        document.body.style.backgroundColor = '#121212';
+        document.body.style.color = '#ffffff';
       } else {
         document.documentElement.classList.remove('dark-theme');
         localStorage.setItem('theme', 'light');
+        document.body.style.backgroundColor = '#ffffff';
+        document.body.style.color = '#333333';
       }
+
+      // Force a repaint to ensure styles are applied
+      const repaint = document.body.offsetHeight;
     },
-    
-    // Toggle theme with animation
+
+    // Toggle theme function - simplified to match counter pattern
     toggleTheme() {
       console.log('Toggle theme clicked, current:', this.isDarkTheme);
-      
-      if (this.isAnimating) return;
-      
-      this.isAnimating = true;
-      
-      // Add animation class
-      const switcher = document.querySelector('.theme-switcher');
-      if (switcher) {
-        switcher.classList.add('theme-switch-animation');
-      }
-      
-      // Toggle theme after a short delay for animation
-      setTimeout(() => {
-        this.isDarkTheme = !this.isDarkTheme;
-        this.applyTheme();
-        this.$update();
-        
-        // Remove animation class after animation completes
-        setTimeout(() => {
-          if (switcher) {
-            switcher.classList.remove('theme-switch-animation');
-          }
-          this.isAnimating = false;
-          this.$update();
-        }, 300);
-      }, 150);
+      this.isDarkTheme = !this.isDarkTheme;
+      this.applyTheme();
+      this.$update();
     }
   },
-  
+
   render() {
-    return h('button', { 
-      class: 'theme-switcher',
-      onClick: this.toggleTheme,
-      title: this.isDarkTheme ? 'Switch to Light Mode' : 'Switch to Dark Mode',
-      disabled: this.isAnimating
+    // Create a simple button similar to the counter buttons
+    return h('div', {
+      class: 'theme-switcher-wrapper',
+      style: 'display: flex; align-items: center; justify-content: center;'
     }, [
-      h('div', { class: 'theme-switcher-icon-container' }, [
-        h('div', { 
-          class: \`theme-icon \${this.isDarkTheme ? 'dark' : 'light'}\`
-        }, [
-          this.isDarkTheme ? '☀️' : '🌙'
-        ])
+      h('button', {
+        class: 'theme-button',
+        onClick: this.toggleTheme,
+        style: \`
+          width: 50px; 
+          height: 50px; 
+          border-radius: 50%; 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          font-size: 1.5rem; 
+          background-color: var(--primary-color); 
+          color: white; 
+          cursor: pointer; 
+          transition: all 0.3s ease;
+          border: none;
+          outline: none;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        \`
+      }, [
+        this.isDarkTheme ? '☀️' : '🌙'
       ]),
-      h('span', { class: 'theme-text' }, [
+
+      h('span', {
+        style: 'margin-left: 10px; font-weight: 500;'
+      }, [
         this.isDarkTheme ? 'Light Mode' : 'Dark Mode'
       ])
     ]);
@@ -3226,9 +3237,9 @@ export default defineComponent({
     },
 
     updated() {
-        if (this.value !== this.displayValue) {
-            this.animateToValue(this.value);
-        }
+        console.log('AnimatedCounter updated, value:', this.value, 'displayValue:', this.displayValue);
+        // Always animate to the new value when updated
+        this.animateToValue(this.value);
     },
 
     beforeUnmount() {
@@ -3272,8 +3283,22 @@ export default defineComponent({
     },
 
     render() {
-        return h('div', { class: 'animated-counter' }, [
-            h('span', { class: 'counter-value' }, [String(this.displayValue)])
+        console.log('Rendering AnimatedCounter with value:', this.value, 'displayValue:', this.displayValue);
+        
+        // Force the display value to match the actual value if they're different
+        // This ensures the counter always shows the correct value
+        if (this.value !== this.displayValue && !this.animationId) {
+            this.displayValue = this.value;
+        }
+        
+        return h('div', { 
+            class: 'animated-counter',
+            style: 'font-size: 3rem; font-weight: bold; color: var(--primary-color); min-width: 80px; text-align: center;'
+        }, [
+            h('span', { 
+                class: 'counter-value',
+                style: 'display: inline-block; transition: transform 0.2s ease;'
+            }, [String(this.displayValue)])
         ]);
     }
 });`;
@@ -3289,130 +3314,115 @@ export default defineComponent({
 .theme-switcher {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    margin: 1rem 0;
-}
-
-// Dark Mode Toggle
-.mode-toggle {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 20px;
+    background-color: var(--bg-secondary);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
     cursor: pointer;
     transition: all 0.3s ease;
-    background-color: var(--bg-secondary);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-
-    &.light {
-        background-color: #f8f9fa;
-        color: #ffa41b;
-    }
-
-    &.dark {
-        background-color: #2a2a2a;
-        color: #f0f0f0;
-    }
-
-    .mode-icon {
-        font-size: 1.2rem;
-    }
-
-    &:hover {
-        transform: scale(1.1);
-    }
-}
-
-// Theme Selector
-.theme-selector {
     position: relative;
-}
+    z-index: 10;
+    /* Ensure it's above other elements */
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    outline: none;
 
-.theme-button {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    border: 2px solid var(--theme-color, var(--primary-color));
-    background-color: transparent;
-    color: var(--text-color);
-    cursor: pointer;
-    transition: all 0.2s ease;
+    /* Make it more noticeable */
+    &::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        border-radius: 22px;
+        background: transparent;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        pointer-events: none;
+    }
 
     &:hover {
-        background-color: rgba(0, 0, 0, 0.05);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+        &::before {
+            border-color: var(--primary-color);
+        }
     }
 
-    .theme-indicator {
-        display: inline-block;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background-color: var(--theme-color, var(--primary-color));
-    }
-
-    .dropdown-arrow {
-        font-size: 0.8rem;
-        transition: transform 0.2s ease;
-    }
-
-    &:hover .dropdown-arrow {
-        transform: translateY(2px);
-    }
-}
-
-.theme-dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    margin-top: 0.5rem;
-    background-color: var(--bg-color);
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    min-width: 150px;
-    z-index: 100;
-    overflow: hidden;
-    animation: dropdown-appear 0.2s ease-out;
-}
-
-@keyframes dropdown-appear {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
+    &:active {
         transform: translateY(0);
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    &:focus {
+        outline: none;
+
+        &::before {
+            border-color: var(--primary-color);
+        }
+    }
+
+    &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
     }
 }
 
-.theme-option {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
+.theme-icon {
+    font-size: 1.2rem;
+    transition: transform 0.5s ease;
+}
+
+.theme-text {
+    font-weight: 500;
+}
+
+// Animation for theme icon
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.rotate {
+    animation: rotate 0.5s ease-in-out;
+}
+
+// Dark theme specific styles for the switcher - enhanced
+html.dark-theme .theme-switcher {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border-color: #333333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 
     &:hover {
-        background-color: var(--bg-secondary);
+        background-color: #252525;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
     }
 
-    &.active {
-        background-color: rgba(0, 0, 0, 0.1);
+    &:active {
+        transform: translateY(0);
+        background-color: #2a2a2a;
     }
+}
 
-    .theme-color-preview {
-        display: inline-block;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background-color: var(--theme-color);
+// Responsive styles
+@media (max-width: 768px) {
+    .theme-switcher {
+        padding: 8px;
+        
+        .theme-text {
+            display: none;
+        }
     }
 }`;
 
@@ -3589,6 +3599,30 @@ export default defineComponent({
     60% {
         transform: translateY(-10px);
     }
+}
+
+// Button hover effects
+.btn {
+    transition: all 0.3s ease;
+    
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    &:active {
+        transform: translateY(1px);
+    }
+}
+
+// Theme switcher animation
+.theme-button {
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    
+    &:hover {
+        transform: scale(1.1) rotate(15deg);
+        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
+    }
 }`;
 
   await fs.writeFile(animationsStylePath, animationsStyleContent);
@@ -3622,17 +3656,77 @@ export default defineComponent({
   --info-color: #2196f3;
 }
 
-// Dark theme variables
+// Dark theme variables - enhanced for better visual appeal
 .dark-theme {
-  --primary-color: #42d392;
-  --secondary-color: #2c3e50;
-  --accent-color: #ff9e7d;
-  --bg-color: #1a1a1a;
-  --bg-secondary: #2a2a2a;
-  --text-color: #f0f0f0;
-  --text-secondary: #aaaaaa;
-  --border-color: #444444;
-  --shadow-color: rgba(0, 0, 0, 0.3);
+  --primary-color: #4ecca3; // Brighter green for better visibility
+  --secondary-color: #30475e; // Richer blue-gray
+  --accent-color: #ff7f50; // Coral accent for better contrast
+  --bg-color: #121212; // Deeper dark background (Material dark theme standard)
+  --bg-secondary: #1e1e1e; // Slightly lighter than main bg
+  --text-color: #ffffff; // Pure white text for better readability
+  --text-secondary: #b0b0b0; // Lighter secondary text
+  --border-color: #333333; // Subtle borders
+  --shadow-color: rgba(0, 0, 0, 0.5); // Stronger shadows for depth
+}
+
+/* Dark theme styles - applied directly and aggressively with enhanced colors */
+html.dark-theme {
+  background-color: #121212 !important;
+}
+
+html.dark-theme body {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+}
+
+.dark-theme .app-header {
+  background-color: #1e1e1e !important;
+  border-bottom: 1px solid #333333 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark-theme .welcome-banner,
+.dark-theme .features-section,
+.dark-theme .card {
+  background-color: #1e1e1e !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+  border: 1px solid #333333 !important;
+}
+
+.dark-theme .btn-primary {
+  background-color: #4ecca3 !important;
+  color: white !important;
+  font-weight: 700 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark-theme .btn-primary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4) !important;
+  text-decoration: none !important;
+}
+
+.dark-theme .btn-secondary {
+  background-color: #30475e !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+.dark-theme a {
+  color: #4ecca3 !important;
+  text-decoration: none !important;
+  transition: all 0.3s ease !important;
+}
+
+.dark-theme a:hover {
+  color: #5fddaf !important;
+  text-decoration: underline !important;
+}
+
+.dark-theme .text-secondary {
+  color: #aaaaaa !important;
 }
 
 * {
@@ -3904,7 +3998,7 @@ $z-index-tooltip: 1070;`;
       }
     }
 
-    .theme-toggle {
+    .theme-switcher {
       background: none;
       border: none;
       font-size: 1.2rem;

@@ -62,8 +62,13 @@ export function createDevTools(app) {
             // Add global access
             window.__kalxjs_DEVTOOLS__ = this;
 
-            // Initialize only if in development mode
-            if (process.env.NODE_ENV !== 'production') {
+            // Initialize in all environments, as we don't have access to process.env in browser
+            // We'll use a different approach to detect development mode
+            const isDevelopment = window.location.hostname === 'localhost' ||
+                window.location.hostname === '127.0.0.1' ||
+                window.location.hostname.includes('.local');
+
+            if (isDevelopment) {
                 this.enable();
             }
 
