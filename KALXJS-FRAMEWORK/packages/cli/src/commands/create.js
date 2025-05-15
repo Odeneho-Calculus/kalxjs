@@ -1270,7 +1270,7 @@ a {
   transition: color $transition-speed ease;
 
   &:hover {
-    color: color.adjust($primary-color, $lightness: -10%);
+    color: color.adjust(vars.$primary-color, $lightness: -10%);
   }
 }
 
@@ -4054,7 +4054,7 @@ $z-index-tooltip: 1070;`;
     color: white;
 
     &:hover {
-      background-color: color.adjust($primary-color, $lightness: -10%);
+      background-color: color.adjust(vars.$primary-color, $lightness: -10%);
       transform: translateY(-2px);
     }
   }
@@ -4064,7 +4064,7 @@ $z-index-tooltip: 1070;`;
     color: white;
 
     &:hover {
-      background-color: color.adjust($secondary-color, $lightness: -10%);
+      background-color: color.adjust(vars.$secondary-color, $lightness: -10%);
       transform: translateY(-2px);
     }
   }
