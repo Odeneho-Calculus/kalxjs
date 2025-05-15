@@ -1,0 +1,27 @@
+// @kalxjs/core - Component system
+import { createComponent, defineComponent, createApp } from './component';
+import { defineJsComponent, createJsComponent, createStyles } from './js-component';
+
+// Export both the original component system and the new JS-based system
+export {
+  // Original component system (for backward compatibility)
+  createComponent,
+  defineComponent,
+  createApp,
+  
+  // New JS-based component system
+  defineJsComponent,
+  createJsComponent,
+  createStyles
+};
+
+// For backward compatibility, make defineComponent use the new system by default
+export const defineComponentEnhanced = (options) => {
+  // If it has a setup function, use the new JS-based system
+  if (options.setup && typeof options.setup === 'function') {
+    return defineJsComponent(options);
+  }
+  
+  // Otherwise, use the original system for backward compatibility
+  return defineComponent(options);
+};

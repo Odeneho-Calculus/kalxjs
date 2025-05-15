@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>my-app</title>
+    <link rel="icon" href="/public/favicon.ico">
+    <style>
+        :root {
+            --primary-color: #42b883;
+            --secondary-color: #35495e;
+            --bg-color: white;
+            --text-color: #333;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        #app {
+            min-height: 100vh;
+        }
+
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+
+        .loading h1 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .loading p {
+            color: var(--secondary-color);
+            margin-bottom: 2rem;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(66, 184, 131, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #1a1a1a;
+                --text-color: #f0f0f0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="loading">
+            <h1>my-app</h1>
+            <p>Loading KalxJS application...</p>
+            <div class="spinner"></div>
+        </div>
+    </div>
+    <script type="module" src="/app/main.js"></script>
+</body>
+
+</html>

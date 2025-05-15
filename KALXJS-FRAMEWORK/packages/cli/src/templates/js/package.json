@@ -1,0 +1,31 @@
+{
+    "name": "{{projectName}}",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "test": "vitest",
+        "lint": "eslint . --ext .js",
+        "format": "prettier --write \"**/*.{js,json,css,scss,md}\"",
+        "postinstall": "echo 'KalxJS installation completed successfully!'"
+    },
+    "dependencies": {
+        "@kalxjs/core": "^{{packageVersions.core}}",
+        "@kalxjs/router": "^{{packageVersions.router}}",
+        "@kalxjs/state": "^{{packageVersions.state}}"
+    },
+    "devDependencies": {
+        "vite": "^4.4.9",
+        "sass": "^1.66.1",
+        "vitest": "^0.34.3",
+        "jsdom": "^22.1.0",
+        "eslint": "^8.48.0",
+        "prettier": "^3.0.3"
+    },
+    "overrides": {
+        "@kalxjs/cli": "^{{packageVersions.cli}}"
+    }
+}

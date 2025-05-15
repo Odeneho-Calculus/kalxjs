@@ -1,0 +1,264 @@
+<template>
+  <div class="todo-app">
+    <h1>{{ title }}</h1>
+    
+    <div class="add-todo">
+      <input 
+        type="text" 
+        v-model="newTodo" 
+        @keyup.enter="addTodo" 
+        placeholder="Add a new task..." 
+      />
+      <button @click="addTodo">Add</button>
+    </div>
+    
+    <div class="filters">
+      <button 
+        :class="{ active: filter === 'all' }" 
+        @click="filter = 'all'"
+      >
+        All
+      </button>
+      <button 
+        :class="{ active: filter === 'active' }" 
+        @click="filter = 'active'"
+      >
+        Active
+      </button>
+      <button 
+        :class="{ active: filter === 'completed' }" 
+        @click="filter = 'completed'"
+      >
+        Completed
+      </button>
+    </div>
+    
+    <ul class="todo-list">
+      <li v-for="todo in filteredTodos" :key="todo.id">
+        <div class="todo-item">
+          <input 
+            type="checkbox" 
+            :checked="todo.completed" 
+            @change="toggleTodo(todo)" 
+          />
+          <span :class="{ completed: todo.completed }">{{ todo.text }}</span>
+          <button @click="removeTodo(todo)">Delete</button>
+        </div>
+      </li>
+    </ul>
+    
+    <div class="todo-stats">
+      <span>{{ activeCount }} items left</span>
+      <button v-if="completedCount > 0" @click="clearCompleted">
+        Clear completed
+      </button>
+    </div>
+  </div>
+</template>
+
+<script>
+import { 
+  useRef, 
+  useComputed, 
+  useLocalStorage, 
+  onMounted, 
+  watch 
+} from '@kalxjs/core';
+
+export default {
+  name: 'TodoApp',
+  props: {
+    title: {
+      type: String,
+      default: 'KalxJS Todo App'
+    }
+  },
+  setup(props) {
+    // Use localStorage to persist todos
+    const todos = useLocalStorage('kalxjs-todos', []);
+    const newTodo = useRef('');
+    const filter = useRef('all');
+    
+    // Computed properties
+    const filteredTodos = useComputed(() => {
+      switch (filter.value) {
+        case 'active':
+          return todos.value.filter(todo => !todo.completed);
+        case 'completed':
+          return todos.value.filter(todo => todo.completed);
+        default:
+          return todos.value;
+      }
+    });
+    
+    const activeCount = useComputed(() => {
+      return todos.value.filter(todo => !todo.completed).length;
+    });
+    
+    const completedCount = useComputed(() => {
+      return todos.value.filter(todo => todo.completed).length;
+    });
+    
+    // Methods
+    function addTodo() {
+      const text = newTodo.value.trim();
+      if (text) {
+        todos.value.push({
+          id: Date.now(),
+          text,
+          completed: false
+        });
+        newTodo.value = '';
+      }
+    }
+    
+    function removeTodo(todo) {
+      const index = todos.value.findIndex(t => t.id === todo.id);
+      if (index !== -1) {
+        todos.value.splice(index, 1);
+      }
+    }
+    
+    function toggleTodo(todo) {
+      todo.completed = !todo.completed;
+    }
+    
+    function clearCompleted() {
+      todos.value = todos.value.filter(todo => !todo.completed);
+    }
+    
+    // Watch for changes
+    watch(todos, (newTodos) => {
+      console.log('Todos updated:', newTodos);
+    });
+    
+    // Lifecycle hooks
+    onMounted(() => {
+      console.log('Todo app mounted');
+    });
+    
+    return {
+      todos,
+      newTodo,
+      filter,
+      filteredTodos,
+      activeCount,
+      completedCount,
+      addTodo,
+      removeTodo,
+      toggleTodo,
+      clearCompleted
+    };
+  }
+};
+</script>
+
+<style scoped>
+.todo-app {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+h1 {
+  color: #42b883;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.add-todo {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.add-todo input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px 0 0 4px;
+  font-size: 16px;
+}
+
+.add-todo button {
+  padding: 10px 20px;
+  background-color: #42b883;
+  color: white;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.filters {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.filters button {
+  margin: 0 5px;
+  padding: 5px 10px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.filters button.active {
+  background-color: #42b883;
+  color: white;
+  border-color: #42b883;
+}
+
+.todo-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.todo-item input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.todo-item span {
+  flex: 1;
+  font-size: 16px;
+}
+
+.todo-item span.completed {
+  text-decoration: line-through;
+  color: #999;
+}
+
+.todo-item button {
+  padding: 5px 10px;
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.todo-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  color: #666;
+}
+
+.todo-stats button {
+  padding: 5px 10px;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+</style>

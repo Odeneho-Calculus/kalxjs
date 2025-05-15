@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KalxJS App</title>
+    <link rel="icon" href="/favicon.ico">
+    <meta name="description" content="A modern JavaScript framework for building user interfaces">
+    <meta name="theme-color" content="#42b883">
+</head>
+
+<body>
+    <!-- Main application container -->
+    <div id="app"></div>
+    
+    {{#if customRenderer}}
+    <!-- Templates for the custom renderer -->
+    <template id="welcome-template">
+        <!-- Welcome template content is loaded from src/templates/welcome.html -->
+    </template>
+    
+    <template id="counter-template">
+        <!-- Counter template content is loaded from src/templates/counter.html -->
+    </template>
+    
+    <template id="not-found-template">
+        <div class="not-found">
+            <h2>Page Not Found</h2>
+            <p>The page you are looking for does not exist.</p>
+            <a href="#/" data-route="/">Go Home</a>
+        </div>
+    </template>
+    {{/if}}
+    
+    <!-- Main script -->
+    <script type="module" src="./src/main.js"></script>
+</body>
+
+</html>

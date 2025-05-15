@@ -1,0 +1,103 @@
+{
+    "name": "kalxjs-framework",
+    "version": "1.0.0",
+    "workspaces": [
+        "packages/*"
+    ],
+    "private": true,
+    "publishConfig": {
+        "access": "public"
+    },
+    "workspaces:publish": true,
+    "type": "module",
+    "description": "A versatile JavaScript framework for modern web development with reactive state, composition API, and built-in performance optimizations",
+    "main": "packages/core/src/index.js",
+    "scripts": {
+        "postinstall": "lerna run --stream --sort --concurrency 1 prepare",
+        "build": "lerna run build --stream --sort",
+        "build:core": "cd packages/core && npm run build",
+        "build:router": "cd packages/router && npm run build",
+        "build:store": "cd packages/store && npm run build",
+        "build:cli": "cd packages/cli && npm run build",
+        "build:all": "npm run build:core && npm run build:router && npm run build:store && npm run build:cli",
+        "test": "jest",
+        "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+        "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+        "lint": "eslint packages/*/src --ext .js",
+        "clean": "lerna clean -y && rm -rf node_modules",
+        "clear-jest-cache": "node --experimental-vm-modules node_modules/jest/bin/jest.js --clearCache",
+        "publish": "lerna publish",
+        "publish:from-package": "lerna publish from-package",
+        "publish:canary": "lerna publish --canary",
+        "version:bump": "lerna version --no-push --no-git-tag-version",
+        "docs:dev": "vuepress dev docs",
+        "docs:build": "vuepress build docs",
+        "docs:deploy": "npm run docs:build && gh-pages -d docs/.vuepress/dist",
+        "dev": "vite",
+        "dev:packages": "lerna run dev --parallel",
+        "preview": "vite preview",
+        "create": "node packages/cli/bin/kalx-cli.js create"
+    },
+    "keywords": [
+        "javascript",
+        "framework",
+        "frontend",
+        "reactive",
+        "component",
+        "web",
+        "components",
+        "composition-api",
+        "state-management",
+        "api-integration",
+        "performance",
+        "virtual-dom",
+        "single-file-components",
+        "kalxjs",
+        "ui-framework",
+        "spa",
+        "router",
+        "store",
+        "cli",
+        "modern-javascript",
+        "web-development",
+        "javascript-framework",
+        "component-based",
+        "reactive-programming"
+    ],
+    "author": "kalxjs Team",
+    "license": "MIT",
+    "devDependencies": {
+        "@babel/core": "^7.22.5",
+        "@babel/preset-env": "^7.22.5",
+        "@jest/globals": "^29.7.0",
+        "@rollup/plugin-node-resolve": "^13.0.0",
+        "@rollup/plugin-terser": "^0.4.4",
+        "@types/jest": "^29.5.14",
+        "babel-jest": "^29.7.0",
+        "eslint": "^8.36.0",
+        "jest": "^29.5.0",
+        "jest-environment-jsdom": "^29.7.0",
+        "jest-serializer": "^27.5.1",
+        "lerna": "^8.2.2",
+        "prettier": "^2.8.4",
+        "rollup": "^2.79.1",
+        "rollup-plugin-terser": "^7.0.2",
+        "typedoc": "^0.28.4",
+        "typedoc-plugin-markdown": "^3.17.1",
+        "vite": "^4.4.0",
+        "vuepress": "^2.0.0-beta.61"
+    },
+    "directories": {
+        "doc": "docs",
+        "example": "examples",
+        "test": "tests"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Odeneho-Calculus/kalxjs-framework.git"
+    },
+    "bugs": {
+        "url": "https://github.com/Odeneho-Calculus/kalxjs-framework/issues"
+    },
+    "homepage": "https://github.com/Odeneho-Calculus/kalxjs-framework#readme"
+}

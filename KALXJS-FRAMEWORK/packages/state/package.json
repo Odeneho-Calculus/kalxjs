@@ -1,0 +1,50 @@
+{
+  "name": "@kalxjs/state",
+  "version": "1.2.48",
+  "description": "Component state management for KalxJS framework",
+  "type": "module",
+  "author": "kalxjs Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Odeneho-Calculus/kalxjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Odeneho-Calculus/kalxjs/issues"
+  },
+  "homepage": "https://github.com/Odeneho-Calculus/kalxjs#readme",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.cjs.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "rollup -c ../../rollup.config.js",
+    "dev": "rollup -c ../../rollup.config.js -w",
+    "test": "jest",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@kalxjs/core": "^2.2.2"
+  },
+  "peerDependencies": {
+    "@kalxjs/core": "^2.1.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "rollup": "^2.79.1",
+    "rollup-plugin-terser": "^7.0.2"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "gitHead": "82d314e7f43a9c923577101c0878b398739c2070"
+}

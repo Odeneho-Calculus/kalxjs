@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .primary { fill: #4f46e5; }
+    .secondary { fill: #10b981; }
+    .accent { fill: #f59e0b; }
+    
+    @media (prefers-color-scheme: dark) {
+      .primary { fill: #818cf8; }
+      .secondary { fill: #34d399; }
+      .accent { fill: #fbbf24; }
+    }
+  </style>
+  
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="90" fill="white" stroke="#e5e7eb" stroke-width="2"/>
+  
+  <!-- K Letter -->
+  <path class="primary" d="M60 40V160H80V110L120 160H145L95 100L145 40H120L80 90V40H60Z"/>
+  
+  <!-- Decorative Elements -->
+  <circle class="secondary" cx="160" cy="70" r="15"/>
+  <circle class="accent" cx="160" cy="130" r="15"/>
+  
+  <!-- Connecting Lines -->
+  <path d="M80 100H140" stroke="#e5e7eb" stroke-width="4" stroke-linecap="round"/>
+  <path d="M145 55L120 80" stroke="#e5e7eb" stroke-width="4" stroke-linecap="round"/>
+  <path d="M145 145L120 120" stroke="#e5e7eb" stroke-width="4" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,182 @@
+import { createApp } from '@kalxjs/core';
+import App from './App.js';
+import './styles/main.scss';
+{{#if customRenderer}}
+import { createCustomRenderer } from '@kalxjs/core/renderer';
+import './styles/welcome.scss';
+import './styles/counter.scss';
+{{/if}}
+import router from './router';
+import store from './store';
+import appConfig from '../config/app.config.js';
+
+// Package versions - these are hardcoded to avoid import errors
+const versions = {
+  core: '1.0.0',
+  router: '1.0.0',
+  state: '1.0.0',
+  utils: '1.0.0',
+  devtools: '1.0.0'
+};
+
+// Log application startup
+console.log('🚀 KalxJS Framework - Starting application');
+console.log('📦 Package versions:');
+Object.entries(versions).forEach(([pkg, ver]) => {
+  console.log(`  • ${pkg.charAt(0).toUpperCase() + pkg.slice(1)}: ${ver}`);
+});
+
+{{#if customRenderer}}
+// Import the renderer initialization function
+import { initRenderer } from './renderer';
+
+// Import template loader
+import { loadAllTemplates } from './utils/template-loader';
+
+// First load all templates, then initialize the renderer
+loadAllTemplates().then(() => {
+    // Initialize with custom renderer (default approach)
+    if (router && store) {
+        // Initialize the custom renderer with our extended functionality
+        initRenderer(router, store, '#app').then(renderer => {
+            // Make renderer available globally for debugging
+            window.renderer = renderer;
+            window.router = router;
+            window.store = store;
+            
+            console.log('KalxJS initialized with custom renderer');
+        }).catch(error => {
+            console.error('Error initializing custom renderer:', error);
+            fallbackToTraditionalRendering();
+        });
+    } else {
+        // Fallback to traditional app mounting if router or store is missing
+        fallbackToTraditionalRendering();
+    }
+}).catch(error => {
+    console.error('Error loading templates:', error);
+    fallbackToTraditionalRendering();
+});
+
+/**
+ * Fallback to traditional app mounting
+ */
+function fallbackToTraditionalRendering() {
+    console.log('Falling back to traditional app mounting');
+    mountApp();
+}
+{{else}}
+// Create and mount the app directly
+mountApp();
+{{/if}}
+
+// Function to create and mount the app
+function mountApp() {
+    // Create the app instance with configuration
+    const app = createApp(App, {
+        debug: appConfig.env.development.debug,
+        appName: appConfig.name,
+        version: appConfig.version
+    });
+    
+    // Register global error handler
+    app.config.errorHandler = (err, instance, info) => {
+        console.error('Application Error:', err);
+        console.log('Error occurred in component:', instance);
+        console.log('Error info:', info);
+    };
+    
+    // Also catch unhandled errors
+    window.addEventListener('error', (event) => {
+        console.error('Unhandled Error:', event.error);
+    });
+    
+    // Register available plugins
+    if (router) {
+        app.use(router);
+        window.router = router;
+    }
+    
+    if (store) {
+        app.use(store);
+        window.store = store;
+    }
+    
+    {{#if customRenderer}}
+    // Enable custom renderer if available
+    app.useCustomRenderer(true);
+    {{/if}}
+    
+    // Enable development tools in development mode
+    if (appConfig.env.development.debug) {
+        // Create a simple devtools implementation
+        const setupDevTools = (app, options) => {
+            console.log('DevTools initialized with options:', options);
+            window.__KALXJS_DEVTOOLS__ = {
+                app,
+                options,
+                enabled: true,
+                version: versions.devtools
+            };
+            return window.__KALXJS_DEVTOOLS__;
+        };
+        
+        setupDevTools(app, {
+            logLifecycleEvents: true,
+            performanceMonitoring: true
+        });
+    }
+    
+    // Mount the app to the DOM when ready
+    if (document.readyState === 'complete') {
+        // If already loaded, mount immediately
+        app.mount('#app');
+        console.log('🎉 KalxJS application successfully mounted');
+    } else {
+        // Otherwise, wait for the load event
+        window.addEventListener('load', () => {
+            app.mount('#app');
+            console.log('🎉 KalxJS application successfully mounted');
+        });
+    }
+    
+    // Log welcome message with modern styling
+    console.log('%c Welcome to KalxJS! ', 'background: #4f46e5; color: white; font-size: 14px; font-weight: bold; padding: 4px 8px; border-radius: 4px;');
+    console.log('%c Modern JavaScript Framework ', 'background: #10b981; color: white; font-size: 12px; padding: 2px 6px; border-radius: 4px;');
+    
+    // Add fallback rendering in case the main mounting fails
+    setTimeout(() => {
+        const appElement = document.getElementById('app');
+        if (appElement && (appElement.innerHTML.includes('<!--empty node-->') || appElement.innerHTML.trim() === '')) {
+            console.log('Fallback rendering activated');
+            appElement.innerHTML = `
+                <div style="max-width: 800px; margin: 0 auto; padding: 2rem; text-align: center;">
+                    <h1 style="color: #4f46e5;">Welcome to KalxJS</h1>
+                    <p>This is a simple counter example:</p>
+                    <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; margin-top: 2rem;">
+                        <button id="decrement-btn" style="background-color: #4f46e5; color: white; border: none; border-radius: 4px; padding: 0.5rem 1rem; font-size: 1.2rem; cursor: pointer;">-</button>
+                        <span id="counter-value" style="font-size: 2rem; font-weight: bold;">0</span>
+                        <button id="increment-btn" style="background-color: #4f46e5; color: white; border: none; border-radius: 4px; padding: 0.5rem 1rem; font-size: 1.2rem; cursor: pointer;">+</button>
+                    </div>
+                </div>
+            `;
+            
+            // Add minimal interactivity
+            const counterValue = document.getElementById('counter-value');
+            const decrementBtn = document.getElementById('decrement-btn');
+            const incrementBtn = document.getElementById('increment-btn');
+            
+            let count = 0;
+            
+            decrementBtn.addEventListener('click', () => {
+                count--;
+                counterValue.textContent = count;
+            });
+            
+            incrementBtn.addEventListener('click', () => {
+                count++;
+                counterValue.textContent = count;
+            });
+        }
+    }, 1000);
+}

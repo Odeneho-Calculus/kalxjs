@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KalxJS Counter Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: #35495e;
+        }
+
+        .logo {
+            color: #42b883;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1><span class="logo">KalxJS</span> Counter Example</h1>
+            <p>A simple counter built with KalxJS using the Composition API</p>
+        </header>
+
+        <div id="app"></div>
+    </div>
+
+    <script type="module">
+        import { createApp } from '@kalxjs/core';
+        import Counter from './Counter.js'; // This would be compiled from Counter.klx
+
+        const app = createApp({
+            render() {
+                return h(Counter, {
+                    title: 'Awesome Counter',
+                    initialCount: 5
+                });
+            }
+        });
+
+        app.mount('#app');
+    </script>
+</body>
+
+</html>
