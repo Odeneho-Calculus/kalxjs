@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.2.12](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/ai@1.2.11...@kalxjs/ai@1.2.12) (2025-05-16)
+
+**Note:** Version bump only for package @kalxjs/ai
+
 ## 1.2.11 (2025-05-15)
 
 **Note:** Version bump only for package @kalxjs/ai
