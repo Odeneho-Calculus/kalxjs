@@ -131,7 +131,7 @@ export function createAIManager(options = {}) {
     // Configure with provided options
     configure({
         apiKey: openaiKey,
-        model: options.defaultOptions?.model || 'gpt-3.5-turbo',
+        model: options.model || options.defaultOptions?.model || 'gpt-3.5-turbo',
         maxTokens: options.defaultOptions?.max_length || 1000,
         temperature: options.defaultOptions?.temperature || 0.7,
         ...options
@@ -149,7 +149,7 @@ export function createAIManager(options = {}) {
          */
         generateText: async ({ prompt, model, provider, options = {} }) => {
             return generateText(prompt, {
-                model: model || options.model || 'gpt-3.5-turbo',
+                model: model || config.model,
                 ...options
             });
         },

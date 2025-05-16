@@ -6,16 +6,20 @@ import { reactive, effect } from '../../core/src/reactivity/reactive';
  * @param {Object} options - Store options
  * @returns {Object} Store instance
  */
-export function createStore(options) {
+export function createStore(options = {}) {
+    // Initialize getters
+    const gettersDefinitions = options.getters || {};
+
     const store = {
         state: reactive(options.state || {}),
+        getters: {},
 
         // Commit a mutation
         commit(type, ...args) {
             const mutation = options.mutations?.[type];
             if (!mutation) {
                 console.warn(`Unknown mutation type: ${type}`);
-                return;
+                return Promise.resolve();
             }
             mutation.apply(this, [this.state, ...args]);
         },
@@ -25,30 +29,26 @@ export function createStore(options) {
             const action = options.actions?.[type];
             if (!action) {
                 console.warn(`Unknown action type: ${type}`);
-                return;
+                return Promise.resolve();
             }
             return action.apply(this, [this, ...args]);
         },
 
-        // Watch state changes
+        // Watch for state changes
         watch(getter, callback) {
             effect(() => {
                 const value = getter(this.state);
                 callback(value);
             });
-        },
-
-        install(app) {
-            // Inject store into components
-            app._context.$store = this;
         }
     };
 
-    // Add install method to store
-    Object.assign(store, {
-        install: function (app) {
-            app._context.$store = store;
-        }
+    // Set up getters
+    Object.keys(gettersDefinitions).forEach(key => {
+        Object.defineProperty(store.getters, key, {
+            get: () => gettersDefinitions[key](store.state, store.getters),
+            enumerable: true
+        });
     });
 
     return store;

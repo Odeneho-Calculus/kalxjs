@@ -2,10 +2,59 @@ import { h } from '../vdom/vdom';
 
 /**
  * Default App component for when App.klx can't be loaded
+ * @param {Object} rootComponent - The root component to render
+ * @param {Object} options - Application options
+ * @returns {Object} Application instance
  */
-export const createDefaultAppComponent = () => {
-    return {
-        name: 'DefaultApp',
+export const createDefaultAppComponent = (rootComponent, options = {}) => {
+    // Create app instance
+    const app = {
+        name: 'KalxJSApp',
+        rootComponent,
+        options,
+        // Initialize config
+        config: {
+            errorHandler: null,
+            warnHandler: null,
+            performance: false,
+            debug: options.debug || false
+        },
+        // Add context for plugins
+        _context: {},
+        // Plugin system
+        _plugins: [],
+        _provides: {},
+        use(plugin) {
+            if (typeof plugin === 'function') {
+                plugin(this);
+            } else if (typeof plugin === 'object' && typeof plugin.install === 'function') {
+                plugin.install(this);
+            }
+            return this;
+        },
+        provide(key, value) {
+            this._provides[key] = value;
+            return this;
+        },
+        inject(key) {
+            return this._provides[key];
+        },
+        // Mount the app to a DOM element
+        mount(selector) {
+            const container = typeof selector === 'string' 
+                ? document.querySelector(selector) 
+                : selector;
+            
+            if (!container) {
+                console.error(`Failed to mount app: target element ${selector} not found.`);
+                return this;
+            }
+            
+            // Create the root component instance
+            const rootInstance = rootComponent 
+                ? (typeof rootComponent === 'function' ? rootComponent() : rootComponent)
+                : {
+                    name: 'DefaultApp',
         render() {
             return h('div', { class: 'app' }, [
                 h('header', { class: 'app-header' }, [
@@ -119,5 +168,49 @@ export const createDefaultAppComponent = () => {
       `;
             document.head.appendChild(styleElement);
         }
+            };
+            
+            // Store reference to the app in the component
+            rootInstance.$app = this;
+            
+            // Create component instance
+            const instance = rootInstance;
+            
+            // Mount the component
+            if (typeof instance.$mount === 'function') {
+                instance.$mount(container);
+            } else {
+                // If it's not a proper component instance, create a wrapper
+                const wrapper = {
+                    render() {
+                        return h('div', { class: 'app-wrapper' }, [
+                            h(rootInstance, null, [])
+                        ]);
+                    },
+                    $mount(el) {
+                        // Clear the container
+                        el.innerHTML = '';
+                        
+                        // Create the DOM element
+                        const dom = document.createElement('div');
+                        dom.className = 'app-wrapper';
+                        
+                        // Append to container
+                        el.appendChild(dom);
+                        
+                        // Store reference
+                        this.$el = dom;
+                        
+                        return this;
+                    }
+                };
+                
+                wrapper.$mount(container);
+            }
+            
+            return this;
+        }
     };
+    
+    return app;
 };

@@ -10,13 +10,17 @@
 export function patch(domNode, oldVNode, newVNode) {
     // Check if domNode is valid
     if (!domNode) {
-        console.warn('Cannot patch: domNode is undefined or null');
+        if (process.env.NODE_ENV !== 'test') {
+            console.warn('Cannot patch: domNode is undefined or null');
+        }
         return createDOMNode(newVNode); // Return a new node but don't attach it
     }
 
     // Check if domNode has a parent
     if (!domNode.parentNode) {
-        console.warn('Cannot patch: domNode has no parent');
+        if (process.env.NODE_ENV !== 'test') {
+            console.warn('Cannot patch: domNode has no parent');
+        }
         return createDOMNode(newVNode); // Return a new node but don't attach it
     }
 

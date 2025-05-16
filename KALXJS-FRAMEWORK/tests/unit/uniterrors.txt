@@ -1,0 +1,854 @@
+    vnode type: object                                                      
+                                                                            
+      at log (packages/core/src/vdom/vdom.js:220:17)                        
+          at Array.forEach (<anonymous>)                                    
+                                                                            
+  console.log                                                               
+    vnode keys: [ '0' ]                                                     
+                                                                            
+      at log (packages/core/src/vdom/vdom.js:221:17)                        
+          at Array.forEach (<anonymous>)                                    
+                                                                            
+(node:21356) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.                              
+(Use `node --trace-deprecation ...` to show where the warning was created)  
+ FAIL  tests/unit/component.test.js                                         
+  Component System                                                          
+    createComponent                                                         
+      √ should create a component instance with data (19 ms)
+      √ should initialize methods (2 ms)                                    
+      √ should call lifecycle hooks (2 ms)                                  
+      √ should handle computed properties                                   
+      √ should have a render function (2 ms)                                
+    defineComponent                                                         
+      × should define a functional component (23 ms)                        
+      × should make props accessible (1 ms)                                 
+    Component Mounting                                                      
+      √ should mount component to DOM element (42 ms)                       
+      √ should handle string selector for mount (10 ms)                     
+      √ should call mount lifecycle hooks (7 ms)                            
+                                                                            
+  ● Component System › defineComponent › should define a functional component                                                                           
+                                                                            
+    expect(received).toEqual(expected) // deep equality                     
+                                                                            
+    - Expected  -  5                                                        
+    + Received  + 17                                                        
+                                                                            
+      Object {                                                              
+    -   "children": Array [                                                 
+    -     Object {
+    -       "children": Array [],
+    +   "_component": Object {
+    +     "$mount": [Function anonymous],
+    +     "$options": Object {
+            "props": Object {
+    -         "nodeValue": "Hello",
+    +         "0": "message",
+    +         "message": "Hello",
+            },
+    -       "tag": "TEXT_ELEMENT",
+    +       "render": [Function render],
+    +     },
+    +     "$unmount": [Function anonymous],
+    +     "$update": [Function anonymous],
+    +     "_vnode": null,
+    +     "props": Object {
+    +       "0": "message",
+    +       "message": "Hello",
+          },
+    +     "render": [Function anonymous],
+    +   },
+    +   "children": Array [
+    +     undefined,
+        ],
+        "props": Object {},
+        "tag": "div",
+      }
+
+      100 |             const vnode = TestComponent({ message: 'Hello' });  
+      101 |
+    > 102 |             expect(vnode).toEqual({
+          |                           ^
+      103 |                 tag: 'div',
+      104 |                 props: {},
+      105 |                 children: [
+
+      at Object.toEqual (tests/unit/component.test.js:102:27)
+
+  ● Component System › defineComponent › should make props accessible       
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 2
+    + Received  + 2
+
+      Object {
+    -   "count": 42,
+    -   "message": "Hello",
+    +   "count": undefined,
+    +   "message": undefined,
+      }
+
+      129 |             TestComponent({ message: 'Hello', count: 42 });     
+      130 |
+    > 131 |             expect(capturedProps).toEqual({
+          |                                   ^
+      132 |                 message: 'Hello',
+      133 |                 count: 42
+      134 |             });
+
+      at Object.toEqual (tests/unit/component.test.js:131:35)
+
+  console.log
+    Updating component with new vdom: { tag: 'div', props: {}, children: [ [ 'Updated' ] ] }                                                            
+                                                                            
+      at Object.log (packages/core/src/component/component.js:69:41)        
+                                                                            
+  console.log                                                               
+    Mounting component to element: HTMLDivElement {}                        
+                                                                            
+      at Object.log [as $mount] (packages/core/src/component/component.js:204:17)                                                                       
+                                                                            
+  console.log                                                               
+    Component render result: { tag: 'div', props: {}, children: [ [ '0' ] ] }                                                                           
+                                                                            
+      at Object.log [as $mount] (packages/core/src/component/component.js:214:21)                                                                       
+                                                                            
+  console.log                                                               
+    Route changed to: /base/path Matched component: Unknown Params: {} Query: {}
+
+      at log (packages/router/src/index.js:1228:29)
+
+  console.error
+    Invalid vnode (missing tag): [ '0' ]                                    
+                                                                            
+      215 |     // Handle case where vnode might not be a proper virtual node object                                                                    
+      216 |     if (!vnode.tag) {                                           
+    > 217 |         console.error('Invalid vnode (missing tag):', vnode);   
+          |                 ^                                               
+      218 |                                                                 
+      219 |         // Debug information                                    
+      220 |         console.log('vnode type:', typeof vnode);
+
+      at error (packages/core/src/vdom/vdom.js:217:17)
+      at createDOMElement (packages/core/src/vdom/vdom.js:303:38)
+          at Array.forEach (<anonymous>)
+      at forEach (packages/core/src/vdom/vdom.js:300:14)
+      at Object.instance.$mount (packages/core/src/component/component.js:222:45)
+      at Object.$mount (tests/integration/component.test.js:146:19)
+
+  console.log
+    vnode type: object                                                      
+                                                                            
+      at log (packages/core/src/vdom/vdom.js:220:17)                        
+          at Array.forEach (<anonymous>)                                    
+                                                                            
+  console.log                                                               
+    vnode keys: [ '0' ]
+
+      at log (packages/core/src/vdom/vdom.js:221:17)
+          at Array.forEach (<anonymous>)
+
+  console.warn
+    Failed to scroll to hash element: DOMException {}
+
+      1246 |                             }
+      1247 |                         } catch (error) {
+    > 1248 |                             console.warn('Failed to scroll to hash element:', error);
+           |                                     ^
+      1249 |                         }
+      1250 |                     } else if (this._savedPosition) {
+      1251 |                         // Restore saved position for back/forward navigation
+
+      at warn (packages/router/src/index.js:1248:37)
+
+  console.error
+    Invalid vnode (missing tag): [ 'Hello, undefined!' ]                    
+                                                                            
+      215 |     // Handle case where vnode might not be a proper virtual node object                                                                    
+      216 |     if (!vnode.tag) {                                           
+    > 217 |         console.error('Invalid vnode (missing tag):', vnode);   
+          |                 ^                                               
+      218 |                                                                 
+      219 |         // Debug information                                    
+      220 |         console.log('vnode type:', typeof vnode);
+
+      at error (packages/core/src/vdom/vdom.js:217:17)
+      at createDOMElement (packages/core/src/vdom/vdom.js:303:38)
+          at Array.forEach (<anonymous>)
+      at forEach (packages/core/src/vdom/vdom.js:300:14)
+      at Object.<anonymous> (tests/integration/component.test.js:190:47)    
+
+  console.log
+    vnode type: object                                                      
+                                                                            
+      at log (packages/core/src/vdom/vdom.js:220:17)                        
+          at Array.forEach (<anonymous>)                                    
+                                                                            
+  console.log                                                               
+    vnode keys: [ '0' ]                                                     
+                                                                            
+      at log (packages/core/src/vdom/vdom.js:221:17)                        
+          at Array.forEach (<anonymous>)                                    
+                                                                            
+  console.warn                                                              
+    useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.
+
+      1322 |         // Only show warning in development mode or if explicitly enabled
+      1323 |         if (process.env.NODE_ENV !== 'production' || window.__KAL_DEBUG__) {
+    > 1324 |             console.warn('useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.');
+           |                     ^
+      1325 |         }
+      1326 |
+      1327 |         // Create reactive refs for the fallback implementation
+
+      at warn (packages/router/src/index.js:1324:21)
+      at useRouter (packages/router/src/index.js:1552:31)
+      at Object.<anonymous> (tests/unit/router.test.js:178:36)
+
+  console.warn
+    RouterView: No active router found
+
+      1553 |
+      1554 |     if (!router || !route.value) {
+    > 1555 |         console.warn('RouterView: No active router found');    
+           |                 ^
+      1556 |         return {
+      1557 |             tag: 'div',
+      1558 |             props: { class: 'kal-router-view' },
+
+      at warn (packages/router/src/index.js:1555:17)
+      at Object.<anonymous> (tests/unit/router.test.js:178:36)
+
+(node:23308) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)  
+ FAIL  tests/integration/component.test.js
+  Component Integration Tests                                               
+    × component should render correctly (139 ms)                            
+    × component should update when data changes (38 ms)                     
+    √ component lifecycle hooks should fire in order (21 ms)                
+    × component methods should be bound to component instance (40 ms)       
+    √ defineComponent should return a component factory (2 ms)              
+    × should make props accessible (20 ms)                                  
+                                                                            
+  ● Component Integration Tests › component should render correctly         
+                                                                            
+    expect(received).toBe(expected) // Object.is equality                   
+                                                                            
+    - Expected  - 1                                                         
+    + Received  + 8                                                         
+                                                                            
+    - Hello kalxjs                                                          
+    +                                                                       
+    +                 Invalid Virtual DOM Node
+    +                 A virtual DOM node is missing the required 'tag' property
+    +                 [
+    +   "Hello kalxjs"
+    + ]
+    + 
+    + 
+
+      31 |         expect(container.children[0].tagName.toLowerCase()).toBe('div');
+      32 |         expect(container.children[0].id).toBe('app');
+    > 33 |         expect(container.children[0].textContent).toBe('Hello kalxjs');
+         |                                                   ^
+      34 |
+      35 |         document.body.removeChild(container);
+      36 |     });
+
+      at Object.toBe (tests/integration/component.test.js:33:51)
+
+  ● Component Integration Tests › component should update when data changes 
+
+    expect(received).toBe(expected) // Object.is equality
+
+    - Expected  - 1
+    + Received  + 8
+
+    - Hello
+    +
+    +                 Invalid Virtual DOM Node
+    +                 A virtual DOM node is missing the required 'tag' property
+    +                 [
+    +   "Hello"
+    + ]
+    + 
+    + 
+
+      61 |
+      62 |         console.log('Initial content:', container.children[0].textContent);
+    > 63 |         expect(container.children[0].textContent).toBe('Hello'); 
+         |                                                   ^
+      64 |
+      65 |         // Update data with explicit logging
+      66 |         console.log('Setting message to Updated');
+
+      at Object.toBe (tests/integration/component.test.js:63:51)
+
+  ● Component Integration Tests › component methods should be bound to component instance
+
+    expect(received).toBe(expected) // Object.is equality
+
+    - Expected  - 1
+    + Received  + 8
+
+    - 0
+    +
+    +                 Invalid Virtual DOM Node
+    +                 A virtual DOM node is missing the required 'tag' property
+    +                 [
+    +   "0"
+    + ]
+    + 
+    + 
+
+      146 |         component.$mount(container);
+      147 |
+    > 148 |         expect(container.children[0].textContent).toBe('0');    
+          |                                                   ^
+      149 |
+      150 |         component.increment();
+      151 |
+
+      at Object.toBe (tests/integration/component.test.js:148:51)
+
+  ● Component Integration Tests › should make props accessible
+
+    expect(received).toBe(expected) // Object.is equality
+
+    - Expected  - 1
+    + Received  + 8
+
+    - Hello, kalxjs!
+    +
+    +                 Invalid Virtual DOM Node
+    +                 A virtual DOM node is missing the required 'tag' property
+    +                 [
+    +   "Hello, undefined!"
+    + ]
+    + 
+    + 
+
+      190 |         container.appendChild(createDOMElement(vnode));
+      191 |
+    > 192 |         expect(container.children[0].textContent).toBe('Hello, kalxjs!');
+          |                                                   ^
+      193 |         document.body.removeChild(container);
+      194 |     });
+      195 | });
+
+      at Object.toBe (tests/integration/component.test.js:192:51)
+
+  console.warn
+    useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.                       
+                                                                            
+      1322 |         // Only show warning in development mode or if explicitly enabled                                                                  
+      1323 |         if (process.env.NODE_ENV !== 'production' || window.__KAL_DEBUG__) {                                                               
+    > 1324 |             console.warn('useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.');
+           |                     ^
+      1325 |         }
+      1326 |
+      1327 |         // Create reactive refs for the fallback implementation
+
+      at warn (packages/router/src/index.js:1324:21)
+      at useRouter (packages/router/src/index.js:1626:58)
+      at Object.<anonymous> (tests/unit/router.test.js:188:36)
+
+  console.error
+    Component setup must return a render function                           
+                                                                            
+      39 |                                                                  
+      40 |     if (!render || typeof render !== 'function') {               
+    > 41 |       console.error('Component setup must return a render function');                                                                        
+         |               ^                                                  
+      42 |       // Create a default render function                        
+      43 |       instance.render = () => h('div', { 
+      44 |         style: 'padding: 10px; border: 1px solid red; color: red;' 
+
+      at error (packages/core/src/component/js-component.js:41:15)
+      at Object.Component (tests/unit/js-component.test.js:74:24)
+
+  console.warn
+    useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.
+
+      1322 |         // Only show warning in development mode or if explicitly enabled
+      1323 |         if (process.env.NODE_ENV !== 'production' || window.__KAL_DEBUG__) {
+    > 1324 |             console.warn('useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.');
+           |                     ^
+      1325 |         }
+      1326 |
+      1327 |         // Create reactive refs for the fallback implementation
+
+      at warn (packages/router/src/index.js:1324:21)
+      at useRouter (packages/router/src/index.js:1552:31)
+      at Object.<anonymous> (tests/integration/router.test.js:83:32)        
+
+C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\packages\router\src\index.js:270
+          reject(new Error(`No route matched for path: ${path}`));
+                 ^
+
+Error: No route matched for path: /about
+    at C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\packages\router\src\index.js:270:18
+    at new Promise (<anonymous>)
+    at Object._navigate (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\packages\router\src\index.js:264:27)
+    at Object.push (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\packages\router\src\index.js:231:19)
+    at Object.push (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\tests\unit\router.test.js:93:27)
+    at Promise.then.completed (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\utils.js:298:28)    
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\utils.js:231:10)
+    at _callCircusTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)  
+    at _runTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:252:3)
+    at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:126:9)    
+    at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:121:9)    
+    at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:121:9)    
+    at run (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:71:3)
+    at runAndTransformResultsToJestFormat (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:122:21)
+    at jestAdapter (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+    at runTestInternal (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-runner\build\runTest.js:367:16)
+    at runTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-runner\build\runTest.js:444:34)
+    at Object.worker (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-runner\build\testWorker.js:106:12)        
+
+Node.js v22.13.1
+  console.warn
+    RouterView: No active router found                                      
+                                                                            
+      1553 |                                                                
+      1554 |     if (!router || !route.value) {                             
+    > 1555 |         console.warn('RouterView: No active router found');    
+           |                 ^                                              
+      1556 |         return {                                               
+      1557 |             tag: 'div',                                        
+      1558 |             props: { class: 'kal-router-view' },
+
+      at warn (packages/router/src/index.js:1555:17)
+      at Object.<anonymous> (tests/integration/router.test.js:83:32)        
+
+(node:20024) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+ FAIL  tests/unit/js-component.test.js
+  JS Component System                                                       
+    createJsComponent                                                       
+      √ should create a component from a setup function (40 ms)             
+      √ should handle missing render function (48 ms)                       
+      × should handle reactivity (2 ms)                                     
+    defineJsComponent                                                       
+      √ should define a component with setup function (2 ms)                
+      √ should define a component with options API for backward compatibility (2 ms)                                                                    
+    createStyles                                                            
+      × should create a style element with the provided CSS (1 ms)          
+      × should not create duplicate styles (2 ms)                           
+                                                                            
+  ● JS Component System › createJsComponent › should handle reactivity      
+                                                                            
+    TypeError: Cannot read properties of undefined (reading 'nodeValue')    
+                                                                            
+      111 |       const vnode = instance.render();                          
+      112 |       // The child is now a TEXT_ELEMENT node                   
+    > 113 |       expect(vnode.children[0].props.nodeValue).toBe('1');      
+          |                                      ^                          
+      114 |     });                                                         
+      115 |   });
+      116 |   
+
+      at Object.nodeValue (tests/unit/js-component.test.js:113:38)
+
+  ● JS Component System › createStyles › should create a style element with the provided CSS
+
+    TypeError: document.createElement.mockReturnValue is not a function     
+
+      174 |       };
+      175 |       
+    > 176 |       document.createElement.mockReturnValue(mockStyleElement); 
+          |                              ^
+      177 |       document.getElementById.mockReturnValue(null);
+      178 |       
+      179 |       const styleId = createStyles('.test { color: red; }');    
+
+      at Object.mockReturnValue (tests/unit/js-component.test.js:176:30)    
+
+  ● JS Component System › createStyles › should not create duplicate styles 
+
+    TypeError: document.getElementById.mockReturnValue is not a function    
+
+      187 |       // Mock getElementById to return an existing style element
+      188 |       const existingStyle = { id: 'existing-style' };
+    > 189 |       document.getElementById.mockReturnValue(existingStyle);   
+          |                               ^
+      190 |       
+      191 |       const styleId = createStyles('.test { color: blue; }');   
+      192 |       
+
+      at Object.mockReturnValue (tests/unit/js-component.test.js:189:31)    
+
+  console.warn
+    useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.                       
+                                                                            
+      1322 |         // Only show warning in development mode or if explicitly enabled                                                                  
+      1323 |         if (process.env.NODE_ENV !== 'production' || window.__KAL_DEBUG__) {                                                               
+    > 1324 |             console.warn('useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.');
+           |                     ^
+      1325 |         }
+      1326 |
+      1327 |         // Create reactive refs for the fallback implementation
+
+      at warn (packages/router/src/index.js:1324:21)
+      at useRouter (packages/router/src/index.js:1626:58)
+      at Object.<anonymous> (tests/integration/router.test.js:90:32)        
+
+(node:26604) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)  
+ FAIL  tests/integration/router.test.js
+  Router Integration Tests                                                  
+    √ router should initialize with correct mode (18 ms)                    
+    √ router should match routes correctly (5 ms)                           
+    × router should handle navigation (6 ms)                                
+    × router should parse query parameters (7 ms)                           
+    √ RouterView should render as a div (104 ms)                            
+    × RouterLink should render as an anchor with click handler (19 ms)      
+                                                                            
+  ● Router Integration Tests › router should handle navigation              
+                                                                            
+    expect(received).toBe(expected) // Object.is equality                   
+                                                                            
+    Expected: "#/about"                                                     
+    Received: "#/"                                                          
+                                                                            
+      62 |                                                                  
+      63 |         router.push('/about');                                   
+    > 64 |         expect(window.location.hash).toBe('#/about');
+         |                                      ^
+      65 |
+      66 |         // Test replace
+      67 |         router.replace('/');
+
+      at Object.toBe (tests/integration/router.test.js:64:38)
+
+  ● Router Integration Tests › router should parse query parameters
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+    -   "page": "1",
+    +   "page": 1,
+        "query": "kalxjs",
+      }
+
+      74 |         const route = router._matchRoute('/search?query=kalxjs&page=1');
+      75 |
+    > 76 |         expect(route.query).toEqual({
+         |                             ^
+      77 |             query: 'kalxjs',
+      78 |             page: '1'
+      79 |         });
+
+      at Object.toEqual (tests/integration/router.test.js:76:29)
+
+  ● Router Integration Tests › RouterLink should render as an anchor with click handler
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "/about"
+    Received: "/"
+
+      94 |
+      95 |         expect(link.tag).toBe('a');
+    > 96 |         expect(link.props.href).toBe('/about');
+         |                                 ^
+      97 |         expect(typeof link.props.onClick).toBe('function');      
+      98 |         expect(link.children).toEqual(['About']);
+      99 |     });
+
+      at Object.toBe (tests/integration/router.test.js:96:33)
+
+  console.log
+    Route changed to: /base/path Matched component: Unknown Params: {} Query: {}
+
+      at log (packages/router/src/index.js:1228:29)
+
+  console.warn
+    Failed to scroll to hash element: DOMException {}
+
+      1246 |                             }
+      1247 |                         } catch (error) {
+    > 1248 |                             console.warn('Failed to scroll to hash element:', error);
+           |                                     ^
+      1249 |                         }
+      1250 |                     } else if (this._savedPosition) {
+      1251 |                         // Restore saved position for back/forward navigation
+
+      at warn (packages/router/src/index.js:1248:37)
+
+  console.warn
+    useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.                       
+                                                                            
+      1322 |         // Only show warning in development mode or if explicitly enabled                                                                  
+      1323 |         if (process.env.NODE_ENV !== 'production' || window.__KAL_DEBUG__) {
+    > 1324 |             console.warn('useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.');
+           |                     ^
+      1325 |         }
+      1326 |
+      1327 |         // Create reactive refs for the fallback implementation
+
+      at warn (packages/router/src/index.js:1324:21)
+      at useRouter (packages/router/src/index.js:1552:31)
+      at Object.<anonymous> (tests/unit/router.test.js:178:36)
+
+  console.warn
+    RouterView: No active router found
+
+      1553 |
+      1554 |     if (!router || !route.value) {
+    > 1555 |         console.warn('RouterView: No active router found');    
+           |                 ^
+      1556 |         return {
+      1557 |             tag: 'div',
+      1558 |             props: { class: 'kal-router-view' },
+
+      at warn (packages/router/src/index.js:1555:17)
+      at Object.<anonymous> (tests/unit/router.test.js:178:36)
+
+  console.warn
+    useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.
+
+      1322 |         // Only show warning in development mode or if explicitly enabled
+      1323 |         if (process.env.NODE_ENV !== 'production' || window.__KAL_DEBUG__) {
+    > 1324 |             console.warn('useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.');
+           |                     ^
+      1325 |         }
+      1326 |
+      1327 |         // Create reactive refs for the fallback implementation
+
+      at warn (packages/router/src/index.js:1324:21)
+      at useRouter (packages/router/src/index.js:1626:58)
+      at Object.<anonymous> (tests/unit/router.test.js:188:36)
+
+(node:5128) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)  
+C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\packages\router\src\index.js:270                                                  
+          reject(new Error(`No route matched for path: ${path}`));          
+                 ^                                                          
+                                                                            
+Error: No route matched for path: /about                                    
+    at C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\packages\router\src\index.js:270:18
+    at new Promise (<anonymous>)
+    at Object._navigate (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\packages\router\src\index.js:264:27)
+    at Object.push (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\packages\router\src\index.js:231:19)
+    at Object.push (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\tests\unit\router.test.js:93:27)
+    at Promise.then.completed (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\utils.js:298:28)    
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\utils.js:231:10)
+    at _callCircusTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)  
+    at _runTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:252:3)
+    at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:126:9)    
+    at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:121:9)    
+    at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:121:9)    
+    at run (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:71:3)
+    at runAndTransformResultsToJestFormat (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:122:21)
+    at jestAdapter (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+    at runTestInternal (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-runner\build\runTest.js:367:16)
+    at runTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-runner\build\runTest.js:444:34)
+    at Object.worker (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-runner\build\testWorker.js:106:12)        
+
+Node.js v22.13.1
+  console.log
+    Route changed to: /base/path Matched component: Unknown Params: {} Query: {}
+
+      at log (packages/router/src/index.js:1228:29)
+
+  console.warn
+    Failed to scroll to hash element: DOMException {}
+
+      1246 |                             }
+      1247 |                         } catch (error) {
+    > 1248 |                             console.warn('Failed to scroll to hash element:', error);
+           |                                     ^
+      1249 |                         }
+      1250 |                     } else if (this._savedPosition) {
+      1251 |                         // Restore saved position for back/forward navigation
+
+      at warn (packages/router/src/index.js:1248:37)
+
+  console.warn
+    useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.
+
+      1322 |         // Only show warning in development mode or if explicitly enabled
+      1323 |         if (process.env.NODE_ENV !== 'production' || window.__KAL_DEBUG__) {
+    > 1324 |             console.warn('useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.');
+           |                     ^
+      1325 |         }
+      1326 |
+      1327 |         // Create reactive refs for the fallback implementation
+
+      at warn (packages/router/src/index.js:1324:21)
+      at useRouter (packages/router/src/index.js:1552:31)
+      at Object.<anonymous> (tests/unit/router.test.js:178:36)
+
+  console.warn
+    RouterView: No active router found                                      
+                                                                            
+      1553 |                                                                
+      1554 |     if (!router || !route.value) {                             
+    > 1555 |         console.warn('RouterView: No active router found');    
+           |                 ^
+      1556 |         return {
+      1557 |             tag: 'div',
+      1558 |             props: { class: 'kal-router-view' },
+
+      at warn (packages/router/src/index.js:1555:17)
+      at Object.<anonymous> (tests/unit/router.test.js:178:36)
+
+  console.warn
+    useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.                       
+                                                                            
+      1322 |         // Only show warning in development mode or if explicitly enabled                                                                  
+      1323 |         if (process.env.NODE_ENV !== 'production' || window.__KAL_DEBUG__) {
+    > 1324 |             console.warn('useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.');
+           |                     ^
+      1325 |         }
+      1326 |
+      1327 |         // Create reactive refs for the fallback implementation
+
+      at warn (packages/router/src/index.js:1324:21)
+      at useRouter (packages/router/src/index.js:1626:58)
+      at Object.<anonymous> (tests/unit/router.test.js:188:36)
+
+(node:27664) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\packages\router\src\index.js:270                                                  
+          reject(new Error(`No route matched for path: ${path}`));          
+                 ^                                                          
+                                                                            
+Error: No route matched for path: /about                                    
+    at C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\packages\router\src\index.js:270:18
+    at new Promise (<anonymous>)
+    at Object._navigate (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\packages\router\src\index.js:264:27)
+    at Object.push (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\packages\router\src\index.js:231:19)
+    at Object.push (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\tests\unit\router.test.js:93:27)
+    at Promise.then.completed (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\utils.js:298:28)    
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\utils.js:231:10)
+    at _callCircusTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)  
+    at _runTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:252:3)
+    at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:126:9)    
+    at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:121:9)    
+    at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:121:9)    
+    at run (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:71:3)
+    at runAndTransformResultsToJestFormat (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:122:21)
+    at jestAdapter (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+    at runTestInternal (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-runner\build\runTest.js:367:16)
+    at runTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-runner\build\runTest.js:444:34)
+    at Object.worker (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-runner\build\testWorker.js:106:12)        
+
+Node.js v22.13.1
+  console.log
+    Route changed to: /base/path Matched component: Unknown Params: {} Query: {}
+
+      at log (packages/router/src/index.js:1228:29)
+
+  console.warn
+    Failed to scroll to hash element: DOMException {}
+
+      1246 |                             }
+      1247 |                         } catch (error) {
+    > 1248 |                             console.warn('Failed to scroll to hash element:', error);
+           |                                     ^
+      1249 |                         }
+      1250 |                     } else if (this._savedPosition) {
+      1251 |                         // Restore saved position for back/forward navigation
+
+      at warn (packages/router/src/index.js:1248:37)
+
+  console.warn
+    useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.                       
+                                                                            
+      1322 |         // Only show warning in development mode or if explicitly enabled                                                                  
+      1323 |         if (process.env.NODE_ENV !== 'production' || window.__KAL_DEBUG__) {
+    > 1324 |             console.warn('useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.');
+           |                     ^
+      1325 |         }
+      1326 |
+      1327 |         // Create reactive refs for the fallback implementation
+
+      at warn (packages/router/src/index.js:1324:21)
+      at useRouter (packages/router/src/index.js:1552:31)
+      at Object.<anonymous> (tests/unit/router.test.js:178:36)
+
+  console.warn
+    RouterView: No active router found
+
+      1553 |
+      1554 |     if (!router || !route.value) {
+    > 1555 |         console.warn('RouterView: No active router found');    
+           |                 ^
+      1556 |         return {
+      1557 |             tag: 'div',
+      1558 |             props: { class: 'kal-router-view' },
+
+      at warn (packages/router/src/index.js:1555:17)
+      at Object.<anonymous> (tests/unit/router.test.js:178:36)
+
+  console.warn
+    useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.
+
+      1322 |         // Only show warning in development mode or if explicitly enabled
+      1323 |         if (process.env.NODE_ENV !== 'production' || window.__KAL_DEBUG__) {
+    > 1324 |             console.warn('useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.');
+           |                     ^
+      1325 |         }
+      1326 |
+      1327 |         // Create reactive refs for the fallback implementation
+
+      at warn (packages/router/src/index.js:1324:21)
+      at useRouter (packages/router/src/index.js:1626:58)
+      at Object.<anonymous> (tests/unit/router.test.js:188:36)
+
+(node:17932) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)  
+C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\packages\router\src\index.js:270                                                  
+          reject(new Error(`No route matched for path: ${path}`));          
+                 ^                                                          
+                                                                            
+Error: No route matched for path: /about                                    
+    at C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\packages\router\src\index.js:270:18
+    at new Promise (<anonymous>)
+    at Object._navigate (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\packages\router\src\index.js:264:27)
+    at Object.push (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\packages\router\src\index.js:231:19)
+    at Object.push (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\tests\unit\router.test.js:93:27)
+    at Promise.then.completed (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\utils.js:298:28)    
+    at new Promise (<anonymous>)
+    at callAsyncCircusFn (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\utils.js:231:10)
+    at _callCircusTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:316:40)
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)  
+    at _runTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:252:3)
+    at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:126:9)    
+    at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:121:9)    
+    at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:121:9)    
+    at run (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:71:3)
+    at runAndTransformResultsToJestFormat (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:122:21)
+    at jestAdapter (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+    at runTestInternal (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-runner\build\runTest.js:367:16)
+    at runTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-runner\build\runTest.js:444:34)
+    at Object.worker (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kaljs\KALXJS-FRAMEWORK\node_modules\jest-runner\build\testWorker.js:106:12)        
+
+Node.js v22.13.1
+ FAIL  tests/unit/router.test.js
+  ● Test suite failed to run
+                                                                            
+    Jest worker encountered 4 child process exceptions, exceeding retry limit                                                                           
+                                                                            
+      at ChildProcessWorker.initialize (node_modules/jest-worker/build/workers/ChildProcessWorker.js:181:21)
+
+Test Suites: 8 failed, 2 passed, 10 total
+Tests:       17 failed, 53 passed, 70 total
+Snapshots:   0 total
+Time:        7.711 s
+Ran all test suites.
+
+kalculusGuy@kalculus MINGW64 ~/Desktop/projectEra/nodejs/kaljs/kalxjs-framework (master)
+$

@@ -11,18 +11,18 @@
  */
 export function debounce(fn, wait = 300, immediate = false) {
   let timeout;
-  
-  return function(...args) {
+
+  return function (...args) {
     const context = this;
-    const later = function() {
+    const later = function () {
       timeout = null;
       if (!immediate) fn.apply(context, args);
     };
-    
+
     const callNow = immediate && !timeout;
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
-    
+
     if (callNow) fn.apply(context, args);
   };
 }
@@ -39,41 +39,81 @@ export function debounce(fn, wait = 300, immediate = false) {
  * @returns {Function} The throttled function
  */
 export function throttle(fn, wait = 300, options = {}) {
-  let context, args, result;
+  let lastCallTime = 0;
+  let lastInvokeTime = 0;
   let timeout = null;
-  let previous = 0;
-  
-  if (!options) options = {};
-  
-  const later = function() {
-    previous = options.leading === false ? 0 : Date.now();
-    timeout = null;
+  let context, args, result;
+  let leadingCall = false;
+
+  // Ensure options is an object
+  options = options || {};
+
+  function invokeFunc() {
+    const invokeTime = Date.now();
+    lastInvokeTime = invokeTime;
     result = fn.apply(context, args);
-    if (!timeout) context = args = null;
-  };
-  
-  return function(...params) {
-    const now = Date.now();
-    if (!previous && options.leading === false) previous = now;
-    
-    const remaining = wait - (now - previous);
+    context = args = null;
+    return result;
+  }
+
+  function shouldInvoke(time) {
+    const timeSinceLastCall = time - lastCallTime;
+    const timeSinceLastInvoke = time - lastInvokeTime;
+
+    // First call or enough time has passed since last invoke
+    return (lastCallTime === 0) || (timeSinceLastInvoke >= wait);
+  }
+
+  function trailingEdge() {
+    timeout = null;
+
+    // Only invoke if we have args from a previous call
+    if (args && options.trailing !== false) {
+      return invokeFunc();
+    }
+
+    context = args = null;
+    return result;
+  }
+
+  function leadingEdge() {
+    lastInvokeTime = Date.now();
+    leadingCall = true;
+
+    // Set timeout for trailing edge
+    if (options.trailing !== false) {
+      timeout = setTimeout(trailingEdge, wait);
+    }
+
+    return invokeFunc();
+  }
+
+  return function throttled(...params) {
+    const time = Date.now();
+    const isInvoking = shouldInvoke(time);
+
     context = this;
     args = params;
-    
-    if (remaining <= 0 || remaining > wait) {
+    lastCallTime = time;
+
+    // First call with leading edge
+    if (isInvoking) {
       if (timeout) {
         clearTimeout(timeout);
         timeout = null;
       }
-      
-      previous = now;
-      result = fn.apply(context, args);
-      
-      if (!timeout) context = args = null;
+
+      if (!leadingCall && options.leading !== false) {
+        return leadingEdge();
+      }
+
+      if (options.trailing !== false) {
+        timeout = setTimeout(trailingEdge, wait);
+      }
     } else if (!timeout && options.trailing !== false) {
-      timeout = setTimeout(later, remaining);
+      timeout = setTimeout(trailingEdge, wait - (time - lastInvokeTime));
     }
-    
+
     return result;
   };
 }
@@ -88,13 +128,13 @@ export function throttle(fn, wait = 300, options = {}) {
 export function once(fn) {
   let called = false;
   let result;
-  
-  return function(...args) {
+
+  return function (...args) {
     if (!called) {
       called = true;
       result = fn.apply(this, args);
     }
-    
+
     return result;
   };
 }
@@ -107,19 +147,19 @@ export function once(fn) {
  * @returns {Function} The memoized function
  */
 export function memoize(fn, resolver) {
-  const memoized = function(...args) {
+  const memoized = function (...args) {
     const key = resolver ? resolver.apply(this, args) : args[0];
     const cache = memoized.cache;
-    
+
     if (cache.has(key)) {
       return cache.get(key);
     }
-    
+
     const result = fn.apply(this, args);
     memoized.cache = cache.set(key, result) || cache;
     return result;
   };
-  
+
   memoized.cache = new Map();
   return memoized;
 }
@@ -131,7 +171,7 @@ export function memoize(fn, resolver) {
  * @returns {Function} The negated function
  */
 export function negate(fn) {
-  return function(...args) {
+  return function (...args) {
     return !fn.apply(this, args);
   };
 }

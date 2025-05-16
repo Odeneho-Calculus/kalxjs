@@ -148,7 +148,8 @@ describe('Component System', () => {
             document.createElement = jest.fn().mockImplementation(() => {
                 return {
                     style: {},
-                    appendChild: jest.fn()
+                    appendChild: jest.fn(),
+                    setAttribute: jest.fn()
                 };
             });
 

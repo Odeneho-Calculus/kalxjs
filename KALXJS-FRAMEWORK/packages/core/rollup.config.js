@@ -37,6 +37,19 @@ const terserOptions = isProd ? {
 };
 
 export default [
+    // Composition API build
+    {
+        input: 'src/composition/index.js',
+        output: {
+            file: 'dist/composition/index.js',
+            format: 'es',
+            sourcemap: true,
+            exports: 'named'
+        },
+        plugins: [
+            nodeResolve()
+        ]
+    },
     // Development build with debugging enabled
     {
         input: 'src/index.js',

@@ -1,0 +1,73 @@
+// Features page styles
+.features-page {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .page-title {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+    text-align: center;
+  }
+
+  .page-description {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    color: var(--text-color);
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .feature-card {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .feature-title {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      color: var(--primary-color);
+    }
+
+    .feature-description {
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+  }
+  
+  .actions {
+    margin-top: 2rem;
+    text-align: center;
+  }
+}
+
+// Dark mode adjustments
+.dark-theme {
+  .features-page {
+    .feature-card {
+      background-color: var(--card-bg-dark);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+
+      &:hover {
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
+      }
+    }
+  }
+}

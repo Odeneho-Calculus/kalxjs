@@ -34,24 +34,30 @@ export function createJsComponent(setup) {
     // Call setup function
     const setupResult = setup(context.props, context);
 
+    // Make state reactive
+    const state = reactive(setupResult.state || {});
+
     // Extract render function
-    const { render, ...rest } = setupResult;
+    const { render, state: _, ...rest } = setupResult;
+
+    // Add state to instance
+    instance.state = state;
 
     if (!render || typeof render !== 'function') {
       console.error('Component setup must return a render function');
       // Create a default render function
-      instance.render = () => h('div', { 
-        style: 'padding: 10px; border: 1px solid red; color: red;' 
+      instance.render = () => h('div', {
+        style: 'padding: 10px; border: 1px solid red; color: red;'
       }, ['Component Error: No render function provided']);
     } else {
       // Bind render to instance
-      instance.render = function() {
+      instance.render = function () {
         try {
-          return render.call(this);
+          return render.call(this, state);
         } catch (error) {
           console.error('Error in render function:', error);
-          return h('div', { 
-            style: 'padding: 10px; border: 1px solid red; color: red;' 
+          return h('div', {
+            style: 'padding: 10px; border: 1px solid red; color: red;'
           }, [
             h('h3', {}, ['Render Error']),
             h('p', {}, [error.message])
@@ -64,7 +70,7 @@ export function createJsComponent(setup) {
     Object.assign(instance, rest);
 
     // Add lifecycle methods
-    instance.$mount = function(el) {
+    instance.$mount = function (el) {
       if (typeof el === 'string') {
         el = document.querySelector(el);
       }
@@ -122,7 +128,7 @@ export function createJsComponent(setup) {
       return this;
     };
 
-    instance.$update = function() {
+    instance.$update = function () {
       if (!this.$el || this._isUnmounted) {
         return;
       }
@@ -135,7 +141,7 @@ export function createJsComponent(setup) {
       // Re-render and update the DOM
       try {
         const newVnode = this.render();
-        
+
         if (this._vnode) {
           // Update the DOM using the diff algorithm
           updateElement(this.$el, this._vnode, newVnode);
@@ -145,7 +151,7 @@ export function createJsComponent(setup) {
           this.$el.innerHTML = '';
           this.$el.appendChild(dom);
         }
-        
+
         // Store the new vnode
         this._vnode = newVnode;
 
@@ -165,7 +171,7 @@ export function createJsComponent(setup) {
       }
     };
 
-    instance.$unmount = function() {
+    instance.$unmount = function () {
       if (!this.$el || this._isUnmounted) {
         return;
       }
@@ -206,7 +212,7 @@ export function createJsComponent(setup) {
       const stopEffect = effect(() => {
         // Access all reactive properties to track them
         JSON.stringify(setupResult.state);
-        
+
         // Only update if already mounted
         if (instance._isMounted && !instance._isUnmounted) {
           instance.$update();
@@ -231,57 +237,57 @@ export function defineJsComponent(options) {
   if (options.setup && typeof options.setup === 'function') {
     return createJsComponent(options.setup);
   }
-  
+
   // For backward compatibility, create a setup function from options API
   return createJsComponent((props, { emit }) => {
     const result = { props };
-    
+
     // Initialize data as reactive state
     if (options.data && typeof options.data === 'function') {
       result.state = reactive(options.data());
     } else {
       result.state = reactive({});
     }
-    
+
     // Add methods
     if (options.methods) {
       Object.entries(options.methods).forEach(([key, method]) => {
-        result[key] = function(...args) {
+        result[key] = function (...args) {
           return method.apply({ ...result, ...result.state }, args);
         };
       });
     }
-    
+
     // Add computed properties
     if (options.computed) {
       Object.entries(options.computed).forEach(([key, computedFn]) => {
         Object.defineProperty(result, key, {
-          get: function() {
+          get: function () {
             return computedFn.call({ ...result, ...result.state });
           }
         });
       });
     }
-    
+
     // Add lifecycle hooks
     ['beforeMount', 'mounted', 'beforeUpdate', 'updated', 'beforeUnmount', 'unmounted'].forEach(hook => {
       if (options[hook]) {
-        result[hook] = function() {
+        result[hook] = function () {
           return options[hook].call({ ...result, ...result.state });
         };
       }
     });
-    
+
     // Add render function
     if (options.render) {
-      result.render = function() {
+      result.render = function () {
         return options.render.call({ ...result, ...result.state });
       };
     } else {
       // Default render function
       result.render = () => h('div', {}, ['No render function defined']);
     }
-    
+
     return result;
   });
 }
@@ -291,19 +297,25 @@ export function defineJsComponent(options) {
  * @param {string} cssString - CSS styles as a string
  * @returns {string} Style ID for reference
  */
-export function createStyles(cssString) {
+export function createStyles(cssString, styleId) {
   if (typeof document === 'undefined') {
     return null;
   }
-  
-  const styleId = 'kaljs-style-' + Math.random().toString(36).substring(2, 10);
-  
-  if (!document.getElementById(styleId)) {
-    const style = document.createElement('style');
-    style.id = styleId;
-    style.textContent = cssString;
-    document.head.appendChild(style);
+
+  // Use provided styleId or generate a random one
+  const id = styleId || 'kaljs-style-' + Math.random().toString(36).substring(2, 10);
+
+  // Check if the style element already exists
+  const existingStyle = document.getElementById(id);
+  if (existingStyle) {
+    return id;
   }
-  
-  return styleId;
+
+  // Create new style element
+  const style = document.createElement('style');
+  style.id = id;
+  style.textContent = cssString;
+  document.head.appendChild(style);
+
+  return id;
 }

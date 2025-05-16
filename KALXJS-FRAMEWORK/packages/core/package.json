@@ -40,8 +40,8 @@
       "require": "./dist/kalxjs.umd.js"
     },
     "./composition": {
-      "import": "./src/composition/index.js",
-      "require": "./src/composition/index.js"
+      "import": "./dist/composition/index.js",
+      "require": "./dist/composition/index.js"
     },
     "./browser": {
       "import": "./dist/browser.esm.js"

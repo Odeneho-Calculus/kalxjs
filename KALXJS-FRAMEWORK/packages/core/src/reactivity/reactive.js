@@ -2,6 +2,7 @@
 
 // Current active effect
 let activeEffect = null;
+const effectStack = [];
 
 /**
  * Creates a reactive object
@@ -9,16 +10,57 @@ let activeEffect = null;
  * @returns {Proxy} Reactive object
  */
 export function reactive(target) {
+    if (!target || typeof target !== 'object') {
+        return target;
+    }
+
     const handlers = {
         get(target, key, receiver) {
+            // Special handling for array methods that modify the array
+            if (Array.isArray(target) && typeof Array.prototype[key] === 'function') {
+                // Handle array mutation methods
+                if (['push', 'pop', 'shift', 'unshift', 'splice'].includes(key)) {
+                    track(target, 'length');
+
+                    // Return a wrapped function that triggers updates
+                    return function (...args) {
+                        const result = Array.prototype[key].apply(target, args);
+                        trigger(target, 'length');
+                        return result;
+                    };
+                }
+            }
+
             const result = Reflect.get(target, key, receiver);
             track(target, key);
+
+            // Make nested objects reactive too
+            if (result && typeof result === 'object') {
+                return reactive(result);
+            }
+
             return result;
         },
         set(target, key, value, receiver) {
             const oldValue = target[key];
             const result = Reflect.set(target, key, value, receiver);
+
             if (oldValue !== value) {
+                // Make the internal value reactive if it's an object
+                value = value && typeof value === 'object' ? reactive(value) : value;
+                trigger(target, key);
+
+                // If we're modifying an array length, trigger for the array itself
+                if (Array.isArray(target) && key === 'length') {
+                    trigger(target, 'length');
+                }
+            }
+            return result;
+        },
+        deleteProperty(target, key) {
+            const hadKey = key in target;
+            const result = Reflect.deleteProperty(target, key);
+            if (hadKey && result) {
                 trigger(target, key);
             }
             return result;
@@ -34,15 +76,21 @@ export function reactive(target) {
  * @returns {Object} Reactive reference
  */
 export function ref(value) {
+    // Make the internal value reactive if it's an object
+    const _value = value && typeof value === 'object' ? reactive(value) : value;
+
     const r = {
-        _value: value,
+        _value,
         get value() {
             track(r, 'value');
             return this._value;
         },
         set value(newValue) {
             if (this._value !== newValue) {
-                this._value = newValue;
+                // Make the new value reactive if it's an object
+                this._value = newValue && typeof newValue === 'object'
+                    ? reactive(newValue)
+                    : newValue;
                 trigger(r, 'value');
             }
         }
@@ -52,35 +100,38 @@ export function ref(value) {
 
 /**
  * Creates a computed property
- * @param {Function} getter - Getter function
+ * @param {Function|Object} options - Getter function or options object with get/set
  * @returns {Object} Computed property
  */
-export function computed(getter) {
-    let value;
-    let dirty = true;
+export function computed(options) {
+    let getter, setter;
 
-    const runner = effect(getter, {
-        lazy: true,
-        scheduler: () => {
-            if (!dirty) {
-                dirty = true;
-                trigger(computedRef, 'value');
-            }
-        }
+    // Handle both function and object with get/set
+    if (typeof options === 'function') {
+        getter = options;
+        setter = () => console.warn('Write operation failed: computed value is readonly');
+    } else {
+        getter = options.get;
+        setter = options.set;
+    }
+
+    // Create a ref to store the computed value
+    const result = ref();
+
+    // Create an effect that updates the ref's value
+    effect(() => {
+        result.value = getter();
     });
 
-    const computedRef = {
+    // Return a read-only version of the ref
+    return {
         get value() {
-            if (dirty) {
-                value = runner();
-                dirty = false;
-            }
-            track(computedRef, 'value');
-            return value;
+            return result.value;
+        },
+        set value(newValue) {
+            setter(newValue);
         }
     };
-
-    return computedRef;
 }
 
 /**
@@ -113,7 +164,13 @@ function track(target, key) {
         if (!dep) {
             depsMap.set(key, (dep = new Set()));
         }
-        dep.add(activeEffect);
+
+        // Skip if the dependency is already tracked
+        if (!dep.has(activeEffect)) {
+            dep.add(activeEffect);
+            // Keep track of the dependency for cleanup
+            activeEffect.deps.push(dep);
+        }
     }
 }
 
@@ -138,7 +195,7 @@ function trigger(target, key) {
     }
 }
 
-function createReactiveEffect(fn, options) {
+function createReactiveEffect(fn, options = {}) {
     const effect = function reactiveEffect() {
         if (!effect.active) return fn();
         if (!effectStack.includes(effect)) {
@@ -155,13 +212,27 @@ function createReactiveEffect(fn, options) {
         }
     };
 
-    effect.active = true;
     effect.deps = [];
     effect.options = options;
+
+    // Add a setter for the active property to handle cleanup
+    Object.defineProperty(effect, 'active', {
+        get: () => effect._active,
+        set: (value) => {
+            if (effect._active !== value) {
+                effect._active = value;
+                if (!value) {
+                    // Clean up dependencies when deactivated
+                    cleanup(effect);
+                }
+            }
+        }
+    });
+
+    effect._active = true;
+
     return effect;
 }
-
-const effectStack = [];
 
 function cleanup(effect) {
     const { deps } = effect;
