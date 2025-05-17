@@ -56,35 +56,36 @@ async function component(componentName, options = {}) {
   try {
     const cwd = process.cwd();
 
-    // Check if we're in a kalxjs project
+    // Check for app/components directory
     spinner.text = chalk.cyan('Validating project structure...');
 
     try {
-      const packageJsonPath = path.join(cwd, 'package.json');
-      await access(packageJsonPath);
-      const packageJson = JSON.parse(await readFile(packageJsonPath, 'utf8'));
-
-      if (!packageJson.dependencies || !packageJson.dependencies.kalxjs) {
-        spinner.warn(chalk.yellow('This does not appear to be a kalxjs project, but proceeding anyway...'));
-      } else {
-        spinner.succeed(chalk.green('Valid KalxJS project detected'));
-      }
+      // Check if app directory exists
+      const appDir = path.join(cwd, 'app');
+      await access(appDir);
+      spinner.succeed(chalk.green('Valid KalxJS project structure detected'));
     } catch (err) {
-      spinner.fail(chalk.red('No package.json found. Are you in a kalxjs project directory?'));
-      console.log('\n');
-      console.log(boxen(
-        chalk.redBright('⚠️ Project Validation Failed ⚠️') + '\n\n' +
-        chalk.white('This command must be run from the root of a KalxJS project.') + '\n\n' +
-        chalk.yellow('To create a new project, run:') + '\n' +
-        chalk.cyan('  kalxjs create my-app'),
-        {
-          padding: 1,
-          margin: 1,
-          borderColor: 'red',
-          borderStyle: 'round'
-        }
-      ));
-      process.exit(1);
+      // Create app directory if it doesn't exist
+      spinner.info(chalk.blue('Creating app directory structure...'));
+      try {
+        await mkdir(path.join(cwd, 'app'), { recursive: true });
+      } catch (mkdirErr) {
+        spinner.fail(chalk.red('Failed to create app directory structure'));
+        console.log('\n');
+        console.log(boxen(
+          chalk.redBright('⚠️ Project Structure Creation Failed ⚠️') + '\n\n' +
+          chalk.white('Unable to create the required directory structure.') + '\n\n' +
+          chalk.yellow('To create a new project, run:') + '\n' +
+          chalk.cyan('  kalxjs create my-app'),
+          {
+            padding: 1,
+            margin: 1,
+            borderColor: 'red',
+            borderStyle: 'round'
+          }
+        ));
+        process.exit(1);
+      }
     }
 
     // Format component name (PascalCase)
@@ -123,9 +124,8 @@ async function component(componentName, options = {}) {
     await mkdir(componentDir, { recursive: true });
     progress.update(20, { state: 'Component directory created' });
 
-    // Use .klx extension for single file components if SFC option is enabled
-    const useKlx = options.sfc !== false; // Default to true if not specified
-    const componentFilePath = path.join(componentDir, `${formattedName}${useKlx ? '.klx' : '.js'}`);
+    // Always use .js extension as .klx is deprecated
+    const componentFilePath = path.join(componentDir, `${formattedName}.js`);
 
     progress.update(30, { state: `Checking if component already exists` });
 
@@ -152,11 +152,9 @@ async function component(componentName, options = {}) {
       progress.update(40, { state: `Component name is available` });
     }
 
-    // Create component content using template
+    // Create component content using template (always use JS template as KLX is deprecated)
     progress.update(50, { state: `Generating component code` });
-    const componentTemplate = useKlx
-      ? getKlxComponentTemplate(formattedName, options)
-      : getDefaultComponentTemplate(formattedName, options);
+    const componentTemplate = getDefaultComponentTemplate(formattedName, options);
     await writeFile(componentFilePath, componentTemplate);
     progress.update(60, { state: `Component file created` });
 
@@ -206,10 +204,10 @@ async function component(componentName, options = {}) {
       gradient.rainbow(`🎉 Component ${formattedName} Created! 🎉`) + '\n\n' +
       chalk.white('Location: ') + chalk.green(path.relative(cwd, componentFilePath)) + '\n\n' +
       chalk.white('Files:') + '\n' +
-      chalk.cyan(`  ➜ app/components/${formattedName}${useKlx ? '.klx' : '.js'}`) + chalk.gray(' - Component implementation') +
+      chalk.cyan(`  ➜ app/components/${formattedName}.js`) + chalk.gray(' - Component implementation') +
       (options.style ? `\n${chalk.cyan(`  ➜ app/styles/components/${formattedName.toLowerCase()}.${typeof options.style === 'string' ? options.style : 'css'}`)}` + chalk.gray(' - Component styles') : '') +
       (options.test ? `\n${chalk.cyan(`  ➜ app/components/__tests__/${formattedName}.test.js`)}` + chalk.gray(' - Component tests') : '') + '\n\n' +
-      chalk.white('Import with: ') + chalk.yellow(`import ${formattedName} from './${path.relative(cwd, componentDir).replace(/\\/g, '/')}/${formattedName}';`),
+      chalk.white('Import with: ') + chalk.yellow(`import ${formattedName} from './components/${formattedName}';`),
       {
         padding: 1,
         margin: 1,
@@ -261,65 +259,68 @@ async function component(componentName, options = {}) {
  * @returns {string} - Component template
  */
 function getDefaultComponentTemplate(componentName, options = {}) {
-  let template = `import { h, Component } from 'kalxjs';
+  let template = `import { h, createComponent } from '@kalxjs/core/component';
 ${options.style ? `import '../styles/components/${componentName.toLowerCase()}${typeof options.style === 'string' ? '.' + options.style : '.css'}';` : ''}
 
-class ${componentName} extends Component {\n`;
+class ${componentName} {\n`;
 
-  if (options.state) {
-    template += `  constructor(props) {
-    super(props);
-    this.state = {
-      count: 0
-    };
+  template += `  constructor() {
+    const component = createComponent({
+      name: '${componentName}',
+      ${options.props ? `
+      props: {
+        title: {
+          type: String,
+          default: '${componentName}'
+        }
+      },` : ''}
+      ${options.state ? `
+      data() {
+        return {
+          count: 0
+        };
+      },` : `
+      data() {
+        return {};
+      },`}
+      ${options.methods ? `
+      methods: {
+        increment() {
+          this.count++;
+        }
+      },` : ''}
+      ${options.lifecycle ? `
+      beforeMount() {
+        // Called before component is mounted
+      },
+      
+      mounted() {
+        console.log('${componentName} mounted');
+      },
+      
+      beforeUpdate() {
+        // Called before component updates
+      },
+      
+      updated() {
+        // Called after component updates
+      },` : ''}
+      render: this.render.bind(this)
+    });
+    
+    // Copy component properties to this instance
+    Object.assign(this, component);
   }\n`;
-  } else {
-    template += `  constructor(props) {
-    super(props);
-    this.state = {};
-  }\n`;
-  }
-
-  if (options.methods) {
-    template += `
-  increment = () => {
-    this.setState({ count: this.state.count + 1 });
-  }\n`;
-  }
-
-  if (options.lifecycle) {
-    template += `
-  componentDidMount() {
-    console.log('${componentName} mounted');
-  }
-
-  componentWillUnmount() {
-    // Called when component is about to be removed
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    // Called after component updates
-  }\n`;
-  }
 
   template += `
   render() {
-    ${options.state ? 'const { count } = this.state;' : ''}
-    ${options.props ? 'const { title } = this.props;' : ''}
-    
-    return (
-      <div className="${componentName.toLowerCase()}">
-        <h2>${options.props ? '{title}' : componentName}</h2>
-        ${options.state ? '<p>Count: {count}</p>' : ''}
-        ${options.state && options.methods ? '<button onClick={this.increment}>Increment</button>' : ''}
-      </div>
-    );
+    return h('div', { class: '${componentName.toLowerCase()}' }, [
+      h('h2', {}, [${options.props ? 'this.title' : `'${componentName}'`}]),
+      ${options.state ? "h('p', {}, [`Count: \${this.count}`])," : ''}
+      ${options.state && options.methods ? "h('button', { onClick: this.increment }, ['Increment'])," : ''}
+    ]);
   }
 }
-
-${options.props ? `${componentName}.defaultProps = {
-  title: '${componentName}'
-};` : ''}
 
 export default ${componentName};
 `;
@@ -333,13 +334,24 @@ export default ${componentName};
  * @returns {string} - Test template
  */
 function getComponentTestTemplate(componentName) {
-  return `import { mount } from '@kalxjs/test-utils';
+  return `import { createComponent } from '@kalxjs/core/component';
 import ${componentName} from '../../${componentName}';
 
 describe('${componentName}', () => {
-  test('mounts successfully', () => {
-    const wrapper = mount(${componentName});
-    expect(wrapper.find('h2').text()).toBe('${componentName}');
+  test('renders correctly', () => {
+    // Create a test container
+    const container = document.createElement('div');
+    document.body.appendChild(container);
+    
+    // Create an instance of the component
+    const component = new ${componentName}();
+    component.$mount(container);
+    
+    // Check that the component renders correctly
+    expect(container.querySelector('h2').textContent).toBe('${componentName}');
+    
+    // Clean up
+    document.body.removeChild(container);
   });
 });
 `;
@@ -376,174 +388,6 @@ function getComponentStyleTemplate(componentName) {
   background-color: #357abd;
 }
 `;
-}
-
-/**
- * Get KLX single file component template
- * @param {string} componentName - Component name
- * @param {Object} options - Component options
- * @returns {string} - KLX component template
- */
-function getKlxComponentTemplate(componentName, options = {}) {
-  // Template section
-  let template = `<template>
-  <div class="${componentName.toLowerCase()}">
-    <h2>${componentName}</h2>`;
-
-  if (options.state) {
-    template += `
-    <p>Count: {{ count }}</p>
-    <div class="button-group">
-      <button class="button" data-event-increment="click">Increment</button>
-      <button class="button reset" data-event-reset="click">Reset</button>
-    </div>`;
-  }
-
-  template += `
-  </div>
-</template>
-
-`;
-
-  // Script section
-  template += `<script>
-import { Component } from 'kalxjs';
-
-export default {
-  name: '${componentName}',
-`;
-
-  if (options.props) {
-    template += `
-  props: {
-    message: {
-      type: String,
-      required: true
-    }
-  },
-`;
-  }
-
-  if (options.state) {
-    template += `
-  data() {
-    return {
-      count: 0
-    };
-  },
-`;
-  } else {
-    template += `
-  data() {
-    return {};
-  },
-`;
-  }
-
-  if (options.state) {
-    template += `
-  computed: {
-    doubleCount() {
-      return this.count * 2;
-    }
-  },
-`;
-  }
-
-  if (options.methods || options.state) {
-    template += `
-  methods: {`;
-
-    if (options.state) {
-      template += `
-    increment() {
-      this.count++;
-    },
-    
-    reset() {
-      this.count = 0;
-    }`;
-    }
-
-    template += `
-  },
-`;
-  }
-
-  if (options.lifecycle) {
-    template += `
-  beforeMount() {
-    // Called before component is mounted
-  },
-
-  mounted() {
-    console.log('${componentName} mounted');
-  },
-
-  beforeUpdate() {
-    // Called before component updates
-  },
-
-  updated() {
-    // Called after component updates
-  },
-`;
-  } else {
-    template += `
-  mounted() {
-    console.log('${componentName} mounted');
-  },
-`;
-  }
-
-  template += `};
-</script>
-
-`;
-
-  // Style section
-  template += `<style>
-.${componentName.toLowerCase()} {
-  padding: 1rem;
-  margin: 1rem;
-  border: 1px solid #eee;
-  border-radius: 4px;
-}
-
-.${componentName.toLowerCase()} h2 {
-  margin-top: 0;
-  color: #333;
-}
-
-.button-group {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-
-.button {
-  padding: 0.5rem 1rem;
-  background-color: #42b883;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.button:hover {
-  background-color: #3aa776;
-}
-
-.button.reset {
-  background-color: #7f8c8d;
-}
-
-.button.reset:hover {
-  background-color: #6c7a7b;
-}
-</style>`;
-
-  return template;
 }
 
 module.exports = component;

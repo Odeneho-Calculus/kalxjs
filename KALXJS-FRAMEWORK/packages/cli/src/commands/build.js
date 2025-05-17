@@ -63,17 +63,27 @@ function build(options = {}) {
         // Get project root directory
         const projectRoot = process.cwd();
 
-        // Check if this is a kalxjs project by looking for package.json
+        // Check if this is a valid project by looking for package.json
         if (!fs.existsSync(path.join(projectRoot, 'package.json'))) {
-            spinner.fail('No package.json found. Are you in a kalxjs project directory?');
+            spinner.fail(chalk.red('No package.json found. Are you in a project directory?'));
+            console.log('\n');
+            console.log(boxen(
+                chalk.redBright('⚠️ Project Validation Failed ⚠️') + '\n\n' +
+                chalk.white('This command must be run from the root of a project with a package.json file.') + '\n\n' +
+                chalk.yellow('To create a new project, run:') + '\n' +
+                chalk.cyan('  kalxjs create my-app'),
+                {
+                    padding: 1,
+                    margin: 1,
+                    borderColor: 'red',
+                    borderStyle: 'round'
+                }
+            ));
             process.exit(1);
         }
 
-        // Read package.json to verify it's a kalxjs project
+        // Read package.json
         const packageJson = require(path.join(projectRoot, 'package.json'));
-        if (!packageJson.dependencies || !packageJson.dependencies.kalxjs) {
-            spinner.warn('This does not appear to be a kalxjs project, but proceeding anyway...');
-        }
 
         // Create or ensure output directory exists
         const distDir = path.join(projectRoot, options.output);
@@ -111,11 +121,21 @@ function build(options = {}) {
             } catch (err) {
                 buildProgress.stop();
                 console.log('\n');
-                console.log(boxen(chalk.red('Build script failed') + '\n\n' + err.message, {
-                    padding: 1,
-                    borderColor: 'red',
-                    borderStyle: 'round'
-                }));
+                console.log(boxen(
+                    chalk.redBright('⚠️ Build script failed ⚠️') + '\n\n' +
+                    chalk.white('Error details:') + '\n' +
+                    chalk.red(err.message) + '\n\n' +
+                    chalk.yellow('Troubleshooting tips:') + '\n' +
+                    chalk.cyan('1.') + ' Check your package.json build script\n' +
+                    chalk.cyan('2.') + ' Ensure all dependencies are installed: ' + chalk.white('npm install') + '\n' +
+                    chalk.cyan('3.') + ' Check for syntax errors in your code\n' +
+                    chalk.cyan('4.') + ' Try running with verbose mode: ' + chalk.white('kalxjs build --verbose'),
+                    {
+                        padding: 1,
+                        borderColor: 'red',
+                        borderStyle: 'round'
+                    }
+                ));
                 process.exit(1);
             }
         } else {
@@ -219,11 +239,22 @@ ${options.analyze ?
                 } catch (err) {
                     buildProgress.stop();
                     console.log('\n');
-                    console.log(boxen(chalk.red('ESBuild bundling failed') + '\n\n' + err.message, {
-                        padding: 1,
-                        borderColor: 'red',
-                        borderStyle: 'round'
-                    }));
+                    console.log(boxen(
+                        chalk.redBright('⚠️ ESBuild Bundling Failed ⚠️') + '\n\n' +
+                        chalk.white('Error details:') + '\n' +
+                        chalk.red(err.message) + '\n\n' +
+                        chalk.yellow('Troubleshooting tips:') + '\n' +
+                        chalk.cyan('1.') + ' Check your project structure\n' +
+                        chalk.cyan('2.') + ' Ensure all dependencies are installed: ' + chalk.white('npm install') + '\n' +
+                        chalk.cyan('3.') + ' Check for syntax errors in your code\n' +
+                        chalk.cyan('4.') + ' Try running with verbose mode: ' + chalk.white('kalxjs build --verbose'),
+                        {
+                            padding: 1,
+                            margin: 1,
+                            borderColor: 'red',
+                            borderStyle: 'round'
+                        }
+                    ));
                     process.exit(1);
                 }
             }
@@ -237,11 +268,22 @@ ${options.analyze ?
                 } catch (err) {
                     buildProgress.stop();
                     console.log('\n');
-                    console.log(boxen(chalk.red(`${bundlerName} build failed`) + '\n\n' + err.message, {
-                        padding: 1,
-                        borderColor: 'red',
-                        borderStyle: 'round'
-                    }));
+                    console.log(boxen(
+                        chalk.redBright(`⚠️ ${bundlerName} Build Failed ⚠️`) + '\n\n' +
+                        chalk.white('Error details:') + '\n' +
+                        chalk.red(err.message) + '\n\n' +
+                        chalk.yellow('Troubleshooting tips:') + '\n' +
+                        chalk.cyan('1.') + ' Check your bundler configuration\n' +
+                        chalk.cyan('2.') + ' Ensure all dependencies are installed: ' + chalk.white('npm install') + '\n' +
+                        chalk.cyan('3.') + ' Check for syntax errors in your code\n' +
+                        chalk.cyan('4.') + ' Try running with verbose mode: ' + chalk.white('kalxjs build --verbose'),
+                        {
+                            padding: 1,
+                            margin: 1,
+                            borderColor: 'red',
+                            borderStyle: 'round'
+                        }
+                    ));
                     process.exit(1);
                 }
             }
@@ -339,7 +381,12 @@ ${options.analyze ?
         console.log(boxen(
             chalk.redBright('⚠️ Build Failed ⚠️') + '\n\n' +
             chalk.white('Error details:') + '\n' +
-            chalk.red(err.stack || err.message),
+            chalk.red(err.stack || err.message) + '\n\n' +
+            chalk.yellow('Troubleshooting tips:') + '\n' +
+            chalk.cyan('1.') + ' Check your project configuration files\n' +
+            chalk.cyan('2.') + ' Ensure all dependencies are installed: ' + chalk.white('npm install') + '\n' +
+            chalk.cyan('3.') + ' Check for syntax errors in your code\n' +
+            chalk.cyan('4.') + ' Try running with verbose mode: ' + chalk.white('kalxjs build --verbose'),
             {
                 padding: 1,
                 margin: 1,
@@ -347,14 +394,6 @@ ${options.analyze ?
                 borderStyle: 'round'
             }
         ));
-
-        // Provide some helpful tips
-        console.log('\n');
-        console.log(chalk.yellow('Troubleshooting tips:'));
-        console.log(chalk.cyan('1.') + ' Check your project configuration files');
-        console.log(chalk.cyan('2.') + ' Ensure all dependencies are installed: ' + chalk.white('npm install'));
-        console.log(chalk.cyan('3.') + ' Check for syntax errors in your code');
-        console.log(chalk.cyan('4.') + ' Try running with verbose logging: ' + chalk.white('kalxjs build --verbose'));
         console.log('\n');
 
         process.exit(1);
