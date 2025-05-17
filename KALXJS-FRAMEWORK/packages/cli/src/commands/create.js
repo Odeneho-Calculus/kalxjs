@@ -4493,7 +4493,7 @@ $z-index-tooltip: 1070;`;
   }
 
   .welcome-subtitle {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     color: var(--text-secondary);
     margin-bottom: 2rem;
   }
