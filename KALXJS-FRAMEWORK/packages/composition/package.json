@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/composition",
-  "version": "1.2.13",
+  "version": "1.2.14",
   "description": "Composition API utilities for KalxJs framework",
   "type": "module",
   "author": "kalxjs Team",

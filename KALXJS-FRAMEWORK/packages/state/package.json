@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/state",
-  "version": "1.2.50",
+  "version": "1.2.51",
   "description": "Component state management for KalxJS framework",
   "type": "module",
   "author": "kalxjs Team",
@@ -32,7 +32,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@kalxjs/core": "^2.2.4"
+    "@kalxjs/core": "^2.2.5"
   },
   "peerDependencies": {
     "@kalxjs/core": "^2.1.0"

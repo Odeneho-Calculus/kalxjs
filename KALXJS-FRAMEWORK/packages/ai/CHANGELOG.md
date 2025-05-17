@@ -3,11 +3,15 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## 1.2.12 (2025-05-17)
+## 1.2.14 (2025-05-17)
 
 **Note:** Version bump only for package @kalxjs/ai
 
-## 1.2.12 (2025-05-20)
+## 1.2.13 (2025-05-20)
+
+**Note:** Version bump only for package @kalxjs/ai
+
+## 1.2.12 (2025-05-17)
 
 ### Features
 

@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/utils",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Utility functions for KalxJS framework",
   "type": "module",
   "author": "kalxjs Team",
