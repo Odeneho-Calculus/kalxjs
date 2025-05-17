@@ -7,9 +7,9 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 **Note:** Version bump only for package @kalxjs/api
 
+## [1.2.12](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/api@1.2.11...@kalxjs/api@1.2.12) (2025-05-17)
 
-
-
+**Note:** Version bump only for package @kalxjs/api
 
 ## [1.2.11](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/api@1.2.10...@kalxjs/api@1.2.11) (2025-05-17)
 

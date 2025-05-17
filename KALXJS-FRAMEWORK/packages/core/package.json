@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/core",
-  "version": "2.2.6",
+  "version": "2.2.7",
   "description": "A modern JavaScript framework for building user interfaces with reactive state, composition API, and built-in performance optimizations",
   "type": "module",
   "author": "kalxjs Team",

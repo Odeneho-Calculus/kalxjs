@@ -7,9 +7,9 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 **Note:** Version bump only for package @kalxjs/composition
 
+## [1.2.15](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/composition@1.2.14...@kalxjs/composition@1.2.15) (2025-05-17)
 
-
-
+**Note:** Version bump only for package @kalxjs/composition
 
 ## [1.2.14](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/composition@1.2.13...@kalxjs/composition@1.2.14) (2025-05-17)
 

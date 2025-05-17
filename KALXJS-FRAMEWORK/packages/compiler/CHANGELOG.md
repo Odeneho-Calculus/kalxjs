@@ -7,9 +7,9 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 **Note:** Version bump only for package @kalxjs/compiler
 
+## [1.2.34](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/compiler@1.2.33...@kalxjs/compiler@1.2.34) (2025-05-17)
 
-
-
+**Note:** Version bump only for package @kalxjs/compiler
 
 ## [1.2.33](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/compiler@1.2.32...@kalxjs/compiler@1.2.33) (2025-05-17)
 
