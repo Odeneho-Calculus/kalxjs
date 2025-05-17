@@ -59,14 +59,24 @@ program
 // Serve command
 program
     .command('serve')
+    .alias('dev')
     .description('Start development server')
     .option('-p, --port <port>', 'Port to serve on', '3000')
+    .option('-h, --host [host]', 'Host to serve on (use --no-host to disable)', true)
+    .option('-o, --open', 'Open browser automatically', false)
+    .option('-s, --https', 'Use HTTPS protocol', false)
+    .option('-m, --mode <mode>', 'Server mode (development/production)', 'development')
     .action((options) => serve(options));
 
 // Build command
 program
     .command('build')
     .description('Build for production')
+    .option('-v, --verbose', 'Enable verbose output')
+    .option('-m, --mode <mode>', 'Build mode (development/production)', 'production')
+    .option('-o, --output <dir>', 'Output directory', 'dist')
+    .option('--no-minify', 'Disable minification')
+    .option('--analyze', 'Analyze bundle size')
     .action((options) => build(options));
 
 program.parse(process.argv);
