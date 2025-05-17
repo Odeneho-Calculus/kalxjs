@@ -3,25 +3,34 @@
 
 The kalxjs router enables building single-page applications with dynamic navigation without page reloads.
 
+## Installation
+
+```bash
+# Install latest version
+npm install @kalxjs/router@latest
+```
+
+Current version: 2.0.0
+
 ## Import
 
 ```javascript
-import { createRouter } from '@kalxjs-framework/runtime'
+import { createRouter } from '@kalxjs/router'
 ```
 
 ## Setup
 
 ```javascript
-import { createRouter } from '@kalxjs-framework/runtime'
+import { createRouter, createWebHistory } from '@kalxjs/router'
 import routes from './router/routes'
 
 const router = createRouter({ 
-  history: 'html5', // or 'hash'
+  history: createWebHistory(),
   routes 
 })
 
 // Use with app
-import { createApp } from '@kalxjs-framework/runtime'
+import { createApp } from '@kalxjs/core'
 import App from './App.klx'
 
 const app = createApp(App)
@@ -34,10 +43,10 @@ app.mount('#app')
 Creates a new router instance.
 
 ```javascript
-import { createRouter } from '@kalxjs-framework/runtime'
+import { createRouter, createWebHistory } from '@kalxjs/router'
 
 const router = createRouter({
-  history: 'html5', // or 'hash'
+  history: createWebHistory(),
   routes: [
     {
       path: '/',
@@ -61,8 +70,9 @@ const router = createRouter({
 
 ### Options
 
-- `history` - Router mode ('html5' or 'hash')
+- `history` - History implementation (created with `createWebHistory()`, `createWebHashHistory()`, or `createMemoryHistory()`)
 - `routes` - Array of route definitions
+- `scrollBehavior` - Function that controls scroll behavior after navigation
 
 ### Returns
 
@@ -89,7 +99,7 @@ Each route can have the following properties:
 A reactive reference to the current route.
 
 ```javascript
-import { watch } from '@kalxjs-framework/runtime'
+import { watch } from '@kalxjs/core'
 
 // Watch for route changes
 watch(() => router.currentRoute.value, (newRoute) => {
@@ -209,7 +219,7 @@ A component that displays the component matching the current route.
 ### Composition API
 
 ```javascript
-import { useRoute, useRouter } from '@kalxjs-framework/runtime'
+import { useRoute, useRouter } from '@kalxjs/router'
 
 export default {
   setup() {
@@ -298,3 +308,98 @@ const routes = [
 ```
 
 This uses dynamic imports to split your code into chunks that are loaded only when needed.
+
+## History Modes
+
+The router supports different history modes:
+
+### createWebHistory()
+
+Uses the HTML5 History API for clean URLs without hashes.
+
+```javascript
+import { createRouter, createWebHistory } from '@kalxjs/router'
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [...]
+})
+```
+
+### createWebHashHistory()
+
+Uses URL hash for routing, works without server configuration.
+
+```javascript
+import { createRouter, createWebHashHistory } from '@kalxjs/router'
+
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes: [...]
+})
+```
+
+### createMemoryHistory()
+
+Keeps history in memory, useful for testing or server-side rendering.
+
+```javascript
+import { createRouter, createMemoryHistory } from '@kalxjs/router'
+
+const router = createRouter({
+  history: createMemoryHistory(),
+  routes: [...]
+})
+```
+
+## Implementation Details
+
+The kalxjs router is built on a lightweight implementation that efficiently handles route matching and navigation:
+
+### Route Matching
+
+The router uses a path-to-regexp based algorithm to match URLs to routes:
+
+1. When a URL changes, the router parses the URL
+2. It matches the path against all registered routes
+3. It extracts parameters from dynamic segments
+4. It renders the matched component
+
+### Navigation Guards
+
+Navigation guards are implemented as middleware-like functions that can control the navigation flow:
+
+```javascript
+// Simplified implementation
+async function runGuards(to, from) {
+  // Run global beforeEach guards
+  const globalGuardResult = await router.beforeEach(to, from);
+  if (globalGuardResult !== true) {
+    return globalGuardResult; // Redirect or cancel
+  }
+  
+  // Run route-specific guards
+  for (const match of to.matched) {
+    if (match.beforeEnter) {
+      const guardResult = await match.beforeEnter(to, from);
+      if (guardResult !== true) {
+        return guardResult; // Redirect or cancel
+      }
+    }
+  }
+  
+  return true; // Allow navigation
+}
+```
+
+### Integration with Components
+
+The router integrates with the component system through:
+
+1. The `<router-view>` component that renders the matched route component
+2. The `<router-link>` component that provides navigation without page reloads
+3. The `useRouter()` and `useRoute()` composables for accessing router functionality
+
+## Version Information
+
+For detailed version history and changes, please refer to the [CHANGELOG.md](https://github.com/Odeneho-Calculus/kalxjs/blob/main/KALXJS-FRAMEWORK/packages/router/CHANGELOG.md) file in the repository.

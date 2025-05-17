@@ -3,6 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.2.12 (2025-05-20)
+
+### Features
+- Added improved environment variable handling with support for Vite and webpack
+- Enhanced error handling in AI service calls
+- Updated documentation to reflect current implementation
+
+### Bug Fixes
+- Fixed inconsistency in parameter naming (max_length → maxTokens)
+- Fixed useAI hook to properly return functions for state access
+- Fixed error handling in entity extraction
+
 ## 1.2.11 (2025-05-15)
 
 **Note:** Version bump only for package @kalxjs/ai

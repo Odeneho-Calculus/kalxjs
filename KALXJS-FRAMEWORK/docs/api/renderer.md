@@ -2,7 +2,16 @@
 
 ## Overview
 
-The Custom Renderer API in KalxJS v2.1.14 provides a template-based rendering system that works directly with the DOM instead of using a virtual DOM. This approach can offer better performance in certain scenarios and provides a fallback rendering mechanism when needed.
+The Custom Renderer API in KalxJS provides a template-based rendering system that works directly with the DOM instead of using a virtual DOM. This approach can offer better performance in certain scenarios and provides a fallback rendering mechanism when needed.
+
+## Installation
+
+```bash
+# Install latest version
+npm install @kalxjs/core@latest
+```
+
+Current version: 2.2.3
 
 ## Importing
 
@@ -296,3 +305,127 @@ However, for complex applications with frequent updates to many elements, the vi
 ## Browser Support
 
 The Custom Renderer supports all modern browsers. For older browsers, you may need to include appropriate polyfills for modern JavaScript features.
+
+## Implementation Details
+
+The Custom Renderer is implemented as a lightweight alternative to the Virtual DOM system:
+
+### Direct DOM Manipulation
+
+Unlike the Virtual DOM approach, the Custom Renderer directly creates and manipulates DOM elements:
+
+```javascript
+// Simplified implementation of createElement
+function createElement(vnode) {
+  // Handle text nodes
+  if (typeof vnode === 'string' || typeof vnode === 'number') {
+    return document.createTextNode(vnode);
+  }
+  
+  // Create element
+  const element = document.createElement(vnode.tag);
+  
+  // Set properties
+  if (vnode.props) {
+    for (const [key, value] of Object.entries(vnode.props)) {
+      // Handle event handlers
+      if (key.startsWith('on') && typeof value === 'function') {
+        const eventName = key.slice(2).toLowerCase();
+        element.addEventListener(eventName, value);
+      }
+      // Handle style objects
+      else if (key === 'style' && typeof value === 'object') {
+        Object.assign(element.style, value);
+      }
+      // Handle regular attributes
+      else {
+        element[key] = value;
+      }
+    }
+  }
+  
+  // Add children
+  if (vnode.children) {
+    for (const child of Array.isArray(vnode.children) ? vnode.children : [vnode.children]) {
+      element.appendChild(createElement(child));
+    }
+  }
+  
+  return element;
+}
+```
+
+### Error Handling
+
+The Custom Renderer includes robust error handling to prevent application crashes:
+
+```javascript
+// Simplified error handling implementation
+function safeRender(vnode, container) {
+  try {
+    // Clear container
+    container.innerHTML = '';
+    
+    // Create and append element
+    const element = createElement(vnode);
+    container.appendChild(element);
+  } catch (error) {
+    // Display fallback error message
+    container.innerHTML = `
+      <div style="padding: 20px; border: 1px solid #d9534f; background-color: #f2dede; color: #a94442;">
+        <h3>Rendering Error</h3>
+        <p>${error.message}</p>
+      </div>
+    `;
+    
+    // Log error for debugging
+    console.error('Custom Renderer Error:', error);
+  }
+}
+```
+
+### Integration with Router and State
+
+The Custom Renderer integrates with the router and state management through a subscription model:
+
+```javascript
+// Simplified integration implementation
+function createCustomRenderer(router, store) {
+  let container = null;
+  
+  // Initialize renderer
+  function init(selector) {
+    container = typeof selector === 'string' 
+      ? document.querySelector(selector) 
+      : selector;
+    
+    // Subscribe to router changes
+    router.afterEach(() => {
+      renderCurrentRoute();
+    });
+    
+    // Subscribe to store changes
+    store.subscribe(() => {
+      renderCurrentRoute();
+    });
+    
+    // Initial render
+    renderCurrentRoute();
+  }
+  
+  // Render current route
+  function renderCurrentRoute() {
+    const component = router.currentRoute.value.component;
+    if (typeof component === 'function') {
+      const vnode = component({ store });
+      safeRender(vnode, container);
+    }
+  }
+  
+  return { init };
+}
+```
+
+## Version Information
+
+For detailed version history and changes, please refer to the [CHANGELOG.md](https://github.com/Odeneho-Calculus/kalxjs/blob/main/KALXJS-FRAMEWORK/packages/core/CHANGELOG.md) file in the repository.

@@ -3,10 +3,19 @@
 
 Components are the building blocks of kalxjs applications. They encapsulate data, logic, and the user interface.
 
+## Installation
+
+```bash
+# Install latest version
+npm install @kalxjs/core@latest
+```
+
+Current version: 2.2.3
+
 ## Import
 
 ```javascript
-import { defineComponent, createApp } from '@kalxjs-framework/runtime'
+import { defineComponent, createApp } from '@kalxjs/core'
 ```
 
 ## Single File Components
@@ -22,7 +31,7 @@ kalxjs supports Single File Components (SFCs) with the `.klx` extension. These f
 </template>
 
 <script>
-import { ref } from '@kalxjs-framework/runtime'
+import { ref } from '@kalxjs/core'
 
 export default {
   name: 'MyComponent',
@@ -60,7 +69,7 @@ button {
 Defines a component with options.
 
 ```javascript
-import { defineComponent, h } from '@kalxjs-framework/runtime'
+import { defineComponent, h } from '@kalxjs/core'
 
 const Button = defineComponent({
   name: 'Button',
@@ -107,7 +116,7 @@ const Button = defineComponent({
 Creates an application instance.
 
 ```javascript
-import { createApp } from '@kalxjs-framework/runtime'
+import { createApp } from '@kalxjs/core'
 import App from './App.klx'
 import router from './router'
 
@@ -138,7 +147,7 @@ app.mount('#app')
 The Composition API provides a way to organize component logic by feature rather than by options.
 
 ```javascript
-import { ref, computed, onMounted } from '@kalxjs-framework/runtime'
+import { ref, computed, onMounted } from '@kalxjs/core'
 
 export default {
   props: {
@@ -180,7 +189,7 @@ export default {
 kalxjs also supports the Options API for component definition.
 
 ```javascript
-import { defineComponent } from '@kalxjs-framework/runtime'
+import { defineComponent } from '@kalxjs/core'
 
 export default defineComponent({
   name: 'Counter',
@@ -227,7 +236,7 @@ Components have the following lifecycle hooks:
 - `onErrorCaptured` - Called when an error is captured from a child component
 
 ```javascript
-import { onMounted, onBeforeUnmount } from '@kalxjs-framework/runtime'
+import { onMounted, onBeforeUnmount } from '@kalxjs/core'
 
 export default {
   setup() {
@@ -312,7 +321,7 @@ Components can accept content from their parent using slots.
 ### Render Function
 
 ```javascript
-import { h } from '@kalxjs-framework/runtime'
+import { h } from '@kalxjs/core'
 
 export default {
   setup(props, { slots }) {
@@ -367,7 +376,7 @@ export default {
 ### In Render Functions
 
 ```javascript
-import { h } from '@kalxjs-framework/runtime'
+import { h } from '@kalxjs/core'
 import MyComponent from './MyComponent.klx'
 
 export default {
@@ -383,3 +392,53 @@ export default {
     })
   }
 }
+```
+
+## Implementation Details
+
+The component system in kalxjs is built on a virtual DOM implementation that efficiently updates the real DOM when component state changes.
+
+### Component Lifecycle
+
+When a component is created and mounted, it goes through the following lifecycle:
+
+1. **Component Creation**:
+   - Component options are processed
+   - `beforeCreate` hook is called
+   - Setup function is processed (Composition API)
+   - Data is initialized and made reactive
+   - Methods and computed properties are set up
+   - `created` hook is called
+
+2. **Component Mounting**:
+   - `beforeMount` hook is called
+   - Component's render function is called to create virtual DOM
+   - Virtual DOM is converted to real DOM
+   - Component is inserted into the DOM
+   - `mounted` hook is called
+
+3. **Component Updates**:
+   - State changes trigger updates
+   - `beforeUpdate` hook is called
+   - Component re-renders to create new virtual DOM
+   - Virtual DOM diffing determines minimal DOM changes
+   - Real DOM is updated
+   - `updated` hook is called
+
+4. **Component Unmounting**:
+   - `beforeUnmount` hook is called
+   - Component is removed from the DOM
+   - Event listeners and reactive effects are cleaned up
+   - `unmounted` hook is called
+
+### Virtual DOM Implementation
+
+The component system uses a lightweight virtual DOM implementation that:
+
+1. Creates virtual nodes (vnodes) representing the UI structure
+2. Efficiently compares previous and new virtual DOM trees
+3. Makes minimal changes to the real DOM for optimal performance
+
+## Version Information
+
+For detailed version history and changes, please refer to the [CHANGELOG.md](https://github.com/Odeneho-Calculus/kalxjs/blob/main/KALXJS-FRAMEWORK/packages/core/CHANGELOG.md) file in the repository.

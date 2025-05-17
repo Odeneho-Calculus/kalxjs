@@ -1,10 +1,10 @@
 # AI API Reference
 
-This document provides a comprehensive reference for the AI module in KalxJS v2.1.14, which enables AI capabilities in your applications.
+This document provides a comprehensive reference for the AI module in KalxJS, which enables AI capabilities in your applications.
 
 ## Installation
 
-The AI capabilities are available through the `@kalxjs/ai` package (v1.2.11), which can be installed separately or used through the core package:
+The AI capabilities are available through the `@kalxjs/ai` package, which can be installed separately or used through the core package:
 
 ```bash
 # Install latest version
@@ -16,6 +16,8 @@ npm install @kalxjs/ai@x.x.x
 # Or as part of the core package
 npm install @kalxjs/core@latest
 ```
+
+Current version: 1.2.12
 
 ## Core API
 
@@ -149,7 +151,7 @@ export default {
       prompt,
       result,
       generateText,
-      isLoading: ai.loading
+      isLoading: ai.loading()
     };
   }
 };
@@ -179,7 +181,7 @@ An object with the following methods:
 | Method | Description |
 |--------|-------------|
 | `generateText` | Generates text using AI |
-| `generateImage` | Generates an image using AI (not implemented in v1.2.11) |
+| `generateImage` | Generates an image using AI (not implemented in v1.2.12) |
 | `analyzeSentiment` | Analyzes sentiment of text |
 | `extractEntities` | Extracts entities from text |
 | `summarize` | Summarizes text |
@@ -196,7 +198,7 @@ const ai = createAIManager({
   defaultOptions: {
     model: 'gpt-3.5-turbo',
     temperature: 0.7,
-    max_length: 1000
+    maxTokens: 1000
   }
 });
 
@@ -463,7 +465,7 @@ const ai = createAIManager({
   defaultOptions: {
     model: 'gpt-3.5-turbo',
     temperature: 0.7,
-    max_length: 1000
+    maxTokens: 1000
   }
 });
 
@@ -494,7 +496,7 @@ async function processData(text) {
 
 ## Current Limitations
 
-The current implementation (v1.2.11) has some limitations:
+The current implementation (v1.2.12) has some limitations:
 
 1. Image generation is not yet fully implemented (the method exists but throws an error)
 2. Only OpenAI is supported as a provider
@@ -536,66 +538,12 @@ export async function generateText(prompt, options = {}) {
         })
     });
 
-    // Process response
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(`AI service error: ${error.error?.message || response.statusText}`);
+    }
+
     const data = await response.json();
     return data.choices[0].message.content.trim();
 }
 ```
-
-### Text Analysis Functions
-
-The text analysis functions (`analyzeSentiment`, `extractEntities`, `summarize`) are implemented using prompt engineering with the same underlying `generateText` function:
-
-```javascript
-// Sentiment analysis implementation
-export async function analyzeSentiment(text) {
-    return generateText(
-        `Analyze the sentiment of the following text and respond with only "positive", "negative", or "neutral": "${text}"`
-    );
-}
-
-// Entity extraction implementation
-export async function extractEntities(text) {
-    const result = await generateText(
-        `Extract named entities from the following text and respond with a JSON array of objects with "entity" and "type" properties: "${text}"`
-    );
-    return JSON.parse(result);
-}
-```
-
-## Version History
-
-### v1.2.11 (2025-05-15)
-- Version bump only
-
-### v1.2.10 (2025-05-14)
-- Version bump only
-
-### v1.2.9 (2025-05-14)
-- Version bump only
-
-### v1.2.8 (2025-05-13)
-- Version bump only
-
-### v1.2.7 (2025-05-13)
-- Version bump only
-
-### v1.2.6 (2025-05-13)
-- Version bump only
-
-### v1.2.5 (2025-05-12)
-- Version bump only
-
-### v1.2.4 (2025-05-12)
-- Version bump only
-
-### v1.2.3 (2025-05-12)
-- Version bump only
-
-### v1.2.2 (2023-05-15)
-- Initial release of the AI package
-- Added text generation capabilities
-- Added sentiment analysis
-- Added entity extraction
-- Added text summarization
-- Added composable AI hook for components

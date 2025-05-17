@@ -12,7 +12,7 @@ npm install @kalxjs/ai@latest
 npm install @kalxjs/ai@x.x.x
 ```
 
-Current version: 1.2.11
+Current version: 1.2.12
 
 ## Usage
 
@@ -56,9 +56,9 @@ export default {
     
     return {
       generateResponse,
-      isLoading: ai.loading,
-      error: ai.error,
-      result: ai.result
+      isLoading: ai.loading(),
+      error: ai.error(),
+      result: ai.result()
     };
   }
 };
@@ -152,7 +152,7 @@ const ai = createAIManager({
   defaultOptions: {
     model: 'gpt-3.5-turbo',
     temperature: 0.7,
-    max_length: 1000
+    maxTokens: 1000
   }
 });
 
@@ -200,16 +200,16 @@ configure({
 
 ## Current Limitations
 
-The current implementation (v1.2.11) has some limitations:
+The current implementation (v1.2.12) has some limitations:
 
 1. Image generation is not yet fully implemented
 2. Only OpenAI is supported as a provider
 3. Advanced features like streaming responses are not directly supported
 4. No built-in caching mechanism for API responses
 
-## Version History
+## Version Information
 
-See [CHANGELOG.md](./CHANGELOG.md) for a detailed version history.
+For detailed version history and changes, please refer to the [CHANGELOG.md](./CHANGELOG.md) file in the repository.
 
 ## License
 

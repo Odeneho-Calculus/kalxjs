@@ -3,10 +3,19 @@
 
 The reactivity system is one of kalxjs's core features. It allows your application to automatically update the UI when the underlying data changes.
 
+## Installation
+
+```bash
+# Install latest version
+npm install @kalxjs/core@latest
+```
+
+Current version: 2.2.3
+
 ## Import
 
 ```javascript
-import { ref, reactive, computed, effect } from '@kalxjs-framework/runtime'
+import { ref, reactive, computed, effect } from '@kalxjs/core'
 ```
 
 ## ref()
@@ -14,7 +23,7 @@ import { ref, reactive, computed, effect } from '@kalxjs-framework/runtime'
 Creates a reactive reference to any value, including primitives.
 
 ```javascript
-import { ref } from '@kalxjs-framework/runtime'
+import { ref } from '@kalxjs/core'
 
 const count = ref(0)
 const message = ref('Hello')
@@ -43,7 +52,7 @@ count.value++ // UI will update
 Creates a reactive proxy of an object that tracks changes to its properties.
 
 ```javascript
-import { reactive } from '@kalxjs-framework/runtime'
+import { reactive } from '@kalxjs/core'
 
 const state = reactive({
   count: 0,
@@ -73,7 +82,7 @@ state.count++ // UI will update
 Creates a computed property based on a getter function.
 
 ```javascript
-import { reactive, computed } from '@kalxjs-framework/runtime'
+import { reactive, computed } from '@kalxjs/core'
 
 const state = reactive({
   firstName: 'John',
@@ -109,7 +118,7 @@ console.log(fullName.value) // "John Doe"
 Runs a function and automatically tracks its reactive dependencies.
 
 ```javascript
-import { reactive, effect } from '@kalxjs-framework/runtime'
+import { reactive, effect } from '@kalxjs/core'
 
 const state = reactive({ count: 0 })
 
@@ -143,7 +152,7 @@ state.count = 1 // Automatically logs: "Count is: 1"
 In components, reactive state is typically defined in the `setup()` function:
 
 ```javascript
-import { ref, computed } from '@kalxjs-framework/runtime'
+import { ref, computed } from '@kalxjs/core'
 
 export default {
   setup() {
@@ -205,3 +214,74 @@ const state = reactive({
 // This will trigger updates
 state.dynamicProperty.value = 'new value'
 ```
+
+## Implementation Details
+
+The reactivity system in kalxjs is built on a lightweight implementation of the observer pattern:
+
+### How Reactivity Works
+
+1. **Tracking Dependencies**: When a reactive value is accessed during the execution of an effect or computed property, the system records this dependency.
+
+2. **Triggering Updates**: When a reactive value changes, the system notifies all effects and computed properties that depend on it.
+
+3. **Efficient Updates**: The system uses a dependency graph to ensure only the necessary updates are performed.
+
+### Proxy-Based Reactivity
+
+The `reactive()` function uses JavaScript Proxies to intercept property access and modifications:
+
+```javascript
+// Simplified implementation
+function reactive(target) {
+  return new Proxy(target, {
+    get(target, key) {
+      // Track that this property was accessed
+      track(target, key);
+      
+      const value = target[key];
+      // Deep reactivity: make nested objects reactive too
+      return typeof value === 'object' ? reactive(value) : value;
+    },
+    set(target, key, value) {
+      const oldValue = target[key];
+      target[key] = value;
+      
+      // Trigger updates if the value changed
+      if (oldValue !== value) {
+        trigger(target, key);
+      }
+      return true;
+    }
+  });
+}
+```
+
+### Ref Implementation
+
+The `ref()` function creates a simple object with a getter/setter for its `value` property:
+
+```javascript
+// Simplified implementation
+function ref(initialValue) {
+  const refObject = {
+    get value() {
+      // Track that this ref was accessed
+      track(refObject, 'value');
+      return initialValue;
+    },
+    set value(newValue) {
+      if (initialValue !== newValue) {
+        initialValue = newValue;
+        // Trigger updates
+        trigger(refObject, 'value');
+      }
+    }
+  };
+  return refObject;
+}
+```
+
+## Version Information
+
+For detailed version history and changes, please refer to the [CHANGELOG.md](https://github.com/Odeneho-Calculus/kalxjs/blob/main/KALXJS-FRAMEWORK/packages/core/CHANGELOG.md) file in the repository.
