@@ -1,0 +1,1 @@
+node -c src/commands/create.js

@@ -1,0 +1,78 @@
+{
+  "name": "@kalxjs/cli",
+  "version": "2.0.12",
+  "description": "Command Line Interface for KalxJs framework",
+  "type": "commonjs",
+  "author": "kalxjs Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Odeneho-Calculus/kalxjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Odeneho-Calculus/kalxjs/issues"
+  },
+  "homepage": "https://github.com/Odeneho-Calculus/kalxjs#readme",
+  "bin": {
+    "kalxjs": "./bin/kalxjs.js",
+    "kalx": "./bin/kalxjs.js",
+    "kalxjs-migrate": "./src/migrate-klx.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "templates"
+  ],
+  "scripts": {
+    "test": "jest",
+    "prepublishOnly": "npm run build",
+    "build": "node scripts/build.js",
+    "clean": "node scripts/clean.js",
+    "dev": "vite"
+  },
+  "dependencies": {
+    "boxen": "^5.1.2",
+    "chalk": "^4.1.2",
+    "cli-progress": "^3.12.0",
+    "cli-spinners": "^2.9.0",
+    "commander": "^8.3.0",
+    "core-js": "^3.30.0",
+    "deepmerge": "^4.3.1",
+    "detect-port": "^1.5.1",
+    "execa": "^5.1.1",
+    "figlet": "^1.6.0",
+    "fs-extra": "^10.0.0",
+    "gradient-string": "^2.0.2",
+    "inquirer": "^8.2.0",
+    "listr2": "^6.6.1",
+    "minimist": "^1.2.8",
+    "ora": "^5.4.1",
+    "validate-npm-package-name": "^5.0.0"
+  },
+  "devDependencies": {
+    "execa": "^5.1.1",
+    "glob": "^10.3.10",
+    "jest": "^29.5.0",
+    "rimraf": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version",
+      "ie 11"
+    ]
+  },
+  "gitHead": "82d314e7f43a9c923577101c0878b398739c2070"
+}

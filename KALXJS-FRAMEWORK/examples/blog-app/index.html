@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KALXJS Blog Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: #f5f5f5;
+        }
+
+        .blog-app {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .blog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .blog-post {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .blog-post h2 {
+            margin-top: 0;
+        }
+
+        .blog-post-meta {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .blog-post-content {
+            line-height: 1.6;
+        }
+
+        .blog-form {
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .nav-link {
+            margin-right: 1rem;
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app"></div>
+
+    <script type="module">
+        import { createApp, ref, computed } from '../../packages/core/dist/kalxjs-core.esm.js';
+        import { createRouter } from '../../packages/router/dist/kalxjs-router.esm.js';
+        import { createStore } from '../../packages/state/dist/kalxjs-state.esm.js';
+
+        // Create store for blog state
+        const store = createStore({
+            state: {
+                posts: [
+                    {
+                        id: 1,
+                        title: 'Getting Started with KALXJS',
+                        author: 'John Doe',
+                        date: '2024-07-01',
+                        content: 'KALXJS is a modern JavaScript framework that makes building web applications a breeze. In this post, we\'ll explore the basics of setting up a new project and creating your first component.'
+                    },
+                    {
+                        id: 2,
+                        title: 'State Management in KALXJS',
+                        author: 'Jane Smith',
+                        date: '2024-07-02',
+                        content: 'Managing state is a crucial part of any application. KALXJS provides a powerful state management system that makes it easy to share data between components and keep your application state organized.'
+                    }
+                ]
+            },
+            getters: {
+                getPostById: (state) => (id) => {
+                    return state.posts.find(post => post.id === id);
+                }
+            },
+            mutations: {
+                addPost(state, post) {
+                    state.posts.push({
+                        id: Date.now(),
+                        ...post,
+                        date: new Date().toISOString().split('T')[0]
+                    });
+                }
+            }
+        });
+
+        // Blog Post Component
+        const BlogPost = {
+            props: ['post'],
+            template: `
+                <div class="blog-post">
+                    <h2>{{ post.title }}</h2>
+                    <div class="blog-post-meta">
+                        By {{ post.author }} on {{ post.date }}
+                    </div>
+                    <div class="blog-post-content">
+                        {{ post.content }}
+                    </div>
+                </div>
+            `
+        };
+
+        // Home Page Component
+        const HomePage = {
+            components: {
+                BlogPost
+            },
+            computed: {
+                posts() {
+                    return store.state.posts;
+                }
+            },
+            template: `
+                <div class="blog-app">
+                    <div class="blog-header">
+                        <h1>KALXJS Blog</h1>
+                        <div>
+                            <router-link class="nav-link" to="/">Home</router-link>
+                            <router-link class="nav-link" to="/new">New Post</router-link>
+                        </div>
+                    </div>
+                    <blog-post v-for="post in posts" :key="post.id" :post="post"></blog-post>
+                </div>
+            `
+        };
+
+        // New Post Component
+        const NewPostPage = {
+            data() {
+                return {
+                    title: '',
+                    author: '',
+                    content: ''
+                };
+            },
+            methods: {
+                submitPost() {
+                    if (this.title && this.author && this.content) {
+                        store.commit('addPost', {
+                            title: this.title,
+                            author: this.author,
+                            content: this.content
+                        });
+                        this.title = '';
+                        this.author = '';
+                        this.content = '';
+                        router.push('/');
+                    }
+                }
+            },
+            template: `
+                <div class="blog-app">
+                    <div class="blog-header">
+                        <h1>New Blog Post</h1>
+                        <div>
+                            <router-link class="nav-link" to="/">Home</router-link>
+                            <router-link class="nav-link" to="/new">New Post</router-link>
+                        </div>
+                    </div>
+                    <div class="blog-form">
+                        <div class="form-group">
+                            <label for="title">Title</label>
+                            <input id="title" v-model="title" type="text" placeholder="Enter post title">
+                        </div>
+                        <div class="form-group">
+                            <label for="author">Author</label>
+                            <input id="author" v-model="author" type="text" placeholder="Enter your name">
+                        </div>
+                        <div class="form-group">
+                            <label for="content">Content</label>
+                            <textarea id="content" v-model="content" placeholder="Write your post content here"></textarea>
+                        </div>
+                        <button @click="submitPost">Publish Post</button>
+                    </div>
+                </div>
+            `
+        };
+
+        // Create router
+        const router = createRouter({
+            routes: [
+                { path: '/', component: HomePage },
+                { path: '/new', component: NewPostPage }
+            ]
+        });
+
+        // Create and mount app
+        const app = createApp({
+            template: `<router-view></router-view>`
+        });
+
+        app.use(router);
+        app.mount('#app');
+    </script>
+</body>
+
+</html>

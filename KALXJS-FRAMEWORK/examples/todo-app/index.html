@@ -1,0 +1,227 @@
+<!-- kalxjs/examples/todo-app/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kalxjs Todo App Example</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        .todo-input {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .todo-input input {
+            flex-grow: 1;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .todo-input button {
+            padding: 8px 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+
+        .todo-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .todo-item.completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .todo-item input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+        .todo-item button {
+            margin-left: auto;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+        }
+
+        .filters {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .filters button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            background: #f1f1f1;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .filters button.active {
+            background: #4CAF50;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app"></div>
+
+    <script type="module">
+        import kalxjs from '../../dist/kalxjs.js';
+
+        const { createApp, reactive, computed } = kalxjs;
+
+        // Create Todo App
+        const TodoApp = {
+            data() {
+                return {
+                    todos: reactive([
+                        { id: 1, text: 'Learn kalxjs', completed: false },
+                        { id: 2, text: 'Build an app', completed: false }
+                    ]),
+                    newTodo: '',
+                    filter: 'all' // all, active, completed
+                };
+            },
+
+            computed: {
+                filteredTodos() {
+                    if (this.filter === 'active') {
+                        return this.todos.filter(todo => !todo.completed);
+                    } else if (this.filter === 'completed') {
+                        return this.todos.filter(todo => todo.completed);
+                    }
+                    return this.todos;
+                },
+
+                remaining() {
+                    return this.todos.filter(todo => !todo.completed).length;
+                }
+            },
+
+            methods: {
+                addTodo() {
+                    if (!this.newTodo.trim()) return;
+
+                    this.todos.push({
+                        id: Date.now(),
+                        text: this.newTodo,
+                        completed: false
+                    });
+
+                    this.newTodo = '';
+                },
+
+                removeTodo(id) {
+                    const index = this.todos.findIndex(todo => todo.id === id);
+                    if (index !== -1) {
+                        this.todos.splice(index, 1);
+                    }
+                },
+
+                toggleTodo(todo) {
+                    todo.completed = !todo.completed;
+                },
+
+                setFilter(filter) {
+                    this.filter = filter;
+                }
+            },
+
+            render(h) {
+                return h('div', { class: 'todo-app' }, [
+                    h('h1', {}, ['kalxjs Todo App']),
+
+                    // Input for new todos
+                    h('div', { class: 'todo-input' }, [
+                        h('input', {
+                            type: 'text',
+                            placeholder: 'What needs to be done?',
+                            value: this.newTodo,
+                            onInput: (e) => { this.newTodo = e.target.value; }
+                        }),
+                        h('button', { onClick: this.addTodo }, ['Add'])
+                    ]),
+
+                    // Todo list
+                    h('ul', { class: 'todo-list' },
+                        this.filteredTodos.map(todo =>
+                            h('li', {
+                                class: `todo-item ${todo.completed ? 'completed' : ''}`
+                            }, [
+                                h('input', {
+                                    type: 'checkbox',
+                                    checked: todo.completed,
+                                    onChange: () => this.toggleTodo(todo)
+                                }),
+                                h('span', {}, [todo.text]),
+                                h('button', {
+                                    onClick: () => this.removeTodo(todo.id)
+                                }, ['Delete'])
+                            ])
+                        )
+                    ),
+
+                    // Footer with filters
+                    h('div', { class: 'footer' }, [
+                        h('span', {}, [`${this.remaining} items left`]),
+
+                        h('div', { class: 'filters' }, [
+                            h('button', {
+                                class: this.filter === 'all' ? 'active' : '',
+                                onClick: () => this.setFilter('all')
+                            }, ['All']),
+
+                            h('button', {
+                                class: this.filter === 'active' ? 'active' : '',
+                                onClick: () => this.setFilter('active')
+                            }, ['Active']),
+
+                            h('button', {
+                                class: this.filter === 'completed' ? 'active' : '',
+                                onClick: () => this.setFilter('completed')
+                            }, ['Completed'])
+                        ])
+                    ])
+                ]);
+            }
+        };
+
+        // Create and mount app
+        const app = createApp(TodoApp);
+        app.mount('#app');
+    </script>
+</body>
+
+</html>

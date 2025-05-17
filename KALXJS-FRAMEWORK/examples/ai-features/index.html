@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KalxJS AI Features Demo</title>
+    <script type="importmap">
+    {
+      "imports": {
+        "@kalxjs/core": "./js/kalxjs.esm.js"
+      }
+    }
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: #35495e;
+        }
+
+        .logo {
+            color: #42b883;
+            font-weight: bold;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        button {
+            background-color: #42b883;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        button:hover {
+            background-color: #33a06f;
+        }
+
+        .loading {
+            display: inline-block;
+            margin-left: 10px;
+            color: #666;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+
+        .image-result {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .image-result img {
+            max-width: 100%;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .error {
+            color: #e74c3c;
+            margin-top: 10px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        a {
+            color: #42b883;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab.active {
+            border-bottom-color: #42b883;
+            color: #42b883;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .animated-box {
+            width: 100px;
+            height: 100px;
+            background-color: #42b883;
+            border-radius: 4px;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1><span class="logo">KalxJS</span> AI Features Demo</h1>
+            <p>Demonstrating the unique AI capabilities of KalxJS</p>
+        </header>
+
+        <div id="app"></div>
+
+        <footer>
+            <p>
+                Built with <a href="https://github.com/Odeneho-Calculus/kalxjs">KalxJS</a> -
+                A modern JavaScript framework with built-in AI capabilities
+            </p>
+        </footer>
+    </div>
+
+    <script type="module">
+        import {
+            createApp,
+            h,
+            defineComponent,
+            ref,
+            onMounted,
+            createAIManager,
+            createAIPlugin,
+            createAnimationPlugin,
+            createTimeline,
+            createTrack,
+            EASING
+        } from '@kalxjs/core';
+
+        // Create AI Text Generator component
+        const AITextGenerator = defineComponent({
+            props: {
+                apiKey: String
+            },
+            setup(props) {
+                const prompt = ref('');
+                const result = ref('');
+                const loading = ref(false);
+                const error = ref(null);
+
+                // Create AI manager
+                const aiManager = createAIManager({
+                    apiKeys: {
+                        huggingface: props.apiKey || ''
+                    },
+                    defaultProvider: 'huggingface'
+                });
+
+                const generateText = async () => {
+                    if (!prompt.value) return;
+
+                    loading.value = true;
+                    error.value = null;
+                    result.value = '';
+
+                    try {
+                        result.value = await aiManager.generateText({
+                            prompt: prompt.value,
+                            model: 'gpt2',
+                            provider: 'huggingface',
+                            options: {
+                                max_length: 100,
+                                temperature: 0.7
+                            }
+                        });
+                    } catch (err) {
+                        error.value = err.message;
+                    } finally {
+                        loading.value = false;
+                    }
+                };
+
+                return {
+                    prompt,
+                    result,
+                    loading,
+                    error,
+                    generateText
+                };
+            },
+            render() {
+                return h('div', { class: 'card' }, [
+                    h('h2', {}, ['AI Text Generation']),
+                    h('div', { class: 'input-group' }, [
+                        h('label', { for: 'prompt' }, ['Enter your prompt:']),
+                        h('textarea', {
+                            id: 'prompt',
+                            value: this.prompt,
+                            onInput: (e) => this.prompt = e.target.value,
+                            placeholder: 'e.g., Write a short poem about programming'
+                        })
+                    ]),
+                    h('div', {}, [
+                        h('button', {
+                            onClick: this.generateText,
+                            disabled: this.loading || !this.prompt
+                        }, ['Generate Text']),
+                        this.loading ? h('span', { class: 'loading' }, ['Generating...']) : null
+                    ]),
+                    this.error ? h('div', { class: 'error' }, [this.error]) : null,
+                    this.result ? h('div', { class: 'result' }, [this.result]) : null
+                ]);
+            }
+        });
+
+        // Create AI Image Generator component
+        const AIImageGenerator = defineComponent({
+            props: {
+                apiKey: String
+            },
+            setup(props) {
+                const prompt = ref('');
+                const imageUrl = ref('');
+                const loading = ref(false);
+                const error = ref(null);
+
+                // Create AI manager
+                const aiManager = createAIManager({
+                    apiKeys: {
+                        huggingface: props.apiKey || ''
+                    },
+                    defaultProvider: 'huggingface'
+                });
+
+                const generateImage = async () => {
+                    if (!prompt.value) return;
+
+                    loading.value = true;
+                    error.value = null;
+                    imageUrl.value = '';
+
+                    try {
+                        imageUrl.value = await aiManager.generateImage({
+                            prompt: prompt.value,
+                            model: 'stabilityai/stable-diffusion-2',
+                            provider: 'huggingface',
+                            options: {
+                                negative_prompt: 'blurry, bad quality',
+                                num_inference_steps: 30,
+                                guidance_scale: 7.5
+                            }
+                        });
+                    } catch (err) {
+                        error.value = err.message;
+                    } finally {
+                        loading.value = false;
+                    }
+                };
+
+                return {
+                    prompt,
+                    imageUrl,
+                    loading,
+                    error,
+                    generateImage
+                };
+            },
+            render() {
+                return h('div', { class: 'card' }, [
+                    h('h2', {}, ['AI Image Generation']),
+                    h('div', { class: 'input-group' }, [
+                        h('label', { for: 'image-prompt' }, ['Enter your image prompt:']),
+                        h('textarea', {
+                            id: 'image-prompt',
+                            value: this.prompt,
+                            onInput: (e) => this.prompt = e.target.value,
+                            placeholder: 'e.g., A futuristic city with flying cars and neon lights'
+                        })
+                    ]),
+                    h('div', {}, [
+                        h('button', {
+                            onClick: this.generateImage,
+                            disabled: this.loading || !this.prompt
+                        }, ['Generate Image']),
+                        this.loading ? h('span', { class: 'loading' }, ['Generating...']) : null
+                    ]),
+                    this.error ? h('div', { class: 'error' }, [this.error]) : null,
+                    this.imageUrl ? h('div', { class: 'image-result' }, [
+                        h('img', { src: this.imageUrl, alt: this.prompt })
+                    ]) : null
+                ]);
+            }
+        });
+
+        // Create Animation Demo component
+        const AnimationDemo = defineComponent({
+            setup() {
+                const boxRef = ref(null);
+                const animating = ref(false);
+
+                let timeline = null;
+
+                const startAnimation = () => {
+                    if (animating.value || !boxRef.value) return;
+
+                    animating.value = true;
+
+                    // Create a timeline
+                    timeline = createTimeline({
+                        duration: 2000,
+                        iterations: 2,
+                        direction: 'alternate',
+                        easing: EASING.EASE_IN_OUT,
+                        onComplete: () => {
+                            animating.value = false;
+                        }
+                    });
+
+                    // Add position track
+                    timeline.add(createTrack(
+                        boxRef.value.style,
+                        'transform',
+                        [
+                            { time: 0, value: 'translateX(0) rotate(0deg)' },
+                            { time: 0.5, value: 'translateX(300px) rotate(180deg)' },
+                            { time: 1, value: 'translateX(0) rotate(360deg)' }
+                        ]
+                    ));
+
+                    // Add color track
+                    timeline.add(createTrack(
+                        boxRef.value.style,
+                        'backgroundColor',
+                        [
+                            { time: 0, value: '#42b883' },
+                            { time: 0.5, value: '#35495e' },
+                            { time: 1, value: '#42b883' }
+                        ]
+                    ));
+
+                    // Add border-radius track
+                    timeline.add(createTrack(
+                        boxRef.value.style,
+                        'borderRadius',
+                        [
+                            { time: 0, value: '4px' },
+                            { time: 0.5, value: '50%' },
+                            { time: 1, value: '4px' }
+                        ]
+                    ));
+
+                    // Play the animation
+                    timeline.play();
+                };
+
+                const stopAnimation = () => {
+                    if (!animating.value || !timeline) return;
+
+                    timeline.stop();
+                    animating.value = false;
+                };
+
+                return {
+                    boxRef,
+                    animating,
+                    startAnimation,
+                    stopAnimation
+                };
+            },
+            render() {
+                return h('div', { class: 'card' }, [
+                    h('h2', {}, ['Animation System']),
+                    h('p', {}, ['KalxJS includes a powerful animation system with timelines, keyframes, and physics-based animations.']),
+                    h('div', { class: 'animated-box', ref: 'boxRef' }),
+                    h('div', { style: { textAlign: 'center' } }, [
+                        h('button', {
+                            onClick: this.startAnimation,
+                            disabled: this.animating
+                        }, ['Start Animation']),
+                        h('button', {
+                            onClick: this.stopAnimation,
+                            disabled: !this.animating,
+                            style: { backgroundColor: '#e74c3c' }
+                        }, ['Stop Animation'])
+                    ])
+                ]);
+            }
+        });
+
+        // Create main App component
+        const App = defineComponent({
+            setup() {
+                const activeTab = ref('ai-text');
+                const apiKey = ref('');
+
+                const setActiveTab = (tab) => {
+                    activeTab.value = tab;
+                };
+
+                return {
+                    activeTab,
+                    apiKey,
+                    setActiveTab
+                };
+            },
+            render() {
+                return h('div', {}, [
+                    h('div', { class: 'card' }, [
+                        h('h2', {}, ['Hugging Face API Key (Optional)']),
+                        h('p', {}, ['Enter your Hugging Face API key to use the AI features. If not provided, the demo will show the UI but won\'t make actual API calls.']),
+                        h('div', { class: 'input-group' }, [
+                            h('input', {
+                                type: 'text',
+                                value: this.apiKey,
+                                onInput: (e) => this.apiKey = e.target.value,
+                                placeholder: 'hf_...',
+                                style: { fontFamily: 'monospace' }
+                            })
+                        ]),
+                        h('p', { style: { fontSize: '0.8em' } }, [
+                            'You can get a free API key at ',
+                            h('a', { href: 'https://huggingface.co/settings/tokens', target: '_blank' }, ['huggingface.co/settings/tokens'])
+                        ])
+                    ]),
+
+                    h('div', { class: 'tabs' }, [
+                        h('div', {
+                            class: `tab ${this.activeTab === 'ai-text' ? 'active' : ''}`,
+                            onClick: () => this.setActiveTab('ai-text')
+                        }, ['AI Text Generation']),
+                        h('div', {
+                            class: `tab ${this.activeTab === 'ai-image' ? 'active' : ''}`,
+                            onClick: () => this.setActiveTab('ai-image')
+                        }, ['AI Image Generation']),
+                        h('div', {
+                            class: `tab ${this.activeTab === 'animation' ? 'active' : ''}`,
+                            onClick: () => this.setActiveTab('animation')
+                        }, ['Animation System'])
+                    ]),
+
+                    h('div', {
+                        class: `tab-content ${this.activeTab === 'ai-text' ? 'active' : ''}`
+                    }, [
+                        h(AITextGenerator, { apiKey: this.apiKey })
+                    ]),
+
+                    h('div', {
+                        class: `tab-content ${this.activeTab === 'ai-image' ? 'active' : ''}`
+                    }, [
+                        h(AIImageGenerator, { apiKey: this.apiKey })
+                    ]),
+
+                    h('div', {
+                        class: `tab-content ${this.activeTab === 'animation' ? 'active' : ''}`
+                    }, [
+                        h(AnimationDemo)
+                    ])
+                ]);
+            }
+        });
+
+        // Create the app
+        const app = createApp({
+            render() {
+                return h(App);
+            }
+        });
+
+        // Use plugins
+        app.use(createAIPlugin());
+        app.use(createAnimationPlugin());
+
+        // Mount the app
+        app.mount('#app');
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,59 @@
+{
+  "name": "@kalxjs/compiler",
+  "version": "1.2.31",
+  "description": "Compiler for KalxJS single-file components (.klx files)",
+  "type": "module",
+  "author": "kalxjs Team",
+  "license": "MIT",
+  "keywords": [
+    "kalxjs",
+    "compiler",
+    "sfc",
+    "single-file-components"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Odeneho-Calculus/kalxjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Odeneho-Calculus/kalxjs/issues"
+  },
+  "homepage": "https://github.com/Odeneho-Calculus/kalxjs#readme",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.cjs.js"
+    },
+    "./vite-plugin": {
+      "import": "./dist/vite-plugin.esm.js",
+      "require": "./dist/vite-plugin.cjs.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "vite-plugin"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "test": "jest",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@babel/core": "^7.22.5",
+    "@babel/preset-env": "^7.22.5"
+  },
+  "devDependencies": {
+    "@rollup/plugin-node-resolve": "^13.0.0",
+    "rollup": "^2.79.1",
+    "rollup-plugin-terser": "^7.0.2"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "gitHead": "82d314e7f43a9c923577101c0878b398739c2070"
+}
