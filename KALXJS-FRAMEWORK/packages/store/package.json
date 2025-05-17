@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/store",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Global state management for KalxJS framework",
   "type": "module",
   "author": "kalxjs Team",
