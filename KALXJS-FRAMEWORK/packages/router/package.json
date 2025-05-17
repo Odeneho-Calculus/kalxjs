@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/router",
-  "version": "2.0.24",
+  "version": "2.0.25",
   "description": "Advanced router package for KalxJs framework with features that surpass Vue Router",
   "type": "module",
   "author": "kalxjs Team",

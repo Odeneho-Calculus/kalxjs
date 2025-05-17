@@ -3,9 +3,18 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [2.0.24](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/router@2.0.23...@kalxjs/router@2.0.24) (2025-05-17)
+## [2.0.25](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/router@2.0.24...@kalxjs/router@2.0.25) (2025-05-20)
 
-**Note:** Version bump only for package @kalxjs/router
+### Bug Fixes
+
+- **router:** Fix RouterView component rendering and error handling
+- **router:** Improve route matching for nested routes
+- **router:** Enhance scroll behavior for hash navigation
+
+### Documentation
+
+- **router:** Update documentation with latest features and examples
+- **router:** Add more comprehensive API reference
 
 ## [2.0.24](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/router@2.0.23...@kalxjs/router@2.0.24) (2025-05-17)
 

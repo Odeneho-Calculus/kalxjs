@@ -2,6 +2,10 @@
 
 Next-generation routing for kalxjs applications with advanced features that surpass Vue Router, including TypeScript support, view transitions, and code splitting.
 
+## Version 2.0.25
+
+This latest version includes significant improvements to the router's core functionality, with enhanced route matching, better error handling, and improved scroll behavior for hash navigation.
+
 ## Features
 
 - **Advanced Navigation Guards**: More powerful than Vue Router with promise-based navigation
@@ -24,7 +28,7 @@ Next-generation routing for kalxjs applications with advanced features that surp
 ## Installation
 
 ```bash
-npm install @kalxjs-framework/router
+npm install @kalxjs/router
 ```
 
 ## Modern Usage
@@ -98,14 +102,11 @@ const routes = [
 
 // Create router with advanced options
 const router = createRouter({
-  // Choose history mode (HTML5 history API)
-  history: createWebHistory('/app/'), // Base URL is '/app/'
+  // Choose mode (hash is default)
+  mode: 'history', // 'hash', 'history', or 'memory'
   
-  // Or use hash mode for better compatibility
-  // history: createWebHashHistory(),
-  
-  // Or use memory history for testing
-  // history: createMemoryHistory('/initial-path'),
+  // Base URL (optional)
+  base: '/app/',
   
   routes,
   
@@ -284,6 +285,63 @@ The enhanced `useRouter()` function returns:
 - `beforeResolve(guard)`: Add a global before resolve guard
 - `afterEach(hook)`: Add a global after each hook
 
+## History Modes
+
+KalxJS Router supports three different history modes:
+
+### Hash Mode (Default)
+
+```javascript
+const router = createRouter({
+  mode: 'hash',
+  // other options...
+})
+```
+
+- Uses URL hash for routing (`example.com/#/about`)
+- Works without server configuration
+- Compatible with all browsers
+- Doesn't require server-side support
+
+### HTML5 History Mode
+
+```javascript
+const router = createRouter({
+  mode: 'history',
+  base: '/app/', // optional base path
+  // other options...
+})
+```
+
+- Uses the HTML5 History API
+- Creates clean URLs (`example.com/about`)
+- Requires server-side configuration to handle direct URL access
+- Falls back to hash mode if History API is not supported
+
+### Memory Mode
+
+```javascript
+const router = createRouter({
+  mode: 'memory',
+  // other options...
+})
+```
+
+- Keeps history in memory
+- Useful for testing and server-side rendering
+- No URL changes in the browser
+
+You can also use the dedicated history creation functions:
+
+```javascript
+import { createWebHistory, createWebHashHistory, createMemoryHistory } from '@kalxjs/router'
+
+// These functions are available but the preferred approach is using the 'mode' option
+const historyMode = createWebHistory('/base/')
+const hashMode = createWebHashHistory()
+const memoryMode = createMemoryHistory('/initial-path')
+```
+
 ## Advanced Features
 
 ### Navigation Guards
@@ -422,6 +480,78 @@ const hasRoute = router.hasRoute('route-name')
 const route = router.getRoutes().find(route => route.name === 'route-name')
 ```
 
+### RouterView and RouterLink Components
+
+KalxJS Router provides two essential components for building navigation interfaces:
+
+#### RouterView
+
+The `RouterView` component renders the component matched by the current route:
+
+```javascript
+import { RouterView } from '@kalxjs/router'
+
+// In your component
+export default {
+  render() {
+    return {
+      tag: 'div',
+      props: { class: 'app' },
+      children: [
+        {
+          tag: 'header',
+          children: ['My App']
+        },
+        // This will render the matched route component
+        RouterView()
+      ]
+    }
+  }
+}
+```
+
+#### RouterLink
+
+The `RouterLink` component creates navigation links with automatic active class handling:
+
+```javascript
+import { RouterLink } from '@kalxjs/router'
+
+// In your component
+export default {
+  render() {
+    return {
+      tag: 'nav',
+      children: [
+        RouterLink({ 
+          to: '/', 
+          activeClass: 'active',
+          exactActiveClass: 'exact-active',
+          children: ['Home']
+        }),
+        RouterLink({ 
+          to: '/about',
+          children: ['About']
+        }),
+        // With replace mode (doesn't add to history)
+        RouterLink({ 
+          to: '/contact',
+          replace: true,
+          children: ['Contact']
+        }),
+        // With custom rendering
+        RouterLink({
+          to: '/profile',
+          custom: true,
+          tag: 'button',
+          children: ['Profile']
+        })
+      ]
+    }
+  }
+}
+```
+
 ### TypeScript Support
 
 KalxJS Router provides enhanced TypeScript support:
@@ -519,6 +649,81 @@ const UserComponent = {
     }, { immediate: true })
     
     return { userData, isLoading, error }
+  }
+}
+```
+
+## Scroll Behavior
+
+KalxJS Router provides advanced scroll behavior control:
+
+```javascript
+const router = createRouter({
+  // other options...
+  
+  // Custom scroll behavior
+  scrollBehavior(to, from, savedPosition) {
+    // Return to saved position for back/forward navigation
+    if (savedPosition) {
+      return savedPosition
+    }
+    
+    // Scroll to anchor if hash is present
+    if (to.hash) {
+      return {
+        el: to.hash,
+        behavior: 'smooth',
+        // Optional offset
+        top: 20
+      }
+    }
+    
+    // Scroll to top with smooth behavior
+    return { 
+      top: 0,
+      behavior: 'smooth'
+    }
+  }
+})
+```
+
+In version 2.0.25, the scroll behavior for hash navigation has been significantly improved:
+
+- Better handling of hash fragments in URLs
+- Smoother scrolling to hash elements
+- Improved position restoration for back/forward navigation
+- Better error handling when target elements don't exist
+
+## Error Handling
+
+KalxJS Router provides comprehensive error handling for navigation:
+
+```javascript
+// All navigation methods return promises
+router.push('/dashboard')
+  .then(route => {
+    console.log('Navigation successful:', route.path)
+  })
+  .catch(error => {
+    console.error('Navigation failed:', error.message)
+    
+    // Handle different error types
+    if (error.message.includes('Navigation aborted by guard')) {
+      // Handle navigation guard rejection
+    } else if (error.message.includes('No route matched')) {
+      // Handle route not found
+    } else {
+      // Handle other errors
+    }
+  })
+
+// Using async/await
+async function navigate() {
+  try {
+    const route = await router.push('/dashboard')
+    console.log('Navigation successful:', route.path)
+  } catch (error) {
+    console.error('Navigation failed:', error.message)
   }
 }
 ```

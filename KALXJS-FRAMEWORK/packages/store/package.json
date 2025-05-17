@@ -1,7 +1,7 @@
 {
   "name": "@kalxjs/store",
   "version": "1.0.7",
-  "description": "Global state management for KalxJS framework with Vuex-like API",
+  "description": "Global state management for KalxJS framework",
   "type": "module",
   "author": "kalxjs Team",
   "license": "MIT",
