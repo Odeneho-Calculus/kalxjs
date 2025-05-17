@@ -7,9 +7,9 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 **Note:** Version bump only for package @kalxjs/devtools
 
+## [1.2.24](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/devtools@1.2.23...@kalxjs/devtools@1.2.24) (2025-05-17)
 
-
-
+**Note:** Version bump only for package @kalxjs/devtools
 
 ## [1.2.23](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/devtools@1.2.22...@kalxjs/devtools@1.2.23) (2025-05-17)
 
