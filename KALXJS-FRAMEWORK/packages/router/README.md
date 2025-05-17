@@ -2,7 +2,7 @@
 
 Next-generation routing for kalxjs applications with advanced features that surpass Vue Router, including TypeScript support, view transitions, and code splitting.
 
-## Version 2.0.25
+## Version 2.0.26
 
 This latest version includes significant improvements to the router's core functionality, with enhanced route matching, better error handling, and improved scroll behavior for hash navigation.
 
@@ -687,7 +687,7 @@ const router = createRouter({
 })
 ```
 
-In version 2.0.25, the scroll behavior for hash navigation has been significantly improved:
+In version 2.0.26, the scroll behavior for hash navigation has been significantly improved:
 
 - Better handling of hash fragments in URLs
 - Smoother scrolling to hash elements
