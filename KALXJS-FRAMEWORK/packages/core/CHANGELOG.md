@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 2.2.4 (2025-05-17)
+
+**Note:** Version bump only for package @kalxjs/core
+
 ## 2.2.3 (2025-05-15)
 
 **Note:** Version bump only for package @kalxjs/core

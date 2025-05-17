@@ -3,6 +3,10 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.2.50 (2025-05-17)
+
+**Note:** Version bump only for package @kalxjs/state
+
 ## 1.2.49 (2025-05-15)
 
 **Note:** Version bump only for package @kalxjs/state
