@@ -1,5 +1,4 @@
 // @kalxjs/compiler - Vite plugin for .klx files
-// This plugin is inspired by Vue's Vite plugin for .vue files
 
 import { compileKLX } from './index.js';
 import path from 'path';

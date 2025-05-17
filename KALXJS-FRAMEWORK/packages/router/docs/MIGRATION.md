@@ -1,6 +1,6 @@
 # Migration Guide: Upgrading to KalxJS Router 2.0
 
-This guide helps you migrate from the previous version of KalxJS Router to the new enhanced version that surpasses Vue Router in features and capabilities.
+This guide helps you migrate from the previous version of KalxJS Router to the new enhanced version of KalxJS Router.
 
 ## Table of Contents
 

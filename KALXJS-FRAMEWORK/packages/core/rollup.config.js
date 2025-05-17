@@ -77,6 +77,32 @@ export default [
             nodeResolve()
         ]
     },
+    // Composition API ESM build
+    {
+        input: 'src/composition/index.js',
+        output: {
+            file: 'dist/composition.esm.js',
+            format: 'es',
+            sourcemap: true,
+            exports: 'named'
+        },
+        plugins: [
+            nodeResolve()
+        ]
+    },
+    // Composition API CJS build
+    {
+        input: 'src/composition/index.js',
+        output: {
+            file: 'dist/composition.cjs.js',
+            format: 'cjs',
+            sourcemap: true,
+            exports: 'named'
+        },
+        plugins: [
+            nodeResolve()
+        ]
+    },
     // Browser-specific build with all exports
     {
         input: 'src/browser.js',

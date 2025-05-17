@@ -1,6 +1,6 @@
 # State Management Guide
 
-KalxJS v2.1.14 provides a built-in state management system that is inspired by Vuex but with a more modern API and better TypeScript support. It offers a centralized store for all components in an application, with rules ensuring that state can only be mutated in a predictable fashion.
+KalxJS provides a built-in state management system with more modern API and better TypeScript support. It offers a centralized store for all components in an application, with rules ensuring that state can only be mutated in a predictable fashion.
 
 ## Basic Usage
 

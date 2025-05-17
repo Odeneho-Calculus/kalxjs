@@ -1,6 +1,6 @@
 # KalxJS Router API Reference
 
-This document provides a comprehensive API reference for the KalxJS Router, which offers more powerful features than Vue Router.
+This document provides a comprehensive API reference for the KalxJS Router, which offers more powerful features.
 
 ## Table of Contents
 

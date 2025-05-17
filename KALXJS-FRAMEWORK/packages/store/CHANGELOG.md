@@ -50,6 +50,6 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 ### Features
 
 - Initial release of the store package
-- Vuex-like state management for KalxJS applications
+- State management for KalxJS applications
 - Support for state, mutations, actions, and getters
 - Helper functions: mapState, mapGetters, mapMutations, mapActions

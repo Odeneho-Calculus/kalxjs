@@ -4,53 +4,53 @@ import { h } from '../vdom/vdom';
  * Default App component for when App.klx can't be loaded
  */
 export const createDefaultAppComponent = () => {
-    return {
-        name: 'DefaultApp',
-        render() {
-            return h('div', { class: 'app' }, [
-                h('header', { class: 'app-header' }, [
-                    h('h1', null, 'Welcome to KalxJS')
+  return {
+    name: 'DefaultApp',
+    render() {
+      return h('div', { class: 'app' }, [
+        h('header', { class: 'app-header' }, [
+          h('h1', null, 'Welcome to KalxJS')
+        ]),
+        h('main', { class: 'app-main' }, [
+          h('div', { class: 'welcome-container' }, [
+            h('div', { class: 'welcome-header' }, [
+              h('h2', null, ['Getting Started with ', h('span', { class: 'brand-name' }, 'KalxJS')])
+            ]),
+            h('div', { class: 'welcome-content' }, [
+              h('p', { class: 'welcome-message' },
+                "Congratulations! You've successfully created a new KalxJS project!"
+              ),
+              h('div', { class: 'feature-grid' }, [
+                h('div', { class: 'feature-card' }, [
+                  h('h3', null, '📝 Template-Based Rendering'),
+                  h('p', null, 'Use HTML templates directly with no virtual DOM overhead')
                 ]),
-                h('main', { class: 'app-main' }, [
-                    h('div', { class: 'welcome-container' }, [
-                        h('div', { class: 'welcome-header' }, [
-                            h('h2', null, ['Getting Started with ', h('span', { class: 'brand-name' }, 'KalxJS')])
-                        ]),
-                        h('div', { class: 'welcome-content' }, [
-                            h('p', { class: 'welcome-message' },
-                                "Congratulations! You've successfully created a new KalxJS project!"
-                            ),
-                            h('div', { class: 'feature-grid' }, [
-                                h('div', { class: 'feature-card' }, [
-                                    h('h3', null, '📝 Template-Based Rendering'),
-                                    h('p', null, 'Use HTML templates directly with no virtual DOM overhead')
-                                ]),
-                                h('div', { class: 'feature-card' }, [
-                                    h('h3', null, '⚡ Reactive State'),
-                                    h('p', null, 'Powerful state management with automatic DOM updates')
-                                ]),
-                                h('div', { class: 'feature-card' }, [
-                                    h('h3', null, '🧩 Component System'),
-                                    h('p', null, 'Create reusable components with clean APIs')
-                                ]),
-                                h('div', { class: 'feature-card' }, [
-                                    h('h3', null, '🔄 Routing'),
-                                    h('p', null, 'Seamless navigation between different views')
-                                ])
-                            ])
-                        ])
-                    ])
+                h('div', { class: 'feature-card' }, [
+                  h('h3', null, '⚡ Reactive State'),
+                  h('p', null, 'Powerful state management with automatic DOM updates')
                 ]),
-                h('footer', { class: 'app-footer' }, [
-                    h('p', null, 'Powered by KalxJS - More powerful than Vue')
+                h('div', { class: 'feature-card' }, [
+                  h('h3', null, '🧩 Component System'),
+                  h('p', null, 'Create reusable components with clean APIs')
+                ]),
+                h('div', { class: 'feature-card' }, [
+                  h('h3', null, '🔄 Routing'),
+                  h('p', null, 'Seamless navigation between different views')
                 ])
-            ]);
-        },
+              ])
+            ])
+          ])
+        ]),
+        h('footer', { class: 'app-footer' }, [
+          h('p', null, 'Powered by KalxJS - More powerful than you think!')
+        ])
+      ]);
+    },
 
-        // Add styles when mounted
-        mounted() {
-            const styleElement = document.createElement('style');
-            styleElement.textContent = `
+    // Add styles when mounted
+    mounted() {
+      const styleElement = document.createElement('style');
+      styleElement.textContent = `
         .app {
           max-width: 1200px;
           margin: 0 auto;
@@ -117,7 +117,7 @@ export const createDefaultAppComponent = () => {
           margin-top: 0;
         }
       `;
-            document.head.appendChild(styleElement);
-        }
-    };
+      document.head.appendChild(styleElement);
+    }
+  };
 };

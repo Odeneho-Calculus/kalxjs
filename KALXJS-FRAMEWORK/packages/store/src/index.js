@@ -71,7 +71,7 @@ export function createStore(options = {}) {
             console.warn('[Store] registerModule is not fully implemented yet');
         },
 
-        // Plugin installation method for Vue.use()
+        // Plugin installation method
         install(app) {
             app._context.$store = this;
 

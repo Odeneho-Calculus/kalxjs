@@ -4034,7 +4034,7 @@ button, .btn {
     font-weight: 600;
     
     &:hover {
-      background-color: #389f6e; /* Darker shade of Vue.js green */
+      background-color: #389f6e; /* Darker shade green */
     }
   }
   
@@ -4044,7 +4044,7 @@ button, .btn {
     font-weight: 600;
     
     &:hover {
-      background-color: #2c3c4f; /* Darker shade of Vue.js blue */
+      background-color: #2c3c4f; /* Darker shade blue */
     }
   }
   
@@ -4057,7 +4057,7 @@ button, .btn {
     &:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 12px var(--shadow-color);
-      background-color: #4ac28e; /* Lighter shade of Vue.js green */
+      background-color: #4ac28e; /* Lighter shade green */
     }
   }
 }

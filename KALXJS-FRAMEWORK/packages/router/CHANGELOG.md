@@ -132,7 +132,7 @@ See [Conventional Commits](https://conventionalcommits.org) for commit guideline
 
 ### Major Enhancements
 
-- **Complete Router Rewrite**: Rebuilt from the ground up to surpass Vue Router in features and capabilities
+- **Complete Router Rewrite**: Rebuilt from the ground up now with enhanced features and capabilities
 - **Promise-Based Navigation**: All navigation methods now return promises for better async flow control
 - **Advanced Route Matching**: Enhanced pattern matching with regex support, optional parameters, and more
 - **Multiple History Modes**: Support for HTML5 history, hash history, and memory history (for testing/SSR)

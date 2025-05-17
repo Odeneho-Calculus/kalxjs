@@ -429,7 +429,7 @@ class CustomRenderer {
     if (scriptMatch) {
       const scriptContent = scriptMatch[1].trim();
 
-      // Check for Vue-style Options API
+      // Options API
       if (scriptContent.includes('data()') ||
         scriptContent.includes('methods:') ||
         scriptContent.includes('computed:')) {
@@ -512,9 +512,9 @@ class CustomRenderer {
       if (scriptMatch) {
         const scriptContent = scriptMatch[1].trim();
 
-        // Check if it's using Vue-like Options API
+        // Options API
         if (scriptContent.includes('data()') && scriptContent.includes('methods')) {
-          console.log('Detected Vue-like Options API in welcome component');
+          console.log('Detected Options API in welcome component');
 
           // Create a component that adapts the Options API to our setup function
           welcomeComponent = {
@@ -734,12 +734,12 @@ class CustomRenderer {
       // This allows us to handle the script more flexibly in processKlxComponent
       result.rawScript = scriptContent;
 
-      // Check if it's using Vue-like Options API
+      // Options API
       if (scriptContent.includes('data()') &&
         (scriptContent.includes('methods') || scriptContent.includes('computed'))) {
-        console.log(`Detected Vue-like Options API in ${name} component`);
+        console.log(`Detected Options API in ${name} component`);
 
-        // For Vue-like components, we'll create a simplified setup function
+        // simplified setup function
         result.script = `{
           name: '${name || 'VueStyleComponent'}',
           setup() {
@@ -748,7 +748,7 @@ class CustomRenderer {
           }
         }`;
 
-        // Store the original Vue-style component for later processing
+        // Store the original component for later processing
         result.vueStyleComponent = true;
       } else {
         // Try to extract the component definition

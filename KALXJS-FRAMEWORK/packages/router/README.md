@@ -1,6 +1,6 @@
 # kalxjs Router
 
-Next-generation routing for kalxjs applications with advanced features that surpass Vue Router, including TypeScript support, view transitions, and code splitting.
+Next-generation routing for kalxjs applications with advanced features, including TypeScript support, view transitions, and code splitting.
 
 ## Version 2.0.26
 
@@ -8,7 +8,7 @@ This latest version includes significant improvements to the router's core funct
 
 ## Features
 
-- **Advanced Navigation Guards**: More powerful than Vue Router with promise-based navigation
+- **Advanced Navigation Guards**: More powerful and with promise-based navigation
 - **Nested Routes**: Full support for nested route hierarchies
 - **Dynamic Route Matching**: Enhanced pattern matching with regex support and optional parameters
 - **Route Meta Fields**: Attach custom data to routes for advanced use cases
@@ -23,7 +23,7 @@ This latest version includes significant improvements to the router's core funct
 - **History Modes**: HTML5 history, hash mode, and memory mode for testing
 - **Query Parameter Handling**: Advanced query parsing and stringifying
 - **Transitions API**: Smooth page transitions with built-in animation support
-- **Composition API**: Enhanced `useRouter()` with more features than Vue Router
+- **Composition API**: Enhanced `useRouter()` with more features
 
 ## Installation
 
@@ -151,14 +151,14 @@ const router = createRouter({
 
 ## Composition API
 
-The router package includes an enhanced `useRouter()` composition function that provides more features than Vue Router:
+The router package includes an enhanced `useRouter()` composition function that provides more features and better integration with KalxJS applications. Here's how you can use it:
 
 ```javascript
 import { useRouter } from '@kalxjs/router';
 
 export default {
   setup() {
-    // Access router instance and route information with more features than Vue Router
+    // Access router instance and route information with more features Router
     const { 
       router,       // Router instance
       route,        // Reactive reference to current route
@@ -346,7 +346,7 @@ const memoryMode = createMemoryHistory('/initial-path')
 
 ### Navigation Guards
 
-KalxJS Router provides a more powerful navigation guard system than Vue Router:
+KalxJS Router provides a more powerful navigation guard system with promise-based navigation and multiple guards per route:
 
 ```javascript
 import { createRouter } from '@kalxjs/router'
@@ -421,7 +421,7 @@ router.afterEach((to, from) => {
 
 ### Advanced Route Matching
 
-KalxJS Router supports more powerful route matching patterns than Vue Router:
+KalxJS Router supports more powerful route matching patterns and advanced route definitions:
 
 ```javascript
 const routes = [

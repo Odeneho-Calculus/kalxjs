@@ -2,7 +2,7 @@
 
 > Global state management for KalxJS applications
 
-This package provides a Vuex-like state management solution for KalxJS applications.
+This package provides a state management solution for KalxJS applications.
 
 ## Installation
 

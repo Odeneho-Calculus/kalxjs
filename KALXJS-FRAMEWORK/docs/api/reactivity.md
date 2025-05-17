@@ -145,7 +145,7 @@ state.count = 1 // Automatically logs: "Count is: 1"
 
 - Effects automatically re-run when any reactive values they access change
 - This is primarily used internally by the framework but can be useful for custom reactivity
-- Unlike Vue's watchEffect, effect is lower-level and doesn't handle error boundaries
+- Effect is lower-level and doesn't handle error boundaries
 
 ## Usage with Components
 
