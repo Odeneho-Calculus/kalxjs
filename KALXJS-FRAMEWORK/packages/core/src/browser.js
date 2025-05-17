@@ -15,7 +15,7 @@ export {
     useReactive,
     useRef,
     useComputed
-} from './composition/index';
+} from './composition/index.js';
 
 // Import and re-export all reactivity functions
 export {
@@ -23,21 +23,21 @@ export {
     reactive,
     computed,
     effect
-} from './reactivity/reactive';
+} from './reactivity/reactive.js';
 
 // Import and re-export vdom functions
 export {
     h,
     createElement,
     updateElement
-} from './vdom/vdom';
+} from './vdom/vdom.js';
 
 // Import and re-export component functions
 export {
     defineComponent,
     createComponent,
     createApp
-} from './component/component';
+} from './component/component.js';
 
 // Re-export everything else from the main index
-export * from './index';
+export * from './index.js';

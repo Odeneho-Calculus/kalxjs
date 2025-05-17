@@ -1,6 +1,6 @@
 // @kalxjs/core - Lifecycle hooks for Composition API
 
-import { getCurrentInstance } from './index.js';
+import { getCurrentInstance } from './instance.js';
 
 /**
  * Runs a callback when the component is created

@@ -1,6 +1,6 @@
 // Core functionality imports
-import { reactive, ref, computed, effect } from './reactivity/reactive';
-import { h, createElement, updateElement } from './vdom/vdom';
+import { reactive, ref, computed, effect } from './reactivity/reactive.js';
+import { h, createElement, updateElement } from './vdom/vdom.js';
 import {
     createComponent,
     defineComponent,
@@ -9,13 +9,13 @@ import {
     createJsComponent,
     createStyles,
     defineComponentEnhanced
-} from './component';
+} from './component/index.js';
 
 // Import template-based component system
-import { createTemplateComponent, defineTemplateComponent } from './template';
+import { createTemplateComponent, defineTemplateComponent } from './template/index.js';
 
 // Import custom renderer
-import { createRenderer, createCustomRenderer } from './renderer';
+import { createRenderer, createCustomRenderer } from './renderer/index.js';
 
 // Import all composition API from a single file to avoid circular dependencies
 import {
@@ -29,7 +29,7 @@ import {
     onUpdated,
     getCurrentInstance,
     setCurrentInstance
-} from './composition';
+} from './composition.js';
 
 // Import additional lifecycle hooks
 import {
@@ -37,7 +37,7 @@ import {
     onBeforeMount,
     onBeforeUnmount,
     onErrorCaptured
-} from './composition/lifecycle';
+} from './composition/lifecycle.js';
 
 // Import utility functions
 import {
@@ -48,8 +48,8 @@ import {
     useDebounce,
     useThrottle,
     useMouse
-} from './composition/utils';
-import { createPlugin, PluginManager } from './plugin';
+} from './composition/utils.js';
+import { createPlugin, PluginManager } from './plugin/index.js';
 // Re-export store functions directly
 export {
     createStore,
@@ -58,12 +58,12 @@ export {
     createPersistedState,
     defineStore,
     useStore
-} from './store';
+} from './store/index.js';
 import {
     createApi,
     useApi,
     createApiPlugin
-} from './api';
+} from './api/index.js';
 import {
     memoize,
     memo,
@@ -71,20 +71,20 @@ import {
     deferRender,
     createVirtualList,
     createPerformancePlugin
-} from './performance';
+} from './performance/index.js';
 import {
     createAIManager,
     useAI,
     createAIPlugin,
     AI_MODEL_TYPES
-} from './ai';
+} from './ai/index.js';
 import {
     createNativeBridge,
     useNative,
     createNativePlugin,
     NATIVE_PLATFORMS,
     NATIVE_FEATURES
-} from './native';
+} from './native/index.js';
 import {
     createTestRunner,
     createComponentTest,
@@ -93,12 +93,12 @@ import {
     describe,
     test,
     it
-} from './testing';
+} from './testing/index.js';
 import {
     createServerRenderer,
     createClientHydration,
     createSSRPlugin
-} from './ssr';
+} from './ssr/index.js';
 import {
     createTimeline,
     createTrack,
@@ -108,7 +108,7 @@ import {
     EASING,
     DIRECTION,
     FILL_MODE
-} from './animation';
+} from './animation/index.js';
 
 /**
  * Main entry point for kalxjs framework
@@ -250,7 +250,7 @@ export default kalxjs;
 export const version = '2.2.1';
 
 // Export version utilities
-export { getPackageVersion, getAllVersions, checkVersionCompatibility, versions } from './version';
+export { getPackageVersion, getAllVersions, checkVersionCompatibility, versions } from './version.js';
 
 // Export individual APIs
 export {
@@ -368,21 +368,21 @@ export {
 };
 
 // Additional exports
-export * from './component';
-export * from './vdom';
-export * from './lifecycle';
-export * from './reactivity';
-export * from './composition';
-export * from './composition/lifecycle';
-export * from './composition/utils';
-export * from './plugin';
-export * from './store';
-export * from './api';
-export * from './performance';
-export * from './ai';
-export * from './native';
-export * from './testing';
-export * from './ssr';
-export * from './animation';
-export * from './template';
-export * from './renderer';
+export * from './component/index.js';
+export * from './vdom/index.js';
+export * from './lifecycle/index.js';
+export * from './reactivity/index.js';
+export * from './composition.js';
+export * from './composition/lifecycle.js';
+export * from './composition/utils.js';
+export * from './plugin/index.js';
+export * from './store/index.js';
+export * from './api/index.js';
+export * from './performance/index.js';
+export * from './ai/index.js';
+export * from './native/index.js';
+export * from './testing/index.js';
+export * from './ssr/index.js';
+export * from './animation/index.js';
+export * from './template/index.js';
+export * from './renderer/index.js';

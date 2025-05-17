@@ -1,7 +1,7 @@
 // @kalxjs/core - Utility functions for Composition API
 
-import { ref, reactive, effect } from '../reactivity/reactive';
-import { getCurrentInstance } from './index';
+import { ref, reactive, effect } from '../reactivity/reactive.js';
+import { getCurrentInstance } from './instance.js';
 
 /**
  * Creates a reactive reference with a getter and setter

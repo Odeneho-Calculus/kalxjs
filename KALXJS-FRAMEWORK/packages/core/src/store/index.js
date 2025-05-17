@@ -1,7 +1,7 @@
 // @kalxjs/core - Built-in state management
 
-import { reactive, ref, computed, effect } from '../reactivity/reactive';
-import { useStore } from './useStore';
+import { reactive, ref, computed, effect } from '../reactivity/reactive.js';
+import { useStore } from './useStore.js';
 
 /**
  * Creates a store with state, getters, actions, and mutations

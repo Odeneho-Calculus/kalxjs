@@ -8,10 +8,13 @@ import {
     onMounted,
     onUnmounted,
     onBeforeUpdate,
-    onUpdated,
+    onUpdated
+} from './composition/index.js';
+
+import {
     setCurrentInstance,
     getCurrentInstance
-} from './composition/index.js';
+} from './composition/instance.js';
 
 import {
     onCreated,

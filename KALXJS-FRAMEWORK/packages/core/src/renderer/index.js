@@ -1,6 +1,6 @@
 // packages/core/src/renderer/index.js
 
-import { createCustomRenderer } from './custom-renderer';
+import { createCustomRenderer } from './custom-renderer.js';
 
 /**
  * Creates a new renderer

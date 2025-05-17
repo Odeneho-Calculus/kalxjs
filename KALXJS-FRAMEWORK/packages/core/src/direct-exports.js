@@ -12,7 +12,7 @@ import {
     onUpdated,
     getCurrentInstance,
     setCurrentInstance
-} from './composition';
+} from './composition.js';
 
 // Import from lifecycle
 import {
@@ -20,7 +20,7 @@ import {
     onBeforeMount,
     onBeforeUnmount,
     onErrorCaptured
-} from './composition/lifecycle';
+} from './composition/lifecycle.js';
 
 // Import from reactivity
 import {
@@ -28,21 +28,21 @@ import {
     ref,
     computed,
     effect
-} from './reactivity/reactive';
+} from './reactivity/reactive.js';
 
 // Import from vdom
 import {
     h,
     createElement,
     updateElement
-} from './vdom/vdom';
+} from './vdom/vdom.js';
 
 // Import from component
 import {
     createComponent,
     defineComponent,
     createApp
-} from './component/component';
+} from './component/component.js';
 
 // Direct exports to ensure these functions are available
 export {

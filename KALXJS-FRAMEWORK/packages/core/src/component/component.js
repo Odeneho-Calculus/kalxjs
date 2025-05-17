@@ -1,7 +1,7 @@
-import { h, createElement, updateElement } from '../vdom/vdom';
-import { reactive, effect } from '../reactivity/reactive';
-import { processSetup } from './setup';
-import { createDefaultAppComponent } from './default-app';
+import { h, createElement, updateElement } from '../vdom/vdom.js';
+import { reactive, effect } from '../reactivity/reactive.js';
+import { processSetup } from './setup.js';
+import { createDefaultAppComponent } from './default-app.js';
 
 /**
  * Helper function to create DOM elements from virtual DOM

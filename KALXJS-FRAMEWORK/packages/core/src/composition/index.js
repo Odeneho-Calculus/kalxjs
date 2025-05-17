@@ -1,6 +1,10 @@
 // @kalxjs/core - Composition API
 
-import { reactive, ref, computed, effect } from '../reactivity/reactive';
+import { reactive, ref, computed, effect } from '../reactivity/reactive.js';
+import { getCurrentInstance, setCurrentInstance } from './instance.js';
+
+// Re-export instance management functions
+export { getCurrentInstance, setCurrentInstance };
 
 /**
  * Creates a reactive object that can be used in the setup function
@@ -107,24 +111,3 @@ export function onUpdated(callback) {
     getCurrentInstance().updated.push(callback);
 }
 
-// Current component instance
-let currentInstance = null;
-
-/**
- * Sets the current component instance
- * @param {Object} instance - Component instance
- */
-export function setCurrentInstance(instance) {
-    currentInstance = instance;
-}
-
-/**
- * Gets the current component instance
- * @returns {Object} Current component instance
- */
-export function getCurrentInstance() {
-    if (!currentInstance) {
-        throw new Error('getCurrentInstance() can only be used inside setup()');
-    }
-    return currentInstance;
-}

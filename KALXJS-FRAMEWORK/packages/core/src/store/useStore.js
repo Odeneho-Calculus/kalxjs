@@ -1,6 +1,6 @@
 // @kalxjs/core - Store composition API
-import { getCurrentInstance } from '../composition';
-import { createStore } from './index';
+import { getCurrentInstance } from '../composition.js';
+import { createStore } from './index.js';
 
 /**
  * Composition API hook for using the store

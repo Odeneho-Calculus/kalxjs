@@ -1,7 +1,16 @@
 // packages/core/src/vdom/vdom.js
 
 // Import the new diffing algorithm
-import { patch } from './diff';
+import { patch } from './diff.js';
+
+/**
+ * Creates a DOM element with the given tag
+ * @param {string} tag - HTML tag name
+ * @returns {HTMLElement} The created DOM element
+ */
+export function createDOMElement(tag) {
+    return document.createElement(tag);
+}
 
 /**
  * Flattens an array (polyfill for Array.prototype.flat)
@@ -196,7 +205,7 @@ ${JSON.stringify(vnode, null, 2)}
     // Create the DOM element
     let element;
     try {
-        element = document.createElement(vnode.tag);
+        element = createDOMElement(vnode.tag);
     } catch (error) {
         console.error(`Error creating element with tag "${vnode.tag}":`, error);
         const errorElement = document.createElement('div');
@@ -276,9 +285,11 @@ export function updateElement(element, oldVNode, newVNode) {
 
 /**
  * Updates the properties of a DOM element
- * @private
+ * @param {HTMLElement} element - DOM element to update
+ * @param {Object} oldProps - Previous properties
+ * @param {Object} newProps - New properties
  */
-function updateProps(element, oldProps, newProps) {
+export function updateProps(element, oldProps, newProps) {
     // Remove old properties
     for (const [key, value] of Object.entries(oldProps)) {
         if (!(key in newProps)) {
@@ -309,7 +320,10 @@ function updateProps(element, oldProps, newProps) {
 
 /**
  * Updates a child element
- * @private
+ * @param {HTMLElement} parentElement - Parent DOM element
+ * @param {Object} oldChild - Previous virtual DOM node
+ * @param {Object} newChild - New virtual DOM node
+ * @param {number} index - Child index
  */
 function updateChild(parentElement, oldChild, newChild, index) {
     const childElement = parentElement.childNodes[index];
@@ -329,4 +343,23 @@ function updateChild(parentElement, oldChild, newChild, index) {
 
     // Update existing children
     updateElement(childElement, oldChild, newChild);
+}
+
+/**
+ * Updates all children of a DOM element
+ * @param {HTMLElement} parentElement - Parent DOM element
+ * @param {Array} oldChildren - Previous virtual DOM nodes
+ * @param {Array} newChildren - New virtual DOM nodes
+ */
+export function updateChildren(parentElement, oldChildren, newChildren) {
+    const maxLength = Math.max(oldChildren.length, newChildren.length);
+
+    for (let i = 0; i < maxLength; i++) {
+        updateChild(
+            parentElement,
+            oldChildren[i],
+            newChildren[i],
+            i
+        );
+    }
 }
