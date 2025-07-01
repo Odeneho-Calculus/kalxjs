@@ -1,513 +1,487 @@
-// @kalxjs/compiler - SFC Parser for .kal files
-// This parser handles Single File Components with <template>, <script>, and <style> sections
+// @kalxjs/compiler - Enhanced SFC Parser for .kal files
+// Professional-grade parser with comprehensive error handling and advanced features
 
 /**
- * Parses a KAL Single File Component into an AST
- * @param {string} source - Source code of the .kal file
- * @returns {Object} AST with template, script, and style sections
+ * Enhanced SFC Parser for KalxJS Single File Components
+ * Provides robust parsing with detailed error reporting and advanced features
  */
-export function parseSFC(source) {
-    console.log('[sfc-parser] Parsing KAL file');
+export class EnhancedSFCParser {
+    constructor(options = {}) {
+        this.options = {
+            preserveWhitespace: false,
+            ignoreComments: false,
+            sourceMap: true,
+            strictMode: true,
+            ...options
+        };
 
-    // Parse the template, script, and style sections with improved regex
-    // These patterns handle attributes and whitespace better
-    const templateMatch = /<template(?:\s+([^>]*))?>([\s\S]*?)<\/template>/i.exec(source);
-    const scriptMatch = /<script(?:\s+([^>]*))?>([\s\S]*?)<\/script>/i.exec(source);
-    const styleMatch = /<style(?:\s+([^>]*))?>([\s\S]*?)<\/style>/i.exec(source);
-
-    // Check if template section exists
-    const template = templateMatch ? {
-        content: templateMatch[2],
-        attrs: parseAttributes(templateMatch[1] || ''),
-        start: templateMatch.index,
-        end: templateMatch.index + templateMatch[0].length
-    } : null;
-
-    if (template) {
-        console.log(`[sfc-parser] Template section found with length: ${template.content.length}`);
-    } else {
-        console.warn('[sfc-parser] No template section found');
+        this.errors = [];
+        this.warnings = [];
+        this.sourceLines = [];
+        this.currentLine = 1;
+        this.currentColumn = 1;
     }
 
-    // Check if script section exists
-    const script = scriptMatch ? {
-        content: scriptMatch[2],
-        attrs: parseAttributes(scriptMatch[1] || ''),
-        start: scriptMatch.index,
-        end: scriptMatch.index + scriptMatch[0].length
-    } : null;
+    /**
+     * Parse a KAL Single File Component source code
+     * @param {string} source - Source code of the .kal file
+     * @param {string} filename - Optional filename for error reporting
+     * @returns {Object} Parsed SFC structure
+     */
+    parse(source, filename = 'anonymous.kal') {
+        this.reset();
+        this.sourceLines = source.split('\n');
 
-    if (script) {
-        console.log(`[sfc-parser] Script section found with length: ${script.content.length}`);
+        try {
+            const result = this.parseSource(source, filename);
 
-        // Check for script type
-        if (script.attrs.setup) {
-            console.log('[sfc-parser] Script has setup attribute');
-        }
-        if (script.attrs.lang) {
-            console.log(`[sfc-parser] Script language: ${script.attrs.lang}`);
-        }
-    } else {
-        console.warn('[sfc-parser] No script section found');
-    }
+            // Validate the parsed result
+            this.validateParsedResult(result);
 
-    // Check if style section exists
-    const style = styleMatch ? {
-        content: styleMatch[2],
-        attrs: parseAttributes(styleMatch[1] || ''),
-        start: styleMatch.index,
-        end: styleMatch.index + styleMatch[0].length
-    } : null;
+            return {
+                ...result,
+                errors: this.errors,
+                warnings: this.warnings,
+                filename,
+                sourceMap: this.options.sourceMap ? this.generateSourceMap(source) : null
+            };
+        } catch (error) {
+            this.addError(`Fatal parsing error: ${error.message}`, 0, 0);
 
-    if (style) {
-        console.log(`[sfc-parser] Style section found with length: ${style.content.length}`);
-
-        // Check for style attributes
-        if (style.attrs.scoped) {
-            console.log('[sfc-parser] Style has scoped attribute');
-        }
-        if (style.attrs.lang) {
-            console.log(`[sfc-parser] Style language: ${style.attrs.lang}`);
+            return {
+                template: null,
+                script: null,
+                style: null,
+                customBlocks: [],
+                errors: this.errors,
+                warnings: this.warnings,
+                filename,
+                sourceMap: null
+            };
         }
     }
 
-    // Check for custom blocks
-    const customBlocks = [];
-    const customBlockRegex = /<([a-z0-9-]+)(?:\s+([^>]*))?>([\s\S]*?)<\/\1>/gi;
-    let customMatch;
-
-    // Reset the regex lastIndex
-    customBlockRegex.lastIndex = 0;
-
-    while ((customMatch = customBlockRegex.exec(source)) !== null) {
-        const tagName = customMatch[1].toLowerCase();
-
-        // Skip the standard blocks we've already processed
-        if (tagName === 'template' || tagName === 'script' || tagName === 'style') {
-            continue;
-        }
-
-        customBlocks.push({
-            type: tagName,
-            content: customMatch[3],
-            attrs: parseAttributes(customMatch[2] || ''),
-            start: customMatch.index,
-            end: customMatch.index + customMatch[0].length
-        });
-
-        console.log(`[sfc-parser] Custom block found: ${tagName}`);
+    /**
+     * Reset parser state
+     * @private
+     */
+    reset() {
+        this.errors = [];
+        this.warnings = [];
+        this.sourceLines = [];
+        this.currentLine = 1;
+        this.currentColumn = 1;
     }
 
-    return {
-        template,
-        script,
-        style,
-        customBlocks,
-        errors: []
-    };
-}
+    /**
+     * Parse the source code into SFC blocks
+     * @private
+     * @param {string} source - Source code
+     * @param {string} filename - Filename for error reporting
+     * @returns {Object} Parsed blocks
+     */
+    parseSource(source, filename) {
+        const blocks = this.extractBlocks(source);
 
-/**
- * Parse HTML attributes string into an object
- * @param {string} attrsString - String containing HTML attributes
- * @returns {Object} Attributes as key-value pairs
- */
-function parseAttributes(attrsString) {
-    const attrs = {};
+        return {
+            template: this.parseTemplateBlock(blocks.template),
+            script: this.parseScriptBlock(blocks.script),
+            style: this.parseStyleBlock(blocks.style),
+            customBlocks: this.parseCustomBlocks(blocks.custom),
+            filename
+        };
+    }
 
-    if (!attrsString) {
+    /**
+     * Extract all blocks from the source code
+     * @private
+     * @param {string} source - Source code
+     * @returns {Object} Extracted blocks
+     */
+    extractBlocks(source) {
+        const blocks = {
+            template: [],
+            script: [],
+            style: [],
+            custom: []
+        };
+
+        // Enhanced regex patterns for block detection
+        const blockPattern = /<(template|script|style|[a-zA-Z][a-zA-Z0-9-]*)\s*([^>]*)>([\s\S]*?)<\/\1>/gi;
+        let match;
+
+        while ((match = blockPattern.exec(source)) !== null) {
+            const [fullMatch, tagName, attributes, content] = match;
+            const startIndex = match.index;
+            const endIndex = startIndex + fullMatch.length;
+
+            // Calculate line and column positions
+            const position = this.calculatePosition(source, startIndex);
+
+            const block = {
+                type: tagName.toLowerCase(),
+                content: content.trim(),
+                attributes: this.parseAttributes(attributes),
+                start: startIndex,
+                end: endIndex,
+                line: position.line,
+                column: position.column,
+                raw: fullMatch
+            };
+
+            // Categorize blocks
+            switch (block.type) {
+                case 'template':
+                    blocks.template.push(block);
+                    break;
+                case 'script':
+                    blocks.script.push(block);
+                    break;
+                case 'style':
+                    blocks.style.push(block);
+                    break;
+                default:
+                    blocks.custom.push(block);
+            }
+        }
+
+        return blocks;
+    }
+
+    /**
+     * Parse template block with validation
+     * @private
+     * @param {Array} templateBlocks - Template blocks
+     * @returns {Object|null} Parsed template
+     */
+    parseTemplateBlock(templateBlocks) {
+        if (templateBlocks.length === 0) {
+            this.addWarning('No template block found');
+            return null;
+        }
+
+        if (templateBlocks.length > 1) {
+            this.addError('Multiple template blocks found. Only one template block is allowed per component.');
+            return null;
+        }
+
+        const block = templateBlocks[0];
+
+        // Validate template content
+        if (!block.content.trim()) {
+            this.addWarning('Template block is empty', block.line, block.column);
+        }
+
+        // Check for common template issues
+        this.validateTemplateContent(block.content, block.line);
+
+        return {
+            content: block.content,
+            attrs: block.attributes,
+            start: block.start,
+            end: block.end,
+            line: block.line,
+            column: block.column,
+            lang: block.attributes.lang || 'html'
+        };
+    }
+
+    /**
+     * Parse script block with validation
+     * @private
+     * @param {Array} scriptBlocks - Script blocks
+     * @returns {Object|null} Parsed script
+     */
+    parseScriptBlock(scriptBlocks) {
+        if (scriptBlocks.length === 0) {
+            this.addWarning('No script block found');
+            return null;
+        }
+
+        if (scriptBlocks.length > 1) {
+            this.addError('Multiple script blocks found. Only one script block is allowed per component.');
+            return null;
+        }
+
+        const block = scriptBlocks[0];
+
+        // Validate script content
+        if (!block.content.trim()) {
+            this.addWarning('Script block is empty', block.line, block.column);
+        }
+
+        // Check for setup attribute
+        const isSetup = block.attributes.setup !== undefined;
+
+        // Validate script syntax if in strict mode
+        if (this.options.strictMode) {
+            this.validateScriptSyntax(block.content, block.line);
+        }
+
+        return {
+            content: block.content,
+            attrs: block.attributes,
+            start: block.start,
+            end: block.end,
+            line: block.line,
+            column: block.column,
+            lang: block.attributes.lang || 'js',
+            setup: isSetup
+        };
+    }
+
+    /**
+     * Parse style block with validation
+     * @private
+     * @param {Array} styleBlocks - Style blocks
+     * @returns {Object|null} Parsed style
+     */
+    parseStyleBlock(styleBlocks) {
+        if (styleBlocks.length === 0) {
+            return null;
+        }
+
+        // For now, take the first style block, but warn about multiple blocks
+        if (styleBlocks.length > 1) {
+            this.addWarning('Multiple style blocks found. Only the first one will be processed.');
+        }
+
+        const block = styleBlocks[0];
+
+        // Check for scoped attribute
+        const isScoped = block.attributes.scoped !== undefined;
+        const isModule = block.attributes.module !== undefined;
+
+        return {
+            content: block.content,
+            attrs: block.attributes,
+            start: block.start,
+            end: block.end,
+            line: block.line,
+            column: block.column,
+            lang: block.attributes.lang || 'css',
+            scoped: isScoped,
+            module: isModule
+        };
+    }
+
+    /**
+     * Parse custom blocks
+     * @private
+     * @param {Array} customBlocks - Custom blocks
+     * @returns {Array} Parsed custom blocks
+     */
+    parseCustomBlocks(customBlocks) {
+        return customBlocks.map(block => ({
+            type: block.type,
+            content: block.content,
+            attrs: block.attributes,
+            start: block.start,
+            end: block.end,
+            line: block.line,
+            column: block.column
+        }));
+    }
+
+    /**
+     * Parse attributes from attribute string
+     * @private
+     * @param {string} attrString - Attribute string
+     * @returns {Object} Parsed attributes
+     */
+    parseAttributes(attrString) {
+        const attrs = {};
+
+        if (!attrString.trim()) {
+            return attrs;
+        }
+
+        // Enhanced attribute parsing with support for various formats
+        const attrPattern = /([a-zA-Z][a-zA-Z0-9-]*)\s*(?:=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?/g;
+        let match;
+
+        while ((match = attrPattern.exec(attrString)) !== null) {
+            const [, name, doubleQuoted, singleQuoted, unquoted] = match;
+            const value = doubleQuoted !== undefined ? doubleQuoted :
+                singleQuoted !== undefined ? singleQuoted :
+                    unquoted !== undefined ? unquoted : true;
+
+            attrs[name] = value;
+        }
+
         return attrs;
     }
 
-    // Match attributes with or without values
-    // This regex handles:
-    // - boolean attributes (name)
-    // - quoted values (name="value" or name='value')
-    // - unquoted values (name=value)
-    const attrRegex = /([^\s=]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\s"'<>`]+)))?/g;
+    /**
+     * Validate template content for common issues
+     * @private
+     * @param {string} content - Template content
+     * @param {number} startLine - Starting line number
+     */
+    validateTemplateContent(content, startLine) {
+        const lines = content.split('\n');
 
-    let match;
-    while ((match = attrRegex.exec(attrsString)) !== null) {
-        const name = match[1];
-        // Value can be in group 2, 3, or 4 depending on quotes
-        const value = match[2] !== undefined ? match[2] :
-            match[3] !== undefined ? match[3] :
-                match[4] !== undefined ? match[4] : true;
+        lines.forEach((line, index) => {
+            const lineNumber = startLine + index;
 
-        attrs[name] = value;
-    }
+            // Check for unclosed tags (basic validation)
+            const openTags = (line.match(/<[^/][^>]*[^/]>/g) || []).length;
+            const closeTags = (line.match(/<\/[^>]+>/g) || []).length;
+            const selfClosingTags = (line.match(/<[^>]*\/>/g) || []).length;
 
-    return attrs;
-}
-
-/**
- * Parses a template string into an AST
- * @param {string} template - Template HTML content
- * @returns {Object} Template AST
- */
-export function parseTemplate(template) {
-    console.log('[sfc-parser] Parsing template');
-
-    try {
-        // Create the root AST node
-        const ast = {
-            type: 'Template',
-            children: []
-        };
-
-        // Parse the template content
-        let tokens = [];
-        try {
-            tokens = tokenizeHTML(template.trim());
-            console.log('[sfc-parser] Tokenization complete, tokens:', tokens.length);
-        } catch (error) {
-            console.error('[sfc-parser] Error during tokenization:', error);
-            // Create a minimal token set for a fallback element
-            tokens = [
-                { type: 'OpenTag', name: 'div', attrs: { style: 'color: red; border: 1px solid red; padding: 10px;' }, selfClosing: false },
-                { type: 'Text', content: `Tokenization error: ${error.message}` },
-                { type: 'CloseTag', name: 'div' }
-            ];
-        }
-
-        const rootElement = buildAST(tokens);
-
-        if (rootElement) {
-            ast.children.push(rootElement);
-        } else {
-            console.warn('[sfc-parser] No root element found in template');
-            // Create a fallback div
-            ast.children.push({
-                type: 'Element',
-                tag: 'div',
-                attrs: {},
-                children: [{ type: 'Text', content: 'Failed to parse template' }]
-            });
-        }
-
-        return ast;
-    } catch (error) {
-        console.error('[sfc-parser] Error parsing template:', error);
-        // Return a minimal AST with an error message
-        return {
-            type: 'Template',
-            children: [{
-                type: 'Element',
-                tag: 'div',
-                attrs: { style: 'color: red; border: 1px solid red; padding: 10px;' },
-                children: [{ type: 'Text', content: `Template parsing error: ${error.message}` }]
-            }]
-        };
-    }
-}
-
-/**
- * Tokenizes HTML into a stream of tokens
- * @private
- * @param {string} html - HTML string
- * @returns {Array} Array of tokens
- */
-function tokenizeHTML(html) {
-    console.log('[sfc-parser] Starting tokenization of HTML');
-    console.log('[sfc-parser] HTML length:', html.length);
-    console.log('[sfc-parser] HTML preview:', html.substring(0, 50) + '...');
-
-    const tokens = [];
-    let currentPosition = 0;
-    let lastPosition = -1;
-    let iterationCount = 0;
-    const maxIterations = 10000; // Safety limit
-
-    // Helper function to check if we're at the end of the input
-    const isEOF = () => currentPosition >= html.length;
-
-    // Helper function to peek ahead without consuming
-    const peek = (n = 1) => currentPosition + n < html.length ? html[currentPosition + n] : null;
-
-    // Helper function to consume the next character
-    const consume = () => html[currentPosition++];
-
-    // Helper function to consume characters while a condition is true
-    const consumeWhile = (condition) => {
-        let result = '';
-        while (!isEOF() && condition(peek(0))) {
-            result += consume();
-        }
-        return result;
-    };
-
-    // Process the HTML string
-    while (!isEOF()) {
-        // Safety check to prevent infinite loops
-        iterationCount++;
-        if (iterationCount > maxIterations) {
-            console.error('[sfc-parser] Tokenization exceeded maximum iterations, possible infinite loop');
-            console.error('[sfc-parser] Current position:', currentPosition, 'of', html.length);
-            console.error('[sfc-parser] Current character:', html[currentPosition]);
-            console.error('[sfc-parser] Context:', html.substring(Math.max(0, currentPosition - 20), currentPosition + 20));
-            break;
-        }
-
-        // Check if we're stuck at the same position
-        if (currentPosition === lastPosition) {
-            console.error('[sfc-parser] Tokenization stuck at position:', currentPosition);
-            console.error('[sfc-parser] Current character:', html[currentPosition]);
-            console.error('[sfc-parser] Context:', html.substring(Math.max(0, currentPosition - 20), currentPosition + 20));
-            break;
-        }
-        lastPosition = currentPosition;
-        // Check for opening tag
-        if (html[currentPosition] === '<') {
-            // Check if it's a comment
-            if (peek() === '!' && peek(1) === '-' && peek(2) === '-') {
-                // Skip the opening <!--
-                currentPosition += 4;
-
-                // Find the end of the comment
-                let commentContent = '';
-                while (!isEOF() && !(html[currentPosition] === '-' && peek() === '-' && peek(1) === '>')) {
-                    commentContent += consume();
-                }
-
-                // Skip the closing -->
-                if (!isEOF()) {
-                    currentPosition += 3;
-                }
-
-                // Add comment token
-                tokens.push({
-                    type: 'Comment',
-                    content: commentContent
-                });
-
-                continue;
+            // Check for potential k-directive issues
+            if (line.includes('v-')) {
+                this.addWarning(`Found Vue.js directive 'v-' on line ${lineNumber}. Did you mean 'k-'?`, lineNumber);
             }
 
-            // Check if it's a closing tag
-            if (peek() === '/') {
-                // Skip the opening </
-                currentPosition += 2;
-
-                // Get the tag name
-                const tagName = consumeWhile(c => c !== '>');
-
-                // Skip the closing >
-                if (!isEOF()) {
-                    currentPosition++;
-                }
-
-                // Add closing tag token
-                tokens.push({
-                    type: 'CloseTag',
-                    name: tagName.trim()
-                });
-
-                continue;
-            }
-
-            // It's an opening tag
-            // Skip the opening <
-            currentPosition++;
-
-            // Get the tag name
-            const tagName = consumeWhile(c => c !== ' ' && c !== '>' && c !== '/');
-
-            // Parse attributes
-            const attrs = {};
-
-            // Skip whitespace
-            consumeWhile(c => c === ' ' || c === '\n' || c === '\t' || c === '\r');
-
-            // Parse attributes until we reach the end of the tag
-            while (!isEOF() && peek() !== '>' && peek() !== '/') {
-                // Get attribute name
-                const attrName = consumeWhile(c => c !== '=' && c !== ' ' && c !== '>' && c !== '/');
-
-                // Skip whitespace
-                consumeWhile(c => c === ' ' || c === '\n' || c === '\t' || c === '\r');
-
-                // Check if there's a value
-                if (peek() === '=') {
-                    // Skip the =
-                    consume();
-
-                    // Skip whitespace
-                    consumeWhile(c => c === ' ' || c === '\n' || c === '\t' || c === '\r');
-
-                    // Check if the value is quoted
-                    let attrValue;
-                    if (peek() === '"' || peek() === "'") {
-                        const quote = consume();
-                        attrValue = consumeWhile(c => c !== quote);
-
-                        // Skip the closing quote
-                        if (!isEOF()) {
-                            consume();
-                        }
-                    } else {
-                        // Unquoted value
-                        attrValue = consumeWhile(c => c !== ' ' && c !== '>' && c !== '/');
+            // Check for interpolation syntax issues
+            const interpolations = line.match(/\{\{[^}]*\}\}/g);
+            if (interpolations) {
+                interpolations.forEach(interpolation => {
+                    if (interpolation.includes('{{{{') || interpolation.includes('}}}}')) {
+                        this.addWarning(`Malformed interpolation syntax on line ${lineNumber}: ${interpolation}`, lineNumber);
                     }
+                });
+            }
+        });
+    }
 
-                    // Add the attribute
-                    attrs[attrName.trim()] = attrValue;
-                } else {
-                    // Boolean attribute
-                    attrs[attrName.trim()] = true;
+    /**
+     * Validate script syntax (basic validation)
+     * @private
+     * @param {string} content - Script content
+     * @param {number} startLine - Starting line number
+     */
+    validateScriptSyntax(content, startLine) {
+        try {
+            // Basic syntax validation - check for common issues
+            const lines = content.split('\n');
+
+            lines.forEach((line, index) => {
+                const lineNumber = startLine + index;
+
+                // Check for common syntax issues
+                if (line.includes('export default') && !line.includes('{') && !line.includes('(')) {
+                    // Check if export default is properly formatted
+                    if (!line.match(/export\s+default\s+\{/) && !line.match(/export\s+default\s+\w+/)) {
+                        this.addWarning(`Potentially malformed export default on line ${lineNumber}`, lineNumber);
+                    }
                 }
-
-                // Skip whitespace
-                consumeWhile(c => c === ' ' || c === '\n' || c === '\t' || c === '\r');
-            }
-
-            // Check if it's a self-closing tag
-            const selfClosing = peek() === '/';
-            if (selfClosing) {
-                // Skip the /
-                consume();
-            }
-
-            // Skip the closing >
-            if (!isEOF()) {
-                consume();
-            }
-
-            // Add opening tag token
-            tokens.push({
-                type: 'OpenTag',
-                name: tagName.trim(),
-                attrs,
-                selfClosing
             });
-
-            continue;
-        }
-
-        // Check for template expressions {{ ... }}
-        if (html[currentPosition] === '{' && peek() === '{') {
-            // Skip the opening {{
-            currentPosition += 2;
-
-            // Get the expression content
-            let expressionContent = '';
-            while (!isEOF() && !(html[currentPosition] === '}' && peek() === '}')) {
-                expressionContent += consume();
-            }
-
-            // Skip the closing }}
-            if (!isEOF()) {
-                currentPosition += 2;
-            }
-
-            // Add expression token
-            tokens.push({
-                type: 'Expression',
-                content: expressionContent.trim()
-            });
-
-            continue;
-        }
-
-        // It's text content
-        let textContent = '';
-        while (!isEOF() && html[currentPosition] !== '<' && !(html[currentPosition] === '{' && peek() === '{')) {
-            textContent += consume();
-        }
-
-        // Add text token if not empty
-        if (textContent.trim()) {
-            tokens.push({
-                type: 'Text',
-                content: textContent
-            });
+        } catch (error) {
+            this.addError(`Script syntax validation failed: ${error.message}`, startLine);
         }
     }
 
-    return tokens;
+    /**
+     * Validate the complete parsed result
+     * @private
+     * @param {Object} result - Parsed result
+     */
+    validateParsedResult(result) {
+        // Check for required blocks
+        if (!result.template && !result.script) {
+            this.addError('Component must have at least a template or script block');
+        }
+
+        // Validate component structure
+        if (result.script && result.script.content) {
+            const hasExportDefault = result.script.content.includes('export default');
+            if (!hasExportDefault) {
+                this.addWarning('Script block should export a default component definition');
+            }
+        }
+    }
+
+    /**
+     * Calculate line and column position from character index
+     * @private
+     * @param {string} source - Source code
+     * @param {number} index - Character index
+     * @returns {Object} Position object with line and column
+     */
+    calculatePosition(source, index) {
+        const beforeIndex = source.substring(0, index);
+        const lines = beforeIndex.split('\n');
+
+        return {
+            line: lines.length,
+            column: lines[lines.length - 1].length + 1
+        };
+    }
+
+    /**
+     * Generate source map information
+     * @private
+     * @param {string} source - Original source code
+     * @returns {Object} Source map data
+     */
+    generateSourceMap(source) {
+        return {
+            version: 3,
+            sources: ['input.kal'],
+            sourcesContent: [source],
+            mappings: '', // Would need proper source map generation
+            names: []
+        };
+    }
+
+    /**
+     * Add an error to the error list
+     * @private
+     * @param {string} message - Error message
+     * @param {number} line - Line number
+     * @param {number} column - Column number
+     */
+    addError(message, line = 0, column = 0) {
+        this.errors.push({
+            type: 'error',
+            message,
+            line,
+            column,
+            source: this.sourceLines[line - 1] || ''
+        });
+    }
+
+    /**
+     * Add a warning to the warning list
+     * @private
+     * @param {string} message - Warning message
+     * @param {number} line - Line number
+     * @param {number} column - Column number
+     */
+    addWarning(message, line = 0, column = 0) {
+        this.warnings.push({
+            type: 'warning',
+            message,
+            line,
+            column,
+            source: this.sourceLines[line - 1] || ''
+        });
+    }
 }
 
 /**
- * Builds an AST from a stream of tokens
- * @private
- * @param {Array} tokens - Array of tokens
- * @returns {Object} Root element node
+ * Parse a KAL Single File Component
+ * @param {string} source - Source code of the .kal file
+ * @param {Object} options - Parser options
+ * @returns {Object} Parsed SFC structure
  */
-function buildAST(tokens) {
-    // Create a stack to keep track of the current element
-    const stack = [];
-    let currentElement = null;
-    let rootElement = null;
+export function parseEnhancedSFC(source, options = {}) {
+    const parser = new EnhancedSFCParser(options);
+    return parser.parse(source, options.filename);
+}
 
-    // Process each token
-    for (const token of tokens) {
-        switch (token.type) {
-            case 'OpenTag':
-                // Create a new element node
-                const element = {
-                    type: 'Element',
-                    tag: token.name,
-                    attrs: token.attrs,
-                    children: []
-                };
+// Export with standard name for compatibility
+export function parseSFC(source, options = {}) {
+    return parseEnhancedSFC(source, options);
+}
 
-                // If this is a self-closing tag, don't push to the stack
-                if (!token.selfClosing) {
-                    stack.push(element);
-                }
-
-                // If we have a current element, add this as a child
-                if (currentElement) {
-                    currentElement.children.push(element);
-                } else {
-                    // This is the root element
-                    rootElement = element;
-                }
-
-                // Update the current element if not self-closing
-                if (!token.selfClosing) {
-                    currentElement = element;
-                }
-                break;
-
-            case 'CloseTag':
-                // Pop the current element from the stack
-                stack.pop();
-
-                // Update the current element
-                currentElement = stack.length > 0 ? stack[stack.length - 1] : null;
-                break;
-
-            case 'Text':
-                // Add text node to the current element
-                if (currentElement) {
-                    currentElement.children.push({
-                        type: 'Text',
-                        content: token.content
-                    });
-                }
-                break;
-
-            case 'Expression':
-                // Add expression node to the current element
-                if (currentElement) {
-                    currentElement.children.push({
-                        type: 'Expression',
-                        content: token.content
-                    });
-                }
-                break;
-
-            case 'Comment':
-                // Add comment node to the current element
-                if (currentElement) {
-                    currentElement.children.push({
-                        type: 'Comment',
-                        content: token.content
-                    });
-                }
-                break;
-        }
-    }
-
-    return rootElement;
+/**
+ * Create a parser instance with custom options
+ * @param {Object} options - Parser options
+ * @returns {EnhancedSFCParser} Parser instance
+ */
+export function createSFCParser(options = {}) {
+    return new EnhancedSFCParser(options);
 }

@@ -1,8 +1,6 @@
 // @kalxjs/compiler - Compiler for .klx files
 
 import { parseTemplate } from './parser.js';
-import { parseTemplate as parseTemplateRobust } from './robust-parser.js';
-import { parseTemplate as parseTemplateSimple } from './simple-parser.js';
 
 /**
  * Compiles a parsed KLX component AST
@@ -34,23 +32,9 @@ export function compile(ast, options = {}) {
 }`
                 };
             } else {
-                // Parse and compile the actual template
-                // Try the simple parser first, then robust parser, then fall back to the original
-                let templateAst;
-                try {
-                    templateAst = parseTemplateSimple(ast.template.content);
-                    console.log('[compiler] Using simple template parser');
-                } catch (simpleError) {
-                    console.warn('[compiler] Simple template parser failed, trying robust parser:', simpleError);
-                    try {
-                        templateAst = parseTemplateRobust(ast.template.content);
-                        console.log('[compiler] Using robust template parser');
-                    } catch (error) {
-                        console.warn('[compiler] Robust template parser failed, falling back to original:', error);
-                        templateAst = parseTemplate(ast.template.content);
-                        console.log('[compiler] Using original template parser');
-                    }
-                }
+                // Parse and compile the template
+                const templateAst = parseTemplate(ast.template.content);
+                console.log('[compiler] Using template parser');
                 result.template = compileTemplate(templateAst, options);
             }
         } catch (error) {

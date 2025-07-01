@@ -1,482 +1,507 @@
-// @kalxjs/compiler - Vite plugin for .kal files
-// This plugin handles Single File Components with the .kal extension
+// @kalxjs/compiler - Enhanced Vite Plugin for .kal files
+// Professional-grade Vite plugin with comprehensive SFC support, HMR, and advanced features
 
-import { compileSFC } from './sfc-compiler.js';
-import { parseSFC } from './sfc-parser.js';
+import { compileEnhancedSFC } from './sfc-compiler.js';
 import path from 'path';
 import fs from 'fs';
+import { createHash } from 'crypto';
 
 /**
- * Create a filter function for include/exclude patterns
- * @param {RegExp|RegExp[]} include - Include pattern
- * @param {RegExp|RegExp[]} exclude - Exclude pattern
- * @returns {Function} Filter function
+ * Enhanced Vite Plugin for KalxJS Single File Components
+ * Provides comprehensive SFC compilation with advanced features
  */
-function createFilter(include, exclude) {
-    return (id) => {
-        if (exclude && testPattern(exclude, id)) {
-            return false;
-        }
-        if (include && !testPattern(include, id)) {
-            return false;
-        }
-        return true;
-    };
-}
+export default function enhancedKalPlugin(options = {}) {
+    const {
+        include = /\.kal$/,
+        exclude,
+        customElement = false,
+        reactivityTransform = false,
+        ...compilerOptions
+    } = options;
 
-/**
- * Test if a pattern matches a string
- * @param {RegExp|RegExp[]} pattern - Pattern to test
- * @param {string} id - String to test
- * @returns {boolean} Whether the pattern matches
- */
-function testPattern(pattern, id) {
-    if (Array.isArray(pattern)) {
-        return pattern.some(p => testPattern(p, id));
-    }
-    return pattern.test(id);
-}
+    // Plugin state
+    const cache = new Map();
+    const hmrBoundaries = new Map();
+    const dependencyGraph = new Map();
 
-/**
- * Vite plugin for KalxJS single-file components (.kal files)
- * @param {Object} options - Plugin options
- * @returns {Object} Vite plugin
- */
-export default function kalPlugin(options = {}) {
-    const { include, exclude, customElement, ...rest } = options;
+    // Filter function for file matching
+    const filter = createFilter(include, exclude);
 
-    // Filter for .kal files
-    const filter = createFilter(include || /\.kal$/, exclude);
-
-    // Cache for compiled components
-    const compiledCache = new Map();
+    // Plugin configuration
+    let isProduction = false;
+    let root = '';
+    let server = null;
 
     return {
-        name: 'vite:kal',
-        // Add enforce: 'pre' to ensure this plugin runs before Vite's asset handling
+        name: 'vite:kalxjs-enhanced',
         enforce: 'pre',
 
-        // Handle .kal files as a transform step
-        async transform(code, id, transformOptions) {
-            // Skip if not a .kal file or if excluded
+        // Plugin configuration
+        configResolved(config) {
+            isProduction = config.command === 'build';
+            root = config.root;
+        },
+
+        // Development server configuration
+        configureServer(devServer) {
+            server = devServer;
+
+            // Setup HMR handling
+            server.ws.on('kalxjs:hmr-update', (data) => {
+                this.handleHMRUpdate(data);
+            });
+        },
+
+        // Build start hook
+        buildStart() {
+            // Clear cache on build start
+            cache.clear();
+            hmrBoundaries.clear();
+            dependencyGraph.clear();
+        },
+
+        // Resolve ID hook
+        resolveId(id, importer) {
+            // Handle .kal file imports
+            if (id.endsWith('.kal')) {
+                return this.resolveKalFile(id, importer);
+            }
+            return null;
+        },
+
+        // Load hook
+        load(id) {
             if (!filter(id)) return null;
 
-            // Remove query parameters from the id (like ?t=1747166908020)
+            // Clean query parameters
             const cleanId = id.split('?')[0];
-
-            // Skip if not a .kal file
             if (!cleanId.endsWith('.kal')) return null;
 
-            // Get the file name for debugging
-            const fileName = path.basename(cleanId);
+            try {
+                // Read file content
+                const source = fs.readFileSync(cleanId, 'utf-8');
 
-            // Check if the code is just an export statement pointing to a file path or a JSON string
-            if (code.trim().startsWith('export default')) {
-                if (code.includes('.kal"')) {
-                    console.log(`[vite:kal] Detected asset reference in ${fileName}, loading actual file content`);
+                // Store original source for HMR
+                this.storeOriginalSource(cleanId, source);
 
-                    try {
-                        // We need to read the actual file content from disk
-                        const actualFilePath = cleanId;
-
-                        if (fs.existsSync(actualFilePath)) {
-                            code = fs.readFileSync(actualFilePath, 'utf-8');
-                            console.log(`[vite:kal] Successfully loaded file content for ${fileName}`);
-                        } else {
-                            console.error(`[vite:kal] Could not find file at ${actualFilePath}`);
-                        }
-                    } catch (err) {
-                        console.error(`[vite:kal] Error loading file content for ${fileName}:`, err);
-                    }
-                } else if (code.includes('"<template>')) {
-                    // This is a JSON string containing the template content
-                    try {
-                        // Extract the JSON string
-                        const match = /export default\s+(.+)/.exec(code);
-                        if (match && match[1]) {
-                            // Parse the JSON string to get the actual template content
-                            code = JSON.parse(match[1]);
-                            console.log(`[vite:kal] Successfully extracted template content from JSON for ${fileName}`);
-                        }
-                    } catch (err) {
-                        console.error(`[vite:kal] Error extracting template content from JSON for ${fileName}:`, err);
-                    }
-                }
+                return source;
+            } catch (error) {
+                this.error(`Failed to load .kal file: ${cleanId}`, error);
+                return null;
             }
+        },
 
-            // Check if we have a cached version
-            const cacheKey = cleanId + code;
-            const cached = compiledCache.get(cacheKey);
-            if (cached) {
-                return cached;
-            }
+        // Transform hook - main compilation logic
+        async transform(code, id, transformOptions) {
+            if (!filter(id)) return null;
+
+            const cleanId = id.split('?')[0];
+            if (!cleanId.endsWith('.kal')) return null;
+
+            const filename = path.basename(cleanId);
 
             try {
-                console.log(`[vite:kal] Compiling ${fileName}`);
+                // Check cache first
+                const cacheKey = this.generateCacheKey(code, cleanId, compilerOptions);
+                const cached = cache.get(cacheKey);
 
-                // Use the simple compiler instead of the complex parser/compiler
-                console.log(`[vite:kal] Using advanced SFC compiler for ${fileName}`);
-                const result = compileSFC(parseSFC(code), {
+                if (cached && !this.shouldInvalidateCache(cleanId, cached.timestamp)) {
+                    return cached.result;
+                }
+
+                // Compile the SFC
+                const startTime = Date.now();
+                const compiled = await this.compileSFC(code, {
                     filename: cleanId,
-                    ...rest
+                    ...compilerOptions,
+                    isProduction,
+                    hmr: !isProduction
                 });
 
-                console.log(`[vite:kal] Generated code for ${fileName}:`, {
-                    codeLength: result.script.code.length,
-                    codePreview: result.script.code.substring(0, 150) + '...'
-                });
+                const compilationTime = Date.now() - startTime;
 
-                // Add debug information
-                const debugCode = `
-// KalxJS SFC compiled by vite-plugin-kal (advanced)
-// Source: ${cleanId}
-// Timestamp: ${new Date().toISOString()}
-${result.script.code}`;
+                // Handle compilation errors
+                if (compiled.errors.length > 0) {
+                    this.handleCompilationErrors(compiled.errors, cleanId);
+                }
 
-                // Cache the result
-                const output = {
-                    code: debugCode,
-                    map: result.script.map || null
+                // Handle compilation warnings
+                if (compiled.warnings.length > 0) {
+                    this.handleCompilationWarnings(compiled.warnings, cleanId);
+                }
+
+                // Generate final result
+                const result = {
+                    code: compiled.code,
+                    map: compiled.map,
+                    meta: {
+                        kalxjs: {
+                            dependencies: compiled.dependencies,
+                            exports: compiled.exports,
+                            metadata: compiled.metadata,
+                            compilationTime
+                        }
+                    }
                 };
 
-                compiledCache.set(cacheKey, output);
+                // Cache the result
+                cache.set(cacheKey, {
+                    result,
+                    timestamp: Date.now(),
+                    dependencies: compiled.dependencies
+                });
 
-                return output;
-            } catch (err) {
-                console.error(`[vite:kal] Error compiling ${fileName}:`, err);
+                // Update dependency graph for HMR
+                this.updateDependencyGraph(cleanId, compiled.dependencies);
 
-                // Create an improved fallback component that shows the error with better UI
-                const fallbackCode = `
-import { h, defineComponent } from '@kalxjs/core';
+                // Setup HMR boundaries
+                if (!isProduction) {
+                    this.setupHMRBoundary(cleanId, compiled.metadata);
+                }
 
-export default defineComponent({
-  name: 'CompilationErrorComponent',
-  render() {
-    return h('div', { 
-      style: 'padding: 20px; border: 2px solid #e53e3e; border-radius: 4px; background-color: #fff5f5; color: #c53030; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;'
-    }, [
-      h('h2', { style: 'margin-top: 0; border-bottom: 1px solid #feb2b2; padding-bottom: 10px;' }, ['KAL Compilation Error']),
-      h('p', { style: 'font-size: 16px;' }, [${JSON.stringify(err.message)}]),
-      h('div', { style: 'margin-top: 20px;' }, [
-        h('h3', { style: 'margin-top: 0; font-size: 16px; color: #822727;' }, ['Error Details:']),
-        h('pre', { 
-          style: 'background-color: #2d3748; color: #e2e8f0; padding: 15px; border-radius: 4px; overflow: auto; font-size: 14px; margin-top: 10px;' 
-        }, [
-          ${JSON.stringify(err.stack || 'No stack trace available')}
-        ])
-      ]),
-      h('div', { style: 'margin-top: 20px; background-color: #fffaf0; border: 1px solid #fbd38d; padding: 15px; border-radius: 4px;' }, [
-        h('h3', { style: 'margin-top: 0; font-size: 16px; color: #744210;' }, ['Troubleshooting Tips:']),
-        h('ul', { style: 'margin-top: 10px; padding-left: 20px;' }, [
-          h('li', {}, ['Check your template syntax for any errors']),
-          h('li', {}, ['Ensure all tags are properly closed']),
-          h('li', {}, ['Verify that your script section is valid JavaScript']),
-          h('li', {}, ['Make sure your component has a <template> section'])
-        ])
-      ])
-    ]);
-  }
-});
-`;
+                this.logCompilation(filename, compilationTime, compiled);
 
-                // Return the fallback component instead of throwing an error
+                return result;
+            } catch (error) {
+                this.error(`Failed to transform .kal file: ${filename}`, error);
+
+                // Return error component
                 return {
-                    code: fallbackCode,
+                    code: this.generateErrorComponent(error, cleanId),
                     map: null
                 };
             }
         },
 
-        // Add a resolveId hook to handle .kal imports
-        resolveId(id, importer) {
-            if (id.endsWith('.kal')) {
-                console.log(`[vite:kal] Resolving .kal file: ${id}`);
-                // Return the id as is to let Vite handle the resolution
-                return null;
+        // Handle HMR updates
+        async handleHotUpdate(ctx) {
+            if (!filter(ctx.file)) return;
+
+            const { file, read, server } = ctx;
+
+            try {
+                // Read updated content
+                const content = await read();
+
+                // Invalidate cache
+                this.invalidateCache(file);
+
+                // Recompile
+                const compiled = await this.compileSFC(content, {
+                    filename: file,
+                    ...compilerOptions,
+                    isProduction: false,
+                    hmr: true
+                });
+
+                // Handle compilation errors in HMR
+                if (compiled.errors.length > 0) {
+                    server.ws.send({
+                        type: 'error',
+                        err: {
+                            message: `KalxJS compilation error in ${path.basename(file)}`,
+                            stack: compiled.errors.map(e => e.message).join('\n')
+                        }
+                    });
+                    return [];
+                }
+
+                // Determine update type
+                const updateType = this.determineHMRUpdateType(file, compiled);
+
+                // Send HMR update
+                server.ws.send({
+                    type: 'custom',
+                    event: 'kalxjs:hmr-update',
+                    data: {
+                        file,
+                        updateType,
+                        timestamp: Date.now(),
+                        metadata: compiled.metadata
+                    }
+                });
+
+                // Return modules to update
+                return this.getModulesToUpdate(file, updateType);
+            } catch (error) {
+                this.error(`HMR update failed for ${file}`, error);
+                return [];
             }
-            return null;
         },
 
-        // Add a load hook to handle .kal files
-        load(id) {
-            if (id.endsWith('.kal')) {
-                console.log(`[vite:kal] Loading .kal file: ${id}`);
-                // Return null to let Vite handle the loading
-                return null;
+        // Generate bundle hook
+        generateBundle(options, bundle) {
+            if (isProduction) {
+                this.optimizeBundle(bundle);
             }
-            return null;
         }
     };
-}
 
-/**
- * Generates JavaScript code from compiled component
- * @param {Object} compiled - Compiled component
- * @param {Object} options - Code generation options
- * @returns {Object} Generated code and source map
- */
-function generateCode(compiled, options = {}) {
-    const { template, script, style, customBlocks } = compiled;
-
-    try {
-        // Track imports from the script sections
-        const imports = [];
-        let hasHImport = false;
-        let hasDefineComponentImport = false;
-        let hasOpenBlockImport = false;
-        let hasCreateBlockImport = false;
-        let hasToDisplayStringImport = false;
-        let hasCreateVNodeImport = false;
-
-        // Process script content
-        let scriptContent = '';
-        if (script) {
-            // Extract imports
-            const importRegex = /import\s+.*?;\n/g;
-            let match;
-            let scriptCode = script.code;
-
-            while ((match = importRegex.exec(scriptCode))) {
-                imports.push(match[0]);
-
-                // Check if required imports are already present
-                if (match[0].includes('h') && match[0].includes('@kalxjs/core')) {
-                    hasHImport = true;
-                }
-                if (match[0].includes('defineComponent') && match[0].includes('@kalxjs/core')) {
-                    hasDefineComponentImport = true;
-                }
-                if (match[0].includes('openBlock') && match[0].includes('@kalxjs/core')) {
-                    hasOpenBlockImport = true;
-                }
-                if (match[0].includes('createBlock') && match[0].includes('@kalxjs/core')) {
-                    hasCreateBlockImport = true;
-                }
-                if (match[0].includes('toDisplayString') && match[0].includes('@kalxjs/core')) {
-                    hasToDisplayStringImport = true;
-                }
-                if (match[0].includes('createVNode') && match[0].includes('@kalxjs/core')) {
-                    hasCreateVNodeImport = true;
-                }
-            }
-
-            // Remove imports from script content
-            scriptCode = scriptCode.replace(importRegex, '');
-
-            // Also remove any remaining import statements that might not end with newline
-            scriptCode = scriptCode.replace(/import\s+.*?;/g, '');
-
-            // Remove export default { ... } wrapper
-            scriptContent = scriptCode
-                .replace(/export\s+default\s+defineComponent\s*\(\s*{/, '')
-                .replace(/export\s+default\s+{/, '')
-                .replace(/}\s*\)\s*;?\s*$/, '')
-                .replace(/}\s*;?\s*$/, '')
-                .trim();
-        }
-
-        // Start with the imports
-        let code = '';
-
-        // Collect all required imports from @kalxjs/core
-        const coreImports = new Set();
-        if (!hasHImport) coreImports.add('h');
-        if (!hasDefineComponentImport) coreImports.add('defineComponent');
-        if (!hasOpenBlockImport) coreImports.add('openBlock as _openBlock');
-        if (!hasCreateBlockImport) coreImports.add('createBlock as _createBlock');
-        if (!hasToDisplayStringImport) coreImports.add('toDisplayString as _toDisplayString');
-        if (!hasCreateVNodeImport) coreImports.add('createVNode as _createVNode');
-
-        // Process imports to remove duplicates and consolidate @kalxjs/core imports
-        const processedImports = [];
-        const nonCoreImports = [];
-
-        // First pass: collect all imports from @kalxjs/core and other imports
-        for (const imp of imports) {
-            if (imp.includes('@kalxjs/core')) {
-                // Extract imported items from @kalxjs/core
-                const match = imp.match(/import\s+{([^}]*)}\s+from/);
-                if (match && match[1]) {
-                    match[1].split(',').forEach(item => {
-                        const trimmed = item.trim();
-                        coreImports.add(trimmed);
-                    });
-                }
-            } else {
-                // Keep non-core imports
-                nonCoreImports.push(imp);
-            }
-        }
-
-        // Add a single consolidated @kalxjs/core import
-        if (coreImports.size > 0) {
-            processedImports.push(`import { ${Array.from(coreImports).join(', ')} } from '@kalxjs/core';\n`);
-        }
-
-        // Add all other imports
-        processedImports.push(...nonCoreImports);
-
-        // Add imports to the code
-        if (processedImports.length > 0) {
-            code = processedImports.join('');
-        }
-
-        // Add a newline after imports
-        code += '\n';
-
-        // Add the component definition
-        code += `export default defineComponent({\n`;
-
-        // Add name if not present
-        if (!scriptContent.includes('name:')) {
-            const filename = options.filename || 'AnonymousComponent';
-            const componentName = filename.split('/').pop().replace(/\.\w+$/, '');
-            code += `  name: '${componentName}',\n`;
-        }
-
-        // Add the script content
-        if (scriptContent) {
-            code += scriptContent;
-
-            // Check if we need to add a comma
-            const needsComma = template && template.code;
-            const hasTrailingSemicolon = scriptContent.trim().endsWith(';');
-            const hasTrailingComma = scriptContent.trim().endsWith(',');
-
-            if (needsComma && !hasTrailingSemicolon && !hasTrailingComma) {
-                code += ',\n';
-            } else if (hasTrailingComma) {
-                // If it already has a comma, just add a newline
-                code += '\n';
-            } else {
-                // If it has a semicolon or doesn't need a comma, just add a newline
-                code += '\n';
-            }
-        }
-
-        // Check if the script content already has a render function
-        const hasRenderFunction = scriptContent.includes('render(') || scriptContent.includes('render :');
-
-        // Add the render function from the template if available and no render function exists in script
-        if (template && template.code && !hasRenderFunction) {
-            console.log('[codegen] Adding template-generated render function');
-
-            // Extract the render function body
-            const renderBody = template.code
-                .replace(/function\s+render\(_ctx\)\s*{\n/, '')
-                .replace(/}\s*$/, '')
-                .split('\n')
-                .map(line => `    ${line}`)
-                .join('\n');
-
-            code += `  render(_ctx) {\n${renderBody}\n  }`;
-        } else if (hasRenderFunction && template && template.code) {
-            console.warn('[codegen] Render function found in script, not adding template-generated render function');
-        } else if (!template || !template.code) {
-            // Enhanced fallback render function with better UI and guidance
-            console.log('[codegen] Adding fallback render function');
-
-            code += `  render() {
-    return h('div', {
-      class: 'kal-component-fallback',
-      style: 'padding: 20px; border: 2px solid #3182ce; border-radius: 4px; background-color: #ebf8ff; color: #2c5282;'
-    }, [
-      h('h2', {}, ['Component Ready']),
-      h('p', {}, ['This component is working but needs a template section.']),
-      h('div', { style: 'margin-top: 15px; background: #fff; padding: 15px; border-radius: 4px; border: 1px solid #bee3f8;' }, [
-        h('h3', { style: 'margin-top: 0; color: #3182ce;' }, ['How to fix this:']),
-        h('p', {}, ['Add a <template> section to your .kal file with your component markup.']),
-        h('pre', { style: 'background: #2d3748; color: #e2e8f0; padding: 10px; border-radius: 4px; overflow: auto;' }, [
-\`<template>
-  <div class="my-component">
-    <h2>My Component</h2>
-    <p>This is my component content</p>
-  </div>
-</template>\`
-        ])
-      ])
-    ]);
-  }`;
-        }
-
-        // Close the component definition
-        code += `\n});\n\n`;
-
-        // Add style if present
-        if (style) {
-            const styleId = style.scopeId || `kal-style-${Math.random().toString(36).substring(2, 10)}`;
-
-            code += `// Inject component styles\n`;
-            code += `(function() {\n`;
-            code += `  if (typeof document !== 'undefined') {\n`;
-            code += `    // Check if style already exists\n`;
-            code += `    if (!document.getElementById('${styleId}')) {\n`;
-            code += `      const style = document.createElement('style');\n`;
-            code += `      style.textContent = ${JSON.stringify(style.code)};\n`;
-            code += `      style.setAttribute('id', '${styleId}');\n`;
-
-            // Add scope ID attribute if scoped
-            if (style.scopeId) {
-                code += `      // Add scope ID for scoped styles\n`;
-                code += `      const componentSelector = '[data-v-${styleId.replace('data-v-', '')}]';\n`;
-                code += `      document.querySelector('head').appendChild(style);\n`;
-                code += `      // Add scope ID to component root element when mounted\n`;
-                code += `      const originalMounted = component.mounted;\n`;
-                code += `      component.mounted = function() {\n`;
-                code += `        this.$el.setAttribute('${style.scopeId}', '');\n`;
-                code += `        if (originalMounted) originalMounted.call(this);\n`;
-                code += `      };\n`;
-            } else {
-                code += `      document.head.appendChild(style);\n`;
-            }
-
-            code += `    }\n`;
-            code += `  }\n`;
-            code += `})();\n`;
-        }
-
-        // Process custom blocks if needed
-        if (customBlocks && Object.keys(customBlocks).length > 0) {
-            code += `\n// Custom blocks\n`;
-            code += `export const blocks = {\n`;
-
-            for (const [type, block] of Object.entries(customBlocks)) {
-                code += `  ${type}: ${JSON.stringify(block.content)},\n`;
-            }
-
-            code += `};\n`;
-        }
-
-        return {
-            code,
-            map: null // Source map not implemented in this example
+    // Helper methods (bound to plugin context)
+    function createFilter(include, exclude) {
+        return (id) => {
+            if (exclude && testPattern(exclude, id)) return false;
+            if (include && !testPattern(include, id)) return false;
+            return true;
         };
-    } catch (error) {
-        console.error('Error generating code:', error);
+    }
 
-        // Generate fallback component
-        const fallbackCode = `
-import { h, defineComponent } from '@kalxjs/core';
+    function testPattern(pattern, id) {
+        if (Array.isArray(pattern)) {
+            return pattern.some(p => testPattern(p, id));
+        }
+        if (pattern instanceof RegExp) {
+            return pattern.test(id);
+        }
+        return id.includes(pattern);
+    }
 
-export default defineComponent({
-  name: 'CodeGenerationErrorComponent',
+    // Compilation method
+    async function compileSFC(source, options) {
+        return compileEnhancedSFC(source, {
+            optimizeImports: !options.isProduction ? false : true,
+            generateSourceMaps: !options.isProduction,
+            strictMode: options.isProduction,
+            preserveWhitespace: false,
+            scopedCSS: true,
+            hotReload: options.hmr,
+            ...options
+        });
+    }
+
+    // Cache management
+    function generateCacheKey(code, id, options) {
+        const hash = createHash('md5');
+        hash.update(code);
+        hash.update(id);
+        hash.update(JSON.stringify(options));
+        return hash.digest('hex');
+    }
+
+    function shouldInvalidateCache(id, timestamp) {
+        try {
+            const stats = fs.statSync(id);
+            return stats.mtime.getTime() > timestamp;
+        } catch {
+            return true;
+        }
+    }
+
+    function invalidateCache(file) {
+        // Remove all cache entries for this file
+        for (const [key, value] of cache.entries()) {
+            if (key.includes(file)) {
+                cache.delete(key);
+            }
+        }
+    }
+
+    // Error and warning handling
+    function handleCompilationErrors(errors, filename) {
+        const displayName = path.basename(filename);
+
+        errors.forEach(error => {
+            console.error(`\n[KalxJS] Compilation error in ${displayName}:`);
+            console.error(`  ${error.message}`);
+
+            if (error.line) {
+                console.error(`  at line ${error.line}${error.column ? `:${error.column}` : ''}`);
+            }
+
+            if (error.source) {
+                console.error(`  ${error.source}`);
+            }
+        });
+    }
+
+    function handleCompilationWarnings(warnings, filename) {
+        const displayName = path.basename(filename);
+
+        warnings.forEach(warning => {
+            console.warn(`\n[KalxJS] Warning in ${displayName}:`);
+            console.warn(`  ${warning.message}`);
+
+            if (warning.line) {
+                console.warn(`  at line ${warning.line}${warning.column ? `:${warning.column}` : ''}`);
+            }
+        });
+    }
+
+    // HMR support
+    function storeOriginalSource(id, source) {
+        // Store for HMR comparison
+        hmrBoundaries.set(id, {
+            source,
+            timestamp: Date.now()
+        });
+    }
+
+    function updateDependencyGraph(id, dependencies) {
+        dependencyGraph.set(id, dependencies);
+    }
+
+    function setupHMRBoundary(id, metadata) {
+        // Setup HMR boundary based on component metadata
+        const boundary = {
+            id,
+            hasTemplate: metadata.hasTemplate,
+            hasScript: metadata.hasScript,
+            hasStyle: metadata.hasStyle,
+            isScoped: metadata.isScoped,
+            timestamp: Date.now()
+        };
+
+        hmrBoundaries.set(id, boundary);
+    }
+
+    function determineHMRUpdateType(file, compiled) {
+        const previous = hmrBoundaries.get(file);
+        if (!previous) return 'full-reload';
+
+        const current = compiled.metadata;
+
+        // Check what changed
+        const changes = {
+            template: previous.hasTemplate !== current.hasTemplate,
+            script: previous.hasScript !== current.hasScript,
+            style: previous.hasStyle !== current.hasStyle,
+            scoped: previous.isScoped !== current.isScoped
+        };
+
+        // Determine update strategy
+        if (changes.script || changes.scoped) {
+            return 'full-reload';
+        } else if (changes.template) {
+            return 'template-update';
+        } else if (changes.style) {
+            return 'style-update';
+        } else {
+            return 'template-update'; // Default to template update
+        }
+    }
+
+    function getModulesToUpdate(file, updateType) {
+        // Return modules that need to be updated based on update type
+        const modules = [file];
+
+        // Add dependent modules if needed
+        for (const [id, deps] of dependencyGraph.entries()) {
+            if (deps.some(dep => dep.includes(file))) {
+                modules.push(id);
+            }
+        }
+
+        return modules;
+    }
+
+    // Resolve .kal files
+    function resolveKalFile(id, importer) {
+        if (path.isAbsolute(id)) {
+            return id;
+        }
+
+        if (importer) {
+            const resolved = path.resolve(path.dirname(importer), id);
+            if (fs.existsSync(resolved)) {
+                return resolved;
+            }
+        }
+
+        return null;
+    }
+
+    // Bundle optimization
+    function optimizeBundle(bundle) {
+        // Optimize the bundle for production
+        for (const [fileName, chunk] of Object.entries(bundle)) {
+            if (chunk.type === 'chunk' && chunk.facadeModuleId?.endsWith('.kal')) {
+                // Apply production optimizations
+                this.optimizeChunk(chunk);
+            }
+        }
+    }
+
+    function optimizeChunk(chunk) {
+        // Apply chunk-level optimizations
+        // This could include tree-shaking, minification hints, etc.
+    }
+
+    // Error component generation
+    function generateErrorComponent(error, filename) {
+        const componentName = path.basename(filename, '.kal');
+
+        return `import { h } from "@kalxjs/core";
+
+export default {
+  name: '${componentName}ErrorComponent',
   render() {
     return h('div', {
-      style: 'padding: 20px; border: 2px solid red; border-radius: 4px; background-color: #fff5f5; color: #c53030;'
+      style: {
+        padding: '20px',
+        border: '2px solid #e53e3e',
+        borderRadius: '8px',
+        backgroundColor: '#fff5f5',
+        color: '#c53030',
+        fontFamily: 'monospace',
+        margin: '20px',
+        maxWidth: '600px'
+      }
     }, [
-      h('h2', {}, ['KAL Code Generation Error']),
-      h('p', {}, ['${error.message}']),
-      h('pre', { style: 'background-color: #f8f8f8; padding: 10px; overflow: auto; font-size: 12px;' }, [
-        '${error.stack || 'No stack trace available'}'
+      h('h2', {
+        style: { marginTop: 0, color: '#c53030', fontSize: '18px' }
+      }, ['KalxJS Compilation Error']),
+      h('p', {
+        style: { marginBottom: '15px', fontSize: '14px' }
+      }, [${JSON.stringify(error.message)}]),
+      h('details', {
+        style: { marginTop: '15px' }
+      }, [
+        h('summary', {
+          style: { cursor: 'pointer', fontWeight: 'bold' }
+        }, ['Error Details']),
+        h('pre', {
+          style: {
+            background: '#2d3748',
+            color: '#e2e8f0',
+            padding: '15px',
+            borderRadius: '4px',
+            overflow: 'auto',
+            fontSize: '12px',
+            marginTop: '10px'
+          }
+        }, [${JSON.stringify(error.stack || 'No stack trace available')}])
       ])
     ]);
   }
-});
-`;
+};`;
+    }
 
-        return {
-            code: fallbackCode,
-            map: null
-        };
+    // Logging
+    function logCompilation(filename, compilationTime, compiled) {
+        if (compilerOptions.verbose) {
+            console.log(`\n[KalxJS] Compiled ${filename} in ${compilationTime}ms`);
+
+            if (compiled.metadata) {
+                const { hasTemplate, hasScript, hasStyle, isScoped } = compiled.metadata;
+                const features = [];
+                if (hasTemplate) features.push('template');
+                if (hasScript) features.push('script');
+                if (hasStyle) features.push(isScoped ? 'scoped-style' : 'style');
+
+                console.log(`  Features: ${features.join(', ')}`);
+            }
+
+            if (compiled.warnings.length > 0) {
+                console.log(`  Warnings: ${compiled.warnings.length}`);
+            }
+        }
+    }
+
+    // Error reporting
+    function error(message, error) {
+        console.error(`\n[KalxJS Plugin] ${message}`);
+        if (error) {
+            console.error(error.stack || error.message);
+        }
     }
 }

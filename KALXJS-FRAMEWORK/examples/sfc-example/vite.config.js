@@ -1,12 +1,24 @@
 import { defineConfig } from 'vite';
-import kalPlugin from '../../packages/compiler/src/vite-plugin-kal.js';
+import enhancedKalPlugin from '../../packages/compiler/src/enhanced-vite-plugin.js';
 import path from 'path';
 
 export default defineConfig({
     plugins: [
-        kalPlugin({
-            // Plugin options
-            // You can customize the behavior of the plugin here
+        enhancedKalPlugin({
+            // Enhanced plugin options
+            include: /\.kal$/,
+            exclude: /node_modules/,
+
+            // Compiler options
+            optimizeImports: true,
+            generateSourceMaps: true,
+            strictMode: false,
+            preserveWhitespace: false,
+            scopedCSS: true,
+            hotReload: true,
+
+            // Development options
+            verbose: true
         })
     ],
     resolve: {

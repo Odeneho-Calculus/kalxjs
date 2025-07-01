@@ -1,646 +1,1002 @@
-// @kalxjs/compiler - Template Compiler
-// This file provides the template compiler for KalxJS templates with k-directives
+// @kalxjs/compiler - Advanced Template Compiler for KalxJS
+// Professional-grade template compiler with comprehensive k-directive support
 
-// Import JSDOM for server-side DOM parsing
-let DOMParser;
-let Node;
+/**
+ * Advanced Template Compiler for KalxJS templates
+ * Converts templates with k-directives into optimized render functions
+ */
+export class AdvancedTemplateCompiler {
+    constructor(options = {}) {
+        this.options = {
+            optimizeStaticNodes: true,
+            generateSourceMap: true,
+            preserveWhitespace: false,
+            strictMode: true,
+            ...options
+        };
 
-// Check if we're in a browser or Node.js environment
-if (typeof window !== 'undefined' && window.DOMParser) {
-    DOMParser = window.DOMParser;
-    Node = window.Node;
-} else {
-    // We're in Node.js, use a simple mock implementation
-    DOMParser = class {
-        parseFromString(html) {
+        this.errors = [];
+        this.warnings = [];
+        this.staticNodes = [];
+        this.dynamicNodes = [];
+        this.hoistedNodes = [];
+        this.imports = new Set();
+        this.helpers = new Set();
+    }
+
+    /**
+     * Compile a template string into a render function
+     * @param {string} template - Template string
+     * @param {Object} options - Compilation options
+     * @returns {Object} Compiled template result
+     */
+    compile(template, options = {}) {
+        this.reset();
+        const mergedOptions = { ...this.options, ...options };
+
+        try {
+            // Parse template into AST
+            const ast = this.parseTemplate(template);
+
+            // Transform AST with directive processing
+            const transformedAST = this.transformAST(ast);
+
+            // Generate render function code
+            const renderCode = this.generateRenderFunction(transformedAST, mergedOptions);
+
+            // Generate helper imports
+            const imports = this.generateImports();
+
             return {
-                body: {
-                    firstChild: {
-                        nodeType: 1, // ELEMENT_NODE
-                        tagName: 'DIV',
-                        attributes: [],
-                        childNodes: [],
-                        children: [],
-                        setAttribute: () => { },
-                        getAttribute: () => null,
-                        hasAttribute: () => false,
-                        removeAttribute: () => { }
-                    }
-                }
+                code: renderCode,
+                imports,
+                ast: transformedAST,
+                staticNodes: this.staticNodes,
+                errors: this.errors,
+                warnings: this.warnings,
+                sourceMap: mergedOptions.generateSourceMap ? this.generateSourceMap() : null
+            };
+        } catch (error) {
+            this.addError(`Template compilation failed: ${error.message}`);
+
+            return {
+                code: this.generateErrorRenderFunction(error),
+                imports: ['import { h } from "@kalxjs/core";'],
+                ast: null,
+                staticNodes: [],
+                errors: this.errors,
+                warnings: this.warnings,
+                sourceMap: null
             };
         }
-    };
+    }
 
-    Node = {
-        ELEMENT_NODE: 1,
-        TEXT_NODE: 3,
-        COMMENT_NODE: 8
-    };
-}
+    /**
+     * Reset compiler state
+     * @private
+     */
+    reset() {
+        this.errors = [];
+        this.warnings = [];
+        this.staticNodes = [];
+        this.dynamicNodes = [];
+        this.hoistedNodes = [];
+        this.imports.clear();
+        this.helpers.clear();
+    }
 
-/**
- * Compile a template string with KalxJS directives
- * @param {string} template - The template string
- * @param {Object} options - Compilation options
- * @returns {Object} Compiled template result
- */
-export function compileTemplate(template, options = {}) {
-    try {
-        console.log('[template-compiler] Compiling template');
+    /**
+     * Parse template string into AST
+     * @private
+     * @param {string} template - Template string
+     * @returns {Object} Template AST
+     */
+    parseTemplate(template) {
+        // Create a simple DOM-like structure for parsing
+        const parser = this.createTemplateParser();
+        return parser.parse(template);
+    }
 
-        // Parse the template into a DOM structure
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(`<div>${template}</div>`, 'text/html');
-        const templateRoot = doc.body.firstChild;
-
-        // Process the template
-        processNode(templateRoot, options);
-
-        // Generate the render function
-        const renderFunction = generateRenderFunction(templateRoot, options);
-
+    /**
+     * Create template parser
+     * @private
+     * @returns {Object} Template parser
+     */
+    createTemplateParser() {
         return {
-            code: renderFunction,
-            ast: templateRoot,
-            errors: []
-        };
-    } catch (error) {
-        console.error('[template-compiler] Template compilation error:', error);
+            parse: (template) => {
+                // Enhanced template parsing with proper tag matching
+                const root = { type: 'root', children: [] };
+                const stack = [root];
+                let current = 0;
 
-        // Return a fallback render function
-        return {
-            code: generateErrorRenderFunction(error),
-            errors: [error.message]
+                // Tokenize the template
+                const tokens = this.tokenizeTemplate(template);
+
+                // Build AST from tokens
+                for (const token of tokens) {
+                    this.processToken(token, stack);
+                }
+
+                return root;
+            }
         };
     }
-}
 
-/**
- * Process a DOM node and its children for directives
- * @param {Node} node - The DOM node to process
- * @param {Object} options - Processing options
- */
-function processNode(node, options) {
-    if (!node) return;
+    /**
+     * Tokenize template into manageable tokens
+     * @private
+     * @param {string} template - Template string
+     * @returns {Array} Array of tokens
+     */
+    tokenizeTemplate(template) {
+        const tokens = [];
+        let current = 0;
 
-    // Process element nodes
-    if (node.nodeType === Node.ELEMENT_NODE) {
-        // Process directives
-        processDirectives(node, options);
+        while (current < template.length) {
+            // Skip whitespace if not preserving
+            if (!this.options.preserveWhitespace && /\s/.test(template[current])) {
+                current++;
+                continue;
+            }
 
-        // Process children recursively
-        Array.from(node.childNodes).forEach(child => {
-            processNode(child, options);
+            // Handle opening tags
+            if (template[current] === '<' && template[current + 1] !== '/') {
+                const tagMatch = template.slice(current).match(/^<([a-zA-Z][a-zA-Z0-9-]*)\s*([^>]*)>/);
+                if (tagMatch) {
+                    const [fullMatch, tagName, attributes] = tagMatch;
+                    tokens.push({
+                        type: 'openTag',
+                        tagName,
+                        attributes: this.parseAttributes(attributes),
+                        raw: fullMatch,
+                        start: current,
+                        end: current + fullMatch.length
+                    });
+                    current += fullMatch.length;
+                    continue;
+                }
+            }
+
+            // Handle closing tags
+            if (template[current] === '<' && template[current + 1] === '/') {
+                const closeMatch = template.slice(current).match(/^<\/([a-zA-Z][a-zA-Z0-9-]*)\s*>/);
+                if (closeMatch) {
+                    const [fullMatch, tagName] = closeMatch;
+                    tokens.push({
+                        type: 'closeTag',
+                        tagName,
+                        raw: fullMatch,
+                        start: current,
+                        end: current + fullMatch.length
+                    });
+                    current += fullMatch.length;
+                    continue;
+                }
+            }
+
+            // Handle interpolations {{ }}
+            if (template[current] === '{' && template[current + 1] === '{') {
+                const interpMatch = template.slice(current).match(/^\{\{([^}]*)\}\}/);
+                if (interpMatch) {
+                    const [fullMatch, expression] = interpMatch;
+                    tokens.push({
+                        type: 'interpolation',
+                        expression: expression.trim(),
+                        raw: fullMatch,
+                        start: current,
+                        end: current + fullMatch.length
+                    });
+                    current += fullMatch.length;
+                    continue;
+                }
+            }
+
+            // Handle text content
+            let textEnd = current;
+            while (textEnd < template.length &&
+                template[textEnd] !== '<' &&
+                !(template[textEnd] === '{' && template[textEnd + 1] === '{')) {
+                textEnd++;
+            }
+
+            if (textEnd > current) {
+                const text = template.slice(current, textEnd);
+                if (text.trim() || this.options.preserveWhitespace) {
+                    tokens.push({
+                        type: 'text',
+                        content: text,
+                        start: current,
+                        end: textEnd
+                    });
+                }
+                current = textEnd;
+            } else {
+                current++;
+            }
+        }
+
+        return tokens;
+    }
+
+    /**
+     * Process a single token and update the AST stack
+     * @private
+     * @param {Object} token - Token to process
+     * @param {Array} stack - AST stack
+     */
+    processToken(token, stack) {
+        const parent = stack[stack.length - 1];
+
+        switch (token.type) {
+            case 'openTag':
+                const element = {
+                    type: 'element',
+                    tagName: token.tagName,
+                    attributes: token.attributes,
+                    children: [],
+                    directives: this.extractDirectives(token.attributes),
+                    start: token.start,
+                    end: token.end
+                };
+
+                parent.children.push(element);
+
+                // Check if it's a self-closing tag
+                if (!this.isSelfClosingTag(token.tagName) && !token.raw.endsWith('/>')) {
+                    stack.push(element);
+                }
+                break;
+
+            case 'closeTag':
+                if (stack.length > 1) {
+                    const current = stack.pop();
+                    if (current.tagName !== token.tagName) {
+                        this.addWarning(`Mismatched closing tag: expected </${current.tagName}>, got </${token.tagName}>`);
+                    }
+                }
+                break;
+
+            case 'text':
+                if (token.content.trim()) {
+                    parent.children.push({
+                        type: 'text',
+                        content: token.content,
+                        start: token.start,
+                        end: token.end
+                    });
+                }
+                break;
+
+            case 'interpolation':
+                parent.children.push({
+                    type: 'interpolation',
+                    expression: token.expression,
+                    start: token.start,
+                    end: token.end
+                });
+                break;
+        }
+    }
+
+    /**
+     * Extract directives from attributes
+     * @private
+     * @param {Object} attributes - Element attributes
+     * @returns {Array} Array of directive objects
+     */
+    extractDirectives(attributes) {
+        const directives = [];
+
+        for (const [name, value] of Object.entries(attributes)) {
+            // Handle k-directives
+            if (name.startsWith('k-')) {
+                const directiveName = name.slice(2);
+                const [directive, arg] = directiveName.split(':');
+
+                directives.push({
+                    name: directive,
+                    arg,
+                    value,
+                    modifiers: this.parseModifiers(name),
+                    raw: name
+                });
+            }
+            // Handle shorthand directives
+            else if (name.startsWith(':')) {
+                directives.push({
+                    name: 'bind',
+                    arg: name.slice(1),
+                    value,
+                    modifiers: [],
+                    raw: name
+                });
+            }
+            else if (name.startsWith('@')) {
+                directives.push({
+                    name: 'on',
+                    arg: name.slice(1),
+                    value,
+                    modifiers: [],
+                    raw: name
+                });
+            }
+        }
+
+        return directives;
+    }
+
+    /**
+     * Parse directive modifiers
+     * @private
+     * @param {string} directiveName - Full directive name
+     * @returns {Array} Array of modifiers
+     */
+    parseModifiers(directiveName) {
+        const parts = directiveName.split('.');
+        return parts.slice(1); // Skip the directive name itself
+    }
+
+    /**
+     * Transform AST with directive processing
+     * @private
+     * @param {Object} ast - Template AST
+     * @returns {Object} Transformed AST
+     */
+    transformAST(ast) {
+        return this.transformNode(ast);
+    }
+
+    /**
+     * Transform a single AST node
+     * @private
+     * @param {Object} node - AST node
+     * @returns {Object} Transformed node
+     */
+    transformNode(node) {
+        if (!node) return node;
+
+        switch (node.type) {
+            case 'root':
+                return {
+                    ...node,
+                    children: node.children.map(child => this.transformNode(child))
+                };
+
+            case 'element':
+                return this.transformElement(node);
+
+            case 'text':
+                return this.transformText(node);
+
+            case 'interpolation':
+                return this.transformInterpolation(node);
+
+            default:
+                return node;
+        }
+    }
+
+    /**
+     * Transform element node with directive processing
+     * @private
+     * @param {Object} element - Element node
+     * @returns {Object} Transformed element
+     */
+    transformElement(element) {
+        const transformed = { ...element };
+
+        // Process directives in order of priority
+        const sortedDirectives = this.sortDirectivesByPriority(element.directives);
+
+        // Apply directive transformations
+        for (const directive of sortedDirectives) {
+            this.applyDirectiveTransform(transformed, directive);
+        }
+
+        // Transform children
+        transformed.children = element.children.map(child => this.transformNode(child));
+
+        // Check if node can be hoisted (static optimization)
+        if (this.options.optimizeStaticNodes && this.isStaticNode(transformed)) {
+            this.staticNodes.push(transformed);
+            transformed.isStatic = true;
+            transformed.hoistId = this.staticNodes.length;
+        }
+
+        return transformed;
+    }
+
+    /**
+     * Transform text node
+     * @private
+     * @param {Object} textNode - Text node
+     * @returns {Object} Transformed text node
+     */
+    transformText(textNode) {
+        return {
+            ...textNode,
+            isStatic: true
+        };
+    }
+
+    /**
+     * Transform interpolation node
+     * @private
+     * @param {Object} interpNode - Interpolation node
+     * @returns {Object} Transformed interpolation node
+     */
+    transformInterpolation(interpNode) {
+        this.helpers.add('toDisplayString');
+
+        return {
+            ...interpNode,
+            isDynamic: true,
+            helper: 'toDisplayString'
+        };
+    }
+
+    /**
+     * Sort directives by processing priority
+     * @private
+     * @param {Array} directives - Array of directives
+     * @returns {Array} Sorted directives
+     */
+    sortDirectivesByPriority(directives) {
+        const priority = {
+            'for': 1000,
+            'if': 900,
+            'else-if': 800,
+            'else': 700,
+            'show': 600,
+            'model': 500,
+            'bind': 400,
+            'on': 300,
+            'slot': 200,
+            'text': 100,
+            'html': 100
+        };
+
+        return [...directives].sort((a, b) => {
+            const aPriority = priority[a.name] || 0;
+            const bPriority = priority[b.name] || 0;
+            return bPriority - aPriority;
         });
     }
-}
 
-/**
- * Process directives on an element
- * @param {Element} el - The element to process
- * @param {Object} options - Processing options
- */
-function processDirectives(el, options) {
-    if (!el || !el.attributes) return;
-
-    // Get all attributes
-    const attributes = Array.from(el.attributes);
-
-    // Process k-for directive first (it affects the structure)
-    const forAttr = attributes.find(attr => attr.name === 'k-for');
-    if (forAttr) {
-        processForDirective(el, forAttr.value, options);
-    }
-
-    // Process k-if, k-else-if, k-else directives
-    const ifAttr = attributes.find(attr => attr.name === 'k-if');
-    if (ifAttr) {
-        processIfDirective(el, ifAttr.value, options);
-    }
-
-    const elseIfAttr = attributes.find(attr => attr.name === 'k-else-if');
-    if (elseIfAttr) {
-        processElseIfDirective(el, elseIfAttr.value, options);
-    }
-
-    const elseAttr = attributes.find(attr => attr.name === 'k-else');
-    if (elseAttr) {
-        processElseDirective(el, options);
-    }
-
-    // Process other directives
-    attributes.forEach(attr => {
-        const name = attr.name;
-        const value = attr.value;
-
-        // Skip already processed directives
-        if (['k-for', 'k-if', 'k-else-if', 'k-else'].includes(name)) {
-            return;
-        }
-
-        // Process k-bind shorthand (:prop)
-        if (name.startsWith(':')) {
-            const prop = name.slice(1);
-            processBindDirective(el, prop, value, options);
-            return;
-        }
-
-        // Process k-on shorthand (@event)
-        if (name.startsWith('@')) {
-            const event = name.slice(1);
-            processOnDirective(el, event, value, options);
-            return;
-        }
-
-        // Process regular k-directives
-        if (name.startsWith('k-')) {
-            const parts = name.slice(2).split(':');
-            const directive = parts[0];
-            const arg = parts[1] || null;
-
-            switch (directive) {
-                case 'bind':
-                    processBindDirective(el, arg, value, options);
-                    break;
-                case 'model':
-                    processModelDirective(el, value, options);
-                    break;
-                case 'text':
-                    processTextDirective(el, value, options);
-                    break;
-                case 'html':
-                    processHtmlDirective(el, value, options);
-                    break;
-                case 'show':
-                    processShowDirective(el, value, options);
-                    break;
-                case 'slot':
-                    processSlotDirective(el, arg, value, options);
-                    break;
-                case 'pre':
-                    // Skip processing for this element and its children
-                    el.setAttribute('k-pre-processed', 'true');
-                    break;
-                case 'once':
-                    el.setAttribute('k-once-processed', 'true');
-                    break;
-                case 'memo':
-                    processMemoDirective(el, value, options);
-                    break;
-                case 'cloak':
-                    // Remove k-cloak when processed
-                    el.removeAttribute('k-cloak');
-                    break;
-                default:
-                    // Unknown directive
-                    console.warn(`[template-compiler] Unknown directive: ${name}`);
-            }
-        }
-    });
-}
-
-/**
- * Process k-for directive
- * @param {Element} el - The element with the directive
- * @param {string} expression - The directive expression
- * @param {Object} options - Processing options
- */
-function processForDirective(el, expression, options) {
-    // Mark the element as processed
-    el.setAttribute('k-for-processed', expression);
-
-    // Parse the expression (e.g., "item in items" or "(item, index) in items")
-    const forMatch = expression.match(/^\s*(?:\(?\s*(\w+)(?:\s*,\s*(\w+))?\s*\)?|\s*(\w+))\s+in\s+(\w+(?:\.\w+)*)\s*$/);
-    if (!forMatch) {
-        console.error(`[template-compiler] Invalid k-for expression: ${expression}`);
-        return;
-    }
-
-    // Extract the item name, index name, and list name
-    const itemName = forMatch[1] || forMatch[3];
-    const indexName = forMatch[2];
-    const listName = forMatch[4];
-
-    // Store the information for the render function
-    el.setAttribute('k-for-item', itemName);
-    if (indexName) {
-        el.setAttribute('k-for-index', indexName);
-    }
-    el.setAttribute('k-for-list', listName);
-
-    // Create a template for the item
-    const template = el.outerHTML;
-    el.setAttribute('k-for-template', template);
-}
-
-/**
- * Process k-if directive
- * @param {Element} el - The element with the directive
- * @param {string} expression - The directive expression
- * @param {Object} options - Processing options
- */
-function processIfDirective(el, expression, options) {
-    // Mark the element as processed
-    el.setAttribute('k-if-processed', expression);
-}
-
-/**
- * Process k-else-if directive
- * @param {Element} el - The element with the directive
- * @param {string} expression - The directive expression
- * @param {Object} options - Processing options
- */
-function processElseIfDirective(el, expression, options) {
-    // Check if the previous sibling has k-if or k-else-if
-    const prevSibling = el.previousElementSibling;
-    if (!prevSibling || (!prevSibling.hasAttribute('k-if-processed') && !prevSibling.hasAttribute('k-else-if-processed'))) {
-        console.warn('[template-compiler] k-else-if used without preceding k-if or k-else-if');
-        return;
-    }
-
-    // Mark the element as processed
-    el.setAttribute('k-else-if-processed', expression);
-}
-
-/**
- * Process k-else directive
- * @param {Element} el - The element with the directive
- * @param {Object} options - Processing options
- */
-function processElseDirective(el, options) {
-    // Check if the previous sibling has k-if or k-else-if
-    const prevSibling = el.previousElementSibling;
-    if (!prevSibling || (!prevSibling.hasAttribute('k-if-processed') && !prevSibling.hasAttribute('k-else-if-processed'))) {
-        console.warn('[template-compiler] k-else used without preceding k-if or k-else-if');
-        return;
-    }
-
-    // Mark the element as processed
-    el.setAttribute('k-else-processed', 'true');
-}
-
-/**
- * Process k-bind directive
- * @param {Element} el - The element with the directive
- * @param {string} prop - The property to bind to
- * @param {string} expression - The directive expression
- * @param {Object} options - Processing options
- */
-function processBindDirective(el, prop, expression, options) {
-    // Mark the element as processed
-    el.setAttribute(`k-bind-${prop || 'object'}-processed`, expression);
-}
-
-/**
- * Process k-model directive
- * @param {Element} el - The element with the directive
- * @param {string} expression - The directive expression
- * @param {Object} options - Processing options
- */
-function processModelDirective(el, expression, options) {
-    // Mark the element as processed
-    el.setAttribute('k-model-processed', expression);
-
-    // Add k-bind for the value
-    processBindDirective(el, 'value', expression, options);
-
-    // Add k-on for the input event
-    const eventType = el.tagName === 'SELECT' || (el.tagName === 'INPUT' &&
-        (el.type === 'checkbox' || el.type === 'radio')) ? 'change' : 'input';
-
-    const handler = `${expression} = $event.target.${el.type === 'checkbox' ? 'checked' : 'value'}`;
-    processOnDirective(el, eventType, handler, options);
-}
-
-/**
- * Process k-text directive
- * @param {Element} el - The element with the directive
- * @param {string} expression - The directive expression
- * @param {Object} options - Processing options
- */
-function processTextDirective(el, expression, options) {
-    // Mark the element as processed
-    el.setAttribute('k-text-processed', expression);
-
-    // Clear the element content
-    el.textContent = '';
-
-    // Add a placeholder for the expression
-    // Use a simple text node representation since we might be in Node.js
-    el.textContent = `{{${expression}}}`;
-}
-
-/**
- * Process k-html directive
- * @param {Element} el - The element with the directive
- * @param {string} expression - The directive expression
- * @param {Object} options - Processing options
- */
-function processHtmlDirective(el, expression, options) {
-    // Mark the element as processed
-    el.setAttribute('k-html-processed', expression);
-
-    // Clear the element content
-    el.innerHTML = '';
-
-    // Add a comment placeholder for the expression
-    // Use a simple comment representation since we might be in Node.js
-    el.setAttribute('k-html-content', expression);
-}
-
-/**
- * Process k-show directive
- * @param {Element} el - The element with the directive
- * @param {string} expression - The directive expression
- * @param {Object} options - Processing options
- */
-function processShowDirective(el, expression, options) {
-    // Mark the element as processed
-    el.setAttribute('k-show-processed', expression);
-}
-
-/**
- * Process k-on directive
- * @param {Element} el - The element with the directive
- * @param {string} event - The event name
- * @param {string} expression - The directive expression
- * @param {Object} options - Processing options
- */
-function processOnDirective(el, event, expression, options) {
-    // Mark the element as processed
-    el.setAttribute(`k-on-${event}-processed`, expression);
-}
-
-/**
- * Process k-slot directive
- * @param {Element} el - The element with the directive
- * @param {string} name - The slot name
- * @param {string} expression - The directive expression
- * @param {Object} options - Processing options
- */
-function processSlotDirective(el, name, expression, options) {
-    // Mark the element as processed
-    el.setAttribute('k-slot-processed', name || 'default');
-
-    if (expression) {
-        el.setAttribute('k-slot-scope', expression);
-    }
-}
-
-/**
- * Process k-memo directive
- * @param {Element} el - The element with the directive
- * @param {string} expression - The directive expression
- * @param {Object} options - Processing options
- */
-function processMemoDirective(el, expression, options) {
-    // Mark the element as processed
-    el.setAttribute('k-memo-processed', expression);
-}
-
-/**
- * Generate a render function from a processed template
- * @param {Node} root - The root node of the processed template
- * @param {Object} options - Generation options
- * @returns {string} The render function code
- */
-function generateRenderFunction(root, options) {
-    // Start the render function
-    let code = `function render(_ctx) {
-  const { h, applyDirectives } = _ctx.$framework;
-  
-  // Helper function to create elements with directives
-  function createElement(tag, props, children, directives) {
-    const el = h(tag, props, children);
-    if (directives) {
-      applyDirectives(el, _ctx, directives);
-    }
-    return el;
-  }
-  
-  // Create the root element
-  return `;
-
-    // Generate code for the root element
-    code += generateElementCode(root.firstChild);
-
-    // Close the render function
-    code += `;\n}`;
-
-    return code;
-}
-
-/**
- * Generate code for an element
- * @param {Element} el - The element to generate code for
- * @returns {string} The element code
- */
-function generateElementCode(el) {
-    if (!el) return 'null';
-
-    // Handle text nodes
-    if (el.nodeType === Node.TEXT_NODE) {
-        const text = el.textContent.trim();
-        if (!text) return 'null';
-
-        // Check for interpolation
-        if (text.match(/\{\{\s*([^}]+)\s*\}\}/)) {
-            return generateInterpolationCode(text);
-        }
-
-        return JSON.stringify(text);
-    }
-
-    // Handle comment nodes
-    if (el.nodeType === Node.COMMENT_NODE) {
-        return 'null';
-    }
-
-    // Handle element nodes
-    if (el.nodeType === Node.ELEMENT_NODE) {
-        // Check for k-for directive
-        if (el.hasAttribute('k-for-processed')) {
-            return generateForCode(el);
-        }
-
-        // Check for k-if, k-else-if, k-else directives
-        if (el.hasAttribute('k-if-processed') ||
-            el.hasAttribute('k-else-if-processed') ||
-            el.hasAttribute('k-else-processed')) {
-            return generateConditionalCode(el);
-        }
-
-        // Generate code for a regular element
-        return generateRegularElementCode(el);
-    }
-
-    return 'null';
-}
-
-/**
- * Generate code for text interpolation
- * @param {string} text - The text with interpolation
- * @returns {string} The interpolation code
- */
-function generateInterpolationCode(text) {
-    // Replace {{ expr }} with _ctx.expr
-    return text.replace(/\{\{\s*([^}]+)\s*\}\}/g, (match, expr) => {
-        return `_ctx.${expr.trim()}`;
-    });
-}
-
-/**
- * Generate code for k-for directive
- * @param {Element} el - The element with k-for directive
- * @returns {string} The for loop code
- */
-function generateForCode(el) {
-    const itemName = el.getAttribute('k-for-item');
-    const indexName = el.getAttribute('k-for-index');
-    const listName = el.getAttribute('k-for-list');
-
-    // Generate the loop code
-    let code = `_ctx.${listName}.map((${itemName}`;
-    if (indexName) {
-        code += `, ${indexName}`;
-    }
-    code += ') => {\n';
-
-    // Generate the element code
-    code += `  return ${generateRegularElementCode(el)};\n`;
-
-    // Close the loop
-    code += '})';
-
-    return code;
-}
-
-/**
- * Generate code for conditional directives
- * @param {Element} el - The element with conditional directive
- * @returns {string} The conditional code
- */
-function generateConditionalCode(el) {
-    let code = '';
-
-    if (el.hasAttribute('k-if-processed')) {
-        const condition = el.getAttribute('k-if-processed');
-        code = `_ctx.${condition} ? ${generateRegularElementCode(el)} : `;
-
-        // Check for k-else-if or k-else siblings
-        let nextEl = el.nextElementSibling;
-        while (nextEl) {
-            if (nextEl.hasAttribute('k-else-if-processed')) {
-                const elseIfCondition = nextEl.getAttribute('k-else-if-processed');
-                code += `_ctx.${elseIfCondition} ? ${generateRegularElementCode(nextEl)} : `;
-                nextEl = nextEl.nextElementSibling;
-            } else if (nextEl.hasAttribute('k-else-processed')) {
-                code += generateRegularElementCode(nextEl);
+    /**
+     * Apply directive transformation to element
+     * @private
+     * @param {Object} element - Element to transform
+     * @param {Object} directive - Directive to apply
+     */
+    applyDirectiveTransform(element, directive) {
+        switch (directive.name) {
+            case 'if':
+                this.transformIfDirective(element, directive);
                 break;
-            } else {
-                code += 'null';
+            case 'else-if':
+                this.transformElseIfDirective(element, directive);
                 break;
+            case 'else':
+                this.transformElseDirective(element, directive);
+                break;
+            case 'for':
+                this.transformForDirective(element, directive);
+                break;
+            case 'show':
+                this.transformShowDirective(element, directive);
+                break;
+            case 'model':
+                this.transformModelDirective(element, directive);
+                break;
+            case 'bind':
+                this.transformBindDirective(element, directive);
+                break;
+            case 'on':
+                this.transformOnDirective(element, directive);
+                break;
+            case 'text':
+                this.transformTextDirective(element, directive);
+                break;
+            case 'html':
+                this.transformHtmlDirective(element, directive);
+                break;
+            case 'slot':
+                this.transformSlotDirective(element, directive);
+                break;
+            default:
+                this.addWarning(`Unknown directive: k-${directive.name}`);
+        }
+    }
+
+    /**
+     * Transform k-if directive
+     * @private
+     * @param {Object} element - Element
+     * @param {Object} directive - Directive
+     */
+    transformIfDirective(element, directive) {
+        element.condition = directive.value;
+        element.conditionType = 'if';
+        element.isDynamic = true;
+        this.helpers.add('createCommentVNode');
+    }
+
+    /**
+     * Transform k-for directive
+     * @private
+     * @param {Object} element - Element
+     * @param {Object} directive - Directive
+     */
+    transformForDirective(element, directive) {
+        // Parse k-for expression: "item in items" or "(item, index) in items"
+        const forMatch = directive.value.match(/^\s*(?:\(?\s*(\w+)(?:\s*,\s*(\w+))?\s*\)?)\s+in\s+(.+)\s*$/);
+
+        if (!forMatch) {
+            this.addError(`Invalid k-for expression: ${directive.value}`);
+            return;
+        }
+
+        const [, item, index, source] = forMatch;
+
+        element.for = {
+            source: source.trim(),
+            item: item.trim(),
+            index: index ? index.trim() : null
+        };
+        element.isDynamic = true;
+        this.helpers.add('renderList');
+    }
+
+    /**
+     * Transform k-show directive
+     * @private
+     * @param {Object} element - Element
+     * @param {Object} directive - Directive
+     */
+    transformShowDirective(element, directive) {
+        element.show = directive.value;
+        element.isDynamic = true;
+    }
+
+    /**
+     * Transform k-model directive
+     * @private
+     * @param {Object} element - Element
+     * @param {Object} directive - Directive
+     */
+    transformModelDirective(element, directive) {
+        element.model = {
+            value: directive.value,
+            modifiers: directive.modifiers
+        };
+        element.isDynamic = true;
+        this.helpers.add('withModifiers');
+    }
+
+    /**
+     * Transform k-bind directive
+     * @private
+     * @param {Object} element - Element
+     * @param {Object} directive - Directive
+     */
+    transformBindDirective(element, directive) {
+        if (!element.dynamicProps) {
+            element.dynamicProps = {};
+        }
+
+        const prop = directive.arg || 'object';
+        element.dynamicProps[prop] = directive.value;
+        element.isDynamic = true;
+    }
+
+    /**
+     * Transform k-on directive
+     * @private
+     * @param {Object} element - Element
+     * @param {Object} directive - Directive
+     */
+    transformOnDirective(element, directive) {
+        if (!element.events) {
+            element.events = {};
+        }
+
+        const event = directive.arg;
+        element.events[event] = {
+            handler: directive.value,
+            modifiers: directive.modifiers
+        };
+        element.isDynamic = true;
+
+        if (directive.modifiers.length > 0) {
+            this.helpers.add('withModifiers');
+        }
+    }
+
+    /**
+     * Transform k-text directive
+     * @private
+     * @param {Object} element - Element
+     * @param {Object} directive - Directive
+     */
+    transformTextDirective(element, directive) {
+        element.textContent = directive.value;
+        element.children = []; // Clear children as text will replace them
+        element.isDynamic = true;
+        this.helpers.add('toDisplayString');
+    }
+
+    /**
+     * Transform k-html directive
+     * @private
+     * @param {Object} element - Element
+     * @param {Object} directive - Directive
+     */
+    transformHtmlDirective(element, directive) {
+        element.innerHTML = directive.value;
+        element.children = []; // Clear children as HTML will replace them
+        element.isDynamic = true;
+        this.addWarning('k-html can be dangerous. Only use with trusted content.');
+    }
+
+    /**
+     * Transform k-slot directive
+     * @private
+     * @param {Object} element - Element
+     * @param {Object} directive - Directive
+     */
+    transformSlotDirective(element, directive) {
+        element.slot = {
+            name: directive.arg || 'default',
+            props: directive.value
+        };
+        this.helpers.add('renderSlot');
+    }
+
+    /**
+     * Check if a node is static (can be hoisted)
+     * @private
+     * @param {Object} node - Node to check
+     * @returns {boolean} Whether the node is static
+     */
+    isStaticNode(node) {
+        if (node.isDynamic) return false;
+        if (node.directives && node.directives.length > 0) return false;
+        if (node.dynamicProps && Object.keys(node.dynamicProps).length > 0) return false;
+        if (node.events && Object.keys(node.events).length > 0) return false;
+
+        // Check children recursively
+        if (node.children) {
+            return node.children.every(child => this.isStaticNode(child));
+        }
+
+        return true;
+    }
+
+    /**
+     * Generate render function code
+     * @private
+     * @param {Object} ast - Transformed AST
+     * @param {Object} options - Generation options
+     * @returns {string} Render function code
+     */
+    generateRenderFunction(ast, options) {
+        let code = 'function render(_ctx, _cache) {\n';
+
+        // Generate hoisted static nodes
+        if (this.staticNodes.length > 0) {
+            code += '  // Static hoisted nodes\n';
+            this.staticNodes.forEach((node, index) => {
+                code += `  const _hoisted_${index + 1} = ${this.generateNodeCode(node)};\n`;
+            });
+            code += '\n';
+        }
+
+        // Generate main render logic
+        code += '  return ';
+
+        if (ast.children.length === 0) {
+            code += 'h("div", {}, ["Empty template"])';
+        } else if (ast.children.length === 1) {
+            code += this.generateNodeCode(ast.children[0]);
+        } else {
+            // Multiple root nodes - wrap in fragment
+            this.helpers.add('Fragment');
+            code += `h(Fragment, {}, [${ast.children.map(child => this.generateNodeCode(child)).join(', ')}])`;
+        }
+
+        code += ';\n}';
+
+        return code;
+    }
+
+    /**
+     * Generate code for a single node
+     * @private
+     * @param {Object} node - Node to generate code for
+     * @returns {string} Generated code
+     */
+    generateNodeCode(node) {
+        if (!node) return 'null';
+
+        switch (node.type) {
+            case 'element':
+                return this.generateElementCode(node);
+            case 'text':
+                return JSON.stringify(node.content);
+            case 'interpolation':
+                return `_toDisplayString(${node.expression})`;
+            default:
+                return 'null';
+        }
+    }
+
+    /**
+     * Generate code for element node
+     * @private
+     * @param {Object} element - Element node
+     * @returns {string} Generated code
+     */
+    generateElementCode(element) {
+        // Handle static hoisted nodes
+        if (element.isStatic && element.hoistId) {
+            return `_hoisted_${element.hoistId}`;
+        }
+
+        // Handle conditional rendering
+        if (element.condition) {
+            const condition = element.condition;
+            const elementCode = this.generateBasicElementCode(element);
+            return `(${condition}) ? ${elementCode} : _createCommentVNode("k-if", true)`;
+        }
+
+        // Handle list rendering
+        if (element.for) {
+            const { source, item, index } = element.for;
+            const itemCode = this.generateBasicElementCode(element);
+            const indexParam = index ? `, ${index}` : '';
+            return `_renderList(${source}, (${item}${indexParam}) => ${itemCode})`;
+        }
+
+        return this.generateBasicElementCode(element);
+    }
+
+    /**
+     * Generate basic element code without special directives
+     * @private
+     * @param {Object} element - Element node
+     * @returns {string} Generated code
+     */
+    generateBasicElementCode(element) {
+        const tag = element.tagName;
+        const props = this.generatePropsCode(element);
+        const children = this.generateChildrenCode(element);
+
+        return `h("${tag}", ${props}, ${children})`;
+    }
+
+    /**
+     * Generate props code for element
+     * @private
+     * @param {Object} element - Element node
+     * @returns {string} Props code
+     */
+    generatePropsCode(element) {
+        const props = [];
+
+        // Static attributes
+        for (const [name, value] of Object.entries(element.attributes || {})) {
+            if (!name.startsWith('k-') && !name.startsWith(':') && !name.startsWith('@')) {
+                props.push(`${JSON.stringify(name)}: ${JSON.stringify(value)}`);
             }
         }
 
-        if (!code.endsWith(' : ') && !code.endsWith('null')) {
-            code += 'null';
+        // Dynamic props from k-bind
+        if (element.dynamicProps) {
+            for (const [prop, value] of Object.entries(element.dynamicProps)) {
+                props.push(`${JSON.stringify(prop)}: ${value}`);
+            }
         }
-    } else if (el.hasAttribute('k-else-if-processed')) {
-        // This should be handled by the k-if element
-        return 'null';
-    } else if (el.hasAttribute('k-else-processed')) {
-        // This should be handled by the k-if element
-        return 'null';
+
+        // Event handlers from k-on
+        if (element.events) {
+            for (const [event, config] of Object.entries(element.events)) {
+                const handler = config.modifiers.length > 0
+                    ? `_withModifiers(${config.handler}, ${JSON.stringify(config.modifiers)})`
+                    : config.handler;
+                props.push(`${JSON.stringify('on' + event.charAt(0).toUpperCase() + event.slice(1))}: ${handler}`);
+            }
+        }
+
+        // k-show directive
+        if (element.show) {
+            props.push(`style: { display: (${element.show}) ? '' : 'none' }`);
+        }
+
+        // k-model directive
+        if (element.model) {
+            const { value, modifiers } = element.model;
+            props.push(`value: ${value}`);
+
+            const eventName = element.tagName === 'input' &&
+                (element.attributes?.type === 'checkbox' || element.attributes?.type === 'radio')
+                ? 'onChange' : 'onInput';
+
+            const handler = `($event) => { ${value} = $event.target.${element.attributes?.type === 'checkbox' ? 'checked' : 'value'}; }`;
+            props.push(`${JSON.stringify(eventName)}: ${handler}`);
+        }
+
+        return props.length > 0 ? `{ ${props.join(', ')} }` : 'null';
     }
 
-    return code;
-}
-
-/**
- * Generate code for a regular element
- * @param {Element} el - The element to generate code for
- * @returns {string} The element code
- */
-function generateRegularElementCode(el) {
-    // Get the tag name
-    const tag = el.tagName.toLowerCase();
-
-    // Generate props
-    const props = {};
-    Array.from(el.attributes).forEach(attr => {
-        const name = attr.name;
-        const value = attr.value;
-
-        // Skip directive attributes
-        if (name.startsWith('k-') || name.startsWith(':') || name.startsWith('@')) {
-            return;
+    /**
+     * Generate children code for element
+     * @private
+     * @param {Object} element - Element node
+     * @returns {string} Children code
+     */
+    generateChildrenCode(element) {
+        // Handle k-text directive
+        if (element.textContent) {
+            return `_toDisplayString(${element.textContent})`;
         }
 
-        props[name] = value;
-    });
-
-    // Generate directives
-    const directives = {};
-    Array.from(el.attributes).forEach(attr => {
-        const name = attr.name;
-        const value = attr.value;
-
-        // Process directive attributes
-        if (name.startsWith('k-') && !name.endsWith('-processed')) {
-            const parts = name.slice(2).split(':');
-            const directive = parts[0];
-            const arg = parts[1] || null;
-
-            directives[directive] = { arg, value };
-        } else if (name.startsWith(':')) {
-            const prop = name.slice(1);
-            directives.bind = directives.bind || {};
-            directives.bind[prop] = value;
-        } else if (name.startsWith('@')) {
-            const event = name.slice(1);
-            directives.on = directives.on || {};
-            directives.on[event] = value;
+        // Handle k-html directive
+        if (element.innerHTML) {
+            // Note: This is a simplified implementation
+            // In a real implementation, you'd need proper innerHTML handling
+            return `{ innerHTML: ${element.innerHTML} }`;
         }
-    });
 
-    // Generate children
-    const children = [];
-    Array.from(el.childNodes).forEach(child => {
-        const childCode = generateElementCode(child);
-        if (childCode !== 'null') {
-            children.push(childCode);
+        // Handle slot
+        if (element.slot) {
+            const { name, props } = element.slot;
+            return `_renderSlot(_ctx.$slots, ${JSON.stringify(name)}, ${props || 'null'})`;
         }
-    });
 
-    // Generate the element code
-    let code = `createElement('${tag}', ${JSON.stringify(props)}, [${children.join(', ')}]`;
+        // Regular children
+        if (!element.children || element.children.length === 0) {
+            return 'null';
+        }
 
-    // Add directives if any
-    if (Object.keys(directives).length > 0) {
-        code += `, ${JSON.stringify(directives)}`;
+        const childrenCode = element.children.map(child => this.generateNodeCode(child));
+        return `[${childrenCode.join(', ')}]`;
     }
 
-    code += ')';
+    /**
+     * Generate import statements for helpers
+     * @private
+     * @returns {Array} Array of import statements
+     */
+    generateImports() {
+        const imports = ['h'];
 
-    return code;
-}
+        // Add required helpers
+        if (this.helpers.has('toDisplayString')) imports.push('toDisplayString as _toDisplayString');
+        if (this.helpers.has('createCommentVNode')) imports.push('createCommentVNode as _createCommentVNode');
+        if (this.helpers.has('renderList')) imports.push('renderList as _renderList');
+        if (this.helpers.has('withModifiers')) imports.push('withModifiers as _withModifiers');
+        if (this.helpers.has('renderSlot')) imports.push('renderSlot as _renderSlot');
+        if (this.helpers.has('Fragment')) imports.push('Fragment');
 
-/**
- * Generate an error render function
- * @param {Error} error - The error that occurred
- * @returns {string} The error render function code
- */
-function generateErrorRenderFunction(error) {
-    return `function render(_ctx) {
+        return [`import { ${imports.join(', ')} } from "@kalxjs/core";`];
+    }
+
+    /**
+     * Generate error render function
+     * @private
+     * @param {Error} error - Error that occurred
+     * @returns {string} Error render function code
+     */
+    generateErrorRenderFunction(error) {
+        return `function render() {
   return h('div', {
     style: 'padding: 20px; border: 2px solid red; border-radius: 4px; background-color: #fff5f5; color: #c53030;'
   }, [
     h('h2', {}, ['Template Compilation Error']),
-    h('p', {}, [${JSON.stringify(error.message)}]),
-    h('pre', { style: 'margin-top: 10px; background: #f8f9fa; padding: 10px; border-radius: 4px; overflow: auto;' }, [
-      ${JSON.stringify(error.stack)}
-    ])
+    h('p', {}, [${JSON.stringify(error.message)}])
   ]);
 }`;
+    }
+
+    /**
+     * Generate source map
+     * @private
+     * @returns {Object} Source map object
+     */
+    generateSourceMap() {
+        // Simplified source map generation
+        return {
+            version: 3,
+            sources: ['template.kal'],
+            mappings: '',
+            names: []
+        };
+    }
+
+    /**
+     * Parse attributes from attribute string
+     * @private
+     * @param {string} attrString - Attribute string
+     * @returns {Object} Parsed attributes
+     */
+    parseAttributes(attrString) {
+        const attrs = {};
+
+        if (!attrString.trim()) {
+            return attrs;
+        }
+
+        const attrPattern = /([a-zA-Z:@][a-zA-Z0-9-:@.]*)\s*(?:=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+)))?/g;
+        let match;
+
+        while ((match = attrPattern.exec(attrString)) !== null) {
+            const [, name, doubleQuoted, singleQuoted, unquoted] = match;
+            const value = doubleQuoted !== undefined ? doubleQuoted :
+                singleQuoted !== undefined ? singleQuoted :
+                    unquoted !== undefined ? unquoted : true;
+
+            attrs[name] = value;
+        }
+
+        return attrs;
+    }
+
+    /**
+     * Check if tag is self-closing
+     * @private
+     * @param {string} tagName - Tag name
+     * @returns {boolean} Whether tag is self-closing
+     */
+    isSelfClosingTag(tagName) {
+        const selfClosingTags = new Set([
+            'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
+            'link', 'meta', 'param', 'source', 'track', 'wbr'
+        ]);
+        return selfClosingTags.has(tagName.toLowerCase());
+    }
+
+    /**
+     * Add error to error list
+     * @private
+     * @param {string} message - Error message
+     */
+    addError(message) {
+        this.errors.push({ type: 'error', message });
+    }
+
+    /**
+     * Add warning to warning list
+     * @private
+     * @param {string} message - Warning message
+     */
+    addWarning(message) {
+        this.warnings.push({ type: 'warning', message });
+    }
+}
+
+/**
+ * Compile a template string
+ * @param {string} template - Template string
+ * @param {Object} options - Compilation options
+ * @returns {Object} Compilation result
+ */
+export function compileAdvancedTemplate(template, options = {}) {
+    const compiler = new AdvancedTemplateCompiler(options);
+    return compiler.compile(template, options);
+}
+
+// Export with standard name for compatibility
+export function compileTemplate(template, options = {}) {
+    return compileAdvancedTemplate(template, options);
+}
+
+/**
+ * Create a template compiler instance
+ * @param {Object} options - Compiler options
+ * @returns {AdvancedTemplateCompiler} Compiler instance
+ */
+export function createTemplateCompiler(options = {}) {
+    return new AdvancedTemplateCompiler(options);
 }
