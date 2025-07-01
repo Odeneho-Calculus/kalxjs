@@ -82,7 +82,16 @@ export default {
 
 ### Virtual DOM
 
-kalxjs uses a virtual DOM to optimize rendering performance. Instead of directly manipulating the browser's DOM for every change, kalxjs creates a lightweight copy of the DOM in memory and efficiently updates only what has changed.
+kalxjs uses a highly optimized virtual DOM to maximize rendering performance. Instead of directly manipulating the browser's DOM for every change, kalxjs creates a lightweight copy of the DOM in memory and efficiently updates only what has changed.
+
+The Virtual DOM implementation includes:
+
+- **Efficient Diffing Algorithm**: Uses a sophisticated algorithm to determine the minimal set of DOM operations needed
+- **Key-based Reconciliation**: Optimally reorders and reuses DOM nodes when rendering lists
+- **Batch DOM Updates**: Uses DocumentFragment for batch operations to minimize browser reflows
+- **Attribute Optimization**: Special handling for different attribute types (events, styles, boolean attributes)
+- **Event Handler Caching**: Prevents unnecessary re-renders when event handlers haven't changed
+- **Intelligent Property Updates**: Direct property assignment for better performance with special attributes
 
 ### Routing
 

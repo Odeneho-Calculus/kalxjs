@@ -6,6 +6,9 @@ import { getCurrentInstance, setCurrentInstance } from './instance.js';
 // Re-export instance management functions
 export { getCurrentInstance, setCurrentInstance };
 
+// Re-export ref directly for convenience
+export { ref };
+
 /**
  * Creates a reactive object that can be used in the setup function
  * @param {Object} target - Object to make reactive
@@ -84,7 +87,12 @@ export function watch(source, callback, options = {}) {
  * @param {Function} callback - Callback function
  */
 export function onMounted(callback) {
-    getCurrentInstance().mounted.push(callback);
+    const instance = getCurrentInstance();
+    if (!instance || !instance.mounted) {
+        console.warn('onMounted() called without active component instance or mounted array');
+        return;
+    }
+    instance.mounted.push(callback);
 }
 
 /**
@@ -92,7 +100,12 @@ export function onMounted(callback) {
  * @param {Function} callback - Callback function
  */
 export function onUnmounted(callback) {
-    getCurrentInstance().unmounted.push(callback);
+    const instance = getCurrentInstance();
+    if (!instance || !instance.unmounted) {
+        console.warn('onUnmounted() called without active component instance or unmounted array');
+        return;
+    }
+    instance.unmounted.push(callback);
 }
 
 /**
@@ -100,7 +113,12 @@ export function onUnmounted(callback) {
  * @param {Function} callback - Callback function
  */
 export function onBeforeUpdate(callback) {
-    getCurrentInstance().beforeUpdate.push(callback);
+    const instance = getCurrentInstance();
+    if (!instance || !instance.beforeUpdate) {
+        console.warn('onBeforeUpdate() called without active component instance or beforeUpdate array');
+        return;
+    }
+    instance.beforeUpdate.push(callback);
 }
 
 /**
@@ -108,6 +126,11 @@ export function onBeforeUpdate(callback) {
  * @param {Function} callback - Callback function
  */
 export function onUpdated(callback) {
-    getCurrentInstance().updated.push(callback);
+    const instance = getCurrentInstance();
+    if (!instance || !instance.updated) {
+        console.warn('onUpdated() called without active component instance or updated array');
+        return;
+    }
+    instance.updated.push(callback);
 }
 

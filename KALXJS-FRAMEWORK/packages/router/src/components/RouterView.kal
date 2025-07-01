@@ -1,0 +1,41 @@
+<template>
+  <div class="kal-router-view">
+    <!-- Render matched route component -->
+    <component :is="matchedComponent" v-bind="props" />
+  </div>
+</template>
+
+<script>
+import { defineComponent, computed } from '@kalxjs/core';
+import { useRouter } from '../index.js';
+
+export default defineComponent({
+  name: 'RouterView',
+  props: {
+    // Props to pass to the matched component
+    props: {
+      type: Object,
+      default: () => ({})
+    }
+  },
+  setup(props) {
+    const { route } = useRouter();
+
+    const matchedComponent = computed(() => {
+      const matchedRoute = route.value.matched[0];
+      return matchedRoute ? matchedRoute.component : null;
+    });
+
+    return {
+      matchedComponent,
+      props
+    };
+  }
+});
+</script>
+
+<style>
+.kal-router-view {
+  display: block;
+}
+</style>

@@ -22,3 +22,32 @@ export function getCurrentInstance() {
     }
     return currentInstance;
 }
+
+const providesMap = new WeakMap();
+
+export function provide(key, value) {
+    const instance = getCurrentInstance();
+    if (!instance) {
+        console.warn('provide() called without active component instance.');
+        return;
+    }
+    let provides = providesMap.get(instance);
+    if (!provides) {
+        provides = Object.create(null);
+        providesMap.set(instance, provides);
+    }
+    provides[key] = value;
+}
+
+export function inject(key, defaultValue) {
+    const instance = getCurrentInstance();
+    if (!instance) {
+        console.warn('inject() called without active component instance.');
+        return defaultValue;
+    }
+    const provides = providesMap.get(instance);
+    if (provides && key in provides) {
+        return provides[key];
+    }
+    return defaultValue;
+}

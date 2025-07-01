@@ -1,0 +1,369 @@
+<template>
+  <div class="todo-app">
+    <h1>{{ title }}</h1>
+    
+    <!-- Form for adding new todos -->
+    <div class="add-todo">
+      <input 
+        type="text" 
+        k-model="newTodo" 
+        placeholder="Add a new task..." 
+        @keyup.enter="addTodo"
+      />
+      <button @click="addTodo" :disabled="!newTodo.trim()">Add</button>
+    </div>
+    
+    <!-- Filters -->
+    <div class="filters">
+      <button 
+        k-for="filter in filters" 
+        :key="filter.value" 
+        @click="currentFilter = filter.value"
+        :class="{ active: currentFilter === filter.value }"
+      >
+        {{ filter.label }}
+      </button>
+    </div>
+    
+    <!-- Todo list -->
+    <ul class="todo-list">
+      <li k-for="todo in filteredTodos" :key="todo.id" :class="{ completed: todo.completed }">
+        <div class="todo-item">
+          <input 
+            type="checkbox" 
+            :checked="todo.completed" 
+            @change="toggleTodo(todo.id)" 
+          />
+          <span class="todo-text">{{ todo.text }}</span>
+          <button class="delete-btn" @click="deleteTodo(todo.id)">×</button>
+        </div>
+      </li>
+    </ul>
+    
+    <!-- Stats -->
+    <div class="stats" k-if="todos.length > 0">
+      <span>{{ activeCount }} items left</span>
+      <button 
+        k-if="completedCount > 0" 
+        @click="clearCompleted" 
+        class="clear-completed"
+      >
+        Clear completed
+      </button>
+    </div>
+    
+    <!-- Empty state -->
+    <div class="empty-state" k-if="todos.length === 0">
+      <p>No todos yet! Add some tasks to get started.</p>
+    </div>
+  </div>
+</template>
+
+<script>
+import { ref, computed, onMounted, watch } from '@kalxjs/core';
+
+export default {
+  name: 'TodoList',
+  
+  props: {
+    title: {
+      type: String,
+      default: 'Todo List'
+    },
+    storageKey: {
+      type: String,
+      default: 'kalxjs-todos'
+    }
+  },
+  
+  setup(props, { emit }) {
+    // State
+    const todos = ref([]);
+    const newTodo = ref('');
+    const currentFilter = ref('all');
+    
+    // Filter options
+    const filters = [
+      { label: 'All', value: 'all' },
+      { label: 'Active', value: 'active' },
+      { label: 'Completed', value: 'completed' }
+    ];
+    
+    // Computed properties
+    const filteredTodos = computed(() => {
+      switch (currentFilter.value) {
+        case 'active':
+          return todos.value.filter(todo => !todo.completed);
+        case 'completed':
+          return todos.value.filter(todo => todo.completed);
+        default:
+          return todos.value;
+      }
+    });
+    
+    const activeCount = computed(() => {
+      return todos.value.filter(todo => !todo.completed).length;
+    });
+    
+    const completedCount = computed(() => {
+      return todos.value.filter(todo => todo.completed).length;
+    });
+    
+    // Methods
+    function addTodo() {
+      const text = newTodo.value.trim();
+      if (text) {
+        todos.value.push({
+          id: Date.now(),
+          text,
+          completed: false
+        });
+        newTodo.value = '';
+        saveTodos();
+        emit('todo-added', text);
+      }
+    }
+    
+    function toggleTodo(id) {
+      const todo = todos.value.find(todo => todo.id === id);
+      if (todo) {
+        todo.completed = !todo.completed;
+        saveTodos();
+        emit('todo-toggled', { id, completed: todo.completed });
+      }
+    }
+    
+    function deleteTodo(id) {
+      const index = todos.value.findIndex(todo => todo.id === id);
+      if (index !== -1) {
+        const deleted = todos.value.splice(index, 1)[0];
+        saveTodos();
+        emit('todo-deleted', deleted);
+      }
+    }
+    
+    function clearCompleted() {
+      const completedTodos = todos.value.filter(todo => todo.completed);
+      todos.value = todos.value.filter(todo => !todo.completed);
+      saveTodos();
+      emit('completed-cleared', completedTodos);
+    }
+    
+    // Local storage
+    function saveTodos() {
+      localStorage.setItem(props.storageKey, JSON.stringify(todos.value));
+    }
+    
+    function loadTodos() {
+      const saved = localStorage.getItem(props.storageKey);
+      if (saved) {
+        try {
+          todos.value = JSON.parse(saved);
+        } catch (e) {
+          console.error('Failed to load todos from localStorage:', e);
+          todos.value = [];
+        }
+      }
+    }
+    
+    // Lifecycle hooks
+    onMounted(() => {
+      loadTodos();
+    });
+    
+    // Watch for changes to save to localStorage
+    watch(todos, () => {
+      saveTodos();
+    }, { deep: true });
+    
+    return {
+      todos,
+      newTodo,
+      currentFilter,
+      filters,
+      filteredTodos,
+      activeCount,
+      completedCount,
+      addTodo,
+      toggleTodo,
+      deleteTodo,
+      clearCompleted
+    };
+  }
+}
+</script>
+
+<style scoped>
+.todo-app {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Arial', sans-serif;
+  color: #333;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #3182ce;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.add-todo {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.add-todo input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px 0 0 4px;
+  font-size: 16px;
+}
+
+.add-todo button {
+  padding: 10px 15px;
+  background-color: #4299e1;
+  color: white;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.add-todo button:hover {
+  background-color: #3182ce;
+}
+
+.add-todo button:disabled {
+  background-color: #a0aec0;
+  cursor: not-allowed;
+}
+
+.filters {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.filters button {
+  padding: 6px 12px;
+  background-color: #edf2f7;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.filters button.active {
+  background-color: #4299e1;
+  color: white;
+  border-color: #3182ce;
+}
+
+.todo-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.todo-item input[type="checkbox"] {
+  margin-right: 10px;
+}
+
+.todo-text {
+  flex: 1;
+}
+
+.completed .todo-text {
+  text-decoration: line-through;
+  color: #a0aec0;
+}
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #f56565;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 8px;
+}
+
+.delete-btn:hover {
+  color: #e53e3e;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+  color: #718096;
+  font-size: 14px;
+}
+
+.clear-completed {
+  background: none;
+  border: none;
+  color: #4299e1;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.clear-completed:hover {
+  text-decoration: underline;
+}
+
+.empty-state {
+  text-align: center;
+  margin-top: 30px;
+  color: #a0aec0;
+}
+</style>
+
+<docs>
+# TodoList Component
+
+A feature-rich todo list component with filtering, local storage persistence, and a clean UI.
+
+## Props
+
+- `title` (String): The title of the todo list
+- `storageKey` (String): The key used for localStorage persistence
+
+## Events
+
+- `todo-added`: Emitted when a new todo is added, with the todo text as payload
+- `todo-toggled`: Emitted when a todo's completed status is toggled, with the todo ID and new status
+- `todo-deleted`: Emitted when a todo is deleted, with the deleted todo object as payload
+- `completed-cleared`: Emitted when completed todos are cleared, with an array of cleared todos
+
+## Example Usage
+
+```html
+<TodoList 
+  title="My Tasks" 
+  storageKey="my-app-todos"
+  @todo-added="handleTodoAdded"
+  @todo-deleted="handleTodoDeleted"
+/>
+```
+
+## Features
+
+- Add, toggle, and delete todos
+- Filter todos by status (All, Active, Completed)
+- Clear completed todos
+- Persistent storage using localStorage
+- Responsive design
+</docs>

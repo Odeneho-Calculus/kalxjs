@@ -9,16 +9,50 @@ let activeEffect = null;
  * @returns {Proxy} Reactive object
  */
 export function reactive(target) {
+    if (!target || typeof target !== 'object') {
+        return target;
+    }
+
+    // Check if target is already a reactive object
+    if (target.__isReactive) {
+        return target;
+    }
+
     const handlers = {
         get(target, key, receiver) {
+            // Special case to detect reactive objects
+            if (key === '__isReactive') {
+                return true;
+            }
+
             const result = Reflect.get(target, key, receiver);
             track(target, key);
+
+            // Make nested objects reactive too
+            if (result && typeof result === 'object') {
+                return reactive(result);
+            }
+
             return result;
         },
         set(target, key, value, receiver) {
             const oldValue = target[key];
             const result = Reflect.set(target, key, value, receiver);
+
+            // For arrays, we need to trigger on length changes too
+            if (Array.isArray(target) && key === 'length') {
+                trigger(target, 'length');
+            }
+
             if (oldValue !== value) {
+                trigger(target, key);
+            }
+            return result;
+        },
+        deleteProperty(target, key) {
+            const hadKey = key in target;
+            const result = Reflect.deleteProperty(target, key);
+            if (hadKey) {
                 trigger(target, key);
             }
             return result;
@@ -34,15 +68,21 @@ export function reactive(target) {
  * @returns {Object} Reactive reference
  */
 export function ref(value) {
+    // Make objects reactive when they're stored in a ref
+    const _value = value && typeof value === 'object' ? reactive(value) : value;
+
     const r = {
-        _value: value,
+        _value,
         get value() {
             track(r, 'value');
             return this._value;
         },
         set value(newValue) {
             if (this._value !== newValue) {
-                this._value = newValue;
+                // Make new value reactive if it's an object
+                this._value = newValue && typeof newValue === 'object'
+                    ? reactive(newValue)
+                    : newValue;
                 trigger(r, 'value');
             }
         }
@@ -52,31 +92,41 @@ export function ref(value) {
 
 /**
  * Creates a computed property
- * @param {Function} getter - Getter function
+ * @param {Function|Object} getterOrOptions - Getter function or options with get/set
  * @returns {Object} Computed property
  */
-export function computed(getter) {
-    let value;
-    let dirty = true;
+export function computed(getterOrOptions) {
+    let getter, setter;
 
-    const runner = effect(getter, {
-        lazy: true,
-        scheduler: () => {
-            if (!dirty) {
-                dirty = true;
-                trigger(computedRef, 'value');
-            }
-        }
+    if (typeof getterOrOptions === 'function') {
+        getter = getterOrOptions;
+        setter = () => {
+            console.warn('Write operation failed: computed value is readonly');
+        };
+    } else {
+        getter = getterOrOptions.get;
+        setter = getterOrOptions.set;
+    }
+
+    // Create a ref to store the computed value
+    const result = ref(undefined);
+
+    // Use an effect to update the ref whenever dependencies change
+    const runner = effect(() => {
+        result.value = getter();
+    }, {
+        lazy: false // Run immediately to compute initial value
     });
 
+    // Create a computed ref object with custom getter/setter
     const computedRef = {
         get value() {
-            if (dirty) {
-                value = runner();
-                dirty = false;
-            }
+            // Track this computed property as a dependency
             track(computedRef, 'value');
-            return value;
+            return result.value;
+        },
+        set value(newValue) {
+            setter(newValue);
         }
     };
 
@@ -96,6 +146,14 @@ export function effect(fn, options = {}) {
         effect();
     }
 
+    // Add a stop method to the effect
+    effect.stop = () => {
+        if (effect.active) {
+            cleanup(effect);
+            effect.active = false;
+        }
+    };
+
     return effect;
 }
 
@@ -104,7 +162,7 @@ const targetMap = new WeakMap();
 
 function track(target, key) {
     // Only track if we have an active effect and a valid target
-    if (activeEffect && target) {
+    if (activeEffect && activeEffect.active && target) {
         let depsMap = targetMap.get(target);
         if (!depsMap) {
             targetMap.set(target, (depsMap = new Map()));
@@ -113,7 +171,12 @@ function track(target, key) {
         if (!dep) {
             depsMap.set(key, (dep = new Set()));
         }
-        dep.add(activeEffect);
+
+        // Add this dependency to the effect
+        if (!dep.has(activeEffect)) {
+            dep.add(activeEffect);
+            activeEffect.deps.push(dep);
+        }
     }
 }
 
@@ -127,7 +190,15 @@ function trigger(target, key) {
     const effects = depsMap.get(key);
     if (effects) {
         // Create a new set to avoid infinite loops if an effect triggers itself
-        const effectsToRun = new Set(effects);
+        const effectsToRun = new Set();
+
+        // Only add active effects to the set of effects to run
+        effects.forEach(effect => {
+            if (effect.active) {
+                effectsToRun.add(effect);
+            }
+        });
+
         effectsToRun.forEach(effect => {
             if (effect.scheduler) {
                 effect.scheduler();
@@ -140,8 +211,11 @@ function trigger(target, key) {
 
 function createReactiveEffect(fn, options) {
     const effect = function reactiveEffect() {
+        // If the effect is not active, just return the result without tracking
         if (!effect.active) return fn();
+
         if (!effectStack.includes(effect)) {
+            // Clean up dependencies before running the effect
             cleanup(effect);
             try {
                 effectStack.push(effect);

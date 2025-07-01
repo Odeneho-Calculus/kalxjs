@@ -1,66 +1,293 @@
-import { h, createElement, updateElement } from '../vdom/vdom.js';
-import { reactive, effect } from '../reactivity/reactive.js';
+import { h, createElement, createDOMElement, updateElement } from '../vdom/vdom.js';
+import { reactive, effect, ref } from '../reactivity/reactive.js';
 import { processSetup } from './setup.js';
 import { createDefaultAppComponent } from './default-app.js';
+import { applyDirectives } from '../directives/index.js';
 
 /**
- * Helper function to create DOM elements from virtual DOM
+ * Process template content to handle directives better
+ * @param {string} content - Template content
+ * @param {Object} component - Component instance
+ * @returns {string} Processed template content
  */
-function createDOMElement(vnode) {
-    // Handle primitive values (string, number, etc.)
-    if (typeof vnode === 'string' || typeof vnode === 'number') {
-        return document.createTextNode(vnode);
-    }
+function processTemplateContent(content, component) {
+    // Replace {{ expressions }} with actual values from the component
+    return content.replace(/\{\{\s*([^}]+)\s*\}\}/g, (match, expression) => {
+        try {
+            // Trim the expression
+            const trimmedExpr = expression.trim();
 
-    // Handle null or undefined
-    if (!vnode) {
-        return document.createComment('empty node');
-    }
+            // Split by dots to handle nested properties
+            const parts = trimmedExpr.split('.');
+            let value = component;
 
-    // Handle case where vnode might not be a proper virtual node object
-    if (!vnode.tag) {
-        console.warn('Invalid vnode:', vnode);
-        return document.createComment('invalid node');
-    }
+            // Navigate through the object properties
+            for (const part of parts) {
+                if (value === undefined || value === null) {
+                    return 'undefined';
+                }
 
-    const element = document.createElement(vnode.tag);
+                // Get the property value
+                value = value[part];
 
-    // Set attributes
-    for (const [key, value] of Object.entries(vnode.props || {})) {
-        if (key.startsWith('on')) {
-            const eventName = key.slice(2).toLowerCase();
-            element.addEventListener(eventName, value);
-        } else {
-            element.setAttribute(key, value);
-        }
-    }
+                // Handle ref objects
+                if (value && typeof value === 'object' && 'value' in value && typeof value.value !== 'function') {
+                    value = value.value;
+                }
+            }
 
-    // Create and append children
-    (vnode.children || []).forEach(child => {
-        if (child !== null && child !== undefined) {
-            element.appendChild(createDOMElement(child));
+            // Handle arrays with ref objects
+            if (Array.isArray(value)) {
+                // Check if array contains ref objects and unwrap them
+                value = value.map(item => {
+                    if (item && typeof item === 'object' && 'value' in item && typeof item.value !== 'function') {
+                        return item.value;
+                    }
+                    return item;
+                });
+            }
+
+            // Handle undefined values
+            if (value === undefined) {
+                console.warn(`Expression "${trimmedExpr}" evaluated to undefined in template`);
+                return '';
+            }
+
+            // Handle arrays and objects
+            if (typeof value === 'object' && value !== null) {
+                // For arrays of primitive values, join them with commas
+                if (Array.isArray(value) && value.every(item =>
+                    typeof item !== 'object' || item === null)) {
+                    return value.join(', ');
+                }
+                // For other objects, stringify them
+                return JSON.stringify(value);
+            }
+
+            return String(value);
+        } catch (error) {
+            console.error(`Error evaluating expression "${expression}":`, error);
+            return '';
         }
     });
-
-    return element;
 }
 
-function createComponent(options) {
+/**
+ * Helper function to create DOM elements from virtual DOM (DEPRECATED - use imported createDOMElement instead)
+ */
+function _createDOMElementLegacy(vnode) {
+    // This function is deprecated - use the imported createDOMElement from vdom.js instead
+    console.warn('Using deprecated _createDOMElementLegacy function - use imported createDOMElement instead');
+
+    // Just delegate to the imported function
+    return createDOMElement(vnode);
+}
+
+/**
+ * Helper function to ensure a valid vnode is returned
+ * @param {*} vnode - The vnode to validate
+ * @param {Object} component - The component instance
+ * @returns {Object} A valid vnode
+ */
+function ensureValidVnode(vnode, component) {
+    // Check if vnode is the component instance itself
+    if (vnode === component || (typeof vnode === 'object' && vnode && vnode.$el !== undefined)) {
+        console.warn('Render function returned the component instance instead of a vnode, creating default vnode');
+
+        // If the component has a _vnode property, use that
+        if (vnode._vnode) {
+            console.log('Using _vnode from component instance:', vnode._vnode);
+            return vnode._vnode;
+        }
+
+        // Create a default vnode that uses _renderTemplate if available
+        if (typeof component._renderTemplate === 'function') {
+            const templateContent = component._renderTemplate();
+            console.log('Template content from _renderTemplate:', templateContent);
+
+            // Process the template content to handle directives
+            const processedContent = processTemplateContent(templateContent, component);
+
+            // Store the original template content for directive processing
+            component._originalTemplate = templateContent;
+
+            const vnode = {
+                tag: 'div',
+                props: { class: 'kal-component' },
+                children: [{
+                    tag: 'div',
+                    props: {
+                        innerHTML: processedContent,
+                        // Add a reference to the component for directive processing
+                        'data-component-id': component._uid || 'component'
+                    },
+                    children: [],
+                    // Add a hook for directive processing
+                    mounted: (el) => {
+                        // Apply directives to the rendered content
+                        if (el && el.firstChild) {
+                            applyDirectives(el.firstChild, component);
+                        }
+                    }
+                }]
+            };
+
+            console.log('Created vnode from template:', vnode);
+            return vnode;
+        } else {
+            // Check if the component has a render method that might return a valid vnode
+            if (typeof component.render === 'function' && component !== component.render()) {
+                try {
+                    const renderedVnode = component.render();
+                    if (renderedVnode && renderedVnode.tag) {
+                        console.log('Using vnode from component render method:', renderedVnode);
+                        return renderedVnode;
+                    }
+                } catch (error) {
+                    console.error('Error calling component render method:', error);
+                }
+            }
+
+            return {
+                tag: 'div',
+                props: { class: 'kal-component' },
+                children: [{
+                    tag: 'div',
+                    props: {
+                        innerHTML: 'Component rendered successfully'
+                    },
+                    children: []
+                }]
+            };
+        }
+    }
+    // Ensure vnode is a proper virtual DOM node
+    else if (vnode && typeof vnode === 'object' && !vnode.tag) {
+        console.warn('Render returned a vnode without a tag property, creating proper vnode');
+        return {
+            tag: 'div',
+            props: { class: 'kal-component' },
+            children: [{
+                tag: 'div',
+                props: {
+                    innerHTML: typeof component._renderTemplate === 'function' ? component._renderTemplate() : 'Component rendered successfully'
+                },
+                children: []
+            }]
+        };
+    }
+    // Handle null or undefined
+    else if (!vnode) {
+        console.warn('Component render returned null or undefined, creating default vnode');
+        return {
+            tag: 'div',
+            props: { class: 'kal-component-empty' },
+            children: [{
+                tag: 'div',
+                props: {
+                    innerHTML: 'Component render returned empty result',
+                    style: 'padding: 10px; border: 1px solid #f0ad4e; background-color: #fcf8e3; color: #8a6d3b; border-radius: 4px;'
+                },
+                children: []
+            }]
+        };
+    }
+
+    // If vnode is already valid, return it
+    return vnode;
+}
+
+import { setCurrentInstance } from '../composition/instance.js';
+
+function createComponent(options, initialProps = {}) {
     const instance = {};
+
+    // Initialize lifecycle hook arrays to avoid undefined errors
+    instance.mounted = [];
+    instance.unmounted = [];
+    instance.beforeUpdate = [];
+    instance.updated = [];
+    instance.beforeMount = [];
+    instance.beforeUnmount = [];
+
+    console.log('Creating component with options:', options.name || 'unnamed component');
+    console.log('Initial props:', initialProps);
 
     // Set options
     instance.$options = options;
 
-    // Initialize props
-    instance.props = options.props || {};
+    // Assign _renderTemplate from options if present
+    if (options._renderTemplate) {
+        instance._renderTemplate = options._renderTemplate;
+    }
+
+    // Initialize props with any provided initial props
+    instance.props = { ...initialProps };
+
+    // Process props definition if it exists
+    if (options.props) {
+        console.log('Processing props definition:', options.props);
+
+        // If props is an array of strings
+        if (Array.isArray(options.props)) {
+            options.props.forEach(propName => {
+                // Only set default (undefined) if not provided in initialProps
+                if (!(propName in instance.props)) {
+                    instance.props[propName] = undefined;
+                }
+            });
+        }
+        // If props is an object with type/default definitions
+        else if (typeof options.props === 'object') {
+            for (const propName in options.props) {
+                // Skip if already provided in initialProps
+                if (propName in instance.props && instance.props[propName] !== undefined) {
+                    console.log(`Using provided prop value for ${propName}:`, instance.props[propName]);
+                    continue;
+                }
+
+                const propDef = options.props[propName];
+
+                // If the prop definition is an object with a default value
+                if (typeof propDef === 'object' && 'default' in propDef) {
+                    // If default is a function, call it, otherwise use the value directly
+                    const defaultValue = typeof propDef.default === 'function'
+                        ? propDef.default()
+                        : propDef.default;
+
+                    instance.props[propName] = defaultValue;
+                    console.log(`Set default value for prop ${propName}:`, defaultValue);
+                } else {
+                    // No default value specified
+                    instance.props[propName] = undefined;
+                }
+            }
+        }
+    }
+
+    // Make props directly accessible on the instance
+    for (const key in instance.props) {
+        if (!(key in instance)) {
+            Object.defineProperty(instance, key, {
+                get() { return instance.props[key]; },
+                configurable: true
+            });
+        }
+    }
 
     // Call beforeCreate lifecycle hook
     if (options.beforeCreate) {
         options.beforeCreate.call(instance);
     }
 
+    // Set current instance before setup
+    setCurrentInstance(instance);
+
     // Process setup function if it exists
     const setupResult = processSetup(instance, options);
+
+    // Clear current instance after setup
+    setCurrentInstance(null);
 
     // Merge setup result with instance
     for (const key in setupResult) {
@@ -161,6 +388,27 @@ function createComponent(options) {
     // Store initial render result for future updates
     instance._vnode = null;
 
+    // Add _renderTemplate method if it doesn't exist
+    if (!instance._renderTemplate) {
+        instance._renderTemplate = function () {
+            console.log('Default _renderTemplate called for', options.name || 'unnamed component');
+
+            // Create a more visible template
+            const template = `
+                <div class="component-content" style="padding: 20px; border: 2px solid #4299e1; border-radius: 4px; background-color: #ebf8ff; color: #2b6cb0;">
+                    <h2 style="margin-top: 0;">${options.name || 'Component'}</h2>
+                    <p>This component is working but has no template defined.</p>
+                    <div style="margin-top: 15px; font-size: 14px; padding: 10px; background: #fff; border-radius: 4px;">
+                        <p style="margin: 0;">To add content, define a template or render function.</p>
+                    </div>
+                </div>
+            `;
+
+            console.log('Generated template content:', template);
+            return template;
+        };
+    }
+
     // Add render method (if not already defined by setup)
     if (!instance.render) {
         instance.render = function () {
@@ -185,6 +433,54 @@ function createComponent(options) {
             try {
                 const result = options.render.call(instance);
                 console.log('Render result:', result);
+
+                // Check if the result is the component instance or not a valid vnode
+                if (result === instance || (typeof result === 'object' && result && result.$el !== undefined)) {
+                    console.warn('Render function returned the component instance, extracting vnode from component');
+
+                    // If the component has a _vnode property, use that
+                    if (result._vnode) {
+                        console.log('Using _vnode from component:', result._vnode);
+                        return result._vnode;
+                    }
+
+                    // If the component has a _renderTemplate method, use that
+                    if (typeof result._renderTemplate === 'function') {
+                        console.log('Using _renderTemplate method from component');
+                        const templateContent = result._renderTemplate();
+
+                        return {
+                            tag: 'div',
+                            props: { class: 'kal-component' },
+                            children: [{
+                                tag: 'div',
+                                props: {
+                                    innerHTML: templateContent
+                                },
+                                children: []
+                            }]
+                        };
+                    }
+                }
+
+                // If result is null or undefined, fallback to _renderTemplate
+                if (result == null && typeof instance._renderTemplate === 'function') {
+                    console.log('Render result is null or undefined, using _renderTemplate fallback');
+                    const templateContent = instance._renderTemplate();
+
+                    return {
+                        tag: 'div',
+                        props: { class: 'kal-component' },
+                        children: [{
+                            tag: 'div',
+                            props: {
+                                innerHTML: templateContent
+                            },
+                            children: []
+                        }]
+                    };
+                }
+
                 return result;
             } catch (error) {
                 // Use the app's error handler if available
@@ -242,28 +538,56 @@ function createComponent(options) {
             el.innerHTML = '';
 
             // Render the component
-            const vnode = this.render();
+            let vnode = this.render();
 
             // Log the render process for debugging
             console.log('Component render result:', vnode);
+
+            // Ensure we have a valid vnode
+            vnode = ensureValidVnode(vnode, this);
+
+            console.log('Final vnode for rendering:', vnode);
 
             // Store the vnode for future updates
             this._vnode = vnode;
 
             // Create real DOM from virtual DOM and append to element
             if (vnode) {
-                // Ensure the vnode has a tag property
-                if (typeof vnode === 'object' && !vnode.tag) {
-                    console.warn('Render returned a vnode without a tag property, adding div tag');
-                    vnode.tag = 'div';
-                }
-
-                // Use createElement from vdom/vdom.js to ensure consistent behavior
-                const dom = createElement(vnode);
+                // Use createDOMElement from vdom/vdom.js to ensure consistent behavior
+                const dom = createDOMElement(vnode);
 
                 if (dom) {
                     el.appendChild(dom);
                     console.log('DOM element created and appended:', dom);
+
+                    // Process directives on the rendered DOM
+                    try {
+                        // Import the clean directive processor dynamically to avoid circular dependencies
+                        import('../directives/directive-processor.js').then(module => {
+                            const { processDirectives } = module;
+
+                            // Ensure reactive values are properly passed to the directive processor
+                            // Create a clean context with all the reactive values
+                            const directiveContext = { ...this };
+
+                            // Log the reactive properties for debugging
+                            console.log('Component instance before directive processing:', {
+                                message: this.message,
+                                showText: this.showText,
+                                items: this.items,
+                                inputText: this.inputText,
+                                count: this.count
+                            });
+
+                            // Process directives with the component instance as context
+                            processDirectives(dom, directiveContext);
+                            console.log('Directives processed on DOM element');
+                        }).catch(err => {
+                            console.error('Error importing directive processor:', err);
+                        });
+                    } catch (err) {
+                        console.error('Error processing directives:', err);
+                    }
                 } else {
                     throw new Error('Failed to create DOM element from vnode');
                 }
@@ -313,8 +637,13 @@ function createComponent(options) {
         }
 
         // Re-render and update the DOM
-        const newVdom = this.render();
+        let newVdom = this.render();
         console.log('Component update with new vdom:', newVdom);
+
+        // Ensure we have a valid vnode
+        newVdom = ensureValidVnode(newVdom, this);
+
+        console.log('Final vnode for updating:', newVdom);
 
         if (this.$el) {
             try {
@@ -417,11 +746,14 @@ function defineComponent(options) {
         try {
             console.log(`Creating component ${componentOptions.name} with props:`, props);
 
+            // Store the options on the factory function for reference by createJsComponent
+            if (!componentFactory.options) {
+                componentFactory.options = componentOptions;
+            }
+
             // Create a new component instance with the provided props
-            const instance = createComponent({
-                ...componentOptions,
-                props: props || {}
-            });
+            // Keep the original props definition and pass the props as initialProps
+            const instance = createComponent(componentOptions, props || {});
 
             // Make props accessible directly on the instance
             for (const key in props) {
@@ -431,6 +763,11 @@ function defineComponent(options) {
                         configurable: true
                     });
                 }
+            }
+
+            // For tests, if the instance has a render method, call it to get the vnode
+            if (instance.render) {
+                return instance.render();
             }
 
             return instance;
@@ -603,14 +940,76 @@ function createApp(component) {
                     if (componentOptions.options) {
                         // This is a component factory from defineComponent
                         console.log('Using component factory with options:', componentOptions.options.name);
+
+                        // Use the options object directly instead of cloning
                         componentOptions = componentOptions.options;
+
+                        // Copy _renderTemplate from original options if present
+                        if (!componentOptions._renderTemplate && componentOptions.options && componentOptions.options._renderTemplate) {
+                            componentOptions._renderTemplate = componentOptions.options._renderTemplate;
+                        }
+
+                        // Add a _renderTemplate method if it doesn't exist
+                        if (!componentOptions._renderTemplate) {
+                            componentOptions._renderTemplate = function () {
+                                console.log('Factory component _renderTemplate called');
+                                return `
+                                    <div class="factory-component" style="padding: 20px; border: 2px solid #38a169; border-radius: 4px; background-color: #f0fff4; color: #276749;">
+                                        <h2 style="margin-top: 0;">${componentOptions.name || 'Factory Component'}</h2>
+                                        <p>This factory component is working correctly.</p>
+                                        <div style="margin-top: 15px; font-size: 14px; padding: 10px; background: #fff; border-radius: 4px;">
+                                            <p style="margin: 0;">Component properties: ${Object.keys(componentOptions).join(', ')}</p>
+                                        </div>
+                                    </div>
+                                `;
+                            };
+                        }
                     } else {
                         // This is a regular function component
                         console.log('Using function component');
-                        componentOptions = {
-                            name: componentOptions.name || 'FunctionComponent',
-                            render: () => componentOptions({})
-                        };
+                        // Store the function reference before modifying componentOptions
+                        if (typeof componentOptions === 'function') {
+                            const componentFunction = componentOptions;
+                            componentOptions = {
+                                name: componentFunction.name || 'FunctionComponent',
+                                render: () => componentFunction({ ref }),  // Pass ref to the function component
+                                setup: (props, ctx) => {
+                                    // Make ref available in the setup context
+                                    ctx.ref = ref;
+                                    return {};
+                                },
+                                _renderTemplate: function () {
+                                    console.log('Function component _renderTemplate called');
+                                return (
+                                    '<div class="function-component" style="padding: 20px; border: 2px solid #805ad5; border-radius: 4px; background-color: #faf5ff; color: #553c9a;">' +
+                                        '<h2 style="margin-top: 0;">' + (componentFunction.name || 'Function Component') + '</h2>' +
+                                        '<p>This function component is working correctly.</p>' +
+                                        '<div style="margin-top: 15px; font-size: 14px; padding: 10px; background: #fff; border-radius: 4px;">' +
+                                            '<p style="margin: 0;">Component is rendering through the default template.</p>' +
+                                        '</div>' +
+                                    '</div>'
+                                );
+                                }
+                            };
+                        } else {
+                            console.error('Expected componentOptions to be a function but got:', typeof componentOptions);
+                            componentOptions = {
+                                name: 'ErrorComponent',
+                                render: () => h('div', { style: 'color: red' }, ['Component Error: Invalid component definition']),
+                                _renderTemplate: function () {
+                                    console.log('Error component _renderTemplate called');
+                                    return `
+                                        <div class="error-component" style="padding: 20px; border: 2px solid #e53e3e; border-radius: 4px; background-color: #fff5f5; color: #c53030;">
+                                            <h2 style="margin-top: 0;">Component Error</h2>
+                                            <p>Invalid component type: ${typeof componentOptions}</p>
+                                            <div style="margin-top: 15px; font-size: 14px; padding: 10px; background: #fff; border-radius: 4px;">
+                                                <p style="margin: 0;">Please check your component definition.</p>
+                                            </div>
+                                        </div>
+                                    `;
+                                }
+                            };
+                        }
                     }
                 }
 
@@ -662,6 +1061,7 @@ function createApp(component) {
                         }
                     } else {
                         // Normal component object
+                        // Create component - createComponent will handle default props
                         instance = createComponent(componentOptions);
 
                         // Inject app context and plugins

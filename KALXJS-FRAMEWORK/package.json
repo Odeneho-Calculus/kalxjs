@@ -19,9 +19,11 @@
         "build:store": "cd packages/store && npm run build",
         "build:cli": "cd packages/cli && npm run build",
         "build:all": "npm run build:core && npm run build:router && npm run build:store && npm run build:cli",
-        "test": "jest",
-        "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
-        "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+        "test": "node --import ./suppress-warnings.js --experimental-vm-modules node_modules/jest/bin/jest.js > letdebug.txt 2>&1",
+        "test:original": "node --import ./suppress-warnings.js --experimental-vm-modules node_modules/jest/bin/jest.js",
+        "test:debug": "node --import ./suppress-warnings.js --experimental-vm-modules node_modules/jest/bin/jest.js --verbose --no-cache tests/unit/component.test.js tests/unit/router.test.js > letdebug.txt 2>&1",
+        "test:watch": "node --import ./suppress-warnings.js --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+        "test:coverage": "node --import ./suppress-warnings.js --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
         "lint": "eslint packages/*/src --ext .js",
         "clean": "lerna clean -y && rm -rf node_modules",
         "clear-jest-cache": "node --experimental-vm-modules node_modules/jest/bin/jest.js --clearCache",
@@ -35,7 +37,18 @@
         "dev": "vite",
         "dev:packages": "lerna run dev --parallel",
         "preview": "vite preview",
-        "create": "node packages/cli/bin/kalx-cli.js create"
+        "create": "node packages/cli/bin/kalx-cli.js create",
+        "dev-tools": "node scripts/dev-tools.js",
+        "dev:setup": "node scripts/dev-tools.js setup",
+        "dev:cleanup": "node scripts/dev-tools.js cleanup --dry-run",
+        "dev:cleanup:live": "node scripts/dev-tools.js cleanup",
+        "dev:test": "node scripts/dev-tools.js test",
+        "dev:analyze": "node scripts/dev-tools.js analyze",
+        "dev:status": "node scripts/dev-tools.js status",
+        "local:setup": "node scripts/setup-local-test.js",
+        "local:test": "node scripts/test-runner.js",
+        "local:cleanup": "node scripts/cleanup-unused.js",
+        "local:analyze": "node scripts/dependency-analyzer.js"
     },
     "keywords": [
         "javascript",
@@ -98,5 +111,8 @@
     "bugs": {
         "url": "https://github.com/Odeneho-Calculus/kalxjs-framework/issues"
     },
-    "homepage": "https://github.com/Odeneho-Calculus/kalxjs-framework#readme"
+    "homepage": "https://github.com/Odeneho-Calculus/kalxjs-framework#readme",
+    "dependencies": {
+        "puppeteer": "24.8.2"
+    }
 }

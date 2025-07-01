@@ -1,0 +1,111 @@
+<template>
+  <div class="app">
+    <h1>KalxJS Directives Demo - Simple Example</h1>
+
+    <section>
+      <h2>k-text Directive</h2>
+      <p k-text="message"></p>
+    </section>
+
+    <section>
+      <h2>k-if Directive</h2>
+      <button @click="toggleShow">Toggle Show</button>
+      <p k-if="showText">This text is conditionally rendered with k-if.</p>
+      <p k-else>This text is shown when the above is hidden.</p>
+    </section>
+
+    <section>
+      <h2>k-for Directive</h2>
+      <ul>
+        <li k-for="(item, index) in items" :key="index" k-text="item"></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>k-model Directive</h2>
+      <input type="text" k-model="inputText" placeholder="Type something..." />
+      <p>You typed: <span k-text="inputText"></span></p>
+    </section>
+
+    <section>
+      <h2>@click Directive</h2>
+      <button @click="increment">Clicked {{ count }} times</button>
+    </section>
+  </div>
+</template>
+
+<script>
+import { ref } from '@kalxjs/core';
+
+export default {
+  name: 'App',
+  setup() {
+    const message = ref('Hello, this text is rendered using k-text directive!');
+    const showText = ref(true);
+    const items = ref(['Item 1', 'Item 2', 'Item 3']);
+    const inputText = ref('');
+    const count = ref(0);
+
+    function toggleShow() {
+      showText.value = !showText.value;
+    }
+
+    function increment() {
+      count.value++;
+    }
+
+    return {
+      message,
+      showText,
+      items,
+      inputText,
+      count,
+      toggleShow,
+      increment
+    };
+  }
+};
+</script>
+
+<style>
+.app {
+  max-width: 600px;
+  margin: 20px auto;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+h1 {
+  text-align: center;
+  color: #3182ce;
+}
+
+section {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+}
+
+button {
+  padding: 8px 12px;
+  background-color: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #2c6cb0;
+}
+
+input[type="text"] {
+  padding: 6px 8px;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+</style>

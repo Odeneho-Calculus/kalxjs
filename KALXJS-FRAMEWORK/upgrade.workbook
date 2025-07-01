@@ -1,0 +1,288 @@
+Vue.js Rendering Mechanism
+Vue components defined in single-file components (SFCs) ( .vue files) are processed by a compile step into
+highly optimized JavaScript code. In Vue 3, the pipeline is roughly: the template is compiled into a render
+function, which when executed produces a Virtual DOM (VDOM) tree; the Vue reactivity system tracks the
+component’s reactive state during rendering; when state changes, the render function re-runs to produce
+an updated VDOM; finally, Vue’s patch algorithm diffs the old and new VDOM trees and applies minimal
+updates to the actual DOM. The figure below illustrates this flow:
+Figure: Vue’s rendering pipeline. The <template> is compiled into a render-function (render code).
+Executing the render function produces a Virtual DOM tree, which the Vue renderer mounts into the Actual
+DOM. Reactive component state (red) is tracked during rendering – when state changes, it triggers the
+render function again, yielding a new VDOM that is diffed and patched to the DOM .
+Single-File Components and Template Compilation
+Vue SFCs ( .vue files) bundle a <template> , a <script> , and optional <style> . By convention, SFCs
+must be pre-compiled by the Vue SFC compiler ( @vue/compiler-sfc ) as part of your build (using Vite,
+Vue CLI, etc.) into plain JavaScript . In this process, the compiler extracts the <template> content and
+runs it through the Vue template compiler. Conceptually, the compilation of a template is three steps :
+Parse. The HTML-like template string is parsed into an Abstract Syntax Tree (AST) . This AST
+represents elements, text, interpolations, directives, etc. For example, parsing <div>Hello,
+{{ name }}</div> might produce an AST with a root <div> node containing a text “Hello,” node
+and an interpolation node for {{ name }} . The AST nodes carry information like tag names,
+attributes, children, and expression placeholders.
+Transform. Next, Vue performs a series of AST transformations. These include: processing
+directives (e.g. v-if , v-for , v-bind , v-slot ), handling interpolations ( {{…}} ), and
+performing static analysis. The compiler determines which parts of the template are purely static
+(no bindings) vs. dynamic, and it “hoists” static sub-trees out of the render function for reuse. It also
+1 2
+3
+4
+1. 4
+2.
+1
+assigns patch flags on VNodes to indicate what needs updating (e.g. only class changes) . In
+effect, Vue’s parser and transformer embed hints into the code (e.g. static tree hoisting, patch flags)
+so that the runtime diff can skip unchanged parts . For example, two adjacent static <div> s
+might be combined into one static vnode; a dynamic :class binding will produce a vnode creation
+call with a flag CLASS (2) . Such compile-time optimizations make updates very efficient.
+Generate Code. Finally, Vue generates JavaScript render-function code from the transformed AST.
+This code uses Vue’s runtime helper functions ( h / createVNode , openBlock , createBlock ,
+etc.) to construct VNode trees. For example, a simple template might compile to:
+function render(_ctx, _cache) {
+return (openBlock(), createBlock("div", null,
+toDisplayString(_ctx.greeting), 1 /* TEXT */))
+}
+In this pseudo-code, openBlock() / createBlock mark the start of a block, and
+toDisplayString(_ctx.greeting) inserts a text child. The compiler imports and prefixes
+helpers like _createElementVNode , _openBlock , _createBlock , and _toDisplayString
+as needed. Static vnode creation calls are hoisted out of this function entirely. In other words, the
+compile step transforms the declarative template into an imperative function that builds the VDOM
+tree.
+In summary, when you import a .vue file in a build setup, @vue/compiler-sfc parses the template
+and script. It compiles the template to a render function and combines it with your component logic. For
+example:
+// In some hypothetical build output for MyComponent.vue
+export default {
+data() { return { greeting: 'Hello World!' } },
+// ...other options...
+render: function render(_ctx, _cache) {
+return (
+openBlock(),
+createBlock("p", { class: "greeting" }, toDisplayString(_ctx.greeting),
+1 /* TEXT */)
+)
+}
+}
+This render function, when called, returns a tree of VNodes (Virtual DOM nodes). The build-time compiler
+can do this ahead of time, so the browser does not parse templates at runtime in production.
+5 6
+7
+5
+3.
+2
+Render Functions and the Virtual DOM
+A render function in Vue is a JavaScript function that returns a Virtual DOM tree (a tree of VNode objects).
+Each VNode is a plain JS object that describes an element, component, text node, or fragment. For example,
+the template <div id="hello">...</div> might correspond to a VNode like:
+const vnode = {
+type: 'div',
+props: { id: 'hello' },
+children: [ /* ...more VNodes... */ ]
+}
+This matches the Vue docs example of a VNode object representing a <div> . In practice, render
+functions use helper calls: e.g. createVNode('div', { id: 'hello' }, [/*children*/]) , or
+_createElementBlock , etc. The VNode’s fields include type (tag or component), props (attributes,
+event handlers, etc.), and children (an array or text). Vue 3 also stores flags (like patchFlag ) and slots/
+shape information on the VNode for efficient diffing, as added by the compiler .
+When the render function is executed during mount, Vue’s runtime renderer walks the VNode tree and
+creates corresponding actual DOM nodes. This is called the mounting process . For each VNode, Vue
+creates a real DOM element (or text node) and appends it to the container. If a VNode represents a
+component, Vue will create a component instance and mount it recursively. In effect, the render function
+“describes” the DOM tree in memory, and the renderer constructs it. All this is done within a reactive effect
+so that Vue knows which state each VNode depends on.
+Reactivity and Dependency Tracking
+Central to Vue’s rendering is its reactivity system. Component state (returned from data() , reactive
+ref() s, computed , props , etc.) is made reactive using ES6 Proxies. Whenever a reactive property is
+accessed inside the render function, Vue’s proxy getter calls track() to record the dependency on the
+current effect. Whenever a reactive property is mutated, the setter calls trigger() , which will schedule
+re-running the relevant reactive effects (such as the component’s render) .
+Put simply: when the component first renders, Vue collects all the reactive sources used in that render.
+Later, if any of those sources change, the render function is automatically re-run. For example, Vue’s docs
+explain that on first render, “Vue tracks every ref that was used during the render. Later on, when a ref is
+mutated, it will trigger a re-render for components that are tracking it” . Internally, Vue wraps the render
+invocation in a ReactiveEffect . This effect is marked as “active” during rendering, so every reactive
+get can register it as a subscriber .
+In Vue 3’s Composition API, this is analogous to calling watchEffect(() => render()) . Every
+component instance creates its own effect for rendering and patching the DOM . Thus each component
+“keeps in sync” automatically: whenever its state changes, Vue re-invokes the render function to produce a
+new VDOM tree . (Vue 2’s Options API does the same under the hood via this getters/setters.) The
+8
+5 6
+9
+10 11
+10
+11
+2
+2 9
+3
+important point is that reactivity is automatic: templates or render code need only read state, and Vue
+does the rest.
+For illustration, Vue’s docs give pseudo-code for a ref object and how tracking works:
+const myRef = {
+_value: 0,
+get value() {
+track() // record dependency
+return this._value
+},
+set value(newVal) {
+this._value = newVal
+trigger() // notify effects
+}
+}
+This getter/setter pattern enables Vue to know exactly which effects to rerun. In practice Vue’s proxies do
+this, but conceptually it shows how data access is linked to dependency tracking .
+Mounting and Updating (Initial Render)
+When you create and mount a Vue app (e.g. createApp(MyComponent).mount('#app') ), Vue starts the
+render process for the root component. Concretely:
+Compile (already done): As described, the template has been compiled to a render function (either
+ahead-of-time or at runtime with the compiler).
+Initial Render / Mount: Vue executes the render function inside a reactive effect. This yields the
+initial VDOM tree. The renderer then mounts this VDOM by creating real DOM nodes in the document
+. Because the render is inside an effect, any reactive state accessed is now tracked.
+Record Dependencies: During this first render, any reactive property accessed in the template/JS
+code was recorded. For instance, if the template had {{ count }} , then count was read, so the
+effect depends on count .
+Update and Re-run (Patch): When any dependency later changes (e.g. count.value++ or
+this.count++ ), Vue automatically re-executes the component’s render function. This produces a
+new VDOM tree. Vue then performs a diff between the old and new VDOM trees. It efficiently
+patches only the parts that differ, and applies those changes to the actual DOM .
+All these steps are summarized in Vue’s docs as: Compile → Mount → Patch . More specifically, “1.
+Compile: templates → render functions. 2. Mount: invoke render, create DOM (as a reactive effect) . 3.
+Patch: when a dependency changes, the effect re-runs and diffs/patches to the DOM .” This reactive
+mount/update cycle ensures the DOM stays in sync with state.
+10
+•
+•
+9
+•
+•
+12 13
+1 12
+1
+12
+4
+Virtual DOM Diffing and Patching
+Under the hood, Vue’s patch algorithm (based on Snabbdom) takes the old and new VDOM trees and
+efficiently updates the real DOM. Key points:
+Element Diffing: If a node’s type changes (e.g. from <div> to <span> ), Vue replaces the entire
+subtree. Otherwise it reuses the existing DOM element and patches its props/children.
+Props and Attributes: Vue compares the props objects of old vs new VNodes. Thanks to patch
+flags, Vue often knows exactly which props changed at compile time. For instance, a vnode created
+with a class binding might have a patch flag CLASS (2) . The runtime will check if
+(vnode.patchFlag & PatchFlags.CLASS) to update only the class list . Unchanged
+attributes or event listeners can be skipped because no flag was set.
+Static vs. Dynamic: All purely static content was hoisted out of the render. Vue will reuse static
+subtrees without touching them on updates. In fact, Vue even concatenates consecutive static
+nodes into a single static VNode (with an HTML string) for fast mount . During updates, any
+static part is skipped entirely – Vue does not traverse it. The compiler’s tree-flattening optimization
+also yields a flat list of only the dynamic children that need checking . In short: if a subtree has no
+dynamic bindings, it is never re-rendered or diffed.
+Children (Lists, Text): If children are plain text (with a TEXT flag), Vue updates the text content. If
+children are arrays of VNodes (e.g. lists), Vue uses the keyed diff algorithm. Vue compares keys,
+reorders/moves nodes as needed, and patches differences. Again, the compiler may annotate
+fragments with a STABLE_FRAGMENT flag if it knows the list order won’t change .
+The net result is that Vue does the least work necessary on updates. It only touches dynamic parts flagged
+by the compiler, and even then only applies minimal DOM operations. As Vue’s docs note, thanks to this
+compiler-informed VDOM, “any static parts of the template are effectively skipped” and only changed nodes
+are visited .
+For example, consider a component with:
+<template>
+<ul>
+<li v-for="item in items" :key="item.id">{{ item.text }}</li>
+</ul>
+</template>
+The render function will create a fragment or <ul> with child <li> VNodes. Each <li> vnode is keyed.
+On update, if items changes, Vue will diff the old/new <li> list by key, patch moved, added or removed
+items, and update only the changed text nodes. If items is unchanged but some item.text changed,
+Vue will skip all static <li> structure and only update the text because of the text patch flag.
+•
+•
+5 6
+•
+14 7
+7
+•
+15
+16
+5
+Template–Render–State–VDOM–DOM Relationships
+In summary:
+Template → Render Function: The Vue compiler turns your declarative template into an optimized
+render function (JavaScript code) . This function, when called, returns a tree of VNodes
+representing the UI.
+Component State → Reactivity: Component data ( data() , props , refs, etc.) are wrapped in
+Vue’s reactive system. Inside the render function, accessing these properties registers dependencies
+.
+Render Function → Virtual DOM: Executing the render function builds a Virtual DOM tree (plain JS
+objects) using createVNode / h calls. Each node describes an element/component and its children
+. Static nodes are pre-hoisted; dynamic parts come with patch flags.
+Virtual DOM → Actual DOM: Vue takes the VDOM and creates/upates real DOM elements. On the
+first render, it mounts every node to the DOM . On subsequent updates, it diffs the new VDOM
+with the old and patches only the changed parts .
+Reactivity and Updates: Because the render is wrapped in a reactive effect, whenever any tracked
+state changes, the render function runs again automatically . This new VDOM is diffed against
+the old one. For example, if a data property count changes, Vue will re-render the relevant subtree
+and update only the text or nodes that depend on count (thanks to patch flags and dependency
+tracking) .
+Consider a concrete example:
+<template>
+<p>{{ greeting }}, {{ name }}!</p>
+</template>
+<script>
+export default {
+data() { return { greeting: 'Hello', name: 'Vue' } }
+}
+</script>
+The compiler might generate (simplified) render code:
+function render(_ctx) {
+return (openBlock(), createBlock("p", null, [
+toDisplayString(_ctx.greeting) + ", " + toDisplayString(_ctx.name) + "!"
+•
+4 1
+•
+10 11
+•
+8
+•
+9
+12 13
+•
+2 9
+5 10
+6
+], 1 /* TEXT */))
+}
+On mount, this produces a VNode <p> with children text nodes. Vue creates a real <p> element
+containing “Hello, Vue!”. The reactive effect has tracked _ctx.greeting and _ctx.name . If later
+_ctx.name changes to “World”, the effect reruns render() , producing a new VNode tree for <p> .
+Vue’s patcher sees only the text children changed (text has flag TEXT ), so it updates the text node content
+in place. The static <p> element isn’t recreated. The DOM ends up as “Hello, World!” with minimal updates.
+Throughout this pipeline, Vue’s compiler and runtime work together: the template gives a declarative UI;
+the render function (generated code) builds a VDOM tree; reactive state links data to the render; and the
+patch algorithm makes efficient, incremental DOM updates. By controlling both compile-time and
+runtime, Vue leverages template analysis (static hoisting, patch flags, tree-flattening) to make re-renders as
+fast as possible . The combination of template compilation, reactive effects, and virtual DOM diffing
+is what keeps a Vue app fast and responsive under the hood .
+Sources: Vue.js official documentation on Rendering Mechanism and Reactivity, which describe how
+templates compile to render functions and how the reactive system drives VDOM diffs . The above
+explanation also draws on examples and code excerpts from the Vue docs and related Vue 3 technical
+articles .
+Rendering Mechanism | Vue.js
+https://vuejs.org/guide/extras/rendering-mechanism
+Reactivity in Depth | Vue.js
+https://vuejs.org/guide/extras/reactivity-in-depth
+Single-File Components | Vue.js
+https://vuejs.org/guide/scaling-up/sfc
+Dissecting Vue 3: Template Compilation | by Angel Sola | The Glovo Tech Blog | Medium
+https://medium.com/glovo-engineering/dissecting-vue-3-template-compilation-e01e2b98dafd
+Reactivity Fundamentals | Vue.js
+https://vuejs.org/guide/essentials/reactivity-fundamentals.html
+5 16
+1 2
+1 10
+8 5
+1 5 6 7 8 9 12 13 14 15 16
+2 11
+3
+4
+10
+7

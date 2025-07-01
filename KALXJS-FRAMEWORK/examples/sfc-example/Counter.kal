@@ -1,0 +1,153 @@
+<template>
+  <div class="counter">
+    <h2>{{ title }}</h2>
+    <p>Count: <span class="count">{{ count }}</span></p>
+    <div class="buttons">
+      <button @click="increment" class="increment">Increment</button>
+      <button @click="decrement" class="decrement">Decrement</button>
+      <button @click="reset" class="reset">Reset</button>
+    </div>
+  </div>
+</template>
+
+<script>
+import { ref, onMounted } from '@kalxjs/core';
+
+export default {
+  name: 'Counter',
+  
+  props: {
+    title: {
+      type: String,
+      default: 'Counter Component'
+    },
+    initialCount: {
+      type: Number,
+      default: 0
+    }
+  },
+  
+  setup(props, { emit }) {
+    const count = ref(props.initialCount);
+    
+    function increment() {
+      count.value++;
+      // Emit an event when count changes
+      emit('count-changed', count.value);
+    }
+    
+    function decrement() {
+      count.value--;
+      emit('count-changed', count.value);
+    }
+    
+    function reset() {
+      count.value = props.initialCount;
+      emit('count-changed', count.value);
+    }
+    
+    onMounted(() => {
+      console.log('Counter component mounted with initial count:', count.value);
+    });
+    
+    return {
+      count,
+      increment,
+      decrement,
+      reset
+    };
+  }
+}
+</script>
+
+<style scoped>
+.counter {
+  font-family: Arial, sans-serif;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background-color: #f8fafc;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  color: #2d3748;
+  margin-top: 0;
+  font-size: 1.5rem;
+}
+
+.count {
+  font-weight: bold;
+  color: #3182ce;
+  font-size: 1.25rem;
+}
+
+.buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.increment {
+  background-color: #48bb78;
+  color: white;
+}
+
+.increment:hover {
+  background-color: #38a169;
+}
+
+.decrement {
+  background-color: #f56565;
+  color: white;
+}
+
+.decrement:hover {
+  background-color: #e53e3e;
+}
+
+.reset {
+  background-color: #a0aec0;
+  color: white;
+}
+
+.reset:hover {
+  background-color: #718096;
+}
+</style>
+
+<docs>
+# Counter Component
+
+A simple counter component that demonstrates the use of KalxJS Single File Components.
+
+## Props
+
+- `title` (String): The title of the counter component
+- `initialCount` (Number): The initial count value
+
+## Events
+
+- `count-changed`: Emitted when the count changes, with the new count value as payload
+
+## Example Usage
+
+```html
+<Counter 
+  title="My Counter" 
+  :initialCount="5"
+  @count-changed="handleCountChange" 
+/>
+```
+</docs>

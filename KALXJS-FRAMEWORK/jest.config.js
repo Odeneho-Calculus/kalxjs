@@ -13,7 +13,6 @@ export default {
         '@kalxjs/core/(.*)$': '<rootDir>/packages/core/src/$1',
         '@kalxjs/router/(.*)$': '<rootDir>/packages/router/src/$1',
         '@kalxjs/state/(.*)$': '<rootDir>/packages/state/src/$1',
-        
 
         // Also add entries for direct module imports
         '@kalxjs/core': '<rootDir>/packages/core/src/index',
@@ -30,6 +29,18 @@ export default {
     // Don't ignore our packages
     transformIgnorePatterns: [
         '/node_modules/(?!(@kalxjs)/)'
+    ],
+
+    // Fix Haste module naming collision
+    modulePathIgnorePatterns: [
+        '<rootDir>/packages/cli/dist/'
+    ],
+
+    // Explicitly set test patterns to find our tests
+    testMatch: [
+        "**/tests/**/*.test.js",
+        "**/tests/**/*test.js",
+        "**/__tests__/**/*.js"
     ],
 
     // Verbose output for debugging

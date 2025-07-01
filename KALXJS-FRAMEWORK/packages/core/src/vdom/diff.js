@@ -162,57 +162,139 @@ function updateDOMNode(domNode, oldVNode, newVNode) {
 }
 
 /**
- * Updates the attributes of a DOM node
+ * Updates the attributes of a DOM node with optimized attribute handling
  * @private
  * @param {HTMLElement} domNode - DOM node to update
  * @param {Object} oldAttrs - Old attributes
  * @param {Object} newAttrs - New attributes
  */
 function updateAttributes(domNode, oldAttrs, newAttrs) {
-    // Remove old attributes
+    // Special attribute sets for optimized handling
+    const directProps = new Set(['id', 'value', 'checked', 'disabled', 'selected', 'textContent']);
+    const booleanProps = new Set(['checked', 'disabled', 'selected', 'hidden', 'readonly', 'required', 'open', 'multiple']);
+
+    // Cache event handlers to avoid unnecessary re-renders
+    if (!domNode._kalxEvents) {
+        domNode._kalxEvents = new Map();
+    }
+
+    // Remove old attributes that are no longer present
     for (const key in oldAttrs) {
         if (!(key in newAttrs)) {
             if (key.startsWith('on')) {
+                // Handle event listeners
                 const eventName = key.slice(2).toLowerCase();
-                domNode.removeEventListener(eventName, oldAttrs[key]);
+                const handler = domNode._kalxEvents.get(eventName);
+                if (handler) {
+                    domNode.removeEventListener(eventName, handler);
+                    domNode._kalxEvents.delete(eventName);
+                }
+            } else if (directProps.has(key)) {
+                // Reset direct properties
+                domNode[key] = '';
+            } else if (booleanProps.has(key)) {
+                // Reset boolean properties
+                domNode[key] = false;
+            } else if (key === 'style') {
+                // Reset style
+                domNode.style = '';
+            } else if (key === 'class' || key === 'className') {
+                // Reset class
+                domNode.className = '';
             } else {
+                // Remove regular attributes
                 domNode.removeAttribute(key);
             }
         }
     }
 
-    // Set new attributes
+    // Set new attributes or update changed ones
     for (const key in newAttrs) {
-        if (oldAttrs[key] !== newAttrs[key]) {
-            if (key.startsWith('on')) {
-                // Handle both camelCase (onClick) and lowercase (onclick) event handlers
-                const eventName = key.slice(2).toLowerCase();
-                if (oldAttrs[key]) {
-                    domNode.removeEventListener(eventName, oldAttrs[key]);
+        const newValue = newAttrs[key];
+        const oldValue = oldAttrs[key];
+
+        // Skip if values are identical
+        if (newValue === oldValue) continue;
+
+        // Skip null or undefined values
+        if (newValue === null || newValue === undefined) {
+            if (oldValue !== null && oldValue !== undefined) {
+                // Remove the attribute if it was previously set
+                if (directProps.has(key)) {
+                    domNode[key] = '';
+                } else if (booleanProps.has(key)) {
+                    domNode[key] = false;
+                } else {
+                    domNode.removeAttribute(key);
                 }
-                domNode.addEventListener(eventName, newAttrs[key]);
-            } else if (key === 'style' && typeof newAttrs[key] === 'object') {
-                // Handle style objects
-                const styleObj = newAttrs[key];
-                for (const styleKey in styleObj) {
-                    domNode.style[styleKey] = styleObj[styleKey];
-                }
-            } else if (key === 'class' || key === 'className') {
-                // Handle class names
-                domNode.className = newAttrs[key];
-            } else if (key === 'dangerouslySetInnerHTML') {
-                // Handle innerHTML
-                domNode.innerHTML = newAttrs[key].__html;
-            } else {
-                // Handle regular attributes
-                domNode.setAttribute(key, newAttrs[key]);
             }
+            continue;
+        }
+
+        // Handle different attribute types
+        if (key.startsWith('on')) {
+            // Optimized event handling
+            const eventName = key.slice(2).toLowerCase();
+            const oldHandler = domNode._kalxEvents.get(eventName);
+
+            if (oldHandler) {
+                domNode.removeEventListener(eventName, oldHandler);
+            }
+
+            domNode.addEventListener(eventName, newValue);
+            domNode._kalxEvents.set(eventName, newValue);
+        } else if (key === 'style') {
+            if (typeof newValue === 'string') {
+                // Handle style string
+                domNode.style = newValue;
+            } else if (typeof newValue === 'object') {
+                // Handle style object with optimized updates
+                const styleObj = newValue;
+                const oldStyleObj = typeof oldValue === 'object' ? oldValue : {};
+
+                // Remove old styles
+                for (const styleKey in oldStyleObj) {
+                    if (!(styleKey in styleObj)) {
+                        domNode.style[styleKey] = '';
+                    }
+                }
+
+                // Set new styles
+                for (const styleKey in styleObj) {
+                    if (oldStyleObj[styleKey] !== styleObj[styleKey]) {
+                        domNode.style[styleKey] = styleObj[styleKey];
+                    }
+                }
+            }
+        } else if (key === 'class' || key === 'className') {
+            // Handle class names
+            domNode.className = newValue;
+        } else if (key === 'dangerouslySetInnerHTML') {
+            // Handle innerHTML with safety check
+            if (newValue && newValue.__html !== undefined) {
+                domNode.innerHTML = newValue.__html;
+            }
+        } else if (directProps.has(key)) {
+            // Set direct properties
+            domNode[key] = newValue;
+        } else if (booleanProps.has(key)) {
+            // Handle boolean attributes
+            if (newValue === true || newValue === 'true' || newValue === '') {
+                domNode[key] = true;
+                domNode.setAttribute(key, '');
+            } else {
+                domNode[key] = false;
+                domNode.removeAttribute(key);
+            }
+        } else {
+            // Handle regular attributes
+            domNode.setAttribute(key, newValue);
         }
     }
 }
 
 /**
- * Updates the children of a DOM node
+ * Updates the children of a DOM node using an optimized algorithm
  * @private
  * @param {HTMLElement} domNode - DOM node to update
  * @param {Array} oldChildren - Old children
@@ -225,130 +307,132 @@ function updateChildren(domNode, oldChildren, newChildren) {
         return;
     }
 
-    // Optimize for common cases
+    // Fast path for common cases
     if (oldChildren.length === 0) {
-        // If there were no old children, append all new children
+        // If there were no old children, use DocumentFragment for batch append
+        const fragment = document.createDocumentFragment();
         newChildren.forEach(child => {
-            domNode.appendChild(createDOMNode(child));
+            fragment.appendChild(createDOMNode(child));
         });
+        domNode.appendChild(fragment);
         return;
     }
 
     if (newChildren.length === 0) {
-        // If there are no new children, remove all old children
-        domNode.innerHTML = '';
+        // If there are no new children, use faster textContent clearing
+        domNode.textContent = '';
         return;
     }
 
-    // Use key-based reconciliation if keys are present
-    const oldKeyedChildren = {};
-    const newKeyedChildren = {};
+    // Check if we can use key-based reconciliation
+    const oldKeyedChildren = new Map();
+    const newKeyedChildren = new Map();
     let hasKeys = false;
 
-    // Check if keys are present
+    // Collect keys from old children (using Map for better performance)
     for (let i = 0; i < oldChildren.length; i++) {
         const child = oldChildren[i];
         if (child && child.props && child.props.key != null) {
             hasKeys = true;
-            oldKeyedChildren[child.props.key] = { vnode: child, index: i };
+            oldKeyedChildren.set(child.props.key, { vnode: child, index: i, domNode: domNode.childNodes[i] });
         }
     }
 
+    // Collect keys from new children
     for (let i = 0; i < newChildren.length; i++) {
         const child = newChildren[i];
         if (child && child.props && child.props.key != null) {
             hasKeys = true;
-            newKeyedChildren[child.props.key] = { vnode: child, index: i };
+            newKeyedChildren.set(child.props.key, { vnode: child, index: i });
         }
     }
 
     if (hasKeys) {
-        // Use key-based reconciliation
-        const domChildren = Array.from(domNode.childNodes);
-        const keysToRemove = Object.keys(oldKeyedChildren).filter(key => !(key in newKeyedChildren));
+        // Use optimized key-based reconciliation
+        const domChildrenArray = Array.from(domNode.childNodes);
+        const fragment = document.createDocumentFragment();
+        const nodesToMove = new Map(); // Track nodes that need to be moved
 
-        // Remove nodes that are no longer needed
-        keysToRemove.forEach(key => {
-            const { index } = oldKeyedChildren[key];
-            if (index < domChildren.length && domChildren[index]) {
-                domNode.removeChild(domChildren[index]);
-            }
-        });
-
-        // Update or insert nodes
-        let lastIndex = 0;
-
-        Object.keys(newKeyedChildren).forEach(key => {
-            const { vnode: newChild, index: newIndex } = newKeyedChildren[key];
-            const oldChild = oldKeyedChildren[key];
-
-            if (oldChild) {
-                // Update existing node
-                const oldIndex = oldChild.index;
-                const oldVNode = oldChild.vnode;
-
-                // Make sure the DOM node exists before patching
-                if (oldIndex < domChildren.length && domChildren[oldIndex]) {
-                    patch(domChildren[oldIndex], oldVNode, newChild);
-
-                    // Move node if needed
-                    if (oldIndex < lastIndex) {
-                        const node = domChildren[oldIndex];
-                        if (lastIndex < domChildren.length) {
-                            domNode.insertBefore(node, domChildren[lastIndex]);
-                        } else {
-                            domNode.appendChild(node);
-                        }
-                    }
-
-                    lastIndex = Math.max(oldIndex, lastIndex);
-                } else {
-                    // DOM node doesn't exist, create a new one
-                    const newNode = createDOMNode(newChild);
-                    if (newIndex < domChildren.length) {
-                        domNode.insertBefore(newNode, domChildren[newIndex]);
-                    } else {
-                        domNode.appendChild(newNode);
-                    }
+        // Step 1: Mark nodes for removal and collect nodes to reuse
+        oldKeyedChildren.forEach((oldChild, key) => {
+            if (!newKeyedChildren.has(key)) {
+                // Node is no longer needed, mark for removal
+                if (oldChild.domNode) {
+                    domNode.removeChild(oldChild.domNode);
                 }
             } else {
-                // Insert new node
-                const newNode = createDOMNode(newChild);
-
-                if (newIndex < domChildren.length) {
-                    domNode.insertBefore(newNode, domChildren[newIndex]);
-                } else {
-                    domNode.appendChild(newNode);
-                }
+                // Node will be reused, store it
+                nodesToMove.set(key, oldChild.domNode);
             }
         });
+
+        // Step 2: Create a new array to hold the final order of nodes
+        const newDomNodes = new Array(newChildren.length);
+
+        // Step 3: Process new children in order
+        newKeyedChildren.forEach((newChild, key) => {
+            const existingNode = nodesToMove.get(key);
+
+            if (existingNode) {
+                // Update existing node
+                const oldVNode = oldKeyedChildren.get(key).vnode;
+                patch(existingNode, oldVNode, newChild.vnode);
+                newDomNodes[newChild.index] = existingNode;
+                nodesToMove.delete(key); // Mark as processed
+            } else {
+                // Create new node
+                newDomNodes[newChild.index] = createDOMNode(newChild.vnode);
+            }
+        });
+
+        // Step 4: Append all nodes in the correct order
+        newDomNodes.forEach(node => {
+            if (node) {
+                fragment.appendChild(node);
+            }
+        });
+
+        // Step 5: Replace all children at once (more efficient)
+        domNode.textContent = '';
+        domNode.appendChild(fragment);
     } else {
-        // Use simple reconciliation
-        const maxLength = Math.max(oldChildren.length, newChildren.length);
+        // Use optimized simple reconciliation with minimal DOM operations
+        const domChildrenArray = Array.from(domNode.childNodes);
+        let shouldReplaceAll = false;
 
-        for (let i = 0; i < maxLength; i++) {
-            const oldChild = oldChildren[i];
-            const newChild = newChildren[i];
-
-            // Check if the DOM child exists
-            const domChild = i < domNode.childNodes.length ? domNode.childNodes[i] : null;
-
-            if (!oldChild && newChild) {
-                // Insert new node
-                domNode.appendChild(createDOMNode(newChild));
-            } else if (oldChild && !newChild) {
-                // Remove old node if it exists in the DOM
-                if (domChild) {
-                    domNode.removeChild(domChild);
-                } else {
-                    console.warn('Attempted to remove a child node that does not exist in the DOM');
+        // Check if we can do a simple update or need to replace all
+        if (oldChildren.length !== newChildren.length) {
+            shouldReplaceAll = true;
+        } else {
+            // Check if the structure is similar enough for in-place updates
+            for (let i = 0; i < oldChildren.length; i++) {
+                if (!oldChildren[i] || !newChildren[i] ||
+                    (oldChildren[i].tag !== newChildren[i].tag)) {
+                    shouldReplaceAll = true;
+                    break;
                 }
-            } else if (oldChild && newChild) {
+            }
+        }
+
+        if (shouldReplaceAll) {
+            // Structure is too different, replace all children
+            const fragment = document.createDocumentFragment();
+            newChildren.forEach(child => {
+                fragment.appendChild(createDOMNode(child));
+            });
+
+            domNode.textContent = '';
+            domNode.appendChild(fragment);
+        } else {
+            // Structure is similar, update in place
+            for (let i = 0; i < newChildren.length; i++) {
+                const oldChild = oldChildren[i];
+                const newChild = newChildren[i];
+                const domChild = domChildrenArray[i];
+
                 if (domChild) {
-                    // Update existing node
                     patch(domChild, oldChild, newChild);
                 } else {
-                    // DOM node doesn't exist, create a new one
                     domNode.appendChild(createDOMNode(newChild));
                 }
             }

@@ -1,0 +1,20 @@
+<template>
+  <div>
+    <h1>About Page</h1>
+    <p>This is a simple routing demo using KalxJS.</p>
+  </div>
+</template>
+
+<script>
+import { defineComponent } from '@kalxjs/core';
+
+export default defineComponent({
+  name: 'AboutPage',
+});
+</script>
+
+<style>
+h1 {
+  color: #34495e;
+}
+</style>

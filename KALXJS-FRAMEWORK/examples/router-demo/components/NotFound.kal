@@ -1,0 +1,53 @@
+<template>
+  <div class="page not-found-page">
+    <h1>404 - Page Not Found</h1>
+    <p>The page you are looking for does not exist.</p>
+    <p>This demonstrates the catch-all route functionality of the KalxJS Router.</p>
+    <button @click="goHome" class="home-button">Go Home</button>
+  </div>
+</template>
+
+<script>
+import { inject, defineComponent } from '@kalxjs/core';
+
+export default defineComponent({
+  name: 'NotFoundPage',
+  setup() {
+    const router = inject('router');
+
+    const goHome = () => {
+      router.push('/');
+    };
+
+    return {
+      goHome
+    };
+  }
+});
+</script>
+
+<style>
+.not-found-page {
+  padding: 20px;
+  text-align: center;
+}
+
+.not-found-page h1 {
+  color: #718096;
+}
+
+.home-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #4299e1;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.home-button:hover {
+  background-color: #3182ce;
+}
+</style>

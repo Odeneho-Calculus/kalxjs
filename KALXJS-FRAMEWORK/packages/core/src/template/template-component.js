@@ -112,36 +112,88 @@ export function createTemplateComponent(options = {}) {
          * Renders the component
          */
         render() {
-            if (!this._el) return;
+            console.log('Template component render called');
 
-            // Process template
-            let html = this.template;
-
-            // Replace data bindings
-            for (const key in this._state) {
-                const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
-                html = html.replace(regex, this._state[key]);
+            if (!this._el) {
+                console.warn('Template component render called without element');
+                return {
+                    tag: 'div',
+                    props: { class: 'template-component-no-el' },
+                    children: [{
+                        tag: 'div',
+                        props: { innerHTML: 'Component not mounted' },
+                        children: []
+                    }]
+                };
             }
 
-            // Replace computed bindings
-            for (const key in this.computed) {
-                const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
-                html = html.replace(regex, this[key]);
+            try {
+                // Process template
+                let html = this.template;
+
+                // Replace data bindings
+                for (const key in this._state) {
+                    const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
+                    html = html.replace(regex, this._state[key]);
+                }
+
+                // Replace computed bindings
+                for (const key in this.computed) {
+                    const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
+                    html = html.replace(regex, this[key]);
+                }
+
+                // Replace prop bindings
+                for (const key in this._props) {
+                    const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
+                    html = html.replace(regex, this._props[key]);
+                }
+
+                console.log('Template component processed HTML:', html);
+
+                // Set the HTML
+                this._el.innerHTML = html;
+
+                // Set up event listeners
+                this._setupEventListeners();
+
+                // Return a proper vnode for compatibility with virtual DOM
+                const vnode = {
+                    tag: 'div',
+                    props: { class: 'template-component' },
+                    children: [{
+                        tag: 'div',
+                        props: { innerHTML: html },
+                        children: []
+                    }]
+                };
+
+                console.log('Template component returning vnode:', vnode);
+                return vnode;
+            } catch (error) {
+                console.error('Error rendering template component:', error);
+
+                const errorHtml = `
+                    <div style="color: red; border: 1px solid red; padding: 10px; margin: 10px 0;">
+                        <h3>Template Rendering Error</h3>
+                        <p>${error.message}</p>
+                        <pre style="font-size: 12px; overflow: auto; max-height: 200px; background: #f5f5f5; padding: 5px;">${error.stack}</pre>
+                    </div>
+                `;
+
+                this._el.innerHTML = errorHtml;
+
+                // Return an error vnode
+                return {
+                    tag: 'div',
+                    props: { class: 'template-component-error' },
+                    children: [{
+                        tag: 'div',
+                        props: { innerHTML: errorHtml },
+                        children: []
+                    }]
+                };
             }
-
-            // Replace prop bindings
-            for (const key in this._props) {
-                const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
-                html = html.replace(regex, this._props[key]);
-            }
-
-            // Set the HTML
-            this._el.innerHTML = html;
-
-            // Set up event listeners
-            this._setupEventListeners();
-
-            return this;
         },
 
         /**

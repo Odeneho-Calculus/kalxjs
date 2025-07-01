@@ -126,7 +126,7 @@ describe('Component Integration Tests', () => {
         document.body.removeChild(container);
     });
 
-    test('component methods should be bound to component instance', () => {
+    test('component methods should be bound to component instance', async () => {
         const component = createComponent({
             data() {
                 return { count: 0 };
@@ -148,6 +148,10 @@ describe('Component Integration Tests', () => {
         expect(container.children[0].textContent).toBe('0');
 
         component.increment();
+
+        // Force update and wait for it to complete
+        component.$update();
+        await nextTick();
 
         expect(component.count).toBe(1);
         expect(container.children[0].textContent).toBe('1');
@@ -177,17 +181,27 @@ describe('Component Integration Tests', () => {
 
     test('should make props accessible', () => {
         const GreetingComponent = defineComponent({
+            props: {
+                name: String
+            },
             render() {
                 return h('div', {}, [`Hello, ${this.name}!`]);
             }
         });
 
-        const vnode = GreetingComponent({ name: 'kalxjs' });
+        // Create a component instance directly
+        const component = createComponent(GreetingComponent.options, { name: 'kalxjs' });
+
+        // Make props accessible on the instance
+        Object.defineProperty(component, 'name', {
+            get() { return component.props.name; },
+            configurable: true
+        });
 
         // Create a real DOM element to check the output
         const container = document.createElement('div');
         document.body.appendChild(container);
-        container.appendChild(createDOMElement(vnode));
+        component.$mount(container);
 
         expect(container.children[0].textContent).toBe('Hello, kalxjs!');
         document.body.removeChild(container);

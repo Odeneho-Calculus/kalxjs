@@ -16,13 +16,13 @@ Next-generation core package for building high-performance web applications with
 ## Installation
 
 ```bash
-npm install @kalxjs-framework/runtime @kalxjs-framework/compiler
+npm install @kalxjs/core @kalxjs/compiler
 ```
 
 ## Modern Usage
 
 ```typescript
-import { defineComponent, signal, computed } from '@kalxjs-framework/runtime'
+import { defineComponent, signal, computed } from '@kalxjs/runtime'
 
 // Create signals for reactive state
 const count = signal(0)
@@ -80,7 +80,7 @@ const App = () => (
 ### Performance Optimizations
 
 ```typescript
-import { lazy, memo, useTransition } from '@kalxjs-framework/runtime'
+import { lazy, memo, useTransition } from '@kalxjs/core'
 
 // Lazy loading
 const LazyComponent = lazy(() => import('./Heavy'))
@@ -99,7 +99,7 @@ startTransition(() => {
 ## Type System
 
 ```typescript
-import { Component, PropType } from '@kalxjs-framework/runtime'
+import { Component, PropType } from '@kalxjs/core'
 
 interface Props {
   items: string[]

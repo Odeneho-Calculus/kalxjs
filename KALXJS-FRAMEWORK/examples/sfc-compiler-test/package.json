@@ -1,0 +1,16 @@
+{
+  "name": "sfc-compiler-test",
+  "version": "1.0.0",
+  "description": "Example project to test SFC compiler and parser improvements",
+  "main": "main.js",
+  "scripts": {
+    "start": "vite"
+  },
+  "dependencies": {
+    "@kalxjs/core": "workspace:*",
+    "@kalxjs/router": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "^4.0.0"
+  }
+}

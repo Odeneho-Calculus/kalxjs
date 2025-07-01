@@ -314,11 +314,21 @@ class ${componentName} {\n`;
 
   template += `
   render() {
-    return h('div', { class: '${componentName.toLowerCase()}' }, [
-      h('h2', {}, [${options.props ? 'this.title' : `'${componentName}'`}]),
-      ${options.state ? "h('p', {}, [`Count: \${this.count}`])," : ''}
-      ${options.state && options.methods ? "h('button', { onClick: this.increment }, ['Increment'])," : ''}
-    ]);
+    console.log('${componentName} render method called');
+    
+    // Create a proper vnode with tag, props, and children
+    const vnode = {
+      tag: 'div',
+      props: { class: '${componentName.toLowerCase()}' },
+      children: [
+        { tag: 'h2', props: {}, children: [${options.props ? 'this.title' : `'${componentName}'`}] },
+        ${options.state ? "{ tag: 'p', props: {}, children: [`Count: \${this.count}`] }," : ''}
+        ${options.state && options.methods ? "{ tag: 'button', props: { onClick: this.increment }, children: ['Increment'] }," : ''}
+      ]
+    };
+    
+    console.log('${componentName} render method returning vnode:', vnode);
+    return vnode;
   }
 }
 

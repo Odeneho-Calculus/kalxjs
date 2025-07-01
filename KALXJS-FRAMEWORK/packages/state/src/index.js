@@ -1,14 +1,18 @@
 // packages/state/src/index.js
-import { reactive, effect } from '../../core/src/reactivity/reactive';
+import { reactive, effect, computed } from '../../core/src/reactivity/reactive';
 
 /**
  * Create a new store for state management
  * @param {Object} options - Store options
  * @returns {Object} Store instance
  */
-export function createStore(options) {
+export function createStore(options = {}) {
+    // Initialize options if not provided
+    options = options || {};
+
     const store = {
         state: reactive(options.state || {}),
+        getters: {},
 
         // Commit a mutation
         commit(type, ...args) {
@@ -43,6 +47,24 @@ export function createStore(options) {
             app._context.$store = this;
         }
     };
+
+    // Initialize getters
+    if (options.getters) {
+        const computedGetters = {};
+
+        Object.keys(options.getters).forEach(key => {
+            // Use computed to create reactive getters
+            computedGetters[key] = computed(() => {
+                return options.getters[key](store.state, computedGetters);
+            });
+
+            // Define getters on the store
+            Object.defineProperty(store.getters, key, {
+                get: () => computedGetters[key].value,
+                enumerable: true
+            });
+        });
+    }
 
     // Add install method to store
     Object.assign(store, {

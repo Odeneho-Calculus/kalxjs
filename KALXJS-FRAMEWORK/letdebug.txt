@@ -1,0 +1,2962 @@
+jest-haste-map: Haste module naming collision: kalxjs-directives-demo
+  The following files share their name; please adjust your hasteImpl:
+    * <rootDir>\examples\directives-demo\package.json
+    * <rootDir>\examples\unknown\package.json
+
+(node:22404) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:3016) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:6820) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17668) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:15600) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18744) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18456) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS tests/unit/vdom-edge-cases.test.js
+  VDOM Edge Cases
+    Handling null and undefined
+      √ should handle null children (71 ms)
+      √ should handle undefined children (6 ms)
+      √ should handle mixed null and undefined props (5 ms)
+    Handling boolean attributes
+      √ should set boolean attributes correctly (3 ms)
+      √ should update boolean attributes correctly (4 ms)
+    Handling style objects
+      √ should handle complex style objects (5 ms)
+      √ should update style objects correctly (2 ms)
+    Handling event listeners
+      √ should add event listeners (6 ms)
+      √ should update event listeners (1 ms)
+      √ should remove event listeners (1 ms)
+    Handling keyed children
+      √ should reorder keyed children (2 ms)
+      √ should add and remove keyed children (2 ms)
+    Handling component replacement
+      √ should replace nodes of different types (1 ms)
+    Handling special cases
+      √ should handle dangerouslySetInnerHTML (5 ms)
+      √ should handle SVG elements (2 ms)
+
+PASS tests/unit/reactivity-edge-cases.test.js
+  Reactivity System Edge Cases
+    reactive edge cases
+      √ should handle non-object values gracefully (25 ms)
+      √ should handle circular references (4 ms)
+      √ should handle complex nested objects (9 ms)
+      √ should handle property deletion (3 ms)
+      √ should handle Object.defineProperty (5 ms)
+    ref edge cases
+      √ should handle ref of ref (3 ms)
+      √ should handle ref of reactive objects (5 ms)
+    computed edge cases
+      √ should handle error in computed getter (8 ms)
+      √ should handle computed with multiple dependencies (3 ms)
+      √ should handle computed with dependency chain (62 ms)
+    effect edge cases
+      √ should handle nested effects (50 ms)
+      √ should handle conditional tracking in effects (2 ms)
+      √ should handle effect with object destructuring (2 ms)
+
+PASS tests/unit/vdom.test.js
+  Virtual DOM
+    createElement
+      √ should create a virtual node with tag, props, and children (42 ms)
+      √ should handle text children (4 ms)
+      √ should handle number children (2 ms)
+    h (JSX compatibility)
+      √ should create elements with props and children (7 ms)
+      √ should handle nested children (32 ms)
+      √ should handle component functions (1 ms)
+    createDOMElement
+      √ should create a DOM element from virtual node (8 ms)
+      √ should create text nodes (2 ms)
+      √ should handle event listeners (20 ms)
+      √ should handle style objects (7 ms)
+    updateElement
+      √ should update element properties (2 ms)
+      √ should handle new elements (2 ms)
+      √ should handle removed elements (1 ms)
+
+PASS tests/integration/reactivity.test.js
+  Reactivity Integration Tests
+    √ reactive should track property changes (8 ms)
+    √ reactive should handle nested properties (5 ms)
+    √ ref should be reactive (4 ms)
+    √ computed should update when dependencies change (1 ms)
+    √ effect should stop tracking when inactive (1 ms)
+    √ reactivity should work with arrays (28 ms)
+    √ reactivity should handle replacement of objects (2 ms)
+
+PASS tests/integration/state.test.js
+  State Management Integration Tests
+    √ store should initialize with state (6 ms)
+    √ store should apply mutations (14 ms)
+    √ store should handle getters (4 ms)
+    √ store should warn on unknown mutation (6 ms)
+
+  console.log
+    Registered directive: k-bind
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-model
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-on
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-slot
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-pre
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-once
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-memo
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-cloak
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-bind
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-text
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-model
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-html
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-on
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-slot
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-show
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-if
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-pre
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-else
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-bind
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-else-if
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-once
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-for
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-model
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-memo
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Built-in directives registered
+
+      at DirectivesRegistry.log [as registerBuiltInDirectives] (packages/core/src/directives/directives.js:1173:17)
+
+  console.log
+    Registered directive: k-on
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-slot
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-bind
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-pre
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-model
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-once
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-on
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-memo
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-cloak
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-cloak
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-slot
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-text
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-pre
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-html
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-text
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-once
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-show
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-html
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-if
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-memo
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-show
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-else
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-else-if
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-cloak
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-if
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-for
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-else
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Built-in directives registered
+
+      at DirectivesRegistry.log [as registerBuiltInDirectives] (packages/core/src/directives/directives.js:1173:17)
+
+  console.log
+    Registered directive: k-text
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-else-if
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-for
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-html
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Built-in directives registered
+
+      at DirectivesRegistry.log [as registerBuiltInDirectives] (packages/core/src/directives/directives.js:1173:17)
+
+  console.log
+    Registered directive: k-show
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-if
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-else
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-else-if
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Registered directive: k-for
+
+      at DirectivesRegistry.log [as register] (packages/core/src/directives/directives.js:20:17)
+
+  console.log
+    Built-in directives registered
+
+      at DirectivesRegistry.log [as registerBuiltInDirectives] (packages/core/src/directives/directives.js:1173:17)
+
+  console.log
+    [sfc-compiler] Compiling KAL component
+
+      at log (packages/compiler/src/sfc-compiler.js:15:13)
+
+  console.log
+    [sfc-compiler] Using robust SFC parser
+
+      at log (packages/compiler/src/sfc-compiler.js:19:17)
+
+  console.log
+    Creating component with options: unnamed component
+
+      at log (packages/core/src/component/component.js:213:13)
+
+  console.log
+    Initial props: {}
+
+      at log (packages/core/src/component/component.js:214:13)
+
+  console.log
+    Mounting component to element: HTMLDivElement {}
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:534:17)
+
+  console.log
+    Creating component with options: unnamed component
+
+      at log (packages/core/src/component/component.js:213:13)
+
+PASS tests/unit/reactivity.test.js
+  Reactivity System
+    reactive
+      √ should make an object reactive (10 ms)
+      √ should handle nested objects (1 ms)
+      √ should handle property deletion (2 ms)
+    ref
+      √ should create a reactive reference (2 ms)
+      √ should work with complex values (7 ms)
+    computed
+      √ should compute derived values (2 ms)
+      √ should be reactive (1 ms)
+      √ should handle setter (1 ms)
+    effect
+      √ should run the effect function (2 ms)
+      √ should observe multiple properties (2 ms)
+      √ should handle multiple effects (20 ms)
+
+  console.log
+    [robust-sfc-parser] Parsing KAL file with robust parser
+
+      at log (packages/compiler/src/robust-sfc-parser.js:12:13)
+
+  console.log
+    Initial props: {}
+
+      at log (packages/core/src/component/component.js:214:13)
+
+  console.log
+    Component render called for unnamed component
+
+      at Object.log [as render] (packages/core/src/component/component.js:415:21)
+
+  console.log
+    Render result: {
+      tag: 'div',
+      props: { id: 'app' },
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as render] (packages/core/src/component/component.js:435:25)
+
+  console.log
+    Creating component with options: unnamed component
+
+      at log (packages/core/src/component/component.js:213:13)
+
+  console.log
+    [robust-sfc-parser] Custom block found: TEMPLATE
+
+      at log (packages/compiler/src/robust-sfc-parser.js:60:21)
+          at Array.forEach (<anonymous>)
+
+  console.log
+    Component render result: {
+      tag: 'div',
+      props: { id: 'app' },
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:544:21)
+
+  console.log
+    Initial props: {}
+
+      at log (packages/core/src/component/component.js:214:13)
+
+  console.log
+    [robust-sfc-parser] Custom block found: SCRIPT
+
+      at log (packages/compiler/src/robust-sfc-parser.js:60:21)
+          at Array.forEach (<anonymous>)
+
+  console.log
+    Final vnode for rendering: {
+      tag: 'div',
+      props: { id: 'app' },
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:549:21)
+
+  console.log
+    Creating component with options: unnamed component
+
+      at log (packages/core/src/component/component.js:213:13)
+
+  console.log
+    Router _onRouteChange matched route: {
+      path: '/',
+      fullPath: '/',
+      matched: [ { path: '/', component: {} } ],
+      params: {},
+      query: {},
+      hash: '',
+      meta: {}
+    }
+
+      at Object.log [as _onRouteChange] (packages/router/src/index.js:1167:21)
+
+  console.log
+    Initial props: {}
+
+      at log (packages/core/src/component/component.js:214:13)
+
+  console.log
+    Router _onRouteChange matched route.matched: [ { path: '/', component: {} } ]
+
+      at Object.log [as _onRouteChange] (packages/router/src/index.js:1168:21)
+
+  console.log
+    DOM element created and appended: HTMLDivElement {}
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:561:29)
+
+  console.log
+    [robust-sfc-parser] Custom block found: STYLE
+
+      at log (packages/compiler/src/robust-sfc-parser.js:60:21)
+          at Array.forEach (<anonymous>)
+
+PASS tests/unit/store.test.js
+  State Management
+    createStore
+      √ should create a store with state (8 ms)
+      √ should handle empty options (4 ms)
+    Mutations
+      √ should commit mutations (3 ms)
+      √ should warn on unknown mutations (1 ms)
+    Actions
+      √ should dispatch actions (3 ms)
+    Getters
+      √ should compute derived state (6 ms)
+
+  console.log
+    Component instance before directive processing: {
+      message: 'Hello kalxjs',
+      showText: undefined,
+      items: undefined,
+      inputText: undefined,
+      count: undefined
+    }
+
+      at log (packages/core/src/component/component.js:574:37)
+
+  console.log
+    Creating component with options: unnamed component
+
+      at log (packages/core/src/component/component.js:213:13)
+
+  console.log
+    Initial props: {}
+
+      at log (packages/core/src/component/component.js:214:13)
+
+  console.log
+    Router _onRouteChange matched route: {
+      path: '/',
+      fullPath: '/',
+      matched: [ { path: '/', component: [Object] } ],
+      params: {},
+      query: {},
+      hash: '',
+      meta: {}
+    }
+
+      at Object.log [as _onRouteChange] (packages/router/src/index.js:1167:21)
+
+  console.log
+    Processing directives on element: HTMLDivElement {}
+
+      at log (packages/core/src/directives/directive-processor.js:126:13)
+
+  console.warn
+    [sfc-compiler] No template section found, creating enhanced fallback template
+
+    [0m [90m 33 |[39m     }
+     [90m 34 |[39m     [90m// Keep the original behavior for other warnings[39m
+    [31m[1m>[22m[39m[90m 35 |[39m     originalConsoleWarn[33m.[39mapply(console[33m,[39m arguments)[33m;[39m
+     [90m    |[39m                         [31m[1m^[22m[39m
+     [90m 36 |[39m }[33m;[39m
+     [90m 37 |[39m
+     [90m 38 |[39m [90m// Before each test, set up history mocks[39m[0m
+
+      at console.apply [as warn] (jest.setup.js:35:25)
+      at warn (packages/compiler/src/sfc-compiler.js:70:17)
+      at Object.compileSFC (packages/compiler/__tests__/sfc-compiler.test.js:21:20)
+
+  console.log
+    Router _onRouteChange matched route.matched: [ { path: '/', component: { name: 'Home' } } ]
+
+      at Object.log [as _onRouteChange] (packages/router/src/index.js:1168:21)
+
+  console.log
+    Creating component with options: unnamed component
+
+      at log (packages/core/src/component/component.js:213:13)
+
+  console.log
+    With context: {
+      mounted: [],
+      unmounted: [],
+      beforeUpdate: [],
+      updated: [],
+      beforeMount: [],
+      beforeUnmount: [],
+      '$options': { data: [Function: data], render: [Function: render] },
+      props: {},
+      '$data': { message: 'Hello kalxjs' },
+      _vnode: { tag: 'div', props: { id: 'app' }, children: [ [Object] ] },
+      _renderTemplate: [Function (anonymous)],
+      render: [Function (anonymous)],
+      '$mount': [Function (anonymous)],
+      '$update': [Function (anonymous)],
+      '$unmount': [Function (anonymous)],
+      '$el': HTMLDivElement {
+        [Symbol(SameObject caches)]: [Object: null prototype] { children: HTMLCollection {} }
+      }
+    }
+
+      at log (packages/core/src/directives/directive-processor.js:127:13)
+
+  console.log
+    Initial props: {}
+
+      at log (packages/core/src/component/component.js:214:13)
+
+  console.log
+    Original context keys: [
+      'mounted',         'unmounted',
+      'beforeUpdate',    'updated',
+      'beforeMount',     'beforeUnmount',
+      '$options',        'props',
+      '$data',           '_vnode',
+      '_renderTemplate', 'render',
+      '$mount',          '$update',
+      '$unmount',        '$el'
+    ]
+
+      at log (packages/core/src/directives/directive-processor.js:554:13)
+
+  console.log
+    Router _onRouteChange matched route: {
+      path: '/base/pathundefined',
+      fullPath: '/base/pathundefined#/',
+      matched: [],
+      params: {},
+      query: {},
+      hash: '#/',
+      meta: {}
+    }
+
+      at Object.log [as _onRouteChange] (packages/router/src/index.js:1167:21)
+
+  console.log
+    Component render called for unnamed component
+
+      at Object.log [as render] (packages/core/src/component/component.js:415:21)
+
+  console.warn
+    [sfc-compiler] No script section found for SimpleComponent.kal
+
+    [0m [90m 33 |[39m     }
+     [90m 34 |[39m     [90m// Keep the original behavior for other warnings[39m
+    [31m[1m>[22m[39m[90m 35 |[39m     originalConsoleWarn[33m.[39mapply(console[33m,[39m arguments)[33m;[39m
+     [90m    |[39m                         [31m[1m^[22m[39m
+     [90m 36 |[39m }[33m;[39m
+     [90m 37 |[39m
+     [90m 38 |[39m [90m// Before each test, set up history mocks[39m[0m
+
+      at console.apply [as warn] (jest.setup.js:35:25)
+      at warn (packages/compiler/src/sfc-compiler.js:131:17)
+      at Object.compileSFC (packages/compiler/__tests__/sfc-compiler.test.js:21:20)
+
+  console.log
+    Adding default value for message: Hello, this text is rendered using k-text directive!
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Router _onRouteChange matched route.matched: []
+
+      at Object.log [as _onRouteChange] (packages/router/src/index.js:1168:21)
+
+  console.log
+    Adding default value for showText: true
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Render result: { tag: 'div', props: {}, children: [] }
+
+      at Object.log [as render] (packages/core/src/component/component.js:435:25)
+
+  console.log
+    Adding default value for items: [ 'Item 1', 'Item 2', 'Item 3' ]
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Route changed to: /base/path Matched component: Unknown Params: {} Query: {}
+
+      at log (packages/router/src/index.js:1230:29)
+
+  console.log
+    Adding default value for inputText:
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Adding default value for count: 0
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Prepared context keys: [
+      'mounted',      'unmounted',
+      'beforeUpdate', 'updated',
+      'beforeMount',  'beforeUnmount',
+      'props',        '_renderTemplate',
+      'render',       '$mount',
+      '$update',      '$unmount',
+      'message',      'showText',
+      'items',        'inputText',
+      'count',        '__updateReactive'
+    ]
+
+      at log (packages/core/src/directives/directive-processor.js:657:13)
+
+  console.log
+    [sfc-compiler] Processing custom block: TEMPLATE
+
+      at log (packages/compiler/src/sfc-compiler.js:168:25)
+
+  console.log
+    Reactive keys: []
+
+      at log (packages/core/src/directives/directive-processor.js:658:13)
+
+  console.log
+    Prepared context for directive processing: {
+      mounted: [],
+      unmounted: [],
+      beforeUpdate: [],
+      updated: [],
+      beforeMount: [],
+      beforeUnmount: [],
+      props: {},
+      _renderTemplate: [Function (anonymous)],
+      render: [Function: bound ],
+      '$mount': [Function (anonymous)],
+      '$update': [Function (anonymous)],
+      '$unmount': [Function (anonymous)],
+      message: 'Hello, this text is rendered using k-text directive!',
+      showText: true,
+      items: [ 'Item 1', 'Item 2', 'Item 3' ],
+      inputText: '',
+      count: 0,
+      __updateReactive: [Function (anonymous)]
+    }
+
+      at log (packages/core/src/directives/directive-processor.js:133:13)
+
+  console.log
+    [sfc-compiler] Processing custom block: SCRIPT
+
+      at log (packages/compiler/src/sfc-compiler.js:168:25)
+
+  console.log
+    [sfc-compiler] Processing custom block: STYLE
+
+      at log (packages/compiler/src/sfc-compiler.js:168:25)
+
+  console.log
+    Found 0 elements with k-text directive
+
+      at log (packages/core/src/directives/directive-processor.js:194:13)
+
+  console.log
+    [sfc-compiler] Compiling KAL component
+
+      at log (packages/compiler/src/sfc-compiler.js:15:13)
+
+  console.log
+    Found 0 elements with k-if directive
+
+      at log (packages/core/src/directives/directive-processor.js:252:13)
+
+  console.log
+    [sfc-compiler] Using robust SFC parser
+
+      at log (packages/compiler/src/sfc-compiler.js:19:17)
+
+  console.log
+    Found 0 elements with k-for directive
+
+      at log (packages/core/src/directives/directive-processor.js:311:13)
+
+  console.log
+    [robust-sfc-parser] Parsing KAL file with robust parser
+
+      at log (packages/compiler/src/robust-sfc-parser.js:12:13)
+
+  console.log
+    [robust-sfc-parser] Custom block found: SCRIPT
+
+      at log (packages/compiler/src/robust-sfc-parser.js:60:21)
+          at Array.forEach (<anonymous>)
+
+  console.warn
+    Component defined without a name. Consider adding a name for better debugging.
+
+    [0m [90m 736 |[39m     [36mif[39m ([33m![39moptions[33m.[39mname) {
+     [90m 737 |[39m         options[33m.[39mname [33m=[39m [32m'AnonymousComponent'[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 738 |[39m         console[33m.[39mwarn([32m'Component defined without a name. Consider adding a name for better debugging.'[39m)[33m;[39m
+     [90m     |[39m                 [31m[1m^[22m[39m
+     [90m 739 |[39m     }
+     [90m 740 |[39m
+     [90m 741 |[39m     [90m// Store the original options for reference[39m[0m
+
+      at warn (packages/core/src/component/component.js:738:17)
+      at Object.defineComponent (tests/unit/component.test.js:93:35)
+
+  console.log
+    Found 0 elements with @click attribute
+
+      at log (packages/core/src/directives/directive-processor.js:481:13)
+
+  console.log
+    Creating component AnonymousComponent with props: { message: 'Hello' }
+
+      at log (packages/core/src/component/component.js:747:21)
+
+  console.log
+    Creating component with options: AnonymousComponent
+
+      at log (packages/core/src/component/component.js:213:13)
+
+  console.log
+    Initial props: { message: 'Hello' }
+
+      at log (packages/core/src/component/component.js:214:13)
+
+  console.log
+    Processing props definition: [ 'message' ]
+
+      at log (packages/core/src/component/component.js:229:17)
+
+  console.log
+    Component render called for AnonymousComponent
+
+      at Object.log [as render] (packages/core/src/component/component.js:415:21)
+
+  console.warn
+    [sfc-compiler] No template section found, creating enhanced fallback template
+
+    [0m [90m 68 |[39m         }
+     [90m 69 |[39m     } [36melse[39m {
+    [31m[1m>[22m[39m[90m 70 |[39m         console[33m.[39mwarn([32m'[sfc-compiler] No template section found, creating enhanced fallback template'[39m)[33m;[39m
+     [90m    |[39m                 [31m[1m^[22m[39m
+     [90m 71 |[39m
+     [90m 72 |[39m         [90m// Create a fallback template that's more helpful and visually appealing[39m
+     [90m 73 |[39m         result[33m.[39mtemplate [33m=[39m {[0m
+
+      at warn (packages/compiler/src/sfc-compiler.js:70:17)
+      at Object.compileSFC (packages/compiler/__tests__/sfc-compiler.test.js:41:20)
+
+  console.warn
+    useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.
+
+    [0m [90m 1324 |[39m         [90m// Only show warning in development mode or if explicitly enabled[39m
+     [90m 1325 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m [33m||[39m window[33m.[39m__KAL_DEBUG__) {
+    [31m[1m>[22m[39m[90m 1326 |[39m             console[33m.[39mwarn([32m'useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.'[39m)[33m;[39m
+     [90m      |[39m                     [31m[1m^[22m[39m
+     [90m 1327 |[39m         }
+     [90m 1328 |[39m
+     [90m 1329 |[39m         [90m// Create reactive refs for the fallback implementation[39m[0m
+
+      at warn (packages/router/src/index.js:1326:21)
+      at useRouter (packages/router/src/index.js:1554:31)
+      at Object.RouterView (tests/integration/router.test.js:91:22)
+
+  console.log
+    Render result: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as render] (packages/core/src/component/component.js:435:25)
+
+  console.log
+    Found 0 buttons to check for click handlers
+
+      at log (packages/core/src/directives/directive-processor.js:913:13)
+
+  console.warn
+    Failed to scroll to hash element: DOMException {}
+
+    [0m [90m 1248 |[39m                             }
+     [90m 1249 |[39m                         } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 1250 |[39m                             console[33m.[39mwarn([32m'Failed to scroll to hash element:'[39m[33m,[39m error)[33m;[39m
+     [90m      |[39m                                     [31m[1m^[22m[39m
+     [90m 1251 |[39m                         }
+     [90m 1252 |[39m                     } [36melse[39m [36mif[39m ([36mthis[39m[33m.[39m_savedPosition) {
+     [90m 1253 |[39m                         [90m// Restore saved position for back/forward navigation[39m[0m
+
+      at warn (packages/router/src/index.js:1250:37)
+
+  console.log
+    Directives processed on DOM element
+
+      at log (packages/core/src/component/component.js:584:37)
+
+  console.warn
+    [sfc-compiler] No script section found for NoTemplate.kal
+
+    [0m [90m 129 |[39m         }
+     [90m 130 |[39m     } [36melse[39m {
+    [31m[1m>[22m[39m[90m 131 |[39m         console[33m.[39mwarn([32m`[sfc-compiler] No script section found for ${options.filename || 'unknown'}`[39m)[33m;[39m
+     [90m     |[39m                 [31m[1m^[22m[39m
+     [90m 132 |[39m         result[33m.[39merrors[33m.[39mpush([32m'No script section found'[39m)[33m;[39m
+     [90m 133 |[39m
+     [90m 134 |[39m         [90m// Create a default script to avoid errors[39m[0m
+
+      at warn (packages/compiler/src/sfc-compiler.js:131:17)
+      at Object.compileSFC (packages/compiler/__tests__/sfc-compiler.test.js:41:20)
+
+  console.log
+    Creating component with options: unnamed component
+
+      at log (packages/core/src/component/component.js:213:13)
+
+  console.log
+    [sfc-compiler] Processing custom block: SCRIPT
+
+      at log (packages/compiler/src/sfc-compiler.js:168:25)
+
+  console.log
+    Initial props: {}
+
+      at log (packages/core/src/component/component.js:214:13)
+
+  console.log
+    Mounting component to element: HTMLDivElement {}
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:534:17)
+
+  console.log
+    [sfc-compiler] Compiling KAL component
+
+      at log (packages/compiler/src/sfc-compiler.js:15:13)
+
+  console.log
+    [sfc-compiler] Using robust SFC parser
+
+      at log (packages/compiler/src/sfc-compiler.js:19:17)
+
+  console.log
+    Component render called for unnamed component
+
+      at Object.log [as render] (packages/core/src/component/component.js:415:21)
+
+  console.log
+    [robust-sfc-parser] Parsing KAL file with robust parser
+
+      at log (packages/compiler/src/robust-sfc-parser.js:12:13)
+
+  console.log
+    [robust-sfc-parser] Custom block found: TEMPLATE
+
+      at log (packages/compiler/src/robust-sfc-parser.js:60:21)
+          at Array.forEach (<anonymous>)
+
+  console.log
+    Render called with message: Hello
+
+      at Object.log (tests/integration/component.test.js:53:25)
+
+  console.log
+    [robust-sfc-parser] Custom block found: SCRIPT
+
+      at log (packages/compiler/src/robust-sfc-parser.js:60:21)
+          at Array.forEach (<anonymous>)
+
+  console.log
+    Render result: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as render] (packages/core/src/component/component.js:435:25)
+
+  console.log
+    [robust-sfc-parser] Custom block found: CUSTOM-BLOCK
+
+      at log (packages/compiler/src/robust-sfc-parser.js:60:21)
+          at Array.forEach (<anonymous>)
+
+  console.warn
+    RouterView: No active router found
+
+    [0m [90m 1555 |[39m
+     [90m 1556 |[39m     [36mif[39m ([33m![39mrouter [33m||[39m [33m![39mroute[33m.[39mvalue) {
+    [31m[1m>[22m[39m[90m 1557 |[39m         console[33m.[39mwarn([32m'RouterView: No active router found'[39m)[33m;[39m
+     [90m      |[39m                 [31m[1m^[22m[39m
+     [90m 1558 |[39m         [36mreturn[39m {
+     [90m 1559 |[39m             tag[33m:[39m [32m'div'[39m[33m,[39m
+     [90m 1560 |[39m             props[33m:[39m { [36mclass[39m[33m:[39m [32m'kal-router-view'[39m }[33m,[39m[0m
+
+      at warn (packages/router/src/index.js:1557:17)
+      at Object.RouterView (tests/integration/router.test.js:91:22)
+
+  console.log
+    Component render result: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:544:21)
+
+  console.log
+    Final vnode for rendering: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:549:21)
+
+  console.warn
+    Component defined without a name. Consider adding a name for better debugging.
+
+    [0m [90m 736 |[39m     [36mif[39m ([33m![39moptions[33m.[39mname) {
+     [90m 737 |[39m         options[33m.[39mname [33m=[39m [32m'AnonymousComponent'[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 738 |[39m         console[33m.[39mwarn([32m'Component defined without a name. Consider adding a name for better debugging.'[39m)[33m;[39m
+     [90m     |[39m                 [31m[1m^[22m[39m
+     [90m 739 |[39m     }
+     [90m 740 |[39m
+     [90m 741 |[39m     [90m// Store the original options for reference[39m[0m
+
+      at warn (packages/core/src/component/component.js:738:17)
+      at Object.defineComponent (tests/unit/component.test.js:118:35)
+
+  console.log
+    DOM element created and appended: HTMLDivElement {}
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:561:29)
+
+  console.log
+    Creating component AnonymousComponent with props: { message: 'Hello', count: 42 }
+
+      at log (packages/core/src/component/component.js:747:21)
+
+  console.log
+    Creating component with options: AnonymousComponent
+
+      at log (packages/core/src/component/component.js:213:13)
+
+  console.warn
+    useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.
+
+    [0m [90m 1324 |[39m         [90m// Only show warning in development mode or if explicitly enabled[39m
+     [90m 1325 |[39m         [36mif[39m (process[33m.[39menv[33m.[39m[33mNODE_ENV[39m [33m!==[39m [32m'production'[39m [33m||[39m window[33m.[39m__KAL_DEBUG__) {
+    [31m[1m>[22m[39m[90m 1326 |[39m             console[33m.[39mwarn([32m'useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.'[39m)[33m;[39m
+     [90m      |[39m                     [31m[1m^[22m[39m
+     [90m 1327 |[39m         }
+     [90m 1328 |[39m
+     [90m 1329 |[39m         [90m// Create reactive refs for the fallback implementation[39m[0m
+
+      at warn (packages/router/src/index.js:1326:21)
+      at useRouter (packages/router/src/index.js:1554:31)
+      at Object.RouterView (tests/unit/router.test.js:188:26)
+
+  console.warn
+    [sfc-compiler] No template section found, creating enhanced fallback template
+
+    [0m [90m 68 |[39m         }
+     [90m 69 |[39m     } [36melse[39m {
+    [31m[1m>[22m[39m[90m 70 |[39m         console[33m.[39mwarn([32m'[sfc-compiler] No template section found, creating enhanced fallback template'[39m)[33m;[39m
+     [90m    |[39m                 [31m[1m^[22m[39m
+     [90m 71 |[39m
+     [90m 72 |[39m         [90m// Create a fallback template that's more helpful and visually appealing[39m
+     [90m 73 |[39m         result[33m.[39mtemplate [33m=[39m {[0m
+
+      at warn (packages/compiler/src/sfc-compiler.js:70:17)
+      at Object.compileSFC (packages/compiler/__tests__/sfc-compiler.test.js:52:20)
+
+  console.log
+    Initial props: { message: 'Hello', count: 42 }
+
+      at log (packages/core/src/component/component.js:214:13)
+
+  console.log
+    Initial content: Hello
+
+      at Object.log (tests/integration/component.test.js:62:17)
+
+  console.log
+    Setting message to Updated
+
+      at Object.log (tests/integration/component.test.js:66:17)
+
+  console.log
+    Processing props definition: [ 'message', 'count' ]
+
+      at log (packages/core/src/component/component.js:229:17)
+
+PASS tests/integration/router.test.js (5.37 s)
+  Router Integration Tests
+    √ router should initialize with correct mode (107 ms)
+    √ router should match routes correctly (14 ms)
+    √ router should handle navigation (15 ms)
+    √ router should parse query parameters (4 ms)
+    √ RouterView should render as a div (108 ms)
+    √ RouterLink should render as an anchor with click handler (3 ms)
+
+  console.log
+    Before update called
+
+      at Object.log (tests/integration/component.test.js:47:25)
+
+  console.log
+    Component render called for AnonymousComponent
+
+      at Object.log [as render] (packages/core/src/component/component.js:415:21)
+
+  console.log
+    Render result: { tag: 'div', props: {}, children: [] }
+
+      at Object.log [as render] (packages/core/src/component/component.js:435:25)
+
+  console.log
+    Component render called for unnamed component
+
+      at Object.log [as render] (packages/core/src/component/component.js:415:21)
+
+  console.log
+    Render called with message: Updated
+
+      at Object.log (tests/integration/component.test.js:53:25)
+
+  console.log
+    Render result: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as render] (packages/core/src/component/component.js:435:25)
+
+  console.log
+    Creating component with options: unnamed component
+
+      at log (packages/core/src/component/component.js:213:13)
+
+  console.log
+    Updating component with new vdom: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log (packages/core/src/component/component.js:338:41)
+
+  console.warn
+    [sfc-compiler] No script section found for CustomBlock.kal
+
+    [0m [90m 129 |[39m         }
+     [90m 130 |[39m     } [36melse[39m {
+    [31m[1m>[22m[39m[90m 131 |[39m         console[33m.[39mwarn([32m`[sfc-compiler] No script section found for ${options.filename || 'unknown'}`[39m)[33m;[39m
+     [90m     |[39m                 [31m[1m^[22m[39m
+     [90m 132 |[39m         result[33m.[39merrors[33m.[39mpush([32m'No script section found'[39m)[33m;[39m
+     [90m 133 |[39m
+     [90m 134 |[39m         [90m// Create a default script to avoid errors[39m[0m
+
+      at warn (packages/compiler/src/sfc-compiler.js:131:17)
+      at Object.compileSFC (packages/compiler/__tests__/sfc-compiler.test.js:52:20)
+
+  console.warn
+    RouterView: No active router found
+
+    [0m [90m 1555 |[39m
+     [90m 1556 |[39m     [36mif[39m ([33m![39mrouter [33m||[39m [33m![39mroute[33m.[39mvalue) {
+    [31m[1m>[22m[39m[90m 1557 |[39m         console[33m.[39mwarn([32m'RouterView: No active router found'[39m)[33m;[39m
+     [90m      |[39m                 [31m[1m^[22m[39m
+     [90m 1558 |[39m         [36mreturn[39m {
+     [90m 1559 |[39m             tag[33m:[39m [32m'div'[39m[33m,[39m
+     [90m 1560 |[39m             props[33m:[39m { [36mclass[39m[33m:[39m [32m'kal-router-view'[39m }[33m,[39m[0m
+
+      at warn (packages/router/src/index.js:1557:17)
+      at Object.RouterView (tests/unit/router.test.js:188:26)
+
+  console.log
+    Initial props: {}
+
+      at log (packages/core/src/component/component.js:214:13)
+
+  console.log
+    [sfc-compiler] Processing custom block: TEMPLATE
+
+      at log (packages/compiler/src/sfc-compiler.js:168:25)
+
+  console.log
+    [sfc-compiler] Processing custom block: SCRIPT
+
+      at log (packages/compiler/src/sfc-compiler.js:168:25)
+
+  console.log
+    Updated called
+
+      at Object.log (tests/integration/component.test.js:50:25)
+
+  console.log
+    [sfc-compiler] Processing custom block: CUSTOM-BLOCK
+
+      at log (packages/compiler/src/sfc-compiler.js:168:25)
+
+  console.log
+    Mounting component to element: {
+      innerHTML: '',
+      appendChild: [Function: mockConstructor] {
+        _isMockFunction: true,
+        getMockImplementation: [Function (anonymous)],
+        mock: [Getter/Setter],
+        mockClear: [Function (anonymous)],
+        mockReset: [Function (anonymous)],
+        mockRestore: [Function (anonymous)],
+        mockReturnValueOnce: [Function (anonymous)],
+        mockResolvedValueOnce: [Function (anonymous)],
+        mockRejectedValueOnce: [Function (anonymous)],
+        mockReturnValue: [Function (anonymous)],
+        mockResolvedValue: [Function (anonymous)],
+        mockRejectedValue: [Function (anonymous)],
+        mockImplementationOnce: [Function (anonymous)],
+        withImplementation: [Function: bound withImplementation],
+        mockImplementation: [Function (anonymous)],
+        mockReturnThis: [Function (anonymous)],
+        mockName: [Function (anonymous)],
+        getMockName: [Function (anonymous)]
+      }
+    }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:534:17)
+
+  console.log
+    Current data value: Updated
+
+      at Object.log (tests/integration/component.test.js:68:17)
+
+  console.log
+    Component render called for unnamed component
+
+      at Object.log [as render] (packages/core/src/component/component.js:415:21)
+
+  console.log
+    Forcing update
+
+      at Object.log (tests/integration/component.test.js:71:17)
+
+  console.log
+    Before update called
+
+      at Object.log (tests/integration/component.test.js:47:25)
+
+  console.log
+    Render result: {
+      tag: 'div',
+      props: { id: 'app' },
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as render] (packages/core/src/component/component.js:435:25)
+
+PASS tests/unit/router.test.js (5.396 s)
+  Router
+    createRouter
+      √ should create a router instance (41 ms)
+      √ should initialize with default values (5 ms)
+    Router Navigation
+      √ should push a new route (hash mode) (8 ms)
+      √ should push a new route (history mode) (2 ms)
+      √ should replace current route (12 ms)
+      √ should go back in history (3 ms)
+    Route Matching
+      √ should match exact routes (8 ms)
+      √ should match dynamic routes (5 ms)
+      √ should match fallback route (3 ms)
+      √ should parse query parameters (2 ms)
+    Router Initialization
+      √ should add event listeners on init (50 ms)
+      √ should add popstate listener for history mode (80 ms)
+    Router Components
+      √ RouterView should render correctly (66 ms)
+      √ RouterLink should render an anchor tag (1 ms)
+
+  console.log
+    Component render called for unnamed component
+
+      at Object.log [as render] (packages/core/src/component/component.js:415:21)
+
+  console.log
+    Component render result: {
+      tag: 'div',
+      props: { id: 'app' },
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:544:21)
+
+  console.log
+    Render called with message: Updated
+
+      at Object.log (tests/integration/component.test.js:53:25)
+
+  console.log
+    Final vnode for rendering: {
+      tag: 'div',
+      props: { id: 'app' },
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:549:21)
+
+  console.log
+    Render result: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as render] (packages/core/src/component/component.js:435:25)
+
+  console.log
+    Component update with new vdom: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as $update] (packages/core/src/component/component.js:641:17)
+
+  console.log
+    DOM element created and appended: {
+      style: {},
+      appendChild: [Function: mockConstructor] {
+        _isMockFunction: true,
+        getMockImplementation: [Function (anonymous)],
+        mock: [Getter/Setter],
+        mockClear: [Function (anonymous)],
+        mockReset: [Function (anonymous)],
+        mockRestore: [Function (anonymous)],
+        mockReturnValueOnce: [Function (anonymous)],
+        mockResolvedValueOnce: [Function (anonymous)],
+        mockRejectedValueOnce: [Function (anonymous)],
+        mockReturnValue: [Function (anonymous)],
+        mockResolvedValue: [Function (anonymous)],
+        mockRejectedValue: [Function (anonymous)],
+        mockImplementationOnce: [Function (anonymous)],
+        withImplementation: [Function: bound withImplementation],
+        mockImplementation: [Function (anonymous)],
+        mockReturnThis: [Function (anonymous)],
+        mockName: [Function (anonymous)],
+        getMockName: [Function (anonymous)]
+      },
+      id: 'app'
+    }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:561:29)
+
+  console.log
+    Final vnode for updating: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as $update] (packages/core/src/component/component.js:646:17)
+
+  console.log
+    Component instance before directive processing: {
+      message: undefined,
+      showText: undefined,
+      items: undefined,
+      inputText: undefined,
+      count: undefined
+    }
+
+      at log (packages/core/src/component/component.js:574:37)
+
+FAIL packages/compiler/__tests__/sfc-compiler.test.js (5.419 s)
+  SFC Compiler and Parser Critical Path Tests
+    × compiles a simple component without errors (308 ms)
+    √ handles missing template gracefully (52 ms)
+    × parses custom blocks correctly (61 ms)
+
+  ● SFC Compiler and Parser Critical Path Tests › compiles a simple component without errors
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 0
+    Received: 2
+
+    [0m [90m 20 |[39m   test([32m'compiles a simple component without errors'[39m[33m,[39m () [33m=>[39m {
+     [90m 21 |[39m     [36mconst[39m result [33m=[39m compileSFC([36mnull[39m[33m,[39m { source[33m:[39m simpleComponent[33m,[39m useRobustParser[33m:[39m [36mtrue[39m[33m,[39m filename[33m:[39m [32m'SimpleComponent.kal'[39m })[33m;[39m
+    [31m[1m>[22m[39m[90m 22 |[39m     expect(result[33m.[39merrors[33m.[39mlength)[33m.[39mtoBe([35m0[39m)[33m;[39m
+     [90m    |[39m                                  [31m[1m^[22m[39m
+     [90m 23 |[39m     expect(result[33m.[39mtemplate)[33m.[39mtoBeDefined()[33m;[39m
+     [90m 24 |[39m     expect(result[33m.[39mscript)[33m.[39mtoBeDefined()[33m;[39m
+     [90m 25 |[39m     expect(result[33m.[39mstyle)[33m.[39mtoBeDefined()[33m;[39m[0m
+
+      at Object.toBe (packages/compiler/__tests__/sfc-compiler.test.js:22:34)
+
+  ● SFC Compiler and Parser Critical Path Tests › parses custom blocks correctly
+
+    expect(received).toBeDefined()
+
+    Received: undefined
+
+    [0m [90m 51 |[39m [32m`[39m[33m;[39m
+     [90m 52 |[39m     [36mconst[39m result [33m=[39m compileSFC([36mnull[39m[33m,[39m { source[33m:[39m componentWithCustomBlock[33m,[39m useRobustParser[33m:[39m [36mtrue[39m[33m,[39m filename[33m:[39m [32m'CustomBlock.kal'[39m })[33m;[39m
+    [31m[1m>[22m[39m[90m 53 |[39m     expect(result[33m.[39mcustomBlocks[[32m'custom-block'[39m])[33m.[39mtoBeDefined()[33m;[39m
+     [90m    |[39m                                                 [31m[1m^[22m[39m
+     [90m 54 |[39m     expect(result[33m.[39mcustomBlocks[[32m'custom-block'[39m][33m.[39mattrs[33m.[39mlang)[33m.[39mtoBe([32m'json'[39m)[33m;[39m
+     [90m 55 |[39m     expect(result[33m.[39mcustomBlocks[[32m'custom-block'[39m][33m.[39mcontent)[33m.[39mtoContain([32m'"key": "value"'[39m)[33m;[39m
+     [90m 56 |[39m   })[33m;[39m[0m
+
+      at Object.toBeDefined (packages/compiler/__tests__/sfc-compiler.test.js:53:49)
+
+  console.warn
+    Invalid root element for directive processing - not a DOM element with querySelectorAll: {
+      style: {},
+      appendChild: [Function: mockConstructor] {
+        _isMockFunction: true,
+        getMockImplementation: [Function (anonymous)],
+        mock: [Getter/Setter],
+        mockClear: [Function (anonymous)],
+        mockReset: [Function (anonymous)],
+        mockRestore: [Function (anonymous)],
+        mockReturnValueOnce: [Function (anonymous)],
+        mockResolvedValueOnce: [Function (anonymous)],
+        mockRejectedValueOnce: [Function (anonymous)],
+        mockReturnValue: [Function (anonymous)],
+        mockResolvedValue: [Function (anonymous)],
+        mockRejectedValue: [Function (anonymous)],
+        mockImplementationOnce: [Function (anonymous)],
+        withImplementation: [Function: bound withImplementation],
+        mockImplementation: [Function (anonymous)],
+        mockReturnThis: [Function (anonymous)],
+        mockName: [Function (anonymous)],
+        getMockName: [Function (anonymous)]
+      },
+      id: 'app'
+    }
+
+    [0m [90m 120 |[39m     [90m// Check if rootElement is a valid DOM element with querySelectorAll method[39m
+     [90m 121 |[39m     [36mif[39m ([36mtypeof[39m rootElement[33m.[39mquerySelectorAll [33m!==[39m [32m'function'[39m) {
+    [31m[1m>[22m[39m[90m 122 |[39m         console[33m.[39mwarn([32m'Invalid root element for directive processing - not a DOM element with querySelectorAll:'[39m[33m,[39m rootElement)[33m;[39m
+     [90m     |[39m                 [31m[1m^[22m[39m
+     [90m 123 |[39m         [36mreturn[39m[33m;[39m
+     [90m 124 |[39m     }
+     [90m 125 |[39m[0m
+
+      at warn (packages/core/src/directives/directive-processor.js:122:17)
+      at processDirectives (packages/core/src/component/component.js:583:29)
+
+  console.log
+    Directives processed on DOM element
+
+      at log (packages/core/src/component/component.js:584:37)
+
+  console.log
+    Creating component with options: unnamed component
+
+      at log (packages/core/src/component/component.js:213:13)
+
+  console.log
+    Initial props: {}
+
+      at log (packages/core/src/component/component.js:214:13)
+
+  console.log
+    Mounting component to element: {
+      innerHTML: '',
+      appendChild: [Function: mockConstructor] {
+        _isMockFunction: true,
+        getMockImplementation: [Function (anonymous)],
+        mock: [Getter/Setter],
+        mockClear: [Function (anonymous)],
+        mockReset: [Function (anonymous)],
+        mockRestore: [Function (anonymous)],
+        mockReturnValueOnce: [Function (anonymous)],
+        mockResolvedValueOnce: [Function (anonymous)],
+        mockRejectedValueOnce: [Function (anonymous)],
+        mockReturnValue: [Function (anonymous)],
+        mockResolvedValue: [Function (anonymous)],
+        mockRejectedValue: [Function (anonymous)],
+        mockImplementationOnce: [Function (anonymous)],
+        withImplementation: [Function: bound withImplementation],
+        mockImplementation: [Function (anonymous)],
+        mockReturnThis: [Function (anonymous)],
+        mockName: [Function (anonymous)],
+        getMockName: [Function (anonymous)]
+      }
+    }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:534:17)
+
+  console.log
+    Component render called for unnamed component
+
+      at Object.log [as render] (packages/core/src/component/component.js:415:21)
+
+  console.log
+    Render result: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as render] (packages/core/src/component/component.js:435:25)
+
+  console.log
+    Component render result: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:544:21)
+
+  console.log
+    Final vnode for rendering: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:549:21)
+
+  console.log
+    DOM element created and appended: {
+      style: {},
+      appendChild: [Function: mockConstructor] {
+        _isMockFunction: true,
+        getMockImplementation: [Function (anonymous)],
+        mock: [Getter/Setter],
+        mockClear: [Function (anonymous)],
+        mockReset: [Function (anonymous)],
+        mockRestore: [Function (anonymous)],
+        mockReturnValueOnce: [Function (anonymous)],
+        mockResolvedValueOnce: [Function (anonymous)],
+        mockRejectedValueOnce: [Function (anonymous)],
+        mockReturnValue: [Function (anonymous)],
+        mockResolvedValue: [Function (anonymous)],
+        mockRejectedValue: [Function (anonymous)],
+        mockImplementationOnce: [Function (anonymous)],
+        withImplementation: [Function: bound withImplementation],
+        mockImplementation: [Function (anonymous)],
+        mockReturnThis: [Function (anonymous)],
+        mockName: [Function (anonymous)],
+        getMockName: [Function (anonymous)]
+      }
+    }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:561:29)
+
+  console.log
+    Component instance before directive processing: {
+      message: undefined,
+      showText: undefined,
+      items: undefined,
+      inputText: undefined,
+      count: undefined
+    }
+
+      at log (packages/core/src/component/component.js:574:37)
+
+  console.warn
+    Invalid root element for directive processing - not a DOM element with querySelectorAll: {
+      style: {},
+      appendChild: [Function: mockConstructor] {
+        _isMockFunction: true,
+        getMockImplementation: [Function (anonymous)],
+        mock: [Getter/Setter],
+        mockClear: [Function (anonymous)],
+        mockReset: [Function (anonymous)],
+        mockRestore: [Function (anonymous)],
+        mockReturnValueOnce: [Function (anonymous)],
+        mockResolvedValueOnce: [Function (anonymous)],
+        mockRejectedValueOnce: [Function (anonymous)],
+        mockReturnValue: [Function (anonymous)],
+        mockResolvedValue: [Function (anonymous)],
+        mockRejectedValue: [Function (anonymous)],
+        mockImplementationOnce: [Function (anonymous)],
+        withImplementation: [Function: bound withImplementation],
+        mockImplementation: [Function (anonymous)],
+        mockReturnThis: [Function (anonymous)],
+        mockName: [Function (anonymous)],
+        getMockName: [Function (anonymous)]
+      }
+    }
+
+    [0m [90m 120 |[39m     [90m// Check if rootElement is a valid DOM element with querySelectorAll method[39m
+     [90m 121 |[39m     [36mif[39m ([36mtypeof[39m rootElement[33m.[39mquerySelectorAll [33m!==[39m [32m'function'[39m) {
+    [31m[1m>[22m[39m[90m 122 |[39m         console[33m.[39mwarn([32m'Invalid root element for directive processing - not a DOM element with querySelectorAll:'[39m[33m,[39m rootElement)[33m;[39m
+     [90m     |[39m                 [31m[1m^[22m[39m
+     [90m 123 |[39m         [36mreturn[39m[33m;[39m
+     [90m 124 |[39m     }
+     [90m 125 |[39m[0m
+
+      at warn (packages/core/src/directives/directive-processor.js:122:17)
+      at processDirectives (packages/core/src/component/component.js:583:29)
+
+  console.log
+    Directives processed on DOM element
+
+      at log (packages/core/src/component/component.js:584:37)
+
+  console.log
+    Creating component with options: unnamed component
+
+      at log (packages/core/src/component/component.js:213:13)
+
+  console.log
+    Initial props: {}
+
+      at log (packages/core/src/component/component.js:214:13)
+
+  console.log
+    Mounting component to element: {
+      innerHTML: '',
+      appendChild: [Function: mockConstructor] {
+        _isMockFunction: true,
+        getMockImplementation: [Function (anonymous)],
+        mock: [Getter/Setter],
+        mockClear: [Function (anonymous)],
+        mockReset: [Function (anonymous)],
+        mockRestore: [Function (anonymous)],
+        mockReturnValueOnce: [Function (anonymous)],
+        mockResolvedValueOnce: [Function (anonymous)],
+        mockRejectedValueOnce: [Function (anonymous)],
+        mockReturnValue: [Function (anonymous)],
+        mockResolvedValue: [Function (anonymous)],
+        mockRejectedValue: [Function (anonymous)],
+        mockImplementationOnce: [Function (anonymous)],
+        withImplementation: [Function: bound withImplementation],
+        mockImplementation: [Function (anonymous)],
+        mockReturnThis: [Function (anonymous)],
+        mockName: [Function (anonymous)],
+        getMockName: [Function (anonymous)]
+      }
+    }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:534:17)
+
+  console.log
+    Component render called for unnamed component
+
+      at Object.log [as render] (packages/core/src/component/component.js:415:21)
+
+  console.log
+    Render result: { tag: 'div', props: {}, children: [] }
+
+      at Object.log [as render] (packages/core/src/component/component.js:435:25)
+
+  console.log
+    Component render result: { tag: 'div', props: {}, children: [] }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:544:21)
+
+  console.error
+    Error during component update: TypeError: Failed to execute 'appendChild' on 'Node': parameter 1 is not of type 'Node'.
+        at Object.exports.convert (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jsdom\lib\jsdom\living\generated\Node.js:25:9)
+        at HTMLDivElement.appendChild (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jsdom\lib\jsdom\living\generated\Node.js:404:26)
+        at Object.appendChild [as $update] (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\packages\core\src\component\component.js:657:26)
+        at Object.$update (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\tests\integration\component.test.js:72:19)
+        at Promise.then.completed (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\utils.js:231:10)
+        at _callCircusTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:316:40)
+        at _runTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:252:3)
+        at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:126:9)
+        at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:121:9)
+        at run (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:71:3)
+        at runAndTransformResultsToJestFormat (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:122:21)
+        at jestAdapter (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+        at runTestInternal (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-runner\build\runTest.js:367:16)
+        at runTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-runner\build\runTest.js:444:34)
+        at Object.worker (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-runner\build\testWorker.js:106:12)
+
+    [0m [90m 662 |[39m                 console[33m.[39mlog([32m'DOM updated successfully'[39m)[33m;[39m
+     [90m 663 |[39m             } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 664 |[39m                 console[33m.[39merror([32m'Error during component update:'[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m                         [31m[1m^[22m[39m
+     [90m 665 |[39m                 [90m// Add a visible error message to help with debugging[39m
+     [90m 666 |[39m                 [36mthis[39m[33m.[39m$el[33m.[39minnerHTML [33m=[39m [32m`[39m
+     [90m 667 |[39m [32m                    <div style="color: red; border: 1px solid red; padding: 10px; margin: 10px 0;">[39m[0m
+
+      at Object.error [as $update] (packages/core/src/component/component.js:664:25)
+      at Object.$update (tests/integration/component.test.js:72:19)
+
+  console.log
+    Final vnode for rendering: { tag: 'div', props: {}, children: [] }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:549:21)
+
+  console.log
+    DOM element created and appended: {
+      style: {},
+      appendChild: [Function: mockConstructor] {
+        _isMockFunction: true,
+        getMockImplementation: [Function (anonymous)],
+        mock: [Getter/Setter],
+        mockClear: [Function (anonymous)],
+        mockReset: [Function (anonymous)],
+        mockRestore: [Function (anonymous)],
+        mockReturnValueOnce: [Function (anonymous)],
+        mockResolvedValueOnce: [Function (anonymous)],
+        mockRejectedValueOnce: [Function (anonymous)],
+        mockReturnValue: [Function (anonymous)],
+        mockResolvedValue: [Function (anonymous)],
+        mockRejectedValue: [Function (anonymous)],
+        mockImplementationOnce: [Function (anonymous)],
+        withImplementation: [Function: bound withImplementation],
+        mockImplementation: [Function (anonymous)],
+        mockReturnThis: [Function (anonymous)],
+        mockName: [Function (anonymous)],
+        getMockName: [Function (anonymous)]
+      }
+    }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:561:29)
+
+  console.log
+    Component instance before directive processing: {
+      message: undefined,
+      showText: undefined,
+      items: undefined,
+      inputText: undefined,
+      count: undefined
+    }
+
+      at log (packages/core/src/component/component.js:574:37)
+
+  console.warn
+    Invalid root element for directive processing - not a DOM element with querySelectorAll: {
+      style: {},
+      appendChild: [Function: mockConstructor] {
+        _isMockFunction: true,
+        getMockImplementation: [Function (anonymous)],
+        mock: [Getter/Setter],
+        mockClear: [Function (anonymous)],
+        mockReset: [Function (anonymous)],
+        mockRestore: [Function (anonymous)],
+        mockReturnValueOnce: [Function (anonymous)],
+        mockResolvedValueOnce: [Function (anonymous)],
+        mockRejectedValueOnce: [Function (anonymous)],
+        mockReturnValue: [Function (anonymous)],
+        mockResolvedValue: [Function (anonymous)],
+        mockRejectedValue: [Function (anonymous)],
+        mockImplementationOnce: [Function (anonymous)],
+        withImplementation: [Function: bound withImplementation],
+        mockImplementation: [Function (anonymous)],
+        mockReturnThis: [Function (anonymous)],
+        mockName: [Function (anonymous)],
+        getMockName: [Function (anonymous)]
+      }
+    }
+
+    [0m [90m 120 |[39m     [90m// Check if rootElement is a valid DOM element with querySelectorAll method[39m
+     [90m 121 |[39m     [36mif[39m ([36mtypeof[39m rootElement[33m.[39mquerySelectorAll [33m!==[39m [32m'function'[39m) {
+    [31m[1m>[22m[39m[90m 122 |[39m         console[33m.[39mwarn([32m'Invalid root element for directive processing - not a DOM element with querySelectorAll:'[39m[33m,[39m rootElement)[33m;[39m
+     [90m     |[39m                 [31m[1m^[22m[39m
+     [90m 123 |[39m         [36mreturn[39m[33m;[39m
+     [90m 124 |[39m     }
+     [90m 125 |[39m[0m
+
+      at warn (packages/core/src/directives/directive-processor.js:122:17)
+      at processDirectives (packages/core/src/component/component.js:583:29)
+
+  console.log
+    Directives processed on DOM element
+
+      at log (packages/core/src/component/component.js:584:37)
+
+PASS tests/unit/component.test.js
+  Component System
+    createComponent
+      √ should create a component instance with data (48 ms)
+      √ should initialize methods (8 ms)
+      √ should call lifecycle hooks (17 ms)
+      √ should handle computed properties (17 ms)
+      √ should have a render function (25 ms)
+    defineComponent
+      √ should define a functional component (64 ms)
+      √ should make props accessible (55 ms)
+    Component Mounting
+      √ should mount component to DOM element (57 ms)
+      √ should handle string selector for mount (38 ms)
+      √ should call mount lifecycle hooks (22 ms)
+
+  console.log
+    Updated called
+
+      at Object.log (tests/integration/component.test.js:50:25)
+
+  console.log
+    Component instance before directive processing: {
+      message: 'Updated',
+      showText: undefined,
+      items: undefined,
+      inputText: undefined,
+      count: undefined
+    }
+
+      at log (packages/core/src/component/component.js:574:37)
+
+  console.log
+    Processing directives on element: HTMLDivElement {
+      [Symbol(SameObject caches)]: [Object: null prototype] { childNodes: NodeList {} }
+    }
+
+      at log (packages/core/src/directives/directive-processor.js:126:13)
+
+  console.log
+    With context: {
+      mounted: [],
+      unmounted: [],
+      beforeUpdate: [],
+      updated: [],
+      beforeMount: [],
+      beforeUnmount: [],
+      '$options': {
+        data: [Function: data],
+        beforeUpdate: [Function: beforeUpdate],
+        updated: [Function: updated],
+        render: [Function: render]
+      },
+      props: {},
+      '$data': { message: 'Updated' },
+      _vnode: { tag: 'div', props: {}, children: [ [Object] ] },
+      _renderTemplate: [Function (anonymous)],
+      render: [Function (anonymous)],
+      '$mount': [Function (anonymous)],
+      '$update': [Function (anonymous)],
+      '$unmount': [Function (anonymous)],
+      '$el': HTMLDivElement {
+        [Symbol(SameObject caches)]: [Object: null prototype] {
+          children: HTMLCollection {},
+          childNodes: NodeList {}
+        }
+      }
+    }
+
+      at log (packages/core/src/directives/directive-processor.js:127:13)
+
+  console.log
+    Original context keys: [
+      'mounted',         'unmounted',
+      'beforeUpdate',    'updated',
+      'beforeMount',     'beforeUnmount',
+      '$options',        'props',
+      '$data',           '_vnode',
+      '_renderTemplate', 'render',
+      '$mount',          '$update',
+      '$unmount',        '$el'
+    ]
+
+      at log (packages/core/src/directives/directive-processor.js:554:13)
+
+  console.log
+    Adding default value for message: Hello, this text is rendered using k-text directive!
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Adding default value for showText: true
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Adding default value for items: [ 'Item 1', 'Item 2', 'Item 3' ]
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Adding default value for inputText:
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Adding default value for count: 0
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Prepared context keys: [
+      'mounted',      'unmounted',
+      'beforeUpdate', 'updated',
+      'beforeMount',  'beforeUnmount',
+      'props',        '_renderTemplate',
+      'render',       '$mount',
+      '$update',      '$unmount',
+      'message',      'showText',
+      'items',        'inputText',
+      'count',        '__updateReactive'
+    ]
+
+      at log (packages/core/src/directives/directive-processor.js:657:13)
+
+  console.log
+    Reactive keys: []
+
+      at log (packages/core/src/directives/directive-processor.js:658:13)
+
+  console.log
+    Prepared context for directive processing: {
+      mounted: [],
+      unmounted: [],
+      beforeUpdate: [],
+      updated: [],
+      beforeMount: [],
+      beforeUnmount: [],
+      props: {},
+      _renderTemplate: [Function (anonymous)],
+      render: [Function: bound ],
+      '$mount': [Function (anonymous)],
+      '$update': [Function (anonymous)],
+      '$unmount': [Function (anonymous)],
+      message: 'Hello, this text is rendered using k-text directive!',
+      showText: true,
+      items: [ 'Item 1', 'Item 2', 'Item 3' ],
+      inputText: '',
+      count: 0,
+      __updateReactive: [Function (anonymous)]
+    }
+
+      at log (packages/core/src/directives/directive-processor.js:133:13)
+
+  console.log
+    Found 0 elements with k-text directive
+
+      at log (packages/core/src/directives/directive-processor.js:194:13)
+
+  console.log
+    Found 0 elements with k-if directive
+
+      at log (packages/core/src/directives/directive-processor.js:252:13)
+
+  console.log
+    Found 0 elements with k-for directive
+
+      at log (packages/core/src/directives/directive-processor.js:311:13)
+
+  console.log
+    Found 0 elements with @click attribute
+
+      at log (packages/core/src/directives/directive-processor.js:481:13)
+
+  console.log
+    Found 0 buttons to check for click handlers
+
+      at log (packages/core/src/directives/directive-processor.js:913:13)
+
+  console.log
+    Directives processed on DOM element
+
+      at log (packages/core/src/component/component.js:584:37)
+
+  console.log
+    Final content: 
+                            Component Update Error
+                            Failed to execute 'appendChild' on 'Node': parameter 1 is not of type 'Node'.
+                            TypeError: Failed to execute 'appendChild' on 'Node': parameter 1 is not of type 'Node'.
+        at Object.exports.convert (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jsdom\lib\jsdom\living\generated\Node.js:25:9)
+        at HTMLDivElement.appendChild (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jsdom\lib\jsdom\living\generated\Node.js:404:26)
+        at Object.appendChild [as $update] (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\packages\core\src\component\component.js:657:26)
+        at Object.$update (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\tests\integration\component.test.js:72:19)
+        at Promise.then.completed (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\utils.js:298:28)
+        at new Promise ()
+        at callAsyncCircusFn (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\utils.js:231:10)
+        at _callCircusTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:316:40)
+        at _runTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:252:3)
+        at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:126:9)
+        at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:121:9)
+        at run (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:71:3)
+        at runAndTransformResultsToJestFormat (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:122:21)
+        at jestAdapter (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+        at runTestInternal (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-runner\build\runTest.js:367:16)
+        at runTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-runner\build\runTest.js:444:34)
+        at Object.worker (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-runner\build\testWorker.js:106:12)
+
+      at Object.log (tests/integration/component.test.js:77:17)
+
+  console.log
+    Creating component with options: unnamed component
+
+      at log (packages/core/src/component/component.js:213:13)
+
+  console.log
+    Initial props: {}
+
+      at log (packages/core/src/component/component.js:214:13)
+
+  console.log
+    Mounting component to element: HTMLDivElement {}
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:534:17)
+
+  console.log
+    Component render called for unnamed component
+
+      at Object.log [as render] (packages/core/src/component/component.js:415:21)
+
+  console.log
+    Render result: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as render] (packages/core/src/component/component.js:435:25)
+
+  console.log
+    Component render result: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:544:21)
+
+  console.log
+    Final vnode for rendering: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:549:21)
+
+  console.log
+    DOM element created and appended: HTMLDivElement {}
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:561:29)
+
+  console.log
+    Component render called for unnamed component
+
+      at Object.log [as render] (packages/core/src/component/component.js:415:21)
+
+  console.log
+    Render result: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as render] (packages/core/src/component/component.js:435:25)
+
+  console.log
+    Updating component with new vdom: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log (packages/core/src/component/component.js:338:41)
+
+  console.log
+    Component instance before directive processing: {
+      message: 'Updated',
+      showText: undefined,
+      items: undefined,
+      inputText: undefined,
+      count: undefined
+    }
+
+      at log (packages/core/src/component/component.js:574:37)
+
+  console.log
+    Processing directives on element: HTMLDivElement {
+      [Symbol(SameObject caches)]: [Object: null prototype] { childNodes: NodeList {} }
+    }
+
+      at log (packages/core/src/directives/directive-processor.js:126:13)
+
+  console.log
+    With context: {
+      mounted: [],
+      unmounted: [],
+      beforeUpdate: [],
+      updated: [],
+      beforeMount: [],
+      beforeUnmount: [],
+      '$options': {
+        beforeCreate: [Function: beforeCreate],
+        created: [Function: created],
+        beforeMount: [Function: beforeMount],
+        mounted: [Function: mounted],
+        beforeUpdate: [Function: beforeUpdate],
+        updated: [Function: updated],
+        render: [Function: render],
+        data: [Function: data]
+      },
+      props: {},
+      '$data': { message: 'Updated' },
+      _vnode: { tag: 'div', props: {}, children: [ [Object] ] },
+      _renderTemplate: [Function (anonymous)],
+      render: [Function (anonymous)],
+      '$mount': [Function (anonymous)],
+      '$update': [Function (anonymous)],
+      '$unmount': [Function (anonymous)],
+      '$el': HTMLDivElement {
+        [Symbol(SameObject caches)]: [Object: null prototype] { childNodes: NodeList {} }
+      }
+    }
+
+      at log (packages/core/src/directives/directive-processor.js:127:13)
+
+  console.log
+    Original context keys: [
+      'mounted',         'unmounted',
+      'beforeUpdate',    'updated',
+      'beforeMount',     'beforeUnmount',
+      '$options',        'props',
+      '$data',           '_vnode',
+      '_renderTemplate', 'render',
+      '$mount',          '$update',
+      '$unmount',        '$el'
+    ]
+
+      at log (packages/core/src/directives/directive-processor.js:554:13)
+
+  console.log
+    Adding default value for message: Hello, this text is rendered using k-text directive!
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Adding default value for showText: true
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Adding default value for items: [ 'Item 1', 'Item 2', 'Item 3' ]
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Adding default value for inputText:
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Adding default value for count: 0
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Prepared context keys: [
+      'mounted',      'unmounted',
+      'beforeUpdate', 'updated',
+      'beforeMount',  'beforeUnmount',
+      'props',        '_renderTemplate',
+      'render',       '$mount',
+      '$update',      '$unmount',
+      'message',      'showText',
+      'items',        'inputText',
+      'count',        '__updateReactive'
+    ]
+
+      at log (packages/core/src/directives/directive-processor.js:657:13)
+
+  console.log
+    Reactive keys: []
+
+      at log (packages/core/src/directives/directive-processor.js:658:13)
+
+  console.log
+    Prepared context for directive processing: {
+      mounted: [],
+      unmounted: [],
+      beforeUpdate: [],
+      updated: [],
+      beforeMount: [],
+      beforeUnmount: [],
+      props: {},
+      _renderTemplate: [Function (anonymous)],
+      render: [Function: bound ],
+      '$mount': [Function (anonymous)],
+      '$update': [Function (anonymous)],
+      '$unmount': [Function (anonymous)],
+      message: 'Hello, this text is rendered using k-text directive!',
+      showText: true,
+      items: [ 'Item 1', 'Item 2', 'Item 3' ],
+      inputText: '',
+      count: 0,
+      __updateReactive: [Function (anonymous)]
+    }
+
+      at log (packages/core/src/directives/directive-processor.js:133:13)
+
+  console.log
+    Found 0 elements with k-text directive
+
+      at log (packages/core/src/directives/directive-processor.js:194:13)
+
+  console.log
+    Found 0 elements with k-if directive
+
+      at log (packages/core/src/directives/directive-processor.js:252:13)
+
+  console.log
+    Found 0 elements with k-for directive
+
+      at log (packages/core/src/directives/directive-processor.js:311:13)
+
+  console.log
+    Found 0 elements with @click attribute
+
+      at log (packages/core/src/directives/directive-processor.js:481:13)
+
+  console.log
+    Found 0 buttons to check for click handlers
+
+      at log (packages/core/src/directives/directive-processor.js:913:13)
+
+  console.log
+    Directives processed on DOM element
+
+      at log (packages/core/src/component/component.js:584:37)
+
+  console.log
+    Creating component with options: unnamed component
+
+      at log (packages/core/src/component/component.js:213:13)
+
+  console.log
+    Initial props: {}
+
+      at log (packages/core/src/component/component.js:214:13)
+
+  console.log
+    Mounting component to element: HTMLDivElement {}
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:534:17)
+
+  console.log
+    Component render called for unnamed component
+
+      at Object.log [as render] (packages/core/src/component/component.js:415:21)
+
+  console.log
+    Render result: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as render] (packages/core/src/component/component.js:435:25)
+
+  console.log
+    Component render result: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:544:21)
+
+  console.log
+    Final vnode for rendering: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:549:21)
+
+  console.log
+    DOM element created and appended: HTMLDivElement {}
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:561:29)
+
+  console.log
+    Component render called for unnamed component
+
+      at Object.log [as render] (packages/core/src/component/component.js:415:21)
+
+  console.log
+    Render result: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as render] (packages/core/src/component/component.js:435:25)
+
+  console.log
+    Updating component with new vdom: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log (packages/core/src/component/component.js:338:41)
+
+  console.log
+    Component render called for unnamed component
+
+      at Object.log [as render] (packages/core/src/component/component.js:415:21)
+
+  console.log
+    Render result: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as render] (packages/core/src/component/component.js:435:25)
+
+  console.log
+    Component update with new vdom: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as $update] (packages/core/src/component/component.js:641:17)
+
+  console.log
+    Final vnode for updating: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as $update] (packages/core/src/component/component.js:646:17)
+
+  console.error
+    Error during component update: TypeError: Failed to execute 'appendChild' on 'Node': parameter 1 is not of type 'Node'.
+        at Object.exports.convert (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jsdom\lib\jsdom\living\generated\Node.js:25:9)
+        at HTMLDivElement.appendChild (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jsdom\lib\jsdom\living\generated\Node.js:404:26)
+        at Object.appendChild [as $update] (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\packages\core\src\component\component.js:657:26)
+        at Object.$update (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\tests\integration\component.test.js:153:19)
+        at Promise.then.completed (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\utils.js:298:28)
+        at new Promise (<anonymous>)
+        at callAsyncCircusFn (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\utils.js:231:10)
+        at _callCircusTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:316:40)
+        at _runTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:252:3)
+        at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:126:9)
+        at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:121:9)
+        at run (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:71:3)
+        at runAndTransformResultsToJestFormat (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:122:21)
+        at jestAdapter (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+        at runTestInternal (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-runner\build\runTest.js:367:16)
+        at runTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-runner\build\runTest.js:444:34)
+        at Object.worker (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-runner\build\testWorker.js:106:12)
+
+    [0m [90m 662 |[39m                 console[33m.[39mlog([32m'DOM updated successfully'[39m)[33m;[39m
+     [90m 663 |[39m             } [36mcatch[39m (error) {
+    [31m[1m>[22m[39m[90m 664 |[39m                 console[33m.[39merror([32m'Error during component update:'[39m[33m,[39m error)[33m;[39m
+     [90m     |[39m                         [31m[1m^[22m[39m
+     [90m 665 |[39m                 [90m// Add a visible error message to help with debugging[39m
+     [90m 666 |[39m                 [36mthis[39m[33m.[39m$el[33m.[39minnerHTML [33m=[39m [32m`[39m
+     [90m 667 |[39m [32m                    <div style="color: red; border: 1px solid red; padding: 10px; margin: 10px 0;">[39m[0m
+
+      at Object.error [as $update] (packages/core/src/component/component.js:664:25)
+      at Object.$update (tests/integration/component.test.js:153:19)
+
+  console.log
+    Component instance before directive processing: {
+      message: undefined,
+      showText: undefined,
+      items: undefined,
+      inputText: undefined,
+      count: 1
+    }
+
+      at log (packages/core/src/component/component.js:574:37)
+
+  console.log
+    Processing directives on element: HTMLDivElement {
+      [Symbol(SameObject caches)]: [Object: null prototype] { childNodes: NodeList {} }
+    }
+
+      at log (packages/core/src/directives/directive-processor.js:126:13)
+
+  console.log
+    With context: {
+      mounted: [],
+      unmounted: [],
+      beforeUpdate: [],
+      updated: [],
+      beforeMount: [],
+      beforeUnmount: [],
+      '$options': {
+        data: [Function: data],
+        methods: { increment: [Function: increment] },
+        render: [Function: render]
+      },
+      props: {},
+      '$data': { count: 1 },
+      increment: [Function: bound increment],
+      _vnode: { tag: 'div', props: {}, children: [ [Object] ] },
+      _renderTemplate: [Function (anonymous)],
+      render: [Function (anonymous)],
+      '$mount': [Function (anonymous)],
+      '$update': [Function (anonymous)],
+      '$unmount': [Function (anonymous)],
+      '$el': HTMLDivElement {
+        [Symbol(SameObject caches)]: [Object: null prototype] {
+          children: HTMLCollection {},
+          childNodes: NodeList {}
+        }
+      }
+    }
+
+      at log (packages/core/src/directives/directive-processor.js:127:13)
+
+  console.log
+    Original context keys: [
+      'mounted',      'unmounted',
+      'beforeUpdate', 'updated',
+      'beforeMount',  'beforeUnmount',
+      '$options',     'props',
+      '$data',        'increment',
+      '_vnode',       '_renderTemplate',
+      'render',       '$mount',
+      '$update',      '$unmount',
+      '$el'
+    ]
+
+      at log (packages/core/src/directives/directive-processor.js:554:13)
+
+  console.log
+    Adding default value for message: Hello, this text is rendered using k-text directive!
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Adding default value for showText: true
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Adding default value for items: [ 'Item 1', 'Item 2', 'Item 3' ]
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Adding default value for inputText:
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Adding default value for count: 0
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Prepared context keys: [
+      'mounted',          'unmounted',
+      'beforeUpdate',     'updated',
+      'beforeMount',      'beforeUnmount',
+      'props',            'increment',
+      '_renderTemplate',  'render',
+      '$mount',           '$update',
+      '$unmount',         'message',
+      'showText',         'items',
+      'inputText',        'count',
+      '__updateReactive'
+    ]
+
+      at log (packages/core/src/directives/directive-processor.js:657:13)
+
+  console.log
+    Reactive keys: []
+
+      at log (packages/core/src/directives/directive-processor.js:658:13)
+
+  console.log
+    Prepared context for directive processing: {
+      mounted: [],
+      unmounted: [],
+      beforeUpdate: [],
+      updated: [],
+      beforeMount: [],
+      beforeUnmount: [],
+      props: {},
+      increment: [Function: bound bound increment],
+      _renderTemplate: [Function (anonymous)],
+      render: [Function: bound ],
+      '$mount': [Function (anonymous)],
+      '$update': [Function (anonymous)],
+      '$unmount': [Function (anonymous)],
+      message: 'Hello, this text is rendered using k-text directive!',
+      showText: true,
+      items: [ 'Item 1', 'Item 2', 'Item 3' ],
+      inputText: '',
+      count: 0,
+      __updateReactive: [Function (anonymous)]
+    }
+
+      at log (packages/core/src/directives/directive-processor.js:133:13)
+
+  console.log
+    Found 0 elements with k-text directive
+
+      at log (packages/core/src/directives/directive-processor.js:194:13)
+
+  console.log
+    Found 0 elements with k-if directive
+
+      at log (packages/core/src/directives/directive-processor.js:252:13)
+
+  console.log
+    Found 0 elements with k-for directive
+
+      at log (packages/core/src/directives/directive-processor.js:311:13)
+
+  console.log
+    Found 0 elements with @click attribute
+
+      at log (packages/core/src/directives/directive-processor.js:481:13)
+
+  console.log
+    Found 0 buttons to check for click handlers
+
+      at log (packages/core/src/directives/directive-processor.js:913:13)
+
+  console.log
+    Directives processed on DOM element
+
+      at log (packages/core/src/component/component.js:584:37)
+
+  console.warn
+    Component defined without a name. Consider adding a name for better debugging.
+
+    [0m [90m 736 |[39m     [36mif[39m ([33m![39moptions[33m.[39mname) {
+     [90m 737 |[39m         options[33m.[39mname [33m=[39m [32m'AnonymousComponent'[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 738 |[39m         console[33m.[39mwarn([32m'Component defined without a name. Consider adding a name for better debugging.'[39m)[33m;[39m
+     [90m     |[39m                 [31m[1m^[22m[39m
+     [90m 739 |[39m     }
+     [90m 740 |[39m
+     [90m 741 |[39m     [90m// Store the original options for reference[39m[0m
+
+      at warn (packages/core/src/component/component.js:738:17)
+      at Object.defineComponent (tests/integration/component.test.js:163:25)
+
+  console.log
+    Creating component AnonymousComponent with props: { id: 'counter' }
+
+      at log (packages/core/src/component/component.js:747:21)
+
+  console.log
+    Creating component with options: AnonymousComponent
+
+      at log (packages/core/src/component/component.js:213:13)
+
+  console.log
+    Initial props: { id: 'counter' }
+
+      at log (packages/core/src/component/component.js:214:13)
+
+  console.log
+    Component render called for AnonymousComponent
+
+      at Object.log [as render] (packages/core/src/component/component.js:415:21)
+
+  console.log
+    Render result: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as render] (packages/core/src/component/component.js:435:25)
+
+  console.warn
+    Component defined without a name. Consider adding a name for better debugging.
+
+    [0m [90m 736 |[39m     [36mif[39m ([33m![39moptions[33m.[39mname) {
+     [90m 737 |[39m         options[33m.[39mname [33m=[39m [32m'AnonymousComponent'[39m[33m;[39m
+    [31m[1m>[22m[39m[90m 738 |[39m         console[33m.[39mwarn([32m'Component defined without a name. Consider adding a name for better debugging.'[39m)[33m;[39m
+     [90m     |[39m                 [31m[1m^[22m[39m
+     [90m 739 |[39m     }
+     [90m 740 |[39m
+     [90m 741 |[39m     [90m// Store the original options for reference[39m[0m
+
+      at warn (packages/core/src/component/component.js:738:17)
+      at Object.defineComponent (tests/integration/component.test.js:183:35)
+
+  console.log
+    Creating component with options: AnonymousComponent
+
+      at log (packages/core/src/component/component.js:213:13)
+
+  console.log
+    Initial props: { name: 'kalxjs' }
+
+      at log (packages/core/src/component/component.js:214:13)
+
+  console.log
+    Processing props definition: { name: [Function: String] }
+
+      at log (packages/core/src/component/component.js:229:17)
+
+  console.log
+    Using provided prop value for name: kalxjs
+
+      at log (packages/core/src/component/component.js:245:29)
+
+  console.log
+    Mounting component to element: HTMLDivElement {}
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:534:17)
+
+  console.log
+    Component render called for AnonymousComponent
+
+      at Object.log [as render] (packages/core/src/component/component.js:415:21)
+
+  console.log
+    Render result: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as render] (packages/core/src/component/component.js:435:25)
+
+  console.log
+    Component render result: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:544:21)
+
+  console.log
+    Final vnode for rendering: {
+      tag: 'div',
+      props: {},
+      children: [ { tag: 'TEXT_ELEMENT', props: [Object], children: [] } ]
+    }
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:549:21)
+
+  console.log
+    DOM element created and appended: HTMLDivElement {}
+
+      at Object.log [as $mount] (packages/core/src/component/component.js:561:29)
+
+  console.log
+    Component instance before directive processing: {
+      message: undefined,
+      showText: undefined,
+      items: undefined,
+      inputText: undefined,
+      count: undefined
+    }
+
+      at log (packages/core/src/component/component.js:574:37)
+
+  console.log
+    Processing directives on element: HTMLDivElement {}
+
+      at log (packages/core/src/directives/directive-processor.js:126:13)
+
+  console.log
+    With context: {
+      mounted: [],
+      unmounted: [],
+      beforeUpdate: [],
+      updated: [],
+      beforeMount: [],
+      beforeUnmount: [],
+      '$options': {
+        props: { name: [Function: String] },
+        render: [Function: render],
+        name: 'AnonymousComponent'
+      },
+      props: { name: 'kalxjs' },
+      _vnode: { tag: 'div', props: {}, children: [ [Object] ] },
+      _renderTemplate: [Function (anonymous)],
+      render: [Function (anonymous)],
+      '$mount': [Function (anonymous)],
+      '$update': [Function (anonymous)],
+      '$unmount': [Function (anonymous)],
+      '$el': HTMLDivElement {
+        [Symbol(SameObject caches)]: [Object: null prototype] { children: HTMLCollection {} }
+      }
+    }
+
+      at log (packages/core/src/directives/directive-processor.js:127:13)
+
+  console.log
+    Original context keys: [
+      'mounted',      'unmounted',
+      'beforeUpdate', 'updated',
+      'beforeMount',  'beforeUnmount',
+      '$options',     'props',
+      '_vnode',       '_renderTemplate',
+      'render',       '$mount',
+      '$update',      '$unmount',
+      '$el'
+    ]
+
+      at log (packages/core/src/directives/directive-processor.js:554:13)
+
+  console.log
+    Adding default value for message: Hello, this text is rendered using k-text directive!
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Adding default value for showText: true
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Adding default value for items: [ 'Item 1', 'Item 2', 'Item 3' ]
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Adding default value for inputText:
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Adding default value for count: 0
+
+      at log (packages/core/src/directives/directive-processor.js:632:21)
+
+  console.log
+    Prepared context keys: [
+      'mounted',      'unmounted',
+      'beforeUpdate', 'updated',
+      'beforeMount',  'beforeUnmount',
+      'props',        '_renderTemplate',
+      'render',       '$mount',
+      '$update',      '$unmount',
+      'message',      'showText',
+      'items',        'inputText',
+      'count',        '__updateReactive'
+    ]
+
+      at log (packages/core/src/directives/directive-processor.js:657:13)
+
+  console.log
+    Reactive keys: []
+
+      at log (packages/core/src/directives/directive-processor.js:658:13)
+
+  console.log
+    Prepared context for directive processing: {
+      mounted: [],
+      unmounted: [],
+      beforeUpdate: [],
+      updated: [],
+      beforeMount: [],
+      beforeUnmount: [],
+      props: { name: 'kalxjs' },
+      _renderTemplate: [Function (anonymous)],
+      render: [Function: bound ],
+      '$mount': [Function (anonymous)],
+      '$update': [Function (anonymous)],
+      '$unmount': [Function (anonymous)],
+      message: 'Hello, this text is rendered using k-text directive!',
+      showText: true,
+      items: [ 'Item 1', 'Item 2', 'Item 3' ],
+      inputText: '',
+      count: 0,
+      __updateReactive: [Function (anonymous)]
+    }
+
+      at log (packages/core/src/directives/directive-processor.js:133:13)
+
+  console.log
+    Found 0 elements with k-text directive
+
+      at log (packages/core/src/directives/directive-processor.js:194:13)
+
+  console.log
+    Found 0 elements with k-if directive
+
+      at log (packages/core/src/directives/directive-processor.js:252:13)
+
+  console.log
+    Found 0 elements with k-for directive
+
+      at log (packages/core/src/directives/directive-processor.js:311:13)
+
+  console.log
+    Found 0 elements with @click attribute
+
+      at log (packages/core/src/directives/directive-processor.js:481:13)
+
+  console.log
+    Found 0 buttons to check for click handlers
+
+      at log (packages/core/src/directives/directive-processor.js:913:13)
+
+  console.log
+    Directives processed on DOM element
+
+      at log (packages/core/src/component/component.js:584:37)
+
+FAIL tests/integration/component.test.js (5.799 s)
+  Component Integration Tests
+    √ component should render correctly (266 ms)
+    × component should update when data changes (262 ms)
+    √ component lifecycle hooks should fire in order (45 ms)
+    × component methods should be bound to component instance (80 ms)
+    √ defineComponent should return a component factory (27 ms)
+    √ should make props accessible (35 ms)
+
+  ● Component Integration Tests › component should update when data changes
+
+    expect(received).toBe(expected) // Object.is equality
+
+    - Expected  -  1
+    + Received  + 22
+
+    - Updated
+    +
+    +                         Component Update Error
+    +                         Failed to execute 'appendChild' on 'Node': parameter 1 is not of type 'Node'.
+    +                         TypeError: Failed to execute 'appendChild' on 'Node': parameter 1 is not of type 'Node'.
+    +     at Object.exports.convert (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jsdom\lib\jsdom\living\generated\Node.js:25:9)
+    +     at HTMLDivElement.appendChild (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jsdom\lib\jsdom\living\generated\Node.js:404:26)
+    +     at Object.appendChild [as $update] (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\packages\core\src\component\component.js:657:26)
+    +     at Object.$update (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\tests\integration\component.test.js:72:19)
+    +     at Promise.then.completed (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\utils.js:298:28)
+    +     at new Promise ()
+    +     at callAsyncCircusFn (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\utils.js:231:10)
+    +     at _callCircusTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:316:40)
+    +     at _runTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:252:3)
+    +     at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:126:9)
+    +     at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:121:9)
+    +     at run (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:71:3)
+    +     at runAndTransformResultsToJestFormat (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:122:21)
+    +     at jestAdapter (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+    +     at runTestInternal (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-runner\build\runTest.js:367:16)
+    +     at runTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-runner\build\runTest.js:444:34)
+    +     at Object.worker (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-runner\build\testWorker.js:106:12)
+    +
+
+    [0m [90m 77 |[39m         console[33m.[39mlog([32m'Final content:'[39m[33m,[39m container[33m.[39mchildren[[35m0[39m][33m.[39mtextContent)[33m;[39m
+     [90m 78 |[39m
+    [31m[1m>[22m[39m[90m 79 |[39m         expect(container[33m.[39mchildren[[35m0[39m][33m.[39mtextContent)[33m.[39mtoBe([32m'Updated'[39m)[33m;[39m
+     [90m    |[39m                                                   [31m[1m^[22m[39m
+     [90m 80 |[39m
+     [90m 81 |[39m         document[33m.[39mbody[33m.[39mremoveChild(container)[33m;[39m
+     [90m 82 |[39m     })[33m;[39m[0m
+
+      at Object.toBe (tests/integration/component.test.js:79:51)
+
+  ● Component Integration Tests › component methods should be bound to component instance
+
+    expect(received).toBe(expected) // Object.is equality
+
+    - Expected  -  1
+    + Received  + 22
+
+    - 1
+    +
+    +                         Component Update Error
+    +                         Failed to execute 'appendChild' on 'Node': parameter 1 is not of type 'Node'.
+    +                         TypeError: Failed to execute 'appendChild' on 'Node': parameter 1 is not of type 'Node'.
+    +     at Object.exports.convert (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jsdom\lib\jsdom\living\generated\Node.js:25:9)
+    +     at HTMLDivElement.appendChild (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jsdom\lib\jsdom\living\generated\Node.js:404:26)
+    +     at Object.appendChild [as $update] (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\packages\core\src\component\component.js:657:26)
+    +     at Object.$update (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\tests\integration\component.test.js:153:19)
+    +     at Promise.then.completed (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\utils.js:298:28)
+    +     at new Promise ()
+    +     at callAsyncCircusFn (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\utils.js:231:10)
+    +     at _callCircusTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:316:40)
+    +     at _runTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:252:3)
+    +     at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:126:9)
+    +     at _runTestsForDescribeBlock (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:121:9)
+    +     at run (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\run.js:71:3)
+    +     at runAndTransformResultsToJestFormat (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapterInit.js:122:21)
+    +     at jestAdapter (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-circus\build\legacy-code-todo-rewrite\jestAdapter.js:79:19)
+    +     at runTestInternal (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-runner\build\runTest.js:367:16)
+    +     at runTest (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-runner\build\runTest.js:444:34)
+    +     at Object.worker (C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs-wt\KALXJS-FRAMEWORK\node_modules\jest-runner\build\testWorker.js:106:12)
+    +
+
+    [0m [90m 155 |[39m
+     [90m 156 |[39m         expect(component[33m.[39mcount)[33m.[39mtoBe([35m1[39m)[33m;[39m
+    [31m[1m>[22m[39m[90m 157 |[39m         expect(container[33m.[39mchildren[[35m0[39m][33m.[39mtextContent)[33m.[39mtoBe([32m'1'[39m)[33m;[39m
+     [90m     |[39m                                                   [31m[1m^[22m[39m
+     [90m 158 |[39m
+     [90m 159 |[39m         document[33m.[39mbody[33m.[39mremoveChild(container)[33m;[39m
+     [90m 160 |[39m     })[33m;[39m[0m
+
+      at Object.toBe (tests/integration/component.test.js:157:51)
+
+Test Suites: 2 failed, 10 passed, 12 total
+Tests:       4 failed, 104 passed, 108 total
+Snapshots:   0 total
+Time:        9.284 s
+Ran all test suites.

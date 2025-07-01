@@ -1028,10 +1028,9 @@ export function createRouter(options = {}) {
                             value = false;
                         } else if (value === 'null') {
                             value = null;
-                        } else if (!isNaN(Number(value)) && value.trim() !== '') {
-                            // Only convert to number if it's not an empty string
-                            value = Number(value);
                         }
+                        // Don't automatically convert to numbers to maintain string values
+                        // for query parameters like page=1
                     }
                 }
 
@@ -1118,7 +1117,7 @@ export function createRouter(options = {}) {
          * Handle route changes
          * @returns {Promise} Promise that resolves when route change is complete
          */
-        _onRouteChange() {
+_onRouteChange() {
             // Save current scroll position for potential scroll restoration
             this._savedPosition = {
                 x: window.scrollX,
@@ -1164,6 +1163,9 @@ export function createRouter(options = {}) {
 
             // Match the route
             const route = this._matchRoute(fullPath);
+
+            console.log('Router _onRouteChange matched route:', route);
+            console.log('Router _onRouteChange matched route.matched:', route.matched);
 
             // Store previous route for navigation guards
             previousRoute = { ...this.currentRoute };
@@ -1562,6 +1564,9 @@ export function RouterView(props = {}) {
 
     // Get the matched route component
     const matchedRoute = route.value.matched[0];
+
+    console.log('RouterView matchedRoute:', matchedRoute);
+    console.log('RouterView matchedRoute.component:', matchedRoute ? matchedRoute.component : null);
 
     if (!matchedRoute || !matchedRoute.component) {
         return {

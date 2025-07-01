@@ -4,12 +4,74 @@
 import { patch } from './diff.js';
 
 /**
- * Creates a DOM element with the given tag
- * @param {string} tag - HTML tag name
+ * Creates a DOM element from a virtual node
+ * @param {Object} vnode - Virtual DOM node
  * @returns {HTMLElement} The created DOM element
  */
-export function createDOMElement(tag) {
-    return document.createElement(tag);
+export function createDOMElement(vnode) {
+    // Handle text elements
+    if (vnode.tag === 'TEXT_ELEMENT') {
+        return document.createTextNode(vnode.props.nodeValue);
+    }
+
+    // Create the DOM element
+    const element = document.createElement(vnode.tag);
+
+    // Set properties
+    if (vnode.props) {
+        // Special handling for innerHTML
+        if ('innerHTML' in vnode.props) {
+            element.innerHTML = vnode.props.innerHTML;
+        }
+
+        Object.keys(vnode.props).forEach(key => {
+            if (key === 'innerHTML') {
+                // Already handled above
+                return;
+            }
+
+            const value = vnode.props[key];
+
+            // Skip null or undefined props
+            if (value === null || value === undefined) {
+                return;
+            }
+
+            // Handle event listeners
+            if (key.startsWith('on') && typeof value === 'function') {
+                const eventName = key.slice(2).toLowerCase();
+                element.addEventListener(eventName, value);
+            }
+            // Handle style objects
+            else if (key === 'style' && typeof value === 'object') {
+                Object.assign(element.style, value);
+            }
+            // Handle className
+            else if (key === 'className' || key === 'class') {
+                element.className = value;
+            }
+            // Handle special properties that should be set directly
+            else if (key === 'id' || key === 'value' || key === 'checked' || key === 'disabled') {
+                element[key] = value;
+            }
+            // Handle regular attributes
+            else {
+                element.setAttribute(key, value);
+            }
+        });
+    }
+
+    // Create and append children only if innerHTML is not set
+    if (vnode.children && !(vnode.props && 'innerHTML' in vnode.props)) {
+        vnode.children.forEach(child => {
+            if (child) {
+                const childElement = createDOMElement(child);
+                element.appendChild(childElement);
+            }
+        });
+    }
+
+    return element;
 }
 
 /**
@@ -39,248 +101,204 @@ function flattenArray(arr, depth = 1) {
 }
 
 /**
- * Creates a virtual DOM node
+ * Creates a virtual DOM node (JSX compatible)
  * @param {string|function} tag - HTML tag name or component function
  * @param {Object} props - Node properties
- * @param {Array} children - Child nodes
+ * @param {...any} children - Child nodes
+ * @returns {Object} Virtual DOM node
  */
-export function h(tag, props = {}, children = []) {
+export function h(tag, props, ...children) {
     // Handle null or undefined tag
     if (!tag) {
         console.warn('Invalid tag provided to h function');
         return null;
     }
 
-    // Ensure children is always an array
-    const childArray = Array.isArray(children) ? children : (children ? [children] : []);
+    // Handle case where props is null or children are passed as second argument
+    if (props === null || props === undefined) {
+        props = {};
+    }
 
-    // If tag is a component function, mark it as a component
+    // Flatten children array and process each child
+    const processedChildren = [];
+
+    // Flatten the children array (could be nested due to the rest parameter)
+    const flatChildren = flattenArray(children);
+
+    flatChildren.forEach(child => {
+        if (child === null || child === undefined) {
+            // Skip null or undefined children
+            return;
+        }
+
+        if (typeof child === 'string' || typeof child === 'number') {
+            // Convert primitive values to text nodes
+            processedChildren.push({
+                tag: 'TEXT_ELEMENT',
+                props: { nodeValue: String(child) },
+                children: []
+            });
+        } else {
+            // Add object children directly
+            processedChildren.push(child);
+        }
+    });
+
+    // If tag is a component function, call it with props
     if (typeof tag === 'function') {
+        // Call the component function with props
+        const result = tag(props);
+
+        // If the result is already a vnode, return it
+        if (result && result.tag) {
+            return result;
+        }
+
+        // Otherwise, create a div with the result as content
         return {
-            tag: 'component-placeholder', // Use a placeholder tag for the vnode
-            props: props || {},
-            children: flattenArray(childArray),
-            component: tag, // Store the component function
-            isComponent: true // Mark as a component
+            tag: 'div',
+            props: {},
+            children: typeof result === 'string' || typeof result === 'number'
+                ? [{ tag: 'TEXT_ELEMENT', props: { nodeValue: String(result) }, children: [] }]
+                : [result]
         };
     }
 
+    // Return the virtual node
     return {
         tag,
         props: props || {},
-        children: flattenArray(childArray)
+        children: processedChildren
     };
 }
 
 /**
- * Creates a real DOM element from a virtual node
- * @param {Object} vnode - Virtual DOM node
- * @returns {HTMLElement} Real DOM element
+ * Creates a virtual DOM node
+ * @param {string} tag - HTML tag name
+ * @param {Object} props - Node properties
+ * @param {Array} children - Child nodes
+ * @returns {Object} Virtual DOM node
  */
-export function createElement(vnode) {
-    // Handle primitive values (string, number, etc.)
-    if (typeof vnode === 'string' || typeof vnode === 'number') {
-        return document.createTextNode(String(vnode));
-    }
+export function createElement(tag, props = {}, children = []) {
+    // Create the base virtual node
+    const vnode = {
+        tag,
+        props: props || {},
+        children: []
+    };
 
-    // Handle null or undefined
-    if (!vnode) {
-        console.error('Attempted to create element from null/undefined vnode');
+    // Process children
+    if (children) {
+        // Ensure children is an array
+        const childArray = Array.isArray(children) ? children : [children];
 
-        // Instead of returning a comment node, create a fallback element
-        const fallbackElement = document.createElement('div');
-        fallbackElement.className = 'kalxjs-fallback-element';
-        fallbackElement.innerHTML = `
-            <div style="padding: 10px; border: 1px solid #f0ad4e; background-color: #fcf8e3; color: #8a6d3b; border-radius: 4px;">
-                <h4 style="margin-top: 0;">KalxJS Rendering Notice</h4>
-                <p>The framework attempted to render a component but received empty content.</p>
-                <p>This is a fallback element to ensure something is displayed.</p>
-            </div>
-        `;
-
-        // Add a debug property to help with troubleshooting
-        fallbackElement._debug = {
-            error: 'Null or undefined vnode',
-            timestamp: new Date().toISOString()
-        };
-
-        return fallbackElement;
-    }
-
-    // Handle case where vnode might be a component
-    if (vnode.isComponent && vnode.component) {
-        try {
-            console.log('Rendering component:', vnode.component.name || 'anonymous');
-
-            // Check if this is a component factory from defineComponent
-            if (vnode.component.options) {
-                console.log('Detected component factory with options:', vnode.component.options.name);
+        // Process each child
+        childArray.forEach(child => {
+            if (child === null || child === undefined) {
+                // Skip null or undefined children
+                return;
             }
 
-            // Call the component function with the props
-            const result = vnode.component(vnode.props);
-
-            if (!result) {
-                throw new Error('Component function returned null or undefined');
-            }
-
-            console.log('Component function result:', result);
-
-            // If the result is a component instance with a render method, call it
-            if (result.render && typeof result.render === 'function') {
-                const renderResult = result.render();
-                console.log('Component render result:', renderResult);
-                return createElement(renderResult);
-            }
-
-            // If the result doesn't have a tag property, add one
-            if (typeof result === 'object' && !result.tag) {
-                console.warn('Component returned object without tag property, adding div tag');
-                result.tag = 'div';
-            }
-
-            return createElement(result);
-        } catch (error) {
-            console.error('Error rendering component:', error);
-            const errorElement = document.createElement('div');
-            errorElement.style.color = 'red';
-            errorElement.style.border = '1px solid red';
-            errorElement.style.padding = '10px';
-            errorElement.style.margin = '10px 0';
-            errorElement.innerHTML = `
-                <h4>Component Error</h4>
-                <p>${error.message}</p>
-                <pre style="font-size: 12px; overflow: auto; max-height: 200px; background: #f5f5f5; padding: 5px;">${error.stack}</pre>
-            `;
-            return errorElement;
-        }
-    }
-
-    // Handle case where vnode might be a function (legacy support)
-    if (typeof vnode === 'function') {
-        console.warn('Function passed directly to createElement. This is deprecated, use h(Component, props, children) instead.');
-        try {
-            // Call the function with empty props
-            const result = vnode({});
-            return createElement(result);
-        } catch (error) {
-            console.error('Error rendering function component:', error);
-            const errorElement = document.createElement('div');
-            errorElement.style.color = 'red';
-            errorElement.innerHTML = `<p>Error: ${error.message}</p>`;
-            return errorElement;
-        }
-    }
-
-    // Handle case where vnode might not be a proper virtual node object
-    if (!vnode.tag) {
-        console.error('Invalid vnode (missing tag):', vnode);
-
-        // Debug information
-        console.log('vnode type:', typeof vnode);
-        console.log('vnode keys:', Object.keys(vnode || {}));
-
-        // Create a more informative error element
-        const errorElement = document.createElement('div');
-        errorElement.style.color = 'red';
-        errorElement.style.border = '1px solid red';
-        errorElement.style.padding = '10px';
-        errorElement.style.margin = '10px 0';
-
-        try {
-            errorElement.innerHTML = `
-                <h4>Invalid Virtual DOM Node</h4>
-                <p>A virtual DOM node is missing the required 'tag' property</p>
-                <pre style="font-size: 12px; overflow: auto; max-height: 200px; background: #f5f5f5; padding: 5px;">
-${JSON.stringify(vnode, null, 2)}
-                </pre>
-            `;
-        } catch (e) {
-            errorElement.textContent = `Invalid vnode: Cannot stringify for display`;
-        }
-
-        return errorElement;
-    }
-
-    // Create the DOM element
-    let element;
-    try {
-        element = createDOMElement(vnode.tag);
-    } catch (error) {
-        console.error(`Error creating element with tag "${vnode.tag}":`, error);
-        const errorElement = document.createElement('div');
-        errorElement.style.color = 'red';
-        errorElement.style.padding = '5px';
-        errorElement.textContent = `Invalid tag: ${vnode.tag}`;
-        return errorElement;
-    }
-
-    // Set properties
-    try {
-        for (const [key, value] of Object.entries(vnode.props || {})) {
-            if (value === undefined || value === null) {
-                continue; // Skip null/undefined props
-            }
-
-            if (key.startsWith('on')) {
-                // Handle both camelCase (onClick) and lowercase (onclick) event handlers
-                const eventName = key.slice(2).toLowerCase();
-                if (typeof value === 'function') {
-                    element.addEventListener(eventName, value);
-                } else {
-                    console.warn(`Event handler for ${eventName} is not a function:`, value);
-                }
-            } else if (key === 'style' && typeof value === 'object') {
-                // Handle style objects
-                Object.assign(element.style, value);
-            } else if (key === 'class' || key === 'className') {
-                // Handle class names
-                element.className = value;
-            } else if (key === 'dangerouslySetInnerHTML') {
-                // Handle innerHTML
-                if (value && value.__html !== undefined) {
-                    element.innerHTML = value.__html;
-                }
+            if (typeof child === 'string' || typeof child === 'number') {
+                // Convert primitive values to text nodes
+                vnode.children.push({
+                    tag: 'TEXT_ELEMENT',
+                    props: { nodeValue: String(child) },
+                    children: []
+                });
             } else {
-                // Handle regular attributes
-                element.setAttribute(key, value);
+                // Add object children directly
+                vnode.children.push(child);
             }
-        }
-    } catch (error) {
-        console.error('Error setting properties:', error);
-        // Continue despite property errors
+        });
     }
 
-    // Create and append children
-    const children = Array.isArray(vnode.children) ? vnode.children : (vnode.children ? [vnode.children] : []);
-    children.forEach(child => {
-        if (child !== null && child !== undefined) {
-            try {
-                const childElement = createElement(child);
-                if (childElement) {
-                    element.appendChild(childElement);
-                }
-            } catch (error) {
-                console.error('Error creating child element:', error);
-                const errorComment = document.createComment(`Error creating child: ${error.message}`);
-                element.appendChild(errorComment);
-            }
-        }
-    });
-
-    return element;
+    return vnode;
 }
+
+// This section is no longer needed as we've refactored the component handling in the h function
+
+// This section is no longer needed as we've refactored the DOM element creation in the createDOMElement function
 
 /**
  * Updates an existing DOM element to match a new virtual DOM node
- * @param {HTMLElement} element - DOM element to update
+ * @param {HTMLElement} parent - Parent DOM element
  * @param {Object} oldVNode - Previous virtual DOM node
  * @param {Object} newVNode - New virtual DOM node
+ * @param {number} index - Index of the child in the parent
  * @returns {HTMLElement} Updated DOM element
  */
-export function updateElement(element, oldVNode, newVNode) {
-    // Use the new diffing algorithm
-    return patch(element, oldVNode, newVNode);
+export function updateElement(parent, oldVNode, newVNode, index = 0) {
+    // Handle case where newVNode is null (element should be removed)
+    if (!newVNode) {
+        if (parent.childNodes[index]) {
+            parent.removeChild(parent.childNodes[index]);
+        }
+        return null;
+    }
+
+    // Handle case where oldVNode is null (new element should be created)
+    if (!oldVNode) {
+        const newElement = createDOMElement(newVNode);
+        parent.appendChild(newElement);
+        return newElement;
+    }
+
+    // Handle case where nodes are different types
+    if (oldVNode.tag !== newVNode.tag) {
+        const newElement = createDOMElement(newVNode);
+        if (parent.childNodes[index]) {
+            parent.replaceChild(newElement, parent.childNodes[index]);
+        } else {
+            parent.appendChild(newElement);
+        }
+        return newElement;
+    }
+
+    // Update the existing element's properties
+    const element = parent.childNodes[index];
+
+    // Update properties
+    if (element && newVNode.props) {
+        Object.keys(newVNode.props).forEach(key => {
+            // Skip children property
+            if (key === 'children') return;
+
+            // Update the property
+            if (key === 'className' || key === 'class') {
+                element.className = newVNode.props[key];
+            } else if (key === 'style' && typeof newVNode.props[key] === 'object') {
+                Object.assign(element.style, newVNode.props[key]);
+            } else if (key.startsWith('on') && typeof newVNode.props[key] === 'function') {
+                const eventName = key.slice(2).toLowerCase();
+                // Remove old event listener if it exists
+                if (oldVNode.props && oldVNode.props[key]) {
+                    element.removeEventListener(eventName, oldVNode.props[key]);
+                }
+                element.addEventListener(eventName, newVNode.props[key]);
+            } else {
+                element[key] = newVNode.props[key];
+            }
+        });
+    }
+
+    // Update children
+    if (newVNode.children) {
+        const newLength = newVNode.children.length;
+        const oldLength = oldVNode.children ? oldVNode.children.length : 0;
+
+        // Update existing children
+        for (let i = 0; i < Math.max(newLength, oldLength); i++) {
+            updateElement(
+                element,
+                i < oldLength ? oldVNode.children[i] : null,
+                i < newLength ? newVNode.children[i] : null,
+                i
+            );
+        }
+    }
+
+    return element;
 }
 
 /**

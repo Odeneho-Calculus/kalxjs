@@ -1,0 +1,18 @@
+{
+    "name": "kalxjs-router-demo",
+    "version": "1.0.0",
+    "description": "Demo of KalxJS Router with interactive examples",
+    "main": "index.html",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview"
+    },
+    "dependencies": {
+        "@kalxjs/core": "file:../../packages/core",
+        "@kalxjs/router": "file:../../packages/router"
+    },
+    "devDependencies": {
+        "vite": "^4.3.0"
+    }
+}

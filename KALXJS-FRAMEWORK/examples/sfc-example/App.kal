@@ -1,0 +1,257 @@
+<template>
+  <div class="app">
+    <header>
+      <h1>KalxJS SFC Demo</h1>
+      <p>Demonstrating Single File Components with .kal files</p>
+    </header>
+    
+    <main>
+      <section class="counter-section">
+        <Counter 
+          title="Interactive Counter" 
+          :initialCount="5"
+          @count-changed="handleCountChange" 
+        />
+        <div class="counter-events" k-if="countEvents.length > 0">
+          <h3>Counter Events</h3>
+          <ul class="event-list">
+            <li k-for="(event, index) in countEvents" :key="index">
+              <div k-text="'Count changed to: ' + event"></div>
+            </li>
+          </ul>
+          <button @click="clearCountEvents">Clear Events</button>
+        </div>
+      </section>
+      
+      <section class="todo-section">
+        <TodoList 
+          title="Task Manager" 
+          storageKey="kalxjs-demo-todos"
+          @todo-added="handleTodoAdded"
+          @todo-deleted="handleTodoDeleted"
+          @todo-toggled="handleTodoToggled"
+          @completed-cleared="handleCompletedCleared"
+        />
+        <div class="todo-events" k-if="todoEvents.length > 0">
+          <h3>Todo Events</h3>
+          <ul class="event-list">
+            <li k-for="(event, index) in todoEvents" :key="index">
+              <div k-text="event"></div>
+            </li>
+          </ul>
+          <button @click="clearTodoEvents">Clear Events</button>
+        </div>
+      </section>
+    </main>
+    
+    <footer>
+      <p>Built with KalxJS Framework - Single File Components</p>
+    </footer>
+  </div>
+</template>
+
+<script>
+import { ref } from '@kalxjs/core';
+import Counter from './Counter.kal';
+import TodoList from './TodoList.kal';
+
+export default {
+  name: 'App',
+  
+  components: {
+    Counter,
+    TodoList
+  },
+  
+  setup() {
+    // State for tracking events
+    const countEvents = ref([]);
+    const todoEvents = ref([]);
+    
+    // Event handlers for Counter
+    function handleCountChange(newCount) {
+      console.log("Counter changed to:", newCount);
+      // Add the new count to the events array
+      countEvents.value.push(newCount);
+      
+      // Keep only the last 5 events
+      if (countEvents.value.length > 5) {
+        countEvents.value.splice(0, countEvents.value.length - 5);
+      }
+      
+      // Force reactivity update
+      countEvents.value = [...countEvents.value];
+    }
+    
+    function clearCountEvents() {
+      countEvents.value = [];
+    }
+    
+    // Event handlers for TodoList
+    function handleTodoAdded(text) {
+      console.log("Todo added:", text);
+      todoEvents.value.push(`Added: "${text}"`);
+      limitTodoEvents();
+    }
+    
+    function handleTodoDeleted(todo) {
+      console.log("Todo deleted:", todo);
+      todoEvents.value.push(`Deleted: "${todo.text}"`);
+      limitTodoEvents();
+    }
+    
+    function handleTodoToggled({ id, completed }) {
+      console.log("Todo toggled:", id, completed);
+      const status = completed ? 'completed' : 'active';
+      todoEvents.value.push(`Toggled #${id} to ${status}`);
+      limitTodoEvents();
+    }
+    
+    function handleCompletedCleared(todos) {
+      console.log("Completed todos cleared:", todos);
+      todoEvents.value.push(`Cleared ${todos.length} completed todos`);
+      limitTodoEvents();
+    }
+    
+    function clearTodoEvents() {
+      todoEvents.value = [];
+    }
+    
+    // Helper to limit the number of todo events
+    function limitTodoEvents() {
+      if (todoEvents.value.length > 5) {
+        // Remove older events to keep only the last 5
+        todoEvents.value.splice(0, todoEvents.value.length - 5);
+      }
+      
+      // Force reactivity update
+      todoEvents.value = [...todoEvents.value];
+    }
+    
+    return {
+      countEvents,
+      todoEvents,
+      handleCountChange,
+      clearCountEvents,
+      handleTodoAdded,
+      handleTodoDeleted,
+      handleTodoToggled,
+      handleCompletedCleared,
+      clearTodoEvents
+    };
+  }
+}
+</script>
+
+<style>
+/* Global styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #f7fafc;
+  color: #2d3748;
+  line-height: 1.6;
+}
+
+/* App container */
+.app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header */
+header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+header h1 {
+  color: #3182ce;
+  margin-bottom: 10px;
+}
+
+header p {
+  color: #718096;
+}
+
+/* Main content */
+main {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+}
+
+@media (min-width: 768px) {
+  main {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Sections */
+section {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+}
+
+/* Events display */
+.counter-events,
+.todo-events {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f8fafc;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.counter-events h3,
+.todo-events h3 {
+  margin-top: 0;
+  color: #4a5568;
+  font-size: 1.1rem;
+}
+
+.counter-events .event-list,
+.todo-events .event-list {
+  padding-left: 0;
+  margin-bottom: 15px;
+  list-style-type: disc;
+}
+
+.counter-events .event-list li,
+.todo-events .event-list li {
+  margin-bottom: 5px;
+  margin-left: 20px;
+  padding-left: 5px;
+}
+
+.counter-events button,
+.todo-events button {
+  background-color: #edf2f7;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.counter-events button:hover,
+.todo-events button:hover {
+  background-color: #e2e8f0;
+}
+
+/* Footer */
+footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #e2e8f0;
+  text-align: center;
+  color: #718096;
+  font-size: 0.9rem;
+}
+</style>

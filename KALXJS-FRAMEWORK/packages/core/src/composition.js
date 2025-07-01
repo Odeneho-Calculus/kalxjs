@@ -8,12 +8,15 @@ import {
     onMounted,
     onUnmounted,
     onBeforeUpdate,
-    onUpdated
+    onUpdated,
+    ref  // Import ref directly
 } from './composition/index.js';
 
 import {
     setCurrentInstance,
-    getCurrentInstance
+    getCurrentInstance,
+    provide,
+    inject
 } from './composition/instance.js';
 
 import {
@@ -44,6 +47,7 @@ export {
     onUpdated,
     setCurrentInstance,
     getCurrentInstance,
+    ref,  // Export ref directly
     onCreated,
     onBeforeMount,
     onBeforeUnmount,
@@ -54,5 +58,7 @@ export {
     useLocalStorage,
     useDebounce,
     useThrottle,
-    useMouse
+    useMouse,
+    provide,
+    inject
 };

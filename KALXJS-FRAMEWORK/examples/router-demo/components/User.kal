@@ -1,0 +1,21 @@
+<template>
+  <div>
+    <h1>User Page</h1>
+    <p>User ID: {{ id }}</p>
+  </div>
+</template>
+
+<script>
+import { defineComponent } from '@kalxjs/core';
+
+export default defineComponent({
+  name: 'UserPage',
+  props: ['id'],
+});
+</script>
+
+<style>
+h1 {
+  color: #16a085;
+}
+</style>

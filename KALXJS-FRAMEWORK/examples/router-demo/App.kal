@@ -1,0 +1,27 @@
+<template>
+  <div>
+    <Navbar />
+    <RouterView />
+  </div>
+</template>
+
+<script>
+import { defineComponent } from '@kalxjs/core';
+import Navbar from './components/Navbar.kal';
+import RouterView from '@kalxjs/router/components/RouterView.kal';
+
+export default defineComponent({
+  name: 'App',
+  components: {
+    Navbar,
+    RouterView,
+  }
+});
+</script>
+
+<style>
+div {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+</style>

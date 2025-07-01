@@ -1,6 +1,7 @@
 // @kalxjs/core - Component setup function
 
 import { setCurrentInstance } from '../composition';
+import { ref } from '../reactivity/reactive';
 
 /**
  * Processes the setup function of a component
@@ -25,7 +26,34 @@ export function processSetup(instance, options) {
     try {
         // Call setup with props and context
         const setupContext = createSetupContext(instance);
-        const setupResult = options.setup.call(instance, instance.props || {}, setupContext);
+
+        // Make ref available in the global scope for this execution context
+        const globalRef = window.ref;
+        window.ref = ref;
+
+        // Props are already made accessible on the instance in createComponent
+        console.log('Setup function props:', instance.props);
+
+        let setupResult;
+        try {
+            setupResult = options.setup.call(instance, instance.props || {}, setupContext);
+        } catch (error) {
+            console.error('Error in setup function:', error);
+            // If the error is about ref not being defined, try again with ref explicitly passed
+            if (error.message.includes('ref is not defined')) {
+                console.log('Retrying setup with explicit ref parameter');
+                // Create a wrapper function that explicitly passes ref
+                const setupWithRef = new Function('instance', 'props', 'context', 'ref', `
+                    return (${options.setup.toString()}).call(instance, props, context);
+                `);
+                setupResult = setupWithRef(instance, instance.props || {}, setupContext, ref);
+            } else {
+                throw error;
+            }
+        } finally {
+            // Restore the original ref (or undefined)
+            window.ref = globalRef;
+        }
 
         // Handle different return types
         if (typeof setupResult === 'function') {
@@ -61,6 +89,7 @@ function createSetupContext(instance) {
         },
         expose: (exposed) => {
             instance.exposed = exposed;
-        }
+        },
+        ref: ref  // Make ref function available to the component
     };
 }

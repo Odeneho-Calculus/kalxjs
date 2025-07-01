@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KalxJS Router Demo</title>
+    <link rel="icon" href="data:,">
+    <style>
+        /* Base styles to ensure proper rendering before JS loads */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f7fafc;
+            color: #2d3748;
+        }
+
+        #app {
+            min-height: 100vh;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-size: 1.5rem;
+            color: #3182ce;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="loading">Loading KalxJS router Demo...</div>
+    </div>
+
+    <script type="module">
+        import { createApp } from '@kalxjs/core';
+        import App from './App.kal';
+
+        // Create and mount the application
+        const app = createApp(App);
+        app.mount('#app');
+    </script>
+</body>
+
+</html>

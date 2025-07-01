@@ -1,0 +1,45 @@
+<template>
+  <nav>
+    <ul>
+      <li><RouterLink to="/">Home</RouterLink></li>
+      <li><RouterLink to="/about">About</RouterLink></li>
+      <li><RouterLink to="/user/123">User 123</RouterLink></li>
+    </ul>
+  </nav>
+</template>
+
+<script>
+import { defineComponent } from '@kalxjs/core';
+import RouterLink from '@kalxjs/router/components/RouterLink.kal';
+
+export default defineComponent({
+  name: 'Navbar',
+  components: {
+    RouterLink,
+  },
+});
+</script>
+
+<style>
+nav {
+  background-color: #2c3e50;
+  padding: 10px;
+}
+ul {
+  list-style: none;
+  display: flex;
+  gap: 15px;
+  margin: 0;
+  padding: 0;
+}
+li {
+  color: white;
+}
+a {
+  color: white;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+</style>

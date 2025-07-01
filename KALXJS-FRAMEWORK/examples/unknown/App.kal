@@ -1,0 +1,24 @@
+<template>
+
+</template>
+
+<script>
+import { ref } from '@kalxjs/core';
+
+export default {
+  name: 'App',
+  setup() {
+    
+  }
+};
+</script>
+
+<style>
+.app {
+  max-width: 600px;
+  margin: 20px auto;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+</style>

@@ -19,18 +19,18 @@ Advanced development tools for debugging, profiling, and optimizing kalxjs appli
 
 ```bash
 # Using npm
-npm install @kalxjs-framework/devtools
+npm install @kalxjs/devtools
 
 # Using pnpm
-pnpm add @kalxjs-framework/devtools
+pnpm add @kalxjs/devtools
 ```
 
 ## Modern Setup
 
 ```typescript
-import { createApp } from '@kalxjs-framework/runtime'
-import { DevTools } from '@kalxjs-framework/devtools'
-import type { DevToolsConfig } from '@kalxjs-framework/devtools'
+import { createApp } from '@kalxjs/core'
+import { DevTools } from '@kalxjs/devtools'
+import type { DevToolsConfig } from '@kalxjs/devtools'
 
 const config: DevToolsConfig = {
   app: {
@@ -58,7 +58,7 @@ app.use(DevTools, config)
 ### Performance Profiling
 
 ```typescript
-import { profile, measure } from '@kalxjs-framework/devtools'
+import { profile, measure } from '@kalxjs/devtools'
 
 // Component profiling
 @profile()
@@ -78,7 +78,7 @@ profiler.end()
 ### Custom Plugins
 
 ```typescript
-import { defineDevToolsPlugin } from '@kalxjs-framework/devtools'
+import { defineDevToolsPlugin } from '@kalxjs/devtools'
 
 export const CustomDebugger = defineDevToolsPlugin({
   name: 'custom-debugger',
@@ -96,7 +96,7 @@ export const CustomDebugger = defineDevToolsPlugin({
 
 ```typescript
 // vite.config.ts
-import { kalxjsDevTools } from '@kalxjs-framework/devtools/vite'
+import { kalxjsDevTools } from '@kalxjs/devtools/vite'
 
 export default defineConfig({
   plugins: [

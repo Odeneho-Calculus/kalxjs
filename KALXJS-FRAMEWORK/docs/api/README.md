@@ -3,7 +3,7 @@
 
 Comprehensive API documentation for kalxjs v2.1.14.
 
-## Runtime Package (@kalxjs-framework/runtime)
+## Runtime Package (@kalxjs/core)
 
 Core runtime features:
 

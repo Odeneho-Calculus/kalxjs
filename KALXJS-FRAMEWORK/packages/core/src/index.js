@@ -1,6 +1,19 @@
 // Core functionality imports
 import { reactive, ref, computed, effect } from './reactivity/reactive.js';
+
+// Make ref available globally for components that might need it
+if (typeof window !== 'undefined' && !window.ref) {
+    window.ref = ref;
+}
 import { h, createElement, updateElement } from './vdom/vdom.js';
+
+// Import directives system
+import {
+    directivesRegistry,
+    applyDirectives,
+    registerDirective,
+    getDirective
+} from './directives/index.js';
 import {
     createComponent,
     defineComponent,
@@ -28,7 +41,9 @@ import {
     onBeforeUpdate,
     onUpdated,
     getCurrentInstance,
-    setCurrentInstance
+    setCurrentInstance,
+    provide,
+    inject
 } from './composition.js';
 
 // Import additional lifecycle hooks
@@ -131,6 +146,12 @@ const kalxjs = {
     // Virtual DOM
     h,
     createElement,
+
+    // Directives system
+    directivesRegistry,
+    applyDirectives,
+    registerDirective,
+    getDirective,
 
     // Component system
     createComponent,
@@ -265,6 +286,12 @@ export {
     createElement,
     updateElement,
 
+    // Directives system
+    directivesRegistry,
+    applyDirectives,
+    registerDirective,
+    getDirective,
+
     // Component
     createComponent,
     defineComponentEnhanced as defineComponent,
@@ -386,3 +413,4 @@ export * from './ssr/index.js';
 export * from './animation/index.js';
 export * from './template/index.js';
 export * from './renderer/index.js';
+export * from './directives/index.js';

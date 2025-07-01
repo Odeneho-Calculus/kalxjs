@@ -1,0 +1,95 @@
+<template>
+  <a
+    :href="href"
+    :class="computedClass"
+    @click="navigate"
+    :aria-current="isExactActive ? ariaCurrentValue : null"
+  >
+    <slot></slot>
+  </a>
+</template>
+
+<script>
+import { defineComponent, computed } from '@kalxjs/core';
+import { useRouter } from '../index.js';
+
+export default defineComponent({
+  name: 'RouterLink',
+  props: {
+    to: {
+      type: [String, Object],
+      required: true
+    },
+    replace: {
+      type: Boolean,
+      default: false
+    },
+    activeClass: {
+      type: String,
+      default: 'router-link-active'
+    },
+    exactActiveClass: {
+      type: String,
+      default: 'router-link-exact-active'
+    },
+    ariaCurrentValue: {
+      type: String,
+      default: 'page'
+    }
+  },
+  setup(props) {
+    const { router, isActive, isExactActive, resolve } = useRouter();
+
+    const { href } = resolve(props.to);
+
+    const isRouteActive = computed(() => isActive(props.to));
+    const isRouteExactActive = computed(() => isExactActive(props.to));
+
+    const computedClass = computed(() => {
+      const classes = [];
+      if (isRouteExactActive.value) {
+        classes.push(props.exactActiveClass);
+      } else if (isRouteActive.value) {
+        classes.push(props.activeClass);
+      }
+      return classes.join(' ');
+    });
+
+    const navigate = (event) => {
+      if (
+        event.button !== 0 ||
+        event.metaKey ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.shiftKey
+      ) {
+        return;
+      }
+      event.preventDefault();
+      if (router) {
+        const method = props.replace ? 'replace' : 'push';
+        router[method](props.to).catch(err => {
+          console.error('Navigation error:', err);
+        });
+      } else {
+        console.warn('RouterLink: No active router found');
+      }
+    };
+
+    return {
+      href,
+      computedClass,
+      navigate,
+      isExactActive: isRouteExactActive,
+      ariaCurrentValue: props.ariaCurrentValue
+    };
+  }
+});
+</script>
+
+<style>
+a.router-link-active {
+  font-weight: bold;
+  text-decoration: underline;
+}
+</style>

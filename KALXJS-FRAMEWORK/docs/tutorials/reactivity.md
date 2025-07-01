@@ -195,7 +195,7 @@ batch(() => {
 ### Async Effects
 
 ```typescript
-import { asyncEffect } from '@kalxjs-framework/runtime'
+import { asyncEffect } from '@kalxjs/core'
 
 asyncEffect(async () => {
   const data = await fetchData(id.value)
@@ -206,7 +206,7 @@ asyncEffect(async () => {
 ## Performance Optimization
 
 ```typescript
-import { untrack, markRaw } from '@kalxjs-framework/runtime'
+import { untrack, markRaw } from '@kalxjs/core'
 
 // Prevent tracking
 const value = untrack(() => state.someValue)
