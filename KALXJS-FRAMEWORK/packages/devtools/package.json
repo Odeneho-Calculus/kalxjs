@@ -38,7 +38,7 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/rollup-win32-x64-msvc": "^4.40.1",
     "is-module": "^1.0.0",
-    "rollup": "^4.40.1"
+    "rollup": "^2.79.2"
   },
   "gitHead": "13e16c8e24d110351a3a2fb5314d5904ae35784e"
 }
