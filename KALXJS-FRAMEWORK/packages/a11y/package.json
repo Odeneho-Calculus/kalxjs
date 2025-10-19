@@ -1,31 +1,31 @@
 {
-    "name": "@kalxjs/a11y",
-    "version": "1.0.1",
-    "description": "Accessibility utilities and features for KALXJS",
-    "main": "src/index.js",
-    "module": "src/index.js",
-    "type": "module",
-    "exports": {
-        ".": "./src/index.js",
-        "./aria": "./src/aria.js",
-        "./focus": "./src/focus-management.js",
-        "./keyboard": "./src/keyboard-navigation.js",
-        "./screen-reader": "./src/screen-reader.js",
-        "./skip-links": "./src/skip-links.js",
-        "./directives": "./src/a11y-directives.js",
-        "./testing": "./src/testing.js"
-    },
-    "keywords": [
-        "kalxjs",
-        "accessibility",
-        "a11y",
-        "aria",
-        "wcag",
-        "screen-reader"
-    ],
-    "author": "KALXJS Team",
-    "license": "MIT",
-    "peerDependencies": {
-        "@kalxjs/core": "^2.0.0"
-    }
+  "name": "@kalxjs/a11y",
+  "version": "1.0.2",
+  "description": "Accessibility utilities and features for KALXJS",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js",
+    "./aria": "./src/aria.js",
+    "./focus": "./src/focus-management.js",
+    "./keyboard": "./src/keyboard-navigation.js",
+    "./screen-reader": "./src/screen-reader.js",
+    "./skip-links": "./src/skip-links.js",
+    "./directives": "./src/a11y-directives.js",
+    "./testing": "./src/testing.js"
+  },
+  "keywords": [
+    "kalxjs",
+    "accessibility",
+    "a11y",
+    "aria",
+    "wcag",
+    "screen-reader"
+  ],
+  "author": "KALXJS Team",
+  "license": "MIT",
+  "peerDependencies": {
+    "@kalxjs/core": "^2.0.0"
+  }
 }

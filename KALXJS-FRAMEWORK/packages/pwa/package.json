@@ -1,32 +1,32 @@
 {
-    "name": "@kalxjs/pwa",
-    "version": "1.0.1",
-    "description": "Progressive Web App features for KALXJS",
-    "main": "src/index.js",
-    "module": "src/index.js",
-    "type": "module",
-    "exports": {
-        ".": "./src/index.js",
-        "./service-worker": "./src/service-worker.js",
-        "./cache-strategies": "./src/cache-strategies.js",
-        "./manifest": "./src/manifest.js",
-        "./push-notifications": "./src/push-notifications.js",
-        "./background-sync": "./src/background-sync.js",
-        "./offline": "./src/offline.js",
-        "./install-prompt": "./src/install-prompt.js"
-    },
-    "keywords": [
-        "kalxjs",
-        "pwa",
-        "progressive-web-app",
-        "service-worker",
-        "offline",
-        "push-notifications",
-        "background-sync"
-    ],
-    "author": "KALXJS Team",
-    "license": "MIT",
-    "peerDependencies": {
-        "@kalxjs/core": "^2.0.0"
-    }
+  "name": "@kalxjs/pwa",
+  "version": "1.0.2",
+  "description": "Progressive Web App features for KALXJS",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js",
+    "./service-worker": "./src/service-worker.js",
+    "./cache-strategies": "./src/cache-strategies.js",
+    "./manifest": "./src/manifest.js",
+    "./push-notifications": "./src/push-notifications.js",
+    "./background-sync": "./src/background-sync.js",
+    "./offline": "./src/offline.js",
+    "./install-prompt": "./src/install-prompt.js"
+  },
+  "keywords": [
+    "kalxjs",
+    "pwa",
+    "progressive-web-app",
+    "service-worker",
+    "offline",
+    "push-notifications",
+    "background-sync"
+  ],
+  "author": "KALXJS Team",
+  "license": "MIT",
+  "peerDependencies": {
+    "@kalxjs/core": "^2.0.0"
+  }
 }

@@ -1,39 +1,39 @@
 {
-    "name": "@kalxjs/ui",
-    "version": "1.0.1",
-    "description": "Modern UI component library for KALXJS",
-    "main": "src/index.js",
-    "module": "src/index.js",
-    "type": "module",
-    "exports": {
-        ".": "./src/index.js",
-        "./button": "./src/components/Button.js",
-        "./input": "./src/components/Input.js",
-        "./modal": "./src/components/Modal.js",
-        "./tooltip": "./src/components/Tooltip.js",
-        "./dropdown": "./src/components/Dropdown.js",
-        "./tabs": "./src/components/Tabs.js",
-        "./accordion": "./src/components/Accordion.js",
-        "./card": "./src/components/Card.js",
-        "./alert": "./src/components/Alert.js",
-        "./badge": "./src/components/Badge.js",
-        "./theme": "./src/theme/index.js",
-        "./composables": "./src/composables/index.js"
-    },
-    "keywords": [
-        "kalxjs",
-        "ui",
-        "components",
-        "design-system",
-        "accessible",
-        "dark-mode"
-    ],
-    "author": "KALXJS Team",
-    "license": "MIT",
-    "peerDependencies": {
-        "@kalxjs/core": "^2.0.0"
-    },
-    "dependencies": {
-        "@kalxjs/a11y": "^1.0.1"
-    }
+  "name": "@kalxjs/ui",
+  "version": "1.0.2",
+  "description": "Modern UI component library for KALXJS",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.js",
+    "./button": "./src/components/Button.js",
+    "./input": "./src/components/Input.js",
+    "./modal": "./src/components/Modal.js",
+    "./tooltip": "./src/components/Tooltip.js",
+    "./dropdown": "./src/components/Dropdown.js",
+    "./tabs": "./src/components/Tabs.js",
+    "./accordion": "./src/components/Accordion.js",
+    "./card": "./src/components/Card.js",
+    "./alert": "./src/components/Alert.js",
+    "./badge": "./src/components/Badge.js",
+    "./theme": "./src/theme/index.js",
+    "./composables": "./src/composables/index.js"
+  },
+  "keywords": [
+    "kalxjs",
+    "ui",
+    "components",
+    "design-system",
+    "accessible",
+    "dark-mode"
+  ],
+  "author": "KALXJS Team",
+  "license": "MIT",
+  "peerDependencies": {
+    "@kalxjs/core": "^2.0.0"
+  },
+  "dependencies": {
+    "@kalxjs/a11y": "^1.0.2"
+  }
 }

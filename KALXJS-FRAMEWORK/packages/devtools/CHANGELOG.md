@@ -3,13 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
-## [1.2.27](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/devtools@1.2.26...@kalxjs/devtools@1.2.27) (2025-10-19)
+## [1.2.28](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/devtools@1.2.26...@kalxjs/devtools@1.2.28) (2025-10-19)
 
 **Note:** Version bump only for package @kalxjs/devtools
 
+## [1.2.27](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/devtools@1.2.26...@kalxjs/devtools@1.2.27) (2025-10-19)
 
-
-
+**Note:** Version bump only for package @kalxjs/devtools
 
 ## [1.2.26](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/devtools@1.2.25...@kalxjs/devtools@1.2.26) (2025-05-17)
 
