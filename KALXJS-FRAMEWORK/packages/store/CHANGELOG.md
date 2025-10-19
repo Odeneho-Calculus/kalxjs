@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.13](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/store@1.0.10...@kalxjs/store@1.0.13) (2025-10-19)
+
+### Bug Fixes
+
+- rename publish script to release to avoid lifecycle conflicts ([714d3b7](https://github.com/Odeneho-Calculus/kalxjs/commit/714d3b77f043fdd0713b8198147a013c3f6e1c07))
+
 ## [1.0.12](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/store@1.0.10...@kalxjs/store@1.0.12) (2025-10-19)
 
 **Note:** Version bump only for package @kalxjs/store

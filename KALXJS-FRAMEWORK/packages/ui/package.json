@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/ui",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Modern UI component library for KALXJS",
   "main": "src/index.js",
   "module": "src/index.js",
@@ -34,7 +34,7 @@
     "@kalxjs/core": "^2.0.0"
   },
   "dependencies": {
-    "@kalxjs/a11y": "^1.0.2"
+    "@kalxjs/a11y": "^1.0.3"
   },
   "gitHead": "13e16c8e24d110351a3a2fb5314d5904ae35784e"
 }

@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/edge",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Edge Computing support for KalxJS - Cloudflare Workers, Deno Deploy, and edge runtime optimization",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",

@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/store",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Global state management for KalxJS framework",
   "type": "module",
   "author": "kalxjs Team",
@@ -32,7 +32,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@kalxjs/core": "^2.2.10"
+    "@kalxjs/core": "^2.2.11"
   },
   "peerDependencies": {
     "@kalxjs/core": "^2.1.0"

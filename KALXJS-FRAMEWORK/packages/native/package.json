@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/native",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Native Mobile and Desktop support for KalxJS - React Native-like API with Electron and Tauri integration",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",

@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [2.0.27](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/cli@2.0.24...@kalxjs/cli@2.0.27) (2025-10-19)
+
+### Bug Fixes
+
+- rename publish script to release to avoid lifecycle conflicts ([714d3b7](https://github.com/Odeneho-Calculus/kalxjs/commit/714d3b77f043fdd0713b8198147a013c3f6e1c07))
+
 ## [2.0.26](https://github.com/Odeneho-Calculus/kalxjs/compare/@kalxjs/cli@2.0.24...@kalxjs/cli@2.0.26) (2025-10-19)
 
 **Note:** Version bump only for package @kalxjs/cli
