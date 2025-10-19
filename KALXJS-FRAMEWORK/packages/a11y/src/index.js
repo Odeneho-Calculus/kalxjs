@@ -116,7 +116,7 @@ export {
 /**
  * Install a11y plugin for KALXJS
  */
-export function installA11y(app, options = {}) {
+export async function installA11y(app, options = {}) {
     const {
         installDirectives = true,
         installSkipLinks = true,
