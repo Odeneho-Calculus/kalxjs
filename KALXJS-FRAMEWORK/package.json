@@ -25,7 +25,7 @@
         "lint": "eslint packages/*/src --ext .js",
         "clean": "lerna clean -y && rm -rf node_modules",
         "clear-jest-cache": "node --experimental-vm-modules node_modules/jest/bin/jest.js --clearCache",
-        "publish": "lerna publish",
+        "release": "lerna publish",
         "publish:from-package": "lerna publish from-package",
         "publish:canary": "lerna publish --canary",
         "version:bump": "lerna version --no-push --no-git-tag-version",

@@ -54,5 +54,6 @@
     "@rollup/plugin-node-resolve": "^15.0.1",
     "jest": "^29.5.0",
     "rollup": "^2.79.1"
-  }
+  },
+  "gitHead": "13e16c8e24d110351a3a2fb5314d5904ae35784e"
 }

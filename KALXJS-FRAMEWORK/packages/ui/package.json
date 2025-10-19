@@ -35,5 +35,6 @@
   },
   "dependencies": {
     "@kalxjs/a11y": "^1.0.2"
-  }
+  },
+  "gitHead": "13e16c8e24d110351a3a2fb5314d5904ae35784e"
 }
