@@ -6,8 +6,8 @@
  * @module @kalxjs/core/component/keep-alive
  */
 
-import { getCurrentInstance } from '../component.js';
-import { isString } from '../../utils/index.js';
+import { getCurrentInstance } from '../../composition.js';
+import { isString } from '../../utils.js';
 
 /**
  * Cache for component instances

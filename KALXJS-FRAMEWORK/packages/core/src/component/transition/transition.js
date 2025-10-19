@@ -6,8 +6,8 @@
  * @module @kalxjs/core/component/transition
  */
 
-import { getCurrentInstance } from '../component.js';
-import { nextTick } from '../../scheduler/index.js';
+import { getCurrentInstance } from '../../composition.js';
+import { nextTick } from '../../utils.js';
 
 /**
  * CSS class names for transition phases

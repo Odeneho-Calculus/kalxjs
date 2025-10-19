@@ -6,9 +6,9 @@
  * @module @kalxjs/core/component/dynamic
  */
 
-import { getCurrentInstance } from '../component.js';
-import { isString, isObject } from '../../utils/index.js';
-import { createVNode } from '../../vdom/index.js';
+import { getCurrentInstance } from '../../composition.js';
+import { isString, isObject } from '../../utils.js';
+import { h } from '../../vdom/index.js';
 
 /**
  * Dynamic Component
@@ -65,7 +65,7 @@ export const DynamicComponent = {
             }
 
             // Create vnode for the dynamic component
-            return createVNode(component, {
+            return h(component, {
                 ...attrs,
                 ...restProps
             }, slots);
@@ -93,12 +93,12 @@ export function resolveDynamicComponent(component, props = {}, slots = {}) {
 
     // If it's already a component object, return it
     if (isObject(component) && (component.render || component.setup || component.template)) {
-        return createVNode(component, props, slots);
+        return h(component, props, slots);
     }
 
     // If it's a function, it might be a functional component
     if (typeof component === 'function') {
-        return createVNode(component, props, slots);
+        return h(component, props, slots);
     }
 
     console.warn('[KALXJS] resolveDynamicComponent: Invalid component type', component);

@@ -7,7 +7,7 @@
  */
 
 import { Transition } from './transition.js';
-import { nextTick } from '../../scheduler/index.js';
+import { nextTick } from '../../utils.js';
 
 /**
  * TransitionGroup Component

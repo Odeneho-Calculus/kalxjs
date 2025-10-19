@@ -31,6 +31,25 @@
     "dev": "vite"
   },
   "dependencies": {
+    "@kalxjs/core": "latest",
+    "@kalxjs/router": "latest",
+    "@kalxjs/store": "latest",
+    "@kalxjs/state": "latest",
+    "@kalxjs/compiler": "latest",
+    "@kalxjs/compiler-plugin": "latest",
+    "@kalxjs/composition": "latest",
+    "@kalxjs/ui": "latest",
+    "@kalxjs/performance": "latest",
+    "@kalxjs/devtools": "latest",
+    "@kalxjs/ai": "latest",
+    "@kalxjs/native": "latest",
+    "@kalxjs/edge": "latest",
+    "@kalxjs/pwa": "latest",
+    "@kalxjs/i18n": "latest",
+    "@kalxjs/a11y": "latest",
+    "@kalxjs/api": "latest",
+    "@kalxjs/utils": "latest",
+    "@kalxjs/plugins": "latest",
     "boxen": "^5.1.2",
     "chalk": "^4.1.2",
     "cli-progress": "^3.12.0",
@@ -62,9 +81,6 @@
   },
   "engines": {
     "node": ">=14.0.0"
-  },
-  "peerDependencies": {
-    "vite": "^4.0.0 || ^5.0.0"
   },
   "publishConfig": {
     "access": "public"
