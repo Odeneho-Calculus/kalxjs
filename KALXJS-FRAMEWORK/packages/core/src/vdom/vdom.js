@@ -389,9 +389,13 @@ ${JSON.stringify(vnode, null, 2)}
                 } else {
                     console.warn(`Event handler for ${eventName} is not a function:`, value);
                 }
-            } else if (key === 'style' && typeof value === 'object') {
-                // Handle style objects
-                Object.assign(element.style, value);
+            } else if (key === 'style') {
+                // Handle style objects and strings
+                if (typeof value === 'object') {
+                    Object.assign(element.style, value);
+                } else if (typeof value === 'string') {
+                    element.style.cssText = value;
+                }
             } else if (key === 'class' || key === 'className') {
                 // Handle class names
                 element.className = value;
@@ -401,8 +405,19 @@ ${JSON.stringify(vnode, null, 2)}
                     element.innerHTML = value.__html;
                 }
             } else {
-                // Handle regular attributes
-                element.setAttribute(key, value);
+                // Handle regular attributes - validate attribute name and value
+                try {
+                    // Validate attribute name (must be valid HTML attribute name)
+                    if (typeof key === 'string' && key.length > 0 && /^[a-zA-Z][\w-]*$/.test(key)) {
+                        // Convert value to string and ensure it's valid
+                        const stringValue = String(value);
+                        element.setAttribute(key, stringValue);
+                    } else {
+                        console.warn(`Invalid attribute name: ${key}`);
+                    }
+                } catch (attrError) {
+                    console.warn(`Failed to set attribute ${key}=${value}:`, attrError.message);
+                }
             }
         }
     } catch (error) {
