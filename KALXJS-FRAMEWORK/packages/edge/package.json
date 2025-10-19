@@ -1,6 +1,6 @@
 {
     "name": "@kalxjs/edge",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Edge Computing support for KalxJS - Cloudflare Workers, Deno Deploy, and edge runtime optimization",
     "main": "dist/index.cjs.js",
     "module": "dist/index.esm.js",
@@ -50,9 +50,9 @@
         "@kalxjs/core": "^3.0.0"
     },
     "devDependencies": {
-        "rollup": "^2.79.1",
-        "@rollup/plugin-node-resolve": "^15.0.1",
         "@rollup/plugin-commonjs": "^24.0.1",
-        "jest": "^29.5.0"
+        "@rollup/plugin-node-resolve": "^15.0.1",
+        "jest": "^29.5.0",
+        "rollup": "^2.79.1"
     }
 }

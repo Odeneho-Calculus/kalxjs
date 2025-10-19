@@ -1,6 +1,6 @@
 {
     "name": "@kalxjs/a11y",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Accessibility utilities and features for KALXJS",
     "main": "src/index.js",
     "module": "src/index.js",

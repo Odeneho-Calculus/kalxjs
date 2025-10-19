@@ -12,16 +12,10 @@
                 "*.md"
             ],
             "message": "chore(release): publish",
-            "registry": "https://registry.npmjs.org/",
-            "npmClientArgs": [
-                "--no-frozen-lockfile"
-            ]
+            "registry": "https://registry.npmjs.org/"
         },
         "bootstrap": {
-            "hoist": true,
-            "npmClientArgs": [
-                "--no-frozen-lockfile"
-            ]
+            "hoist": true
         }
     }
 }
