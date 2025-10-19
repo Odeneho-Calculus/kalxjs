@@ -50,7 +50,17 @@ import {
     withErrorBoundary,
     Fragment,
     createFragment,
-    isFragment
+    isFragment,
+    DynamicComponent,
+    resolveDynamicComponent,
+    isComponent,
+    defineAsyncComponent,
+    KeepAlive,
+    onActivated,
+    onDeactivated,
+    Transition,
+    TransitionGroup,
+    useFLIPAnimation
 } from './component/index.js';
 
 // Import Signals reactivity
@@ -184,6 +194,16 @@ const kalxjs = {
     Fragment,
     createFragment,
     isFragment,
+    DynamicComponent,
+    resolveDynamicComponent,
+    isComponent,
+    defineAsyncComponent,
+    KeepAlive,
+    onActivated,
+    onDeactivated,
+    Transition,
+    TransitionGroup,
+    useFLIPAnimation,
 
     // Template-based component system
     createTemplateComponent,
@@ -338,6 +358,16 @@ export {
     Fragment,
     createFragment,
     isFragment,
+    DynamicComponent,
+    resolveDynamicComponent,
+    isComponent,
+    defineAsyncComponent,
+    KeepAlive,
+    onActivated,
+    onDeactivated,
+    Transition,
+    TransitionGroup,
+    useFLIPAnimation,
 
     // Template-based component system
     createTemplateComponent,

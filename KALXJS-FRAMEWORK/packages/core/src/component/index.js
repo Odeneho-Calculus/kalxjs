@@ -31,3 +31,6 @@ export { Suspense, useSuspense } from './suspense/index.js';
 export { Teleport, usePortal } from './teleport/index.js';
 export { ErrorBoundary, useErrorHandler, withErrorBoundary } from './error-boundary/index.js';
 export { Fragment, createFragment, isFragment } from './fragment/index.js';
+export { DynamicComponent, resolveDynamicComponent, isComponent, defineAsyncComponent } from './dynamic/index.js';
+export { KeepAlive, onActivated, onDeactivated } from './keep-alive/index.js';
+export { Transition, TransitionGroup, useFLIPAnimation } from './transition/index.js';
