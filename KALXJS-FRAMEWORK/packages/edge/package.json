@@ -47,7 +47,7 @@
   "author": "KalxJS Team",
   "license": "MIT",
   "dependencies": {
-    "@kalxjs/core": "^3.0.0"
+    "@kalxjs/core": "latest"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^24.0.1",

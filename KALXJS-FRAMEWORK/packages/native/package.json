@@ -48,7 +48,7 @@
   "author": "KalxJS Team",
   "license": "MIT",
   "dependencies": {
-    "@kalxjs/core": "^3.0.0"
+    "@kalxjs/core": "latest"
   },
   "peerDependencies": {
     "@tauri-apps/api": "^1.5.0",
