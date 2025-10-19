@@ -3,7 +3,7 @@
         "packages/*"
     ],
     "version": "independent",
-    "npmClient": "npm",
+    "npmClient": "pnpm",
     "command": {
         "publish": {
             "conventionalCommits": true,
@@ -14,14 +14,13 @@
             "message": "chore(release): publish",
             "registry": "https://registry.npmjs.org/",
             "npmClientArgs": [
-                "--legacy-peer-deps"
+                "--no-frozen-lockfile"
             ]
         },
         "bootstrap": {
             "hoist": true,
             "npmClientArgs": [
-                "--no-package-lock",
-                "--legacy-peer-deps"
+                "--no-frozen-lockfile"
             ]
         }
     }

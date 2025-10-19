@@ -1,0 +1,86 @@
+<template>
+  <div class="user-card">
+    <h2>{{ user.name }}</h2>
+    <p>{{ user.email }}</p>
+    <button @click="updateUser">Update</button>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { ref, computed } from '@kalxjs/core';
+
+// TypeScript interface
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  age?: number;
+}
+
+// Define props with TypeScript
+interface Props {
+  userId: number;
+  initialUser?: User;
+}
+
+const props = defineProps<Props>();
+
+// Define emits with TypeScript
+const emit = defineEmits<{
+  (e: 'update', user: User): void;
+  (e: 'delete', id: number): void;
+}>();
+
+// Reactive state with type inference
+const user = ref<User>(props.initialUser || {
+  id: props.userId,
+  name: 'Loading...',
+  email: ''
+});
+
+// Computed with type inference
+const displayName = computed<string>(() => {
+  return `${user.value.name} (${user.value.email})`;
+});
+
+// Method with types
+function updateUser(): void {
+  user.value.name = 'Updated User';
+  emit('update', user.value);
+}
+
+// Expose methods to parent
+defineExpose({
+  updateUser,
+  user
+});
+</script>
+
+<style scoped lang="scss">
+$primary: #3498db;
+$secondary: #2ecc71;
+
+.user-card {
+  padding: 20px;
+  border: 2px solid $primary;
+  border-radius: 8px;
+
+  h2 {
+    color: $primary;
+    margin-bottom: 10px;
+  }
+
+  button {
+    background: $secondary;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+</style>

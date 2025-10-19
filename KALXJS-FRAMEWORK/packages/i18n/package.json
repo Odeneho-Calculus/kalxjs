@@ -1,0 +1,32 @@
+{
+    "name": "@kalxjs/i18n",
+    "version": "1.0.0",
+    "description": "Internationalization (i18n) system for KALXJS",
+    "main": "src/index.js",
+    "module": "src/index.js",
+    "type": "module",
+    "exports": {
+        ".": "./src/index.js",
+        "./plugin": "./src/plugin.js",
+        "./translator": "./src/translator.js",
+        "./formatters": "./src/formatters.js",
+        "./pluralization": "./src/pluralization.js",
+        "./interpolation": "./src/interpolation.js",
+        "./rtl": "./src/rtl.js",
+        "./loader": "./src/loader.js",
+        "./composables": "./src/composables.js"
+    },
+    "keywords": [
+        "kalxjs",
+        "i18n",
+        "internationalization",
+        "localization",
+        "translation",
+        "locale"
+    ],
+    "author": "KALXJS Team",
+    "license": "MIT",
+    "peerDependencies": {
+        "@kalxjs/core": "^2.0.0"
+    }
+}

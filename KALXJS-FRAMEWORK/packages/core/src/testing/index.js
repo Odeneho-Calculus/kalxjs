@@ -11,6 +11,14 @@ export const TEST_TYPES = {
     PERFORMANCE: 'performance'
 };
 
+// Export enhanced testing utilities
+export * from './component-testing.js';
+export * from './mocks.js';
+export * from './user-events.js';
+export * from './async-utilities.js';
+export * from './snapshot.js';
+export * from './test-presets.js';
+
 /**
  * Creates a test suite
  * @param {string} name - Test suite name

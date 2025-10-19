@@ -1,0 +1,26 @@
+{
+    "name": "@kalxjs/esbuild-plugin",
+    "version": "1.0.0",
+    "description": "esbuild plugin for KALXJS .klx Single File Components",
+    "main": "index.js",
+    "type": "module",
+    "keywords": [
+        "kalxjs",
+        "esbuild",
+        "plugin",
+        "klx",
+        "sfc"
+    ],
+    "author": "KALXJS Team",
+    "license": "MIT",
+    "peerDependencies": {
+        "esbuild": "^0.18.0 || ^0.19.0 || ^0.20.0"
+    },
+    "dependencies": {
+        "@kalxjs/compiler": "^1.0.0"
+    },
+    "files": [
+        "index.js",
+        "README.md"
+    ]
+}

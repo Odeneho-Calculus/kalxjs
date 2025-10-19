@@ -1,0 +1,27 @@
+{
+    "name": "@kalxjs/webpack-loader",
+    "version": "1.0.0",
+    "description": "Webpack loader for KALXJS .klx Single File Components",
+    "main": "index.js",
+    "type": "module",
+    "keywords": [
+        "kalxjs",
+        "webpack",
+        "loader",
+        "klx",
+        "sfc"
+    ],
+    "author": "KALXJS Team",
+    "license": "MIT",
+    "peerDependencies": {
+        "webpack": "^5.0.0"
+    },
+    "dependencies": {
+        "@kalxjs/compiler": "^1.0.0",
+        "loader-utils": "^3.2.1"
+    },
+    "files": [
+        "index.js",
+        "README.md"
+    ]
+}

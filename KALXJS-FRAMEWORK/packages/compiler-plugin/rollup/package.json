@@ -1,0 +1,27 @@
+{
+    "name": "@kalxjs/rollup-plugin",
+    "version": "1.0.0",
+    "description": "Rollup plugin for KALXJS .klx Single File Components",
+    "main": "index.js",
+    "type": "module",
+    "keywords": [
+        "kalxjs",
+        "rollup",
+        "plugin",
+        "klx",
+        "sfc"
+    ],
+    "author": "KALXJS Team",
+    "license": "MIT",
+    "peerDependencies": {
+        "rollup": "^2.0.0 || ^3.0.0 || ^4.0.0"
+    },
+    "dependencies": {
+        "@kalxjs/compiler": "^1.0.0",
+        "@rollup/pluginutils": "^5.0.2"
+    },
+    "files": [
+        "index.js",
+        "README.md"
+    ]
+}

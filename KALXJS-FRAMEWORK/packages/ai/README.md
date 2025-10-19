@@ -1,215 +1,305 @@
 # @kalxjs/ai
 
-AI integration utilities for KalxJS applications.
+AI-Powered Development Tools for KalxJS Framework - Enhance your development experience with AI assistance.
+
+## Features
+
+- 🤖 **Code Generation** - Generate components, pages, stores from natural language
+- ♿ **Accessibility Analysis** - WCAG compliance checking and automatic fixes
+- ⚡ **Performance Optimization** - AI-powered performance issue detection
+- 🐛 **Bug Prediction** - Predict potential bugs before they happen
+- 📝 **Code Review** - Automated code review with quality scoring
+- 💡 **Intelligent Autocomplete** - Context-aware code completions
 
 ## Installation
 
 ```bash
-# Install latest version
-npm install @kalxjs/ai@latest
-
-# Install specific version
-npm install @kalxjs/ai@x.x.x
+npm install @kalxjs/ai
 ```
 
-Current version: 1.2.12
+## Quick Start
 
-## Usage
-
-### Basic Usage
+### Code Generation
 
 ```javascript
-import { configure, generateText } from '@kalxjs/ai';
+import { CodeGenerator } from '@kalxjs/ai';
 
-// Configure the AI service
-configure({
-  apiKey: 'your-api-key',
-  model: 'gpt-3.5-turbo'
+const generator = new CodeGenerator({
+  apiKey: 'your-api-key'
 });
 
-// Generate text
-async function example() {
-  const response = await generateText('Write a short poem about programming');
-  console.log(response);
-}
+// Generate a component
+const component = await generator.generateComponent(
+  'Create a user profile card with avatar, name, and bio'
+);
 
-example();
+console.log(component.code);
+// Outputs complete component code
+
+// Generate multiple artifacts
+const result = await generator.generate(
+  'Create a todo app with add/delete functionality',
+  { type: 'page', includeTests: true }
+);
+
+console.log(result.component); // Component code
+console.log(result.store);     // Store code
+console.log(result.tests);     // Test code
 ```
 
-### Component Integration
+### Accessibility Analysis
 
 ```javascript
-import { useAI } from '@kalxjs/ai';
+import { AccessibilityAnalyzer } from '@kalxjs/ai';
 
-export default {
-  setup() {
-    const ai = useAI();
-    
-    const generateResponse = async () => {
-      try {
-        const result = await ai.generate('Explain how JavaScript works in 3 sentences');
-        console.log(result);
-      } catch (error) {
-        console.error('AI generation failed:', error);
-      }
-    };
-    
-    return {
-      generateResponse,
-      isLoading: ai.loading(),
-      error: ai.error(),
-      result: ai.result()
-    };
+const analyzer = new AccessibilityAnalyzer();
+
+// Analyze component
+const issues = await analyzer.analyzeComponent(`
+  <button>Click me</button>
+`);
+
+console.log(issues);
+// [{ type: 'missing-aria-label', severity: 'warning', ... }]
+
+// Auto-fix issues
+const fixed = await analyzer.fixComponent(`
+  <button>Click me</button>
+`);
+
+console.log(fixed);
+// '<button aria-label="Click me">Click me</button>'
+
+// Check WCAG compliance
+const compliance = await analyzer.checkCompliance(componentCode);
+console.log(`WCAG Level: ${compliance.level}`); // 'A', 'AA', or 'AAA'
+```
+
+### Performance Optimization
+
+```javascript
+import { PerformanceOptimizer } from '@kalxjs/ai';
+
+const optimizer = new PerformanceOptimizer();
+
+// Analyze performance
+const issues = await optimizer.analyzePerformance(componentCode);
+
+console.log(issues);
+// [{ type: 'missing-memo', impact: 'high', ... }]
+
+// Get optimization suggestions
+const suggestions = await optimizer.suggestOptimizations(componentCode);
+
+suggestions.forEach(s => {
+  console.log(`${s.type}: ${s.description}`);
+  console.log(`Before:\n${s.before}`);
+  console.log(`After:\n${s.after}`);
+});
+
+// Auto-optimize code
+const optimized = await optimizer.optimizeCode(componentCode);
+console.log(optimized.code);
+console.log(`Performance gain: ${optimized.improvement}%`);
+```
+
+### Bug Prediction
+
+```javascript
+import { BugPredictor } from '@kalxjs/ai';
+
+const predictor = new BugPredictor({
+  apiKey: 'your-api-key'
+});
+
+// Predict bugs
+const predictions = await predictor.predictBugs(componentCode);
+
+predictions.forEach(bug => {
+  console.log(`${bug.type} (${bug.severity}): ${bug.description}`);
+  console.log(`Location: Line ${bug.line}`);
+  console.log(`Fix: ${bug.suggestedFix}`);
+});
+
+// Analyze security vulnerabilities
+const vulns = await predictor.analyzeSecurityVulnerabilities(code);
+
+// Detect race conditions
+const raceConditions = await predictor.detectRaceConditions(code);
+
+// Detect edge cases
+const edgeCases = await predictor.detectEdgeCases(code);
+```
+
+### Code Review
+
+```javascript
+import { CodeReviewer } from '@kalxjs/ai';
+
+const reviewer = new CodeReviewer({
+  apiKey: 'your-api-key'
+});
+
+// Review code
+const review = await reviewer.reviewCode(componentCode);
+
+console.log(`Score: ${review.score}/100`);
+console.log(`Issues: ${review.issues.length}`);
+
+review.issues.forEach(issue => {
+  console.log(`[${issue.severity}] ${issue.message}`);
+  console.log(`Line ${issue.line}: ${issue.suggestion}`);
+});
+
+// Check style consistency
+const styleIssues = await reviewer.checkStyleConsistency(code);
+
+// Evaluate test coverage
+const coverage = await reviewer.evaluateTestCoverage(code, testCode);
+console.log(`Coverage: ${coverage.percentage}%`);
+
+// Suggest refactoring
+const refactorings = await reviewer.suggestRefactoring(code);
+```
+
+### Intelligent Autocomplete
+
+```javascript
+import { IntelligentAutocomplete } from '@kalxjs/ai';
+
+const autocomplete = new IntelligentAutocomplete({
+  apiKey: 'your-api-key'
+});
+
+// Get completions
+const completions = await autocomplete.getCompletions(
+  code,
+  cursorPosition
+);
+
+completions.forEach(c => {
+  console.log(`${c.label} - ${c.detail}`);
+});
+
+// Smart import suggestions
+const imports = await autocomplete.suggestImports(
+  'useState',
+  { framework: 'kalxjs' }
+);
+
+// Complete function implementation
+const implementation = await autocomplete.completeFunction(
+  'function sortUsers(users) {\n  // ',
+  { context: 'Sort users by name alphabetically' }
+);
+```
+
+## Configuration
+
+### API Provider Setup
+
+```javascript
+import { setAIProvider } from '@kalxjs/ai';
+
+// Use OpenAI
+setAIProvider({
+  provider: 'openai',
+  apiKey: 'your-openai-key',
+  model: 'gpt-4'
+});
+
+// Use custom provider
+setAIProvider({
+  provider: 'custom',
+  endpoint: 'https://your-api.com',
+  headers: { 'Authorization': 'Bearer token' }
+});
+```
+
+### Plugin Integration
+
+```javascript
+import { createApp } from '@kalxjs/core';
+import { aiPlugin } from '@kalxjs/ai';
+
+const app = createApp({/* ... */});
+
+app.use(aiPlugin, {
+  enabled: process.env.NODE_ENV === 'development',
+  features: {
+    codeGeneration: true,
+    accessibility: true,
+    performance: true
   }
-};
+});
 ```
 
-### Text Analysis
+## CLI Integration
 
-```javascript
-import { analyzeSentiment, extractEntities, summarize } from '@kalxjs/ai';
+```bash
+# Generate component with AI
+kalxjs ai generate "user profile card"
 
-async function analyzeText(text) {
-  // Analyze sentiment
-  const sentiment = await analyzeSentiment(text);
-  console.log('Sentiment:', sentiment);
-  
-  // Extract entities
-  const entities = await extractEntities(text);
-  console.log('Entities:', entities);
-  
-  // Summarize text
-  const summary = await summarize(text, { maxLength: 50 });
-  console.log('Summary:', summary);
-}
+# Analyze accessibility
+kalxjs ai a11y check src/components/
+
+# Optimize performance
+kalxjs ai optimize src/components/MyComponent.klx
+
+# Review code
+kalxjs ai review src/
 ```
+
+## Features in Detail
+
+### Code Generation Options
+
+- Components (functional, class-based)
+- Pages with routing
+- Composables (composition API)
+- Stores (Vuex-like)
+- Tests (unit, integration)
+- API services
+- Type definitions
+
+### Accessibility Checks
+
+- ARIA attributes
+- Keyboard navigation
+- Color contrast
+- Screen reader support
+- Focus management
+- Semantic HTML
+- Alt text for images
+
+### Performance Optimizations
+
+- Memoization opportunities
+- Lazy loading suggestions
+- Bundle size optimization
+- Memory leak detection
+- Render optimization
+- Code splitting recommendations
+
+### Bug Predictions
+
+- Null reference errors
+- Type mismatches
+- Race conditions
+- Memory leaks
+- Security vulnerabilities
+- Edge case handling
+- Error boundary placement
 
 ## API Reference
 
-### configure(options)
+See [PRIORITY_7_IMPLEMENTATION.md](../../PRIORITY_7_IMPLEMENTATION.md) for complete API documentation.
 
-Configure the AI service.
+## Examples
 
-**Options:**
-- `apiKey` - API key for the AI service
-- `endpoint` - API endpoint (default: 'https://api.openai.com/v1')
-- `model` - Model to use (default: 'gpt-3.5-turbo')
-- `maxTokens` - Maximum tokens to generate (default: 1000)
-- `temperature` - Temperature for generation (default: 0.7)
-
-### generateText(prompt, options)
-
-Generate text using the configured AI service.
-
-**Parameters:**
-- `prompt` - The prompt to generate from
-- `options` - Additional options (same as configure)
-
-**Returns:** Promise resolving to the generated text
-
-### useAI(options)
-
-Create a composable AI hook for use in components.
-
-**Returns:** An object with:
-- `generate(prompt, options)` - Function to generate text
-- `loading()` - Function that returns the loading state
-- `error()` - Function that returns any error
-- `result()` - Function that returns the latest result
-
-### analyzeSentiment(text)
-
-Analyze the sentiment of text.
-
-**Returns:** Promise resolving to "positive", "negative", or "neutral"
-
-### extractEntities(text)
-
-Extract named entities from text.
-
-**Returns:** Promise resolving to an array of entity objects
-
-### summarize(text, options)
-
-Summarize text.
-
-**Options:**
-- `maxLength` - Maximum length of the summary in words (default: 100)
-
-**Returns:** Promise resolving to the summarized text
-
-## Advanced Usage
-
-### Using the AI Manager
-
-```javascript
-import { createAIManager } from '@kalxjs/ai';
-
-const ai = createAIManager({
-  apiKeys: {
-    openai: 'your-api-key' // Or use environment variables
-  },
-  defaultOptions: {
-    model: 'gpt-3.5-turbo',
-    temperature: 0.7,
-    maxTokens: 1000
-  }
-});
-
-// Use the manager for various AI operations
-async function processData(text) {
-  // Generate text
-  const generatedText = await ai.generateText({
-    prompt: 'Explain the following concept: ' + text
-  });
-  
-  // Analyze sentiment
-  const sentiment = await ai.analyzeSentiment(text);
-  
-  // Extract entities
-  const entities = await ai.extractEntities(text);
-  
-  // Summarize
-  const summary = await ai.summarize(text, { maxLength: 50 });
-  
-  return {
-    generatedText,
-    sentiment,
-    entities,
-    summary
-  };
-}
-```
-
-### Environment Variables
-
-For security reasons, it's recommended to store your API keys in environment variables:
-
-```javascript
-import { configure, getEnvVar } from '@kalxjs/ai';
-
-// Get API key from environment variable
-const apiKey = getEnvVar('OPENAI_API_KEY');
-
-// Configure the AI service
-configure({
-  apiKey,
-  model: 'gpt-3.5-turbo'
-});
-```
-
-## Current Limitations
-
-The current implementation (v1.2.12) has some limitations:
-
-1. Image generation is not yet fully implemented
-2. Only OpenAI is supported as a provider
-3. Advanced features like streaming responses are not directly supported
-4. No built-in caching mechanism for API responses
-
-## Version Information
-
-For detailed version history and changes, please refer to the [CHANGELOG.md](./CHANGELOG.md) file in the repository.
+- [AI-Assisted Development](../../examples/ai-development)
+- [Accessibility Auditing](../../examples/ai-a11y)
+- [Performance Optimization](../../examples/ai-performance)
 
 ## License
 

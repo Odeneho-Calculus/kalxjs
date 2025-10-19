@@ -1,211 +1,390 @@
-# kalxjs CLI
+# @kalxjs/CLI
 
-Modern CLI tooling for kalxjs development workflow.
+Command-line interface for scaffolding and managing KALXJS projects.
+
+## Features
+
+🚀 **Interactive Project Scaffolding** - Create new projects with multiple templates
+
+🎨 **Code Generators** - Generate components, routes, and store modules
+
+📦 **Multiple Template Support** - SPA, SSR, SSG, PWA, Library, and Full-Stack
+
+⚙️ **Package Manager Detection** - Auto-detect npm, yarn, or pnpm
+
+🎯 **TypeScript Support** - Optional TypeScript setup
+
+🔧 **ESLint & Prettier** - Automated linting configuration
+
+🧪 **Testing Setup** - Vitest and Playwright integration
 
 ## Installation
 
 ```bash
-# Using npm
+# Global installation
 npm install -g @kalxjs/cli
 
-# Using yarn
-yarn global add @kalxjs/cli
-
-# Using pnpm
-pnpm add -g @kalxjs/cli
+# Or use with npx
+npx @kalxjs/cli create my-app
 ```
 
-## Quick Start
+## Usage
+
+### Create New Project
 
 ```bash
-# Create a new project with interactive prompts
+# Interactive mode
 kalxjs create my-app
 
-✔ Add Router support? Yes
-✔ Add State Management? Yes
-✔ Add SCSS support? Yes
-✔ Add Single File Components support? Yes
-✔ Add Composition API support? Yes
-✔ Add API integration utilities? Yes
-✔ Add Performance optimization utilities? Yes
-✔ Add Plugin system support? Yes
-✔ Add Testing setup? Yes
-✔ Add ESLint setup? Yes
-✔ Add Custom Renderer support? Yes
+# With options
+kalxjs create my-app --template spa --typescript
 ```
 
-## Commands
+**Available Templates:**
+- `spa` - Single Page Application
+- `ssr` - Server-Side Rendering
+- `ssg` - Static Site Generation
+- `pwa` - Progressive Web App
+- `library` - Component Library
+- `fullstack` - Full-Stack Application
 
-### Project Creation
+### Generate Component
 
 ```bash
-# Create a new project with interactive prompts
-kalxjs create my-app
+# Generate SFC component
+kalxjs generate component MyComponent
 
-# Create a new project with specific features
-kalxjs create my-app --router --state --scss --testing --linting
+# Generate JS component
+kalxjs generate component MyComponent --type js
 
-# Create a new project skipping prompts (all features enabled)
-kalxjs create my-app --skip-prompts
-
-# Create a new project without installing dependencies
-kalxjs create my-app --skip-install
+# With options
+kalxjs generate component MyComponent --props --tests --storybook
 ```
 
-### Component Generation
+**Options:**
+- `--type` - Component type (`sfc`, `js`, `ts`)
+- `--props` - Add props definition
+- `--emits` - Add emits definition
+- `--tests` - Create test file
+- `--storybook` - Create Storybook story
+
+### Generate Route
 
 ```bash
-# Generate a basic component
-kalxjs component MyComponent
+# Generate route with view
+kalxjs generate route about
 
-# Generate a component with options
-kalxjs component MyComponent --dir src/components --style scss --test --props --state --methods --lifecycle
+# Custom path
+kalxjs generate route about --path /about-us
 
-# Use the shorthand alias
-kalxjs c MyComponent
+# With options
+kalxjs generate route about --lazy --guard
 ```
 
-### Development Workflow
+**Options:**
+- `--path` - Custom route path
+- `--lazy` - Use lazy loading
+- `--guard` - Add navigation guard
+- `--no-view` - Skip view component creation
+
+### Generate Store Module
 
 ```bash
-# Start development server
-kalxjs serve
+# Generate Pinia-style store
+kalxjs generate store user
 
-# Start development server on a specific port
-kalxjs serve --port 8080
+# Generate Vuex-style store
+kalxjs generate store user --style vuex
 
-# Build for production (coming soon)
-kalxjs build
+# With persistence
+kalxjs generate store user --persist
 ```
+
+**Options:**
+- `--style` - Store style (`pinia`, `vuex`)
+- `--persist` - Enable state persistence
 
 ## Project Structure
 
-When you create a new project with kalxjs CLI, it generates the following structure:
+### SPA Template
 
 ```
 my-app/
-├── app/                  # Application source code
-│   ├── components/       # Reusable components
-│   ├── core/             # Core application files
-│   ├── navigation/       # Router configuration (if enabled)
-│   ├── pages/            # Page components (if router enabled)
-│   ├── state/            # State management (if enabled)
-│   ├── styles/           # Global styles (if SCSS enabled)
-│   ├── services/         # API services (if API enabled)
-│   ├── hooks/            # Composition hooks (if enabled)
-│   ├── extensions/       # Plugins (if enabled)
-│   ├── utils/            # Utility functions
-│   ├── renderer/         # Custom renderer (if enabled)
-│   └── templates/        # Templates for rendering (if enabled)
-├── assets/               # Static assets
-├── config/               # Configuration files
-│   └── app.config.js     # Application configuration
-├── docs/                 # Documentation
-├── public/               # Public files
-└── index.html            # HTML entry point
+├── src/
+│   ├── main.js
+│   ├── App.klx
+│   ├── components/
+│   │   └── HelloWorld.klx
+│   ├── views/
+│   │   ├── Home.klx
+│   │   └── About.klx
+│   ├── router/
+│   │   ├── index.js
+│   │   └── routes.js
+│   ├── store/
+│   │   ├── index.js
+│   │   └── modules/
+│   └── assets/
+│       └── styles/
+│           └── main.css
+├── public/
+│   ├── index.html
+│   └── favicon.ico
+├── package.json
+└── README.md
 ```
+
+### SSR Template
+
+Includes server-side rendering setup with Node.js backend.
+
+### PWA Template
+
+Includes service worker, manifest, and offline support.
+
+## Commands
+
+### create
+
+Create a new KALXJS project
+
+```bash
+kalxjs create <project-name> [options]
+```
+
+**Options:**
+- `--template, -t` - Project template
+- `--typescript, --ts` - Use TypeScript
+- `--no-git` - Skip Git initialization
+- `--no-install` - Skip dependency installation
+
+### generate (g)
+
+Generate code from templates
+
+```bash
+kalxjs generate <type> <name> [options]
+kalxjs g <type> <name> [options]  # Shorthand
+```
+
+**Types:**
+- `component` (or `c`) - Generate component
+- `route` (or `r`) - Generate route
+- `store` (or `s`) - Generate store module
+- `page` (or `p`) - Generate page (view + route)
+
+### serve
+
+Start development server
+
+```bash
+kalxjs serve [options]
+```
+
+**Options:**
+- `--port, -p` - Port number (default: 3000)
+- `--host, -h` - Host (default: localhost)
+- `--open, -o` - Open browser
+
+### build
+
+Build for production
+
+```bash
+kalxjs build [options]
+```
+
+**Options:**
+- `--mode, -m` - Build mode (default: production)
+- `--ssr` - Build for SSR
+- `--analyze` - Analyze bundle size
 
 ## Configuration
 
-The project configuration is stored in `config/app.config.js`:
+### kalxjs.config.js
 
 ```javascript
-/**
- * KALXJS Application Configuration
- */
-const config = {
-  name: 'my-app',
-  version: '0.1.0',
-  description: 'A powerful KALXJS application',
-  
-  // Environment settings
-  env: {
-    development: {
-      apiBaseUrl: 'http://localhost:3000/api',
-      debug: true
-    },
-    production: {
-      apiBaseUrl: '/api',
-      debug: false
-    }
+export default {
+  // Build configuration
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    sourcemap: false,
   },
-  
-  // Feature flags
-  features: {
-    router: true,
-    state: true,
-    scss: true,
-    sfc: true,
-    composition: true,
-    api: true,
-    performance: true,
-    plugins: true,
-    testing: true,
-    linting: true,
-    customRenderer: true
-  }
-};
 
-export default config;
+  // Dev server configuration
+  server: {
+    port: 3000,
+    open: true,
+  },
+
+  // Plugins
+  plugins: [
+    // Add plugins here
+  ],
+};
 ```
 
-## Upcoming Features
+## Programmatic Usage
 
-The following features are planned for future releases:
+```javascript
+import { generateComponent, generateRoute, generateStore } from '@kalxjs/cli';
 
-- Full TypeScript support
-- Advanced component generation
-- View/page generation
-- API service generation
-- Store module generation
-- Unit and E2E testing commands
-- Production build optimization
-- Deployment to various platforms
-- Docker container support
-- Plugin system
-- Custom template support
+// Generate component
+await generateComponent('MyComponent', {
+  type: 'sfc',
+  withProps: true,
+  withTests: true,
+});
+
+// Generate route
+await generateRoute('about', {
+  path: '/about',
+  lazy: true,
+});
+
+// Generate store
+await generateStore('user', {
+  style: 'pinia',
+  withPersistence: true,
+});
+```
+
+## Utilities
+
+### Logger
+
+```javascript
+import { logger } from '@kalxjs/cli';
+
+logger.info('Information message');
+logger.success('Success message');
+logger.warn('Warning message');
+logger.error('Error message');
+
+const spinner = logger.createSpinner('Loading...');
+spinner.start();
+// ... do something
+spinner.succeed('Done!');
+```
+
+### Package Manager
+
+```javascript
+import { packageManager } from '@kalxjs/cli';
+
+// Detect package manager
+const pm = packageManager.detect();
+
+// Install dependencies
+await packageManager.install(pm, '/path/to/project');
+
+// Add package
+await packageManager.addPackage(pm, 'lodash', { dev: true });
+```
+
+### File System
+
+```javascript
+import { fileSystem } from '@kalxjs/cli';
+
+// Ensure directory exists
+await fileSystem.ensureDir('/path/to/dir');
+
+// Write file
+await fileSystem.writeFile('/path/to/file.js', content);
+
+// Copy directory
+await fileSystem.copyDir(source, destination);
+```
+
+## Examples
+
+### Create Full-Stack App
+
+```bash
+kalxjs create my-fullstack-app \
+  --template fullstack \
+  --typescript \
+  --features testing,i18n,a11y
+```
+
+### Generate Page (View + Route)
+
+```bash
+kalxjs generate page Products --path /products --lazy
+```
+
+### Generate Component with All Options
+
+```bash
+kalxjs generate component ProductCard \
+  --type sfc \
+  --props \
+  --emits \
+  --tests \
+  --storybook
+```
+
+## Migration
+
+### From Vue CLI
+
+```bash
+# Install KALXJS CLI
+npm install -g @kalxjs/cli
+
+# Create new project
+kalxjs create my-app --template spa
+
+# Copy components
+# Update imports from 'vue' to '@kalxjs/core'
+```
+
+### From Create React App
+
+```bash
+kalxjs create my-app --template spa
+
+# Components use similar structure
+# Replace JSX with KALXJS templates
+```
 
 ## Troubleshooting
 
-### Common Issues
-
-#### Installation Problems
-
-If you encounter issues during installation, try:
+### Port already in use
 
 ```bash
-npm install -g @kalxjs/cli --force
+# Use different port
+kalxjs serve --port 3001
 ```
 
-#### Dependency Conflicts
-
-If you see dependency conflicts when creating a new project:
+### TypeScript errors
 
 ```bash
-cd my-app
-npm install --legacy-peer-deps
+# Regenerate TypeScript config
+kalxjs init --typescript --force
+```
+
+### Module not found
+
+```bash
+# Reinstall dependencies
+npm install
 # or
-npm install --force
-```
-
-#### Port Already in Use
-
-If the default port (3000) is already in use, the CLI will automatically find an available port. You can also specify a port:
-
-```bash
-kalxjs serve --port 8080
+yarn install
 ```
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md).
 
 ## License
 
-This project is licensed under the MIT License.
+MIT
+
+## Links
+
+- [Documentation](https://kalxjs.dev/docs)
+- [GitHub](https://github.com/kalxjs/kalxjs)
+- [Discord](https://discord.gg/kalxjs)

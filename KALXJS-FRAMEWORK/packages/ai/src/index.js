@@ -236,6 +236,14 @@ export async function summarize(text, options = {}) {
     return generateText(`Summarize the following text in ${maxLength} words or less: "${text}"`);
 }
 
+// Export all AI modules
+export * from './code-generator.js';
+export * from './accessibility-analyzer.js';
+export * from './performance-optimizer.js';
+export * from './bug-predictor.js';
+export * from './code-reviewer.js';
+export * from './intelligent-autocomplete.js';
+
 export default {
     configure,
     generateText,
