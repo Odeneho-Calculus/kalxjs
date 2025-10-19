@@ -374,49 +374,62 @@ ${JSON.stringify(vnode, null, 2)}
         return errorElement;
     }
 
-    // Set properties
+    // Set properties - ensure props is a proper object and not an array
     try {
-        for (const [key, value] of Object.entries(vnode.props || {})) {
-            if (value === undefined || value === null) {
-                continue; // Skip null/undefined props
-            }
+        const props = vnode.props || {};
 
-            if (key.startsWith('on')) {
-                // Handle both camelCase (onClick) and lowercase (onclick) event handlers
-                const eventName = key.slice(2).toLowerCase();
-                if (typeof value === 'function') {
-                    element.addEventListener(eventName, value);
-                } else {
-                    console.warn(`Event handler for ${eventName} is not a function:`, value);
+        // Safety check: if props is an array, it's likely a mistake - ignore it
+        if (Array.isArray(props)) {
+            console.warn('Props should be an object, not an array. Ignoring props:', props);
+        } else {
+            for (const [key, value] of Object.entries(props)) {
+                if (value === undefined || value === null) {
+                    continue; // Skip null/undefined props
                 }
-            } else if (key === 'style') {
-                // Handle style objects and strings
-                if (typeof value === 'object') {
-                    Object.assign(element.style, value);
-                } else if (typeof value === 'string') {
-                    element.style.cssText = value;
+
+                // Skip numeric keys which are likely array indices accidentally passed as props
+                if (/^\d+$/.test(key)) {
+                    console.warn(`Numeric key "${key}" found in props - this is likely an array passed as props. Skipping.`);
+                    continue;
                 }
-            } else if (key === 'class' || key === 'className') {
-                // Handle class names
-                element.className = value;
-            } else if (key === 'dangerouslySetInnerHTML') {
-                // Handle innerHTML
-                if (value && value.__html !== undefined) {
-                    element.innerHTML = value.__html;
-                }
-            } else {
-                // Handle regular attributes - validate attribute name and value
-                try {
-                    // Validate attribute name (must be valid HTML attribute name)
-                    if (typeof key === 'string' && key.length > 0 && /^[a-zA-Z][\w-]*$/.test(key)) {
-                        // Convert value to string and ensure it's valid
-                        const stringValue = String(value);
-                        element.setAttribute(key, stringValue);
+
+                if (key.startsWith('on')) {
+                    // Handle both camelCase (onClick) and lowercase (onclick) event handlers
+                    const eventName = key.slice(2).toLowerCase();
+                    if (typeof value === 'function') {
+                        element.addEventListener(eventName, value);
                     } else {
-                        console.warn(`Invalid attribute name: ${key}`);
+                        console.warn(`Event handler for ${eventName} is not a function:`, value);
                     }
-                } catch (attrError) {
-                    console.warn(`Failed to set attribute ${key}=${value}:`, attrError.message);
+                } else if (key === 'style') {
+                    // Handle style objects and strings
+                    if (typeof value === 'object') {
+                        Object.assign(element.style, value);
+                    } else if (typeof value === 'string') {
+                        element.style.cssText = value;
+                    }
+                } else if (key === 'class' || key === 'className') {
+                    // Handle class names
+                    element.className = value;
+                } else if (key === 'dangerouslySetInnerHTML') {
+                    // Handle innerHTML
+                    if (value && value.__html !== undefined) {
+                        element.innerHTML = value.__html;
+                    }
+                } else {
+                    // Handle regular attributes - validate attribute name and value
+                    try {
+                        // Validate attribute name (must be valid HTML attribute name)
+                        if (typeof key === 'string' && key.length > 0 && /^[a-zA-Z][\w-]*$/.test(key)) {
+                            // Convert value to string and ensure it's valid
+                            const stringValue = String(value);
+                            element.setAttribute(key, stringValue);
+                        } else {
+                            console.warn(`Invalid attribute name: ${key}`);
+                        }
+                    } catch (attrError) {
+                        console.warn(`Failed to set attribute ${key}=${value}:`, attrError.message);
+                    }
                 }
             }
         }
