@@ -9,7 +9,24 @@ import { patch } from './diff.js';
  * @returns {HTMLElement} The created DOM element
  */
 export function createDOMElement(tag) {
-    return document.createElement(tag);
+    // Ensure tag is a string
+    if (typeof tag !== 'string') {
+        console.warn(`createDOMElement: Invalid tag type: ${typeof tag}. Using 'div' instead.`);
+        tag = 'div';
+    }
+
+    // Ensure tag is not empty
+    if (!tag) {
+        console.warn('createDOMElement: Empty tag provided. Using div instead.');
+        tag = 'div';
+    }
+
+    try {
+        return document.createElement(tag);
+    } catch (error) {
+        console.error(`createDOMElement: Error creating element with tag "${tag}":`, error);
+        return document.createElement('div');
+    }
 }
 
 /**
@@ -107,6 +124,56 @@ export function createElement(vnode) {
         return fallbackElement;
     }
 
+    // Handle case where vnode might be a router view component
+    if (vnode._isRouterView && vnode._componentRef) {
+        try {
+            console.log('Rendering router view component:', vnode._componentRef.name || 'anonymous');
+
+            // Create a container element
+            const container = document.createElement(vnode.tag || 'div');
+
+            // Apply props to the container
+            for (const [key, value] of Object.entries(vnode.props || {})) {
+                if (value === undefined || value === null) continue;
+
+                if (key.startsWith('on')) {
+                    const eventName = key.slice(2).toLowerCase();
+                    if (typeof value === 'function') {
+                        container.addEventListener(eventName, value);
+                    }
+                } else if (key === 'style' && typeof value === 'object') {
+                    Object.assign(container.style, value);
+                } else if (key === 'class' || key === 'className') {
+                    container.className = value;
+                } else {
+                    container.setAttribute(key, value);
+                }
+            }
+
+            // Add a data attribute to identify this as a router view container
+            container.setAttribute('data-router-view', 'true');
+
+            // Store the component reference for later use
+            container._componentRef = vnode._componentRef;
+
+            // Return the container element
+            return container;
+        } catch (error) {
+            console.error('Error preparing router view component:', error);
+            const errorElement = document.createElement('div');
+            errorElement.style.color = 'red';
+            errorElement.style.border = '1px solid red';
+            errorElement.style.padding = '10px';
+            errorElement.style.margin = '10px 0';
+            errorElement.innerHTML = `
+                <h4>Router View Error</h4>
+                <p>${error.message}</p>
+                <pre style="font-size: 12px; overflow: auto; max-height: 200px; background: #f5f5f5; padding: 5px;">${error.stack}</pre>
+            `;
+            return errorElement;
+        }
+    }
+
     // Handle case where vnode might be a component
     if (vnode.isComponent && vnode.component) {
         try {
@@ -172,6 +239,91 @@ export function createElement(vnode) {
         }
     }
 
+    // Handle case where vnode.tag is a component object with setup function
+    if (vnode.tag && typeof vnode.tag === 'object' && typeof vnode.tag.setup === 'function') {
+        try {
+            console.log('Handling component object with setup function');
+
+            // Call the setup function to get the actual component
+            const setupResult = vnode.tag.setup(vnode.props || {});
+
+            // Handle different types of setup results
+            if (setupResult) {
+                if (typeof setupResult === 'object') {
+                    // Case 1: Setup returned an object (hopefully a vnode)
+                    if (!setupResult.tag) {
+                        console.warn('Component setup returned object without tag, creating a default vnode');
+                        // Create a default vnode with the setup result as content
+                        const defaultVNode = {
+                            tag: 'div',
+                            props: { class: 'kal-component-default' },
+                            children: [
+                                typeof setupResult === 'object' ?
+                                    JSON.stringify(setupResult) :
+                                    String(setupResult)
+                            ]
+                        };
+                        return createElement(defaultVNode);
+                    } else if (typeof setupResult.tag !== 'string') {
+                        console.warn('Component setup returned object with invalid tag, setting to div');
+                        setupResult.tag = 'div';
+                    }
+
+                    // Create the element from the setup result
+                    return createElement(setupResult);
+                } else if (typeof setupResult === 'function') {
+                    // Case 2: Setup returned a function (render function)
+                    console.log('Component setup returned a function, trying to call it');
+                    try {
+                        const renderResult = setupResult();
+                        if (renderResult && typeof renderResult === 'object') {
+                            if (!renderResult.tag) {
+                                renderResult.tag = 'div';
+                            }
+                            return createElement(renderResult);
+                        } else {
+                            throw new Error('Render function did not return a valid vnode');
+                        }
+                    } catch (renderError) {
+                        console.error('Error calling render function:', renderError);
+                        const errorElement = document.createElement('div');
+                        errorElement.style.color = 'red';
+                        errorElement.innerHTML = `<p>Error in render function: ${renderError.message}</p>`;
+                        return errorElement;
+                    }
+                } else {
+                    // Case 3: Setup returned a primitive value
+                    console.warn('Component setup returned a primitive value:', setupResult);
+                    const defaultVNode = {
+                        tag: 'div',
+                        props: { class: 'kal-component-primitive' },
+                        children: [String(setupResult)]
+                    };
+                    return createElement(defaultVNode);
+                }
+            } else {
+                // Case 4: Setup returned null or undefined
+                console.error('Component setup did not return a valid value', setupResult);
+                const errorElement = document.createElement('div');
+                errorElement.style.color = 'red';
+                errorElement.innerHTML = '<p>Component setup did not return a valid view</p>';
+                return errorElement;
+            }
+        } catch (error) {
+            console.error('Error in component setup:', error);
+            const errorElement = document.createElement('div');
+            errorElement.style.color = 'red';
+            errorElement.style.border = '1px solid red';
+            errorElement.style.padding = '10px';
+            errorElement.innerHTML = `
+                <h4>Component Setup Error</h4>
+                <p>${error.message}</p>
+                <pre style="font-size: 12px; overflow: auto; max-height: 200px; background: #f5f5f5; padding: 5px;">${error.stack}</pre>
+            `;
+            return errorElement;
+        }
+    }
+
     // Handle case where vnode might not be a proper virtual node object
     if (!vnode.tag) {
         console.error('Invalid vnode (missing tag):', vnode);
@@ -205,7 +357,14 @@ ${JSON.stringify(vnode, null, 2)}
     // Create the DOM element
     let element;
     try {
-        element = createDOMElement(vnode.tag);
+        // Ensure tag is a string
+        const tag = typeof vnode.tag === 'string' ? vnode.tag : 'div';
+
+        if (typeof vnode.tag !== 'string') {
+            console.warn(`Invalid tag type: ${typeof vnode.tag}. Using 'div' instead.`, vnode);
+        }
+
+        element = createDOMElement(tag);
     } catch (error) {
         console.error(`Error creating element with tag "${vnode.tag}":`, error);
         const errorElement = document.createElement('div');

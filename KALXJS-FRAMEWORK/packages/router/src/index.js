@@ -4,6 +4,7 @@
  */
 
 import { ref, computed } from '@kalxjs/core';
+import { createElement } from '@kalxjs/core';
 
 /**
  * Create a web history object for HTML5 history mode
@@ -135,11 +136,18 @@ export function createRouter(options = {}) {
     const parseQuery = options.parseQuery;
     const stringifyQuery = options.stringifyQuery;
 
+    // Set history based on mode
+    const history = options.history || (mode === 'hash' ? createWebHashHistory(base) : createWebHistory(base));
+
     // Map of route paths to route objects for quick lookup
     const routeMap = routes.reduce((map, route) => {
+        console.log('Registering route:', route.path);
         map[route.path] = route;
         return map;
     }, {});
+
+    // Log all registered routes
+    console.log('Registered routes:', Object.keys(routeMap));
 
     // Current route
     let currentRoute = {
@@ -156,6 +164,9 @@ export function createRouter(options = {}) {
     // Route change listeners
     const listeners = [];
 
+    // Route change callback for reactive updates
+    const routeChangeCallbacks = [];
+
     // Navigation guards
     const beforeEachGuards = [];
     const beforeResolveGuards = [];
@@ -171,12 +182,90 @@ export function createRouter(options = {}) {
     let navigationRedirectCount = 0;
     const MAX_REDIRECT_COUNT = 10;
 
+    // Create the router object with direct references to all properties
     const router = {
         // Router properties
-        routes,
+        routes, // Direct reference to the routes array
         mode,
         base,
         currentRoute,
+        history,
+
+        /**
+         * Install the router on a KalxJS application
+         * @param {Object} app - KalxJS application instance
+         */
+        install(app) {
+            console.log('Router install method called');
+
+            // Make router available to all components
+            app._router = this;
+
+            // Make router available globally for debugging
+            if (typeof window !== 'undefined') {
+                window.__KAL_ROUTER__ = this;
+            }
+
+            // Initialize router with enhanced options
+            this.init({
+                handleLinks: true,
+                app: app
+            });
+
+            // Add a hook to ensure router is initialized after app is mounted
+            const originalMount = app.mount;
+            app.mount = (selector) => {
+                const result = originalMount(selector);
+                console.log('App mounted, ensuring router is initialized');
+
+                // Force an initial route match after mounting
+                setTimeout(() => {
+                    console.log('Triggering initial route match');
+                    this._onRouteChange();
+                }, 0);
+
+                return result;
+            };
+        },
+
+        /**
+         * Initialize the router
+         * @param {Object} options - Initialization options
+         */
+        init(options = {}) {
+            console.log('Router init called with options:', options);
+
+            // Store initialization options
+            this._initOptions = options;
+
+            // Set up history mode listeners
+            if (mode === 'hash') {
+                console.log('Setting up hash mode listeners');
+
+                // Ensure hash exists
+                if (typeof window !== 'undefined' && !window.location.hash) {
+                    console.log('No hash found, setting initial hash to /');
+                    window.location.hash = '/';
+                }
+
+                window.addEventListener('hashchange', () => {
+                    console.log('Hash changed, updating route');
+                    this._onRouteChange();
+                });
+            } else {
+                console.log('Setting up history mode listeners');
+                window.addEventListener('popstate', () => {
+                    console.log('History state changed, updating route');
+                    this._onRouteChange();
+                });
+            }
+
+            // Initial route matching
+            console.log('Performing initial route matching');
+            this._onRouteChange();
+
+            return this;
+        },
 
         /**
          * Add a global before each navigation guard
@@ -218,12 +307,51 @@ export function createRouter(options = {}) {
         },
 
         /**
+         * Register a callback to be called when the route changes
+         * @param {Function} callback - Callback function that receives the new route
+         * @returns {Function} Unregister function
+         */
+        onChange(callback) {
+            if (typeof callback !== 'function') {
+                console.error('Router.onChange: callback must be a function');
+                return () => { };
+            }
+
+            routeChangeCallbacks.push(callback);
+
+            // Call the callback immediately with the current route
+            callback(this.currentRoute);
+
+            return () => {
+                const index = routeChangeCallbacks.indexOf(callback);
+                if (index !== -1) routeChangeCallbacks.splice(index, 1);
+            };
+        },
+
+        /**
          * Navigate to a specific route
          * @param {string|Object} location - Route path or location object
          * @returns {Promise} Promise that resolves when navigation is complete
          */
         push(location) {
-            return this._navigate(location, 'push');
+            console.log('Router.push called with location:', location);
+            const result = this._navigate(location, 'push');
+
+            // Force a route change event after a short delay to ensure the DOM has updated
+            setTimeout(() => {
+                console.log('Forcing route change after push');
+                this._onRouteChange();
+
+                // Also dispatch a custom event for components to listen to
+                if (typeof window !== 'undefined' && window.dispatchEvent) {
+                    const event = new CustomEvent('kalroute', {
+                        detail: { route: { ...this.currentRoute } }
+                    });
+                    window.dispatchEvent(event);
+                }
+            }, 50);
+
+            return result;
         },
 
         /**
@@ -232,7 +360,24 @@ export function createRouter(options = {}) {
          * @returns {Promise} Promise that resolves when navigation is complete
          */
         replace(location) {
-            return this._navigate(location, 'replace');
+            console.log('Router.replace called with location:', location);
+            const result = this._navigate(location, 'replace');
+
+            // Force a route change event after a short delay to ensure the DOM has updated
+            setTimeout(() => {
+                console.log('Forcing route change after replace');
+                this._onRouteChange();
+
+                // Also dispatch a custom event for components to listen to
+                if (typeof window !== 'undefined' && window.dispatchEvent) {
+                    const event = new CustomEvent('kalroute', {
+                        detail: { route: { ...this.currentRoute } }
+                    });
+                    window.dispatchEvent(event);
+                }
+            }, 50);
+
+            return result;
         },
 
         /**
@@ -422,6 +567,127 @@ export function createRouter(options = {}) {
             ).then(() => {
                 // Run afterEach hooks (these don't affect navigation)
                 Promise.resolve().then(() => {
+                    // First, find all router view containers and render the components
+                    if (typeof document !== 'undefined') {
+                        const routerViewContainers = document.querySelectorAll('[data-router-view="true"]');
+                        routerViewContainers.forEach(container => {
+                            if (container._componentRef && typeof container._componentRef === 'function') {
+                                try {
+                                    // Get the component function
+                                    const Component = container._componentRef;
+
+                                    // Create props for the component
+                                    const props = {
+                                        route: to,
+                                        key: to.path
+                                    };
+
+                                    // Call the component function with the props
+                                    let result = Component(props);
+
+                                    // Handle case where result.tag is a component definition (object with setup function)
+                                    if (result && typeof result === 'object') {
+                                        if (result.tag && typeof result.tag === 'object' && typeof result.tag.setup === 'function') {
+                                            console.log('RouterView: Component returned a nested component definition, unwrapping it');
+
+                                            // Try to call the setup function to get the actual component
+                                            try {
+                                                const setupResult = result.tag.setup(props);
+
+                                                // Handle different types of setup results
+                                                if (setupResult) {
+                                                    if (typeof setupResult === 'object') {
+                                                        // Replace the entire result with the setup result
+                                                        result = setupResult;
+
+                                                        // Ensure the result has a valid tag
+                                                        if (!result.tag || typeof result.tag !== 'string') {
+                                                            console.warn('RouterView: Nested component setup returned object without valid tag, setting to div');
+                                                            result.tag = 'div';
+                                                        }
+                                                    } else if (typeof setupResult === 'function') {
+                                                        // Setup returned a function (render function)
+                                                        console.log('RouterView: Nested component setup returned a function, trying to call it');
+                                                        try {
+                                                            const renderResult = setupResult();
+                                                            if (renderResult && typeof renderResult === 'object') {
+                                                                result = renderResult;
+                                                                if (!result.tag || typeof result.tag !== 'string') {
+                                                                    result.tag = 'div';
+                                                                }
+                                                            } else {
+                                                                console.error('RouterView: Nested component render function did not return a valid vnode');
+                                                                result = {
+                                                                    tag: 'div',
+                                                                    props: { class: 'kal-router-view-error' },
+                                                                    children: ['Render function did not return a valid view']
+                                                                };
+                                                            }
+                                                        } catch (renderError) {
+                                                            console.error('RouterView: Error calling nested component render function', renderError);
+                                                            result = {
+                                                                tag: 'div',
+                                                                props: { class: 'kal-router-view-error' },
+                                                                children: [`Error in render function: ${renderError.message}`]
+                                                            };
+                                                        }
+                                                    } else {
+                                                        // Setup returned a primitive value
+                                                        console.warn('RouterView: Nested component setup returned a primitive value:', setupResult);
+                                                        result = {
+                                                            tag: 'div',
+                                                            props: { class: 'kal-router-view-primitive' },
+                                                            children: [String(setupResult)]
+                                                        };
+                                                    }
+                                                } else {
+                                                    // Setup returned null or undefined
+                                                    console.error('RouterView: Nested component setup did not return a valid value');
+                                                    result = {
+                                                        tag: 'div',
+                                                        props: { class: 'kal-router-view-error' },
+                                                        children: ['Component setup did not return a valid view']
+                                                    };
+                                                }
+                                            } catch (setupError) {
+                                                console.error('RouterView: Error calling nested component setup function', setupError);
+                                                result = {
+                                                    tag: 'div',
+                                                    props: { class: 'kal-router-view-error' },
+                                                    children: [`Error in component setup: ${setupError.message}`]
+                                                };
+                                            }
+                                        }
+                                        // Final check to ensure tag is a string
+                                        else if (!result.tag || typeof result.tag !== 'string') {
+                                            console.warn('RouterView: Component returned object without valid tag, setting to div');
+                                            result.tag = 'div';
+                                        }
+                                    }
+
+                                    // If the result is valid, render it
+                                    if (result && typeof result === 'object' && result.tag) {
+                                        // Clear the container
+                                        container.innerHTML = '';
+
+                                        // Create the DOM element
+                                        const element = createElement(result);
+
+                                        // Append it to the container
+                                        container.appendChild(element);
+                                    } else {
+                                        console.error('RouterView: Component function did not return a valid vnode', result);
+                                        container.innerHTML = '<div class="kal-router-view-error">Component did not return a valid view</div>';
+                                    }
+                                } catch (error) {
+                                    console.error('RouterView: Error rendering component', error);
+                                    container.innerHTML = `<div class="kal-router-view-error">Error rendering component: ${error.message}</div>`;
+                                }
+                            }
+                        });
+                    }
+
+                    // Then run the user-defined afterEach guards
                     afterEachGuards.forEach(guard => {
                         try {
                             guard(to, from);
@@ -663,11 +929,86 @@ export function createRouter(options = {}) {
         },
 
         /**
+         * Handle route changes
+         * @private
+         */
+        _onRouteChange() {
+            console.log('_onRouteChange called');
+
+            // Get the current path based on mode
+            let path;
+            if (mode === 'hash') {
+                path = window.location.hash.slice(1) || '/';
+                console.log('Current hash path:', path);
+            } else {
+                path = window.location.pathname.slice(base.length) || '/';
+                console.log('Current history path:', path);
+            }
+
+            // Match the route
+            console.log('Matching route for path:', path);
+            const matchedRoute = this._matchRoute(path);
+            console.log('Matched route result:', matchedRoute);
+
+            // Update current route - create a new object to ensure reactivity
+            this.currentRoute = { ...matchedRoute };
+            console.log('Updated currentRoute:', this.currentRoute);
+
+            // Force a re-render of all router-view components
+            if (typeof document !== 'undefined') {
+                // Find all router view containers
+                const routerViewContainers = document.querySelectorAll('.kal-router-view-container');
+                console.log('Found', routerViewContainers.length, 'router view containers to update');
+
+                // Trigger updates on each container
+                routerViewContainers.forEach(container => {
+                    if (container._update && typeof container._update === 'function') {
+                        console.log('Triggering update on router view container');
+                        container._update();
+                    }
+                });
+            }
+
+            // Notify listeners
+            console.log('Notifying', listeners.length, 'listeners');
+            listeners.forEach(listener => {
+                try {
+                    listener({ ...matchedRoute });
+                } catch (err) {
+                    console.error('Error in route change listener:', err);
+                }
+            });
+
+            // Notify route change callbacks
+            console.log('Notifying', routeChangeCallbacks.length, 'route change callbacks');
+            routeChangeCallbacks.forEach(callback => {
+                try {
+                    callback({ ...matchedRoute });
+                } catch (err) {
+                    console.error('Error in route change callback:', err);
+                }
+            });
+
+            // Trigger a global event for components to listen to
+            if (typeof window !== 'undefined' && window.dispatchEvent) {
+                const event = new CustomEvent('kalroute', {
+                    detail: { route: { ...matchedRoute } }
+                });
+                window.dispatchEvent(event);
+            }
+
+            return Promise.resolve(matchedRoute);
+        },
+
+        /**
          * Match a path against defined routes
          * @param {string} path - Path to match
          * @returns {Object} Matched route info
          */
         _matchRoute(path) {
+            console.log('_matchRoute called with path:', path);
+            console.log('Available routes:', this.routes.map(r => r.path));
+
             // Extract query string and hash
             const queryIndex = path.indexOf('?');
             const hashIndex = path.indexOf('#');
@@ -676,16 +1017,16 @@ export function createRouter(options = {}) {
             let queryString = '';
             let hash = '';
 
-            // Extract hash if present
-            if (hashIndex !== -1) {
+            // Extract query and hash considering their order
+            if (queryIndex !== -1 && (hashIndex === -1 || queryIndex < hashIndex)) {
+                queryString = path.slice(queryIndex, hashIndex === -1 ? undefined : hashIndex);
+                if (hashIndex !== -1) {
+                    hash = path.slice(hashIndex);
+                }
+                cleanPath = path.slice(0, queryIndex);
+            } else if (hashIndex !== -1) {
                 hash = path.slice(hashIndex);
                 cleanPath = path.slice(0, hashIndex);
-            }
-
-            // Extract query if present
-            if (queryIndex !== -1) {
-                queryString = cleanPath.slice(queryIndex);
-                cleanPath = cleanPath.slice(0, queryIndex);
             }
 
             // Handle trailing slash based on configuration
@@ -709,7 +1050,8 @@ export function createRouter(options = {}) {
             }
 
             // Check nested routes first (most specific to least specific)
-            const sortedRoutes = [...routes].sort((a, b) => {
+            console.log('Sorting routes for matching, routes count:', this.routes.length);
+            const sortedRoutes = [...this.routes].sort((a, b) => {
                 // Sort by path segments count (more segments first)
                 const aSegments = a.path.split('/').filter(Boolean).length;
                 const bSegments = b.path.split('/').filter(Boolean).length;
@@ -787,21 +1129,41 @@ export function createRouter(options = {}) {
                 }
             }
 
-            // Check for wildcard routes
-            const wildcardRoute = routes.find(route => route.path === '*' || route.path === '/*');
-            if (wildcardRoute) {
-                return {
-                    path: cleanPath,
-                    fullPath: path,
-                    matched: [wildcardRoute],
-                    params: { pathMatch: cleanPath },
-                    query: this._parseQuery(queryString),
-                    hash: hash,
-                    meta: wildcardRoute.meta || {}
-                };
+            // Check for wildcard routes (including Vue Router style catch-all)
+            console.log('Checking for wildcard routes in', this.routes.length, 'routes');
+            for (const route of this.routes) {
+                console.log('Checking if route is wildcard:', route.path);
+                if (route.path === '*' ||
+                    route.path === '/*' ||
+                    route.path === '/:pathMatch(.*)*' ||
+                    route.path.includes(':pathMatch(')) {
+
+                    console.log('Found wildcard route:', route);
+                    return {
+                        path: cleanPath,
+                        fullPath: path,
+                        matched: [route],
+                        params: { pathMatch: cleanPath },
+                        query: this._parseQuery(queryString),
+                        hash: hash,
+                        meta: route.meta || {}
+                    };
+                }
             }
 
             // No match found
+            console.log('No route matched for path:', cleanPath);
+
+            // Try to find the closest match for debugging
+            const closestMatch = this.routes.map(route => {
+                return {
+                    path: route.path,
+                    similarity: this._calculatePathSimilarity(route.path, cleanPath)
+                };
+            }).sort((a, b) => b.similarity - a.similarity)[0];
+
+            console.log('Closest route match was:', closestMatch);
+
             return {
                 path: cleanPath,
                 fullPath: path,
@@ -811,6 +1173,49 @@ export function createRouter(options = {}) {
                 hash: hash,
                 meta: {}
             };
+        },
+
+        /**
+         * Calculate similarity between two paths (for debugging)
+         * @param {string} routePath - Route path
+         * @param {string} actualPath - Actual path
+         * @returns {number} Similarity score (0-1)
+         * @private
+         */
+        _calculatePathSimilarity(routePath, actualPath) {
+            // Simple implementation - can be improved
+            const routeParts = routePath.split('/').filter(Boolean);
+            const pathParts = actualPath.split('/').filter(Boolean);
+
+            // If one is empty and the other isn't, they're not similar
+            if ((routeParts.length === 0 && pathParts.length > 0) ||
+                (pathParts.length === 0 && routeParts.length > 0)) {
+                return routePath === '/' && actualPath === '/' ? 1 : 0;
+            }
+
+            // Count matching segments
+            let matchCount = 0;
+            const maxLength = Math.max(routeParts.length, pathParts.length);
+
+            for (let i = 0; i < Math.min(routeParts.length, pathParts.length); i++) {
+                const routePart = routeParts[i];
+                const pathPart = pathParts[i];
+
+                // Exact match
+                if (routePart === pathPart) {
+                    matchCount++;
+                }
+                // Parameter match
+                else if (routePart.startsWith(':')) {
+                    matchCount += 0.8; // Not a perfect match, but close
+                }
+                // Wildcard match
+                else if (routePart === '*' || routePart.includes('*')) {
+                    matchCount += 0.5; // Wildcard is a weaker match
+                }
+            }
+
+            return matchCount / maxLength;
         },
 
         /**
@@ -852,6 +1257,12 @@ export function createRouter(options = {}) {
 
             // Special case for root path with segments
             if (path === '/' && routeParts.length > 0) return null;
+
+            // Handle pathMatch pattern (Vue Router style catch-all)
+            if (route.path.includes(':pathMatch(')) {
+                console.log('Matched pathMatch pattern route:', route.path, 'for path:', path);
+                return { params: { pathMatch: path } };
+            }
 
             // Handle catch-all routes
             if (route.path.endsWith('*') || route.path.includes('/*')) {
@@ -1404,9 +1815,14 @@ export function useRouter() {
     // Update the reactive route when navigation occurs
     router.onChange((newRoute) => {
         console.log('useRouter: Route changed to', newRoute.path);
+        console.log('useRouter: New route matched array:', newRoute.matched);
         // Create a new object to ensure reactivity triggers
         route.value = { ...newRoute };
     });
+
+    // Also set the initial route value
+    console.log('useRouter: Setting initial route value', router.currentRoute);
+    route.value = { ...router.currentRoute };
 
     // Computed properties for commonly used route values
     const params = computed(() => route.value.params || {});
@@ -1551,6 +1967,22 @@ export function RouterView(props = {}) {
     // Get the current router instance and route
     const { router, route } = useRouter();
 
+    // Add a listener for route changes
+    if (typeof window !== 'undefined') {
+        window.addEventListener('kalroute', (event) => {
+            console.log('RouterView received kalroute event:', event.detail);
+            // Force re-render of the component
+            if (typeof document !== 'undefined') {
+                const routerViewContainers = document.querySelectorAll('.kal-router-view-container');
+                routerViewContainers.forEach(container => {
+                    if (container._update && typeof container._update === 'function') {
+                        container._update();
+                    }
+                });
+            }
+        });
+    }
+
     if (!router || !route.value) {
         console.warn('RouterView: No active router found');
         return {
@@ -1561,53 +1993,296 @@ export function RouterView(props = {}) {
     }
 
     // Get the matched route component
-    const matchedRoute = route.value.matched[0];
+    console.log('RouterView rendering with route:', route.value);
 
-    if (!matchedRoute || !matchedRoute.component) {
+    // Check if we have a matched route
+    if (!route.value.matched || route.value.matched.length === 0) {
+        console.error('RouterView: No matched routes found');
+        console.log('Current route value:', route.value);
+
+        // Try to find a fallback route (wildcard route)
+        const fallbackRoute = router.routes.find(r =>
+            r.path === '*' ||
+            r.path === '/*' ||
+            r.path.includes(':pathMatch(')
+        );
+
+        if (fallbackRoute && fallbackRoute.component) {
+            console.log('Found fallback route:', fallbackRoute);
+
+            // Use the fallback component
+            const FallbackComponent = fallbackRoute.component;
+
+            // Check if the component has a setup function (object component)
+            if (typeof FallbackComponent === 'object' && FallbackComponent.setup) {
+                console.log('Fallback component has setup function');
+                try {
+                    // Call the setup function to get the render function
+                    const renderFn = FallbackComponent.setup();
+
+                    // If the setup function returns a render function, call it
+                    if (typeof renderFn === 'function') {
+                        console.log('Calling render function from setup');
+                        return renderFn();
+                    }
+                } catch (err) {
+                    console.error('Error calling setup function:', err);
+                }
+            }
+
+            // Otherwise return the component directly
+            console.log('Returning fallback component directly');
+
+            // If it's a function component, call it
+            if (typeof FallbackComponent === 'function') {
+                console.log('Fallback component is a function, calling it');
+                try {
+                    const result = FallbackComponent();
+                    console.log('Function component result:', result);
+                    if (result && typeof result === 'object') {
+                        return result;
+                    }
+                } catch (err) {
+                    console.error('Error calling function component:', err);
+                }
+            }
+
+            // If not a function or error calling it, return as tag
+            return {
+                tag: 'div',
+                props: { class: 'kal-router-view-fallback' },
+                children: [
+                    {
+                        tag: 'h2',
+                        props: {},
+                        children: ['404 Not Found']
+                    },
+                    {
+                        tag: 'p',
+                        props: {},
+                        children: ['The page you are looking for does not exist.']
+                    }
+                ]
+            };
+        }
+
+        // If no fallback route or error rendering it, show debug info
         return {
             tag: 'div',
-            props: { class: 'kal-router-view' },
-            children: ['No matching route found']
+            props: { class: 'kal-router-view-error' },
+            children: [
+                {
+                    tag: 'h3',
+                    props: {},
+                    children: ['No matching route found']
+                },
+                {
+                    tag: 'pre',
+                    props: { style: 'background: #f5f5f5; padding: 10px; border-radius: 4px; overflow: auto;' },
+                    children: [JSON.stringify(route.value, null, 2)]
+                }
+            ]
         };
     }
 
-    // Render the matched component
+    const matchedRoute = route.value.matched[0];
+    console.log('Matched route for RouterView:', matchedRoute);
+
+    if (!matchedRoute.component) {
+        console.error('RouterView: Matched route has no component defined');
+        return {
+            tag: 'div',
+            props: { class: 'kal-router-view-error' },
+            children: ['Matched route has no component defined']
+        };
+    }
+
+    // Render the matched component as a vnode
     const Component = matchedRoute.component;
+    console.log('Rendering component:', Component);
 
-    // If Component is a function, call it with props
+    // Handle component definition object (with setup function)
+    if (Component && typeof Component === 'object' && typeof Component.setup === 'function') {
+        console.log('Component has setup function, calling it');
+        try {
+            // Call the setup function to get the actual component
+            const setupResult = Component.setup(props);
+            console.log('Setup result type:', typeof setupResult);
+
+            // Handle different types of setup results
+            if (setupResult) {
+                if (typeof setupResult === 'object') {
+                    // Case 1: Setup returned an object (hopefully a vnode)
+                    console.log('Setup returned an object');
+                    if (!setupResult.tag) {
+                        console.warn('RouterView: Component setup returned object without tag, creating a default vnode');
+                        return {
+                            tag: 'div',
+                            props: { class: 'kal-router-view-default' },
+                            children: ['Component returned data without a view']
+                        };
+                    } else if (typeof setupResult.tag !== 'string') {
+                        console.warn('RouterView: Component setup returned object with invalid tag, setting to div');
+                        setupResult.tag = 'div';
+                    }
+                    return setupResult;
+                } else if (typeof setupResult === 'function') {
+                    // Case 2: Setup returned a function (render function)
+                    console.log('RouterView: Component setup returned a function, calling it');
+                    try {
+                        const renderResult = setupResult();
+                        console.log('Render result:', renderResult);
+                        if (renderResult && typeof renderResult === 'object') {
+                            if (!renderResult.tag) {
+                                console.warn('Render result has no tag, setting to div');
+                                renderResult.tag = 'div';
+                            } else if (typeof renderResult.tag !== 'string' && typeof renderResult.tag !== 'function') {
+                                console.warn('Render result has invalid tag type:', typeof renderResult.tag);
+                                renderResult.tag = 'div';
+                            }
+                            return renderResult;
+                        } else {
+                            console.error('Render function did not return a valid view');
+                            return {
+                                tag: 'div',
+                                props: { class: 'kal-router-view-error' },
+                                children: ['Render function did not return a valid view']
+                            };
+                        }
+                    } catch (renderError) {
+                        console.error('RouterView: Error calling render function:', renderError);
+                        return {
+                            tag: 'div',
+                            props: { class: 'kal-router-view-error' },
+                            children: [`Error in render function: ${renderError.message}`]
+                        };
+                    }
+                } else {
+                    // Case 3: Setup returned a primitive value
+                    console.warn('RouterView: Component setup returned a primitive value:', setupResult);
+                    return {
+                        tag: 'div',
+                        props: { class: 'kal-router-view-primitive' },
+                        children: [String(setupResult)]
+                    };
+                }
+            } else {
+                // Case 4: Setup returned null or undefined
+                console.error('RouterView: Component setup did not return a valid value', setupResult);
+                return {
+                    tag: 'div',
+                    props: { class: 'kal-router-view-error' },
+                    children: ['Component setup did not return a valid view']
+                };
+            }
+        } catch (error) {
+            console.error('RouterView: Error in component setup', error);
+            return {
+                tag: 'div',
+                props: { class: 'kal-router-view-error' },
+                children: [`Error in component setup: ${error.message}`]
+            };
+        }
+    }
+
+    // Check if Component is a function (functional component)
     if (typeof Component === 'function') {
+        console.log('Component is a function, trying to call it directly');
         try {
-            return Component(props);
+            // Try to call the function directly first
+            try {
+                const result = Component(props);
+                console.log('Function component result:', result);
+                if (result && typeof result === 'object') {
+                    return result;
+                }
+            } catch (directCallError) {
+                console.warn('Error calling component function directly:', directCallError);
+                // Fall back to the placeholder approach
+            }
+
+            // Create a placeholder element that will be replaced with the actual component
+            const placeholder = {
+                tag: 'div',
+                props: {
+                    class: 'kal-router-view-container',
+                    'data-router-view': 'true',
+                    'data-route-path': route.value.path,
+                    ...props
+                },
+                children: [],
+                // Store component reference for the renderer to use
+                _componentRef: Component,
+                // Add an update method that can be called to force re-rendering
+                _update: function () {
+                    console.log('Router view container update called');
+                    // This will be replaced by the renderer with the actual update function
+                }
+            };
+
+            // Add a hook for the renderer to know this is a router view component
+            placeholder._isRouterView = true;
+            console.log('Created placeholder for component:', placeholder);
+
+            return placeholder;
         } catch (error) {
-            console.error('Error rendering route component:', error);
+            console.error('RouterView: Error preparing component', error);
             return {
                 tag: 'div',
                 props: { class: 'kal-router-view-error' },
-                children: [`Error rendering component: ${error.message}`]
+                children: [`Error preparing component: ${error.message}`]
             };
         }
-    }
+    } else {
+        console.error('RouterView: Component is not a valid component function', Component);
 
-    // If Component is an object with a render method, use it
-    if (Component && typeof Component === 'object' && Component.render) {
-        try {
-            return Component.render(props);
-        } catch (error) {
-            console.error('Error rendering route component:', error);
-            return {
-                tag: 'div',
-                props: { class: 'kal-router-view-error' },
-                children: [`Error rendering component: ${error.message}`]
-            };
+        // If Component is an object, try to render it directly
+        if (typeof Component === 'object') {
+            console.log('Trying to render object component directly');
+
+            // If it has a render method, try to use it
+            if (typeof Component.render === 'function') {
+                try {
+                    const result = Component.render();
+                    if (result && typeof result === 'object') {
+                        return result;
+                    }
+                } catch (err) {
+                    console.error('Error calling render method:', err);
+                }
+            }
+
+            // If it has a template property, try to render it
+            if (Component.template) {
+                return {
+                    tag: 'div',
+                    props: {
+                        class: 'kal-router-view-template',
+                        innerHTML: Component.template
+                    },
+                    children: []
+                };
+            }
         }
-    }
 
-    // Otherwise, create a wrapper for the component
-    return {
-        tag: 'div',
-        props: { class: 'kal-router-view' },
-        children: [Component]
-    };
+        // Final fallback
+        return {
+            tag: 'div',
+            props: { class: 'kal-router-view-error' },
+            children: [
+                {
+                    tag: 'h3',
+                    props: {},
+                    children: ['Invalid Route Component']
+                },
+                {
+                    tag: 'p',
+                    props: {},
+                    children: [`Component type: ${typeof Component}`]
+                }
+            ]
+        };
+    }
 }
 
 /**

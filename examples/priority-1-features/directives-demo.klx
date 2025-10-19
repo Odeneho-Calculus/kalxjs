@@ -1,0 +1,588 @@
+<template>
+  <div class="directives-demo">
+    <h1>KALXJS Priority 1 - Template Directives Demo</h1>
+
+    <!-- ============================================ -->
+    <!-- 1. v-model Demo -->
+    <!-- ============================================ -->
+    <section class="demo-section">
+      <h2>v-model (Two-Way Binding)</h2>
+
+      <!-- Text input -->
+      <div class="demo-item">
+        <label>Text Input:</label>
+        <input v-model="message" placeholder="Type something..." />
+        <p>Value: {{ message }}</p>
+      </div>
+
+      <!-- Number input with modifier -->
+      <div class="demo-item">
+        <label>Number Input:</label>
+        <input v-model.number="age" type="number" />
+        <p>Age: {{ age }} (Type: {{ typeof age }})</p>
+      </div>
+
+      <!-- Trim modifier -->
+      <div class="demo-item">
+        <label>Trim Input:</label>
+        <input v-model.trim="username" />
+        <p>Username: "{{ username }}"</p>
+      </div>
+
+      <!-- Checkbox -->
+      <div class="demo-item">
+        <label>
+          <input type="checkbox" v-model="checked" />
+          Checkbox
+        </label>
+        <p>Checked: {{ checked }}</p>
+      </div>
+
+      <!-- Radio buttons -->
+      <div class="demo-item">
+        <label>Favorite Color:</label>
+        <label><input type="radio" v-model="color" value="red" /> Red</label>
+        <label><input type="radio" v-model="color" value="blue" /> Blue</label>
+        <label><input type="radio" v-model="color" value="green" /> Green</label>
+        <p>Selected: {{ color }}</p>
+      </div>
+
+      <!-- Select -->
+      <div class="demo-item">
+        <label>Select Country:</label>
+        <select v-model="country">
+          <option value="">Choose...</option>
+          <option value="us">United States</option>
+          <option value="uk">United Kingdom</option>
+          <option value="ca">Canada</option>
+        </select>
+        <p>Country: {{ country }}</p>
+      </div>
+
+      <!-- Textarea -->
+      <div class="demo-item">
+        <label>Message:</label>
+        <textarea v-model="longMessage" rows="4"></textarea>
+        <p>Length: {{ longMessage.length }}</p>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- 2. v-if / v-else-if / v-else Demo -->
+    <!-- ============================================ -->
+    <section class="demo-section">
+      <h2>v-if / v-else-if / v-else (Conditional Rendering)</h2>
+
+      <div class="demo-item">
+        <button @click="score = Math.floor(Math.random() * 100)">
+          Generate Random Score
+        </button>
+        <p>Score: {{ score }}</p>
+
+        <div v-if="score >= 90" class="grade excellent">
+          Excellent! Grade: A
+        </div>
+        <div v-else-if="score >= 80" class="grade good">
+          Good! Grade: B
+        </div>
+        <div v-else-if="score >= 70" class="grade average">
+          Average. Grade: C
+        </div>
+        <div v-else-if="score >= 60" class="grade poor">
+          Need improvement. Grade: D
+        </div>
+        <div v-else class="grade fail">
+          Failed. Grade: F
+        </div>
+      </div>
+
+      <div class="demo-item">
+        <button @click="toggleLogin">
+          {{ isLoggedIn ? 'Logout' : 'Login' }}
+        </button>
+
+        <div v-if="isLoggedIn">
+          <p>Welcome back, {{ currentUser }}!</p>
+          <button @click="viewProfile">View Profile</button>
+        </div>
+        <div v-else>
+          <p>Please log in to continue</p>
+          <button @click="showLoginForm">Login</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- 3. v-for Demo -->
+    <!-- ============================================ -->
+    <section class="demo-section">
+      <h2>v-for (List Rendering)</h2>
+
+      <!-- Array iteration -->
+      <div class="demo-item">
+        <h3>Todo List</h3>
+        <div v-for="(todo, index) in todos" :key="todo.id" class="todo-item">
+          <span>{{ index + 1 }}. {{ todo.text }}</span>
+          <input type="checkbox" v-model="todo.done" />
+          <button @click="removeTodo(todo.id)">Remove</button>
+        </div>
+        <button @click="addTodo">Add Todo</button>
+      </div>
+
+      <!-- Object iteration -->
+      <div class="demo-item">
+        <h3>User Info</h3>
+        <div v-for="(value, key) in userInfo" :key="key">
+          <strong>{{ key }}:</strong> {{ value }}
+        </div>
+      </div>
+
+      <!-- Range iteration -->
+      <div class="demo-item">
+        <h3>Numbers 1-10</h3>
+        <span v-for="n in 10" :key="n" class="number-badge">
+          {{ n }}
+        </span>
+      </div>
+
+      <!-- Nested v-for -->
+      <div class="demo-item">
+        <h3>Nested Lists</h3>
+        <div v-for="category in categories" :key="category.id" class="category">
+          <h4>{{ category.name }}</h4>
+          <ul>
+            <li v-for="item in category.items" :key="item.id">
+              {{ item.name }} - ${{ item.price }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- 4. v-show Demo -->
+    <!-- ============================================ -->
+    <section class="demo-section">
+      <h2>v-show (Display Toggle)</h2>
+
+      <div class="demo-item">
+        <button @click="showContent = !showContent">
+          {{ showContent ? 'Hide' : 'Show' }} Content
+        </button>
+
+        <div v-show="showContent" class="content-box">
+          This content is toggled with v-show.
+          The element stays in the DOM but display is toggled.
+        </div>
+
+        <p class="note">
+          <strong>Note:</strong> v-show keeps the element in DOM,
+          while v-if removes it completely.
+        </p>
+      </div>
+
+      <!-- Multiple elements with v-show -->
+      <div class="demo-item">
+        <div class="tabs">
+          <button
+            @click="activeTab = 'tab1'"
+            :class="{ active: activeTab === 'tab1' }"
+          >
+            Tab 1
+          </button>
+          <button
+            @click="activeTab = 'tab2'"
+            :class="{ active: activeTab === 'tab2' }"
+          >
+            Tab 2
+          </button>
+          <button
+            @click="activeTab = 'tab3'"
+            :class="{ active: activeTab === 'tab3' }"
+          >
+            Tab 3
+          </button>
+        </div>
+
+        <div v-show="activeTab === 'tab1'" class="tab-content">
+          Content for Tab 1
+        </div>
+        <div v-show="activeTab === 'tab2'" class="tab-content">
+          Content for Tab 2
+        </div>
+        <div v-show="activeTab === 'tab3'" class="tab-content">
+          Content for Tab 3
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- 5. v-slot Demo -->
+    <!-- ============================================ -->
+    <section class="demo-section">
+      <h2>v-slot (Named and Scoped Slots)</h2>
+
+      <!-- Named slots -->
+      <Card>
+        <template #header>
+          <h3>Card Title</h3>
+        </template>
+
+        <template #default>
+          <p>This is the main card content.</p>
+        </template>
+
+        <template #footer>
+          <button>Action Button</button>
+        </template>
+      </Card>
+
+      <!-- Scoped slots -->
+      <UserList>
+        <template #item="{ user, index }">
+          <div class="user-card">
+            <strong>{{ index + 1 }}. {{ user.name }}</strong>
+            <span>{{ user.email }}</span>
+          </div>
+        </template>
+
+        <template #empty>
+          <p>No users found</p>
+        </template>
+      </UserList>
+
+      <!-- Multiple scoped slots -->
+      <DataTable :data="tableData">
+        <template #header="{ columns }">
+          <tr>
+            <th v-for="col in columns" :key="col">{{ col }}</th>
+          </tr>
+        </template>
+
+        <template #row="{ row, index }">
+          <tr :class="{ even: index % 2 === 0 }">
+            <td>{{ row.id }}</td>
+            <td>{{ row.name }}</td>
+            <td>{{ row.value }}</td>
+          </tr>
+        </template>
+      </DataTable>
+    </section>
+
+    <!-- ============================================ -->
+    <!-- 6. Combined Example -->
+    <!-- ============================================ -->
+    <section class="demo-section">
+      <h2>Combined Example: Todo App</h2>
+
+      <div class="todo-app">
+        <!-- Input form -->
+        <div class="add-todo">
+          <input
+            v-model.trim="newTodoText"
+            @keyup.enter="addTodoItem"
+            placeholder="Add a new todo..."
+          />
+          <button @click="addTodoItem">Add</button>
+        </div>
+
+        <!-- Filter tabs -->
+        <div class="filters">
+          <button
+            v-for="filter in filters"
+            :key="filter"
+            @click="currentFilter = filter"
+            :class="{ active: currentFilter === filter }"
+          >
+            {{ filter }}
+          </button>
+        </div>
+
+        <!-- Todo list -->
+        <div class="todo-list">
+          <div
+            v-for="todo in filteredTodos"
+            :key="todo.id"
+            class="todo-item"
+            :class="{ completed: todo.completed }"
+          >
+            <input
+              type="checkbox"
+              v-model="todo.completed"
+            />
+            <span v-if="!todo.editing">{{ todo.text }}</span>
+            <input
+              v-else
+              v-model="todo.text"
+              @blur="todo.editing = false"
+              @keyup.enter="todo.editing = false"
+            />
+            <button @click="editTodoItem(todo)">Edit</button>
+            <button @click="deleteTodoItem(todo.id)">Delete</button>
+          </div>
+
+          <div v-if="filteredTodos.length === 0" class="empty-state">
+            No todos to display
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div v-show="todoList.length > 0" class="stats">
+          <span>Total: {{ todoList.length }}</span>
+          <span>Active: {{ activeTodosCount }}</span>
+          <span>Completed: {{ completedTodosCount }}</span>
+        </div>
+      </div>
+    </section>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'DirectivesDemo',
+
+  setup() {
+    const state = reactive({
+      // v-model data
+      message: 'Hello KALXJS!',
+      age: 25,
+      username: '',
+      checked: false,
+      color: 'blue',
+      country: '',
+      longMessage: '',
+
+      // v-if data
+      score: 75,
+      isLoggedIn: false,
+      currentUser: 'John Doe',
+
+      // v-for data
+      todos: [
+        { id: 1, text: 'Learn KALXJS', done: false },
+        { id: 2, text: 'Build an app', done: false },
+        { id: 3, text: 'Deploy to production', done: false }
+      ],
+      userInfo: {
+        name: 'John Doe',
+        email: 'john@example.com',
+        role: 'Developer'
+      },
+      categories: [
+        {
+          id: 1,
+          name: 'Electronics',
+          items: [
+            { id: 1, name: 'Laptop', price: 999 },
+            { id: 2, name: 'Mouse', price: 25 }
+          ]
+        },
+        {
+          id: 2,
+          name: 'Books',
+          items: [
+            { id: 3, name: 'JavaScript Guide', price: 29 },
+            { id: 4, name: 'CSS Tricks', price: 19 }
+          ]
+        }
+      ],
+
+      // v-show data
+      showContent: true,
+      activeTab: 'tab1',
+
+      // Combined example data
+      newTodoText: '',
+      currentFilter: 'All',
+      filters: ['All', 'Active', 'Completed'],
+      todoList: []
+    });
+
+    // Methods
+    const toggleLogin = () => {
+      state.isLoggedIn = !state.isLoggedIn;
+    };
+
+    const addTodo = () => {
+      state.todos.push({
+        id: Date.now(),
+        text: `New Todo ${state.todos.length + 1}`,
+        done: false
+      });
+    };
+
+    const removeTodo = (id) => {
+      const index = state.todos.findIndex(t => t.id === id);
+      if (index !== -1) {
+        state.todos.splice(index, 1);
+      }
+    };
+
+    const addTodoItem = () => {
+      if (state.newTodoText) {
+        state.todoList.push({
+          id: Date.now(),
+          text: state.newTodoText,
+          completed: false,
+          editing: false
+        });
+        state.newTodoText = '';
+      }
+    };
+
+    const editTodoItem = (todo) => {
+      todo.editing = true;
+    };
+
+    const deleteTodoItem = (id) => {
+      const index = state.todoList.findIndex(t => t.id === id);
+      if (index !== -1) {
+        state.todoList.splice(index, 1);
+      }
+    };
+
+    // Computed
+    const filteredTodos = computed(() => {
+      if (state.currentFilter === 'Active') {
+        return state.todoList.filter(t => !t.completed);
+      } else if (state.currentFilter === 'Completed') {
+        return state.todoList.filter(t => t.completed);
+      }
+      return state.todoList;
+    });
+
+    const activeTodosCount = computed(() => {
+      return state.todoList.filter(t => !t.completed).length;
+    });
+
+    const completedTodosCount = computed(() => {
+      return state.todoList.filter(t => t.completed).length;
+    });
+
+    return {
+      ...state,
+      toggleLogin,
+      addTodo,
+      removeTodo,
+      addTodoItem,
+      editTodoItem,
+      deleteTodoItem,
+      filteredTodos,
+      activeTodosCount,
+      completedTodosCount
+    };
+  }
+};
+</script>
+
+<style scoped>
+.directives-demo {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.demo-section {
+  margin: 40px 0;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.demo-item {
+  margin: 20px 0;
+  padding: 15px;
+  background: white;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+input, select, textarea {
+  padding: 8px;
+  margin: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+button {
+  padding: 8px 16px;
+  margin: 5px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+.grade {
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.excellent { background: #d4edda; color: #155724; }
+.good { background: #d1ecf1; color: #0c5460; }
+.average { background: #fff3cd; color: #856404; }
+.poor { background: #f8d7da; color: #721c24; }
+.fail { background: #f8d7da; color: #721c24; }
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  margin: 5px 0;
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.todo-item.completed {
+  opacity: 0.6;
+  text-decoration: line-through;
+}
+
+.number-badge {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  margin: 2px;
+  background: #007bff;
+  color: white;
+  border-radius: 4px;
+}
+
+.tabs button.active {
+  background: #0056b3;
+}
+
+.tab-content {
+  padding: 20px;
+  margin: 10px 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.stats {
+  display: flex;
+  justify-content: space-around;
+  padding: 15px;
+  background: #e9ecef;
+  border-radius: 4px;
+  margin-top: 20px;
+}
+
+.empty-state {
+  padding: 40px;
+  text-align: center;
+  color: #6c757d;
+}
+</style>

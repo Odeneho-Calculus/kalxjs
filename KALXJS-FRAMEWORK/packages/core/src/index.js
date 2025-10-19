@@ -39,6 +39,30 @@ import {
     onErrorCaptured
 } from './composition/lifecycle.js';
 
+// Import Priority 1 features
+import {
+    Suspense,
+    useSuspense,
+    Teleport,
+    usePortal,
+    ErrorBoundary,
+    useErrorHandler,
+    withErrorBoundary,
+    Fragment,
+    createFragment,
+    isFragment
+} from './component/index.js';
+
+// Import Signals reactivity
+import {
+    signal,
+    batch,
+    untrack,
+    memo,
+    createResource,
+    createSignalStore
+} from './reactivity/index.js';
+
 // Import utility functions
 import {
     customRef,
@@ -66,7 +90,7 @@ import {
 } from './api/index.js';
 import {
     memoize,
-    memo,
+    memo as performanceMemo,
     lazy,
     deferRender,
     createVirtualList,
@@ -128,6 +152,14 @@ const kalxjs = {
     computed,
     effect,
 
+    // Signals-based reactivity (NEW - Priority 1)
+    signal,
+    batch,
+    untrack,
+    memo,
+    createResource,
+    createSignalStore,
+
     // Virtual DOM
     h,
     createElement,
@@ -140,6 +172,18 @@ const kalxjs = {
     defineJsComponent,
     createJsComponent,
     createStyles,
+
+    // Advanced Components (NEW - Priority 1)
+    Suspense,
+    useSuspense,
+    Teleport,
+    usePortal,
+    ErrorBoundary,
+    useErrorHandler,
+    withErrorBoundary,
+    Fragment,
+    createFragment,
+    isFragment,
 
     // Template-based component system
     createTemplateComponent,
@@ -188,7 +232,7 @@ const kalxjs = {
 
     // Performance optimizations
     memoize,
-    memo,
+    performanceMemo,
     lazy,
     deferRender,
     createVirtualList,
@@ -260,6 +304,14 @@ export {
     computed,
     effect,
 
+    // Signals-based reactivity (NEW - Priority 1)
+    signal,
+    batch,
+    untrack,
+    memo,
+    createResource,
+    createSignalStore,
+
     // Virtual DOM
     h,
     createElement,
@@ -274,6 +326,18 @@ export {
     defineJsComponent,
     createJsComponent,
     createStyles,
+
+    // Advanced Components (NEW - Priority 1)
+    Suspense,
+    useSuspense,
+    Teleport,
+    usePortal,
+    ErrorBoundary,
+    useErrorHandler,
+    withErrorBoundary,
+    Fragment,
+    createFragment,
+    isFragment,
 
     // Template-based component system
     createTemplateComponent,
@@ -323,7 +387,7 @@ export {
 
     // Performance optimizations
     memoize,
-    memo,
+    performanceMemo,
     lazy,
     deferRender,
     createVirtualList,
@@ -386,3 +450,6 @@ export * from './ssr/index.js';
 export * from './animation/index.js';
 export * from './template/index.js';
 export * from './renderer/index.js';
+
+// Export Enhanced SSR (Priority 1)
+export * from './ssr/streaming/index.js';

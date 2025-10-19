@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * KalxJS Project Initializer
- *
- * This script initializes a new KalxJS project with proper configuration
+ * KalxJS Local App Initializer
+ * 
+ * This script initializes a new KalxJS local application with proper configuration
  * and ensures all necessary files and directories are created.
  */
 
@@ -14,19 +14,19 @@ const { execSync } = require('child_process');
 const projectName = process.argv[2];
 
 if (!projectName) {
-  console.error('❌ Please provide a project name');
-  console.log('Usage: npx create-kalxjs-app my-app');
-  process.exit(1);
+    console.error('❌ Please provide a project name');
+    console.log('Usage: node create-local-app.js my-app');
+    process.exit(1);
 }
 
-console.log(`🚀 Creating KalxJS project: ${projectName}`);
+console.log(`🚀 Creating KalxJS local app: ${projectName}`);
 
 // Create project directory
 if (!fs.existsSync(projectName)) {
-  fs.mkdirSync(projectName);
+    fs.mkdirSync(projectName);
 } else {
-  console.error(`❌ Directory ${projectName} already exists`);
-  process.exit(1);
+    console.error(`❌ Directory ${projectName} already exists`);
+    process.exit(1);
 }
 
 // Change to project directory
@@ -42,13 +42,13 @@ packageJson.name = projectName;
 packageJson.version = '0.1.0';
 packageJson.private = true;
 packageJson.scripts = {
-  "dev": "vite",
-  "build": "vite build",
-  "preview": "vite preview",
-  "test": "vitest run",
-  "test:watch": "vitest",
-  "lint": "eslint . --ext .js",
-  "lint:fix": "eslint . --ext .js --fix"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix"
 };
 fs.writeFileSync('package.json', JSON.stringify(packageJson, null, 2));
 
@@ -62,31 +62,29 @@ console.log('📂 Creating project structure...');
 
 // Create directories
 const directories = [
-  'app',
-  'app/core',
-  'app/components',
-  'app/pages',
-  'app/assets',
-  'app/styles',
-  'app/navigation',
-  'app/state',
-  'app/extensions',
-  'config',
-  'public',
-  'public/assets'
+    'app',
+    'app/core',
+    'app/components',
+    'app/pages',
+    'app/assets',
+    'app/styles',
+    'app/navigation',
+    'app/state',
+    'app/extensions',
+    'config',
+    'public',
+    'public/assets'
 ];
 
 directories.forEach(dir => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
 });
 
-// Create files
-const files = [
-  {
-    path: 'main.js',
-    content: `import { createApp, h } from '@kalxjs/core';
+// Create main.js
+console.log('📝 Creating main application files...');
+const mainJs = `import { createApp, h } from '@kalxjs/core';
 import { createRouter, RouterView } from '@kalxjs/router';
 import App from './app/App.js';
 
@@ -108,11 +106,11 @@ app.use(router);
 
 // Mount the app
 app.mount('#app');
-`
-  },
-  {
-    path: 'index.html',
-    content: `<!DOCTYPE html>
+`;
+fs.writeFileSync('main.js', mainJs);
+
+// Create index.html
+const indexHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -125,12 +123,12 @@ app.mount('#app');
   <script type="module" src="/main.js"></script>
 </body>
 </html>
-`
-  },
-  {
-    path: 'app/App.js',
-    content: `import { h } from '@kalxjs/core';
-import { RouterView, RouterLink } from '@kalxjs/router';
+`;
+fs.writeFileSync('index.html', indexHtml);
+
+// Create App.js
+const appJs = `import { h } from '@kalxjs/core';
+import { RouterView } from '@kalxjs/router';
 import Navigation from './components/Navigation.js';
 
 export default {
@@ -149,23 +147,23 @@ export default {
     ]);
   }
 };
-`
-  },
-  {
-    path: 'app/components/Navigation.js',
-    content: `import { h } from '@kalxjs/core';
+`;
+fs.writeFileSync('app/App.js', appJs);
+
+// Create Navigation component
+const navigationJs = `import { h } from '@kalxjs/core';
 import { RouterLink, useRouter } from '@kalxjs/router';
 
 export default {
   setup() {
     const { isActive } = useRouter();
-
+    
     return () => h('nav', { class: 'main-navigation' }, [
       h(RouterLink, {
         to: '/',
         class: isActive('/') ? 'active' : ''
       }, { default: () => 'Home' }),
-
+      
       h(RouterLink, {
         to: '/about',
         class: isActive('/about') ? 'active' : ''
@@ -173,30 +171,30 @@ export default {
     ]);
   }
 };
-`
-  },
-  {
-    path: 'app/pages/Home.js',
-    content: `import { h } from '@kalxjs/core';
-import { onMounted } from '@kalxjs/composition';
+`;
+fs.writeFileSync('app/components/Navigation.js', navigationJs);
+
+// Create Home page
+const homeJs = `import { h } from '@kalxjs/core';
+import { onMounted } from '@kalxjs/core';
 
 export default {
   setup() {
     onMounted(() => {
       console.log('Home page mounted');
     });
-
+    
     return () => h('div', { class: 'home-page' }, [
       h('h2', {}, 'Welcome to ${projectName}'),
       h('p', {}, 'This is a KalxJS application. Edit app/pages/Home.js to customize this page.')
     ]);
   }
 };
-`
-  },
-  {
-    path: 'app/pages/About.js',
-    content: `import { h } from '@kalxjs/core';
+`;
+fs.writeFileSync('app/pages/Home.js', homeJs);
+
+// Create About page
+const aboutJs = `import { h } from '@kalxjs/core';
 
 export default {
   setup() {
@@ -206,11 +204,11 @@ export default {
     ]);
   }
 };
-`
-  },
-  {
-    path: 'app/pages/NotFound.js',
-    content: `import { h } from '@kalxjs/core';
+`;
+fs.writeFileSync('app/pages/About.js', aboutJs);
+
+// Create NotFound page
+const notFoundJs = `import { h } from '@kalxjs/core';
 
 export default {
   setup() {
@@ -220,11 +218,11 @@ export default {
     ]);
   }
 };
-`
-  },
-  {
-    path: 'app/styles/main.css',
-    content: `/* Main styles for ${projectName} */
+`;
+fs.writeFileSync('app/pages/NotFound.js', notFoundJs);
+
+// Create CSS file
+const cssContent = `/* Main styles for ${projectName} */
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -263,11 +261,11 @@ footer {
   text-align: center;
   color: #666;
 }
-`
-  },
-  {
-    path: 'vite.config.js',
-    content: `export default {
+`;
+fs.writeFileSync('app/styles/main.css', cssContent);
+
+// Create vite.config.js
+const viteConfig = `export default {
   server: {
     port: 3000,
     open: true
@@ -277,13 +275,13 @@ footer {
     minify: true
   }
 };
-`
-  },
-  {
-    path: 'README.md',
-    content: `# ${projectName}
+`;
+fs.writeFileSync('vite.config.js', viteConfig);
 
-A KalxJS application.
+// Create README.md
+const readme = `# ${projectName}
+
+A KalxJS local application.
 
 ## Getting Started
 
@@ -316,11 +314,11 @@ npm run preview
 
 - KalxJS - A lightweight JavaScript framework
 - Vite - Next generation frontend tooling
-`
-  },
-  {
-    path: '.gitignore',
-    content: `# Dependencies
+`;
+fs.writeFileSync('README.md', readme);
+
+// Create .gitignore
+const gitignore = `# Dependencies
 node_modules/
 
 # Build output
@@ -350,15 +348,10 @@ pnpm-debug.log*
 # System Files
 .DS_Store
 Thumbs.db
-`
-  }
-];
+`;
+fs.writeFileSync('.gitignore', gitignore);
 
-files.forEach(file => {
-  fs.writeFileSync(file.path, file.content);
-});
-
-console.log('✅ Project created successfully!');
+console.log('✅ Local app created successfully!');
 console.log(`
 To get started:
   cd ${projectName}

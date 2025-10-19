@@ -58,3 +58,6 @@ export { compile } from './compiler.js';
 export { generateCode } from './codegen.js';
 // Use the fixed version of the plugin
 export { default as vitePlugin } from './vite-plugin-klx-fixed.js';
+
+// Export Priority 1 - Enhanced Template Directives
+export * from './directives/index.js';

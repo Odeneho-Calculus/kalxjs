@@ -37,6 +37,7 @@
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/rollup-win32-x64-msvc": "^4.40.1",
+    "is-module": "^1.0.0",
     "rollup": "^4.40.1"
   },
   "gitHead": "0368c47af2ca81ce064bb0bebff727f694ff490e"

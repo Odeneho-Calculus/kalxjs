@@ -1,4 +1,4 @@
-// Export the component functionality 
+// Export the component functionality
 import { createComponent, defineComponent, createApp } from './component.js';
 import { defineJsComponent, createJsComponent, createStyles } from './js-component.js';
 
@@ -8,7 +8,7 @@ export {
     createComponent,
     defineComponent,
     createApp,
-    
+
     // New JS-based component system
     defineJsComponent,
     createJsComponent,
@@ -21,7 +21,13 @@ export const defineComponentEnhanced = (options) => {
     if (options.setup && typeof options.setup === 'function') {
         return defineJsComponent(options);
     }
-    
+
     // Otherwise, use the original system for backward compatibility
     return defineComponent(options);
 };
+
+// Export Priority 1 Components - Advanced Features
+export { Suspense, useSuspense } from './suspense/index.js';
+export { Teleport, usePortal } from './teleport/index.js';
+export { ErrorBoundary, useErrorHandler, withErrorBoundary } from './error-boundary/index.js';
+export { Fragment, createFragment, isFragment } from './fragment/index.js';
