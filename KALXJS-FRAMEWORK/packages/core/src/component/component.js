@@ -660,7 +660,7 @@ function createApp(component) {
                             };
 
                             // Create the component without trying to set _context on the string
-                            instance = createComponent(wrapperComponent, null, { provides: this._context.provides });
+                            instance = createComponent(wrapperComponent, null, this._context);
 
                             // Set app reference
                             instance.$app = this;
@@ -672,7 +672,7 @@ function createApp(component) {
                         }
                     } else {
                         // Normal component object
-                        instance = createComponent(componentOptions, null, { provides: this._context.provides });
+                        instance = createComponent(componentOptions, null, this._context);
 
                         // Inject app context and plugins
                         instance.$app = this;
