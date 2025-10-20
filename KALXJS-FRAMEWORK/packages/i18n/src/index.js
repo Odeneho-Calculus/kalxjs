@@ -6,7 +6,8 @@
  */
 
 // Plugin
-export { createI18n, installI18n } from './plugin.js';
+import { createI18n, installI18n } from './plugin.js';
+export { createI18n, installI18n };
 
 // Translator
 export {
