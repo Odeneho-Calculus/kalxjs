@@ -644,7 +644,7 @@ function createApp(component) {
                             instance.$app = this;
 
                             if (this._context) {
-                                instance._appContext = this._context;
+                                instance.appContext = this._context;
                             }
                         } else {
                             // For string components, we'll create a wrapper component
@@ -667,7 +667,7 @@ function createApp(component) {
 
                             // Store the context in the instance instead of the options
                             if (this._context) {
-                                instance._appContext = this._context;
+                                instance.appContext = this._context;
                             }
                         }
                     } else {
