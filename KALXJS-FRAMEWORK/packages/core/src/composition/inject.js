@@ -41,15 +41,6 @@ export function inject(key, defaultValue, treatDefaultAsFactory = false) {
         return defaultValue;
     }
 
-    // Debug logging
-    if (process.env.NODE_ENV !== 'production' && key === 'i18n') {
-        console.log('[DEBUG] inject() called for key:', key);
-        console.log('[DEBUG] instance:', instance);
-        console.log('[DEBUG] instance.appContext:', instance.appContext);
-        console.log('[DEBUG] instance.appContext?.provides:', instance.appContext?.provides);
-        console.log('[DEBUG] Available keys in provides:', instance.appContext?.provides ? Object.keys(instance.appContext.provides) : 'N/A');
-    }
-
     // Walk up the component tree to find the provided value
     let current = instance.parent;
     while (current) {
