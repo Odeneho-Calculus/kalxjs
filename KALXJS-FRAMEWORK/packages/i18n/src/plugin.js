@@ -176,12 +176,12 @@ export function installI18n(app, i18n) {
     // Provide i18n instance
     app.provide('i18n', i18n);
 
-    // Add global properties
-    app.config.globalProperties.$t = i18n.t;
-    app.config.globalProperties.$tc = i18n.tc;
-    app.config.globalProperties.$te = i18n.te;
-    app.config.globalProperties.$d = i18n.d;
-    app.config.globalProperties.$n = i18n.n;
+    // Add global properties (with fallback functions)
+    app.config.globalProperties.$t = i18n.t || ((key) => key);
+    app.config.globalProperties.$tc = i18n.tc || ((key, choice) => key);
+    app.config.globalProperties.$te = i18n.te || (() => false);
+    app.config.globalProperties.$d = i18n.d || ((value) => String(value));
+    app.config.globalProperties.$n = i18n.n || ((value) => String(value));
     app.config.globalProperties.$i18n = i18n;
 
     return {
