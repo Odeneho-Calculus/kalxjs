@@ -28,7 +28,12 @@ import {
     onBeforeUpdate,
     onUpdated,
     getCurrentInstance,
-    setCurrentInstance
+    setCurrentInstance,
+    provide,
+    inject,
+    hasInjectionContext,
+    hasInjection,
+    appProvide
 } from './composition.js';
 
 // Import additional lifecycle hooks
@@ -224,6 +229,11 @@ const kalxjs = {
     onUpdated,
     getCurrentInstance,
     setCurrentInstance,
+    provide,
+    inject,
+    hasInjectionContext,
+    hasInjection,
+    appProvide,
 
     // Additional lifecycle hooks
     onCreated,
@@ -388,6 +398,11 @@ export {
     onUpdated,
     getCurrentInstance,
     setCurrentInstance,
+    provide,
+    inject,
+    hasInjectionContext,
+    hasInjection,
+    appProvide,
 
     // Additional lifecycle hooks
     onCreated,

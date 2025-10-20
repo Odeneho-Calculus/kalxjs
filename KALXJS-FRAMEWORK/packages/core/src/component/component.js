@@ -45,7 +45,7 @@ function createDOMElement(vnode) {
     return element;
 }
 
-function createComponent(options) {
+function createComponent(options, parent = null, appContext = null) {
     const instance = {};
 
     // Set options
@@ -53,6 +53,10 @@ function createComponent(options) {
 
     // Initialize props
     instance.props = options.props || {};
+
+    // Set parent and app context for provide/inject
+    instance.parent = parent;
+    instance.appContext = appContext;
 
     // Call beforeCreate lifecycle hook
     if (options.beforeCreate) {
@@ -656,7 +660,7 @@ function createApp(component) {
                             };
 
                             // Create the component without trying to set _context on the string
-                            instance = createComponent(wrapperComponent);
+                            instance = createComponent(wrapperComponent, null, { provides: this._context.provides });
 
                             // Set app reference
                             instance.$app = this;
@@ -668,7 +672,7 @@ function createApp(component) {
                         }
                     } else {
                         // Normal component object
-                        instance = createComponent(componentOptions);
+                        instance = createComponent(componentOptions, null, { provides: this._context.provides });
 
                         // Inject app context and plugins
                         instance.$app = this;
@@ -695,7 +699,7 @@ function createApp(component) {
                         }
                     };
 
-                    instance = createComponent(errorComponent);
+                    instance = createComponent(errorComponent, null, { provides: this._context.provides });
                     instance.$app = this;
                 }
 

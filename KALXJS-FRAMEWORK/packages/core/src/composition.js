@@ -33,6 +33,14 @@ import {
     useMouse
 } from './composition/utils.js';
 
+import {
+    provide,
+    inject,
+    hasInjectionContext,
+    hasInjection,
+    appProvide
+} from './composition/inject.js';
+
 export {
     useReactive,
     useRef,
@@ -54,5 +62,10 @@ export {
     useLocalStorage,
     useDebounce,
     useThrottle,
-    useMouse
+    useMouse,
+    provide,
+    inject,
+    hasInjectionContext,
+    hasInjection,
+    appProvide
 };
