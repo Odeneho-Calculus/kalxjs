@@ -224,6 +224,9 @@ function createComponent(options) {
         // Store reference to the mounting element
         this.$el = el;
 
+        // Add mounted flag
+        this.$isMounted = false;
+
         // Call lifecycle hook
         if (options.beforeMount) {
             options.beforeMount.call(instance);
@@ -282,6 +285,9 @@ function createComponent(options) {
             `;
         }
 
+        // Set mounted flag before calling mounted hooks
+        this.$isMounted = true;
+
         // Call mounted hooks
         if (options.mounted) {
             options.mounted.call(instance);
@@ -297,7 +303,7 @@ function createComponent(options) {
 
     // Add update functionality
     instance.$update = function () {
-        if (!this.$el) {
+        if (!this.$el || !this.$isMounted) {
             console.warn('Cannot update: component not mounted');
             return;
         }
