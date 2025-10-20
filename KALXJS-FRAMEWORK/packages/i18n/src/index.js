@@ -10,11 +10,16 @@ import { createI18n, installI18n } from './plugin.js';
 export { createI18n, installI18n };
 
 // Translator
-export {
+import {
     createTranslator,
     createScopedTranslator,
     createNamespace,
 } from './translator.js';
+export {
+    createTranslator,
+    createScopedTranslator,
+    createNamespace,
+};
 
 // Interpolation
 export {
@@ -38,7 +43,7 @@ export {
 } from './pluralization.js';
 
 // Formatters
-export {
+import {
     createDateTimeFormatter,
     createNumberFormatter,
     createCurrencyFormatter,
@@ -46,6 +51,14 @@ export {
     DateTimeFormats,
     NumberFormats,
 } from './formatters.js';
+export {
+    createDateTimeFormatter,
+    createNumberFormatter,
+    createCurrencyFormatter,
+    createRelativeTimeFormatter,
+    DateTimeFormats,
+    NumberFormats,
+};
 
 // RTL Support
 export {
@@ -60,12 +73,18 @@ export {
 } from './rtl.js';
 
 // Loader
-export {
+import {
     createTranslationLoader,
     createLazyLocaleLoader,
     createNamespaceLoader,
     setupAutoLoad,
 } from './loader.js';
+export {
+    createTranslationLoader,
+    createLazyLocaleLoader,
+    createNamespaceLoader,
+    setupAutoLoad,
+};
 
 // Composables
 export {
