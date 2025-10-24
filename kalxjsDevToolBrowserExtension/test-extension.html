@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KALXJS DevTools Extension Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        .status {
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid;
+        }
+
+        .status.success {
+            background-color: #f0f9f0;
+            border-left-color: #28a745;
+            color: #155724;
+        }
+
+        .status.warning {
+            background-color: #fff3cd;
+            border-left-color: #ffc107;
+            color: #856404;
+        }
+
+        .instructions {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .code {
+            background-color: #f1f3f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9em;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .demo-component {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔧 KALXJS DevTools Extension Test Page</h1>
+
+    <div class="instructions">
+        <h2>Instructions to Test the Extension:</h2>
+        <ol>
+            <li>Open Chrome and navigate to <span class="code">chrome://extensions/</span></li>
+            <li>Enable "Developer mode" (toggle in top-right corner)</li>
+            <li>Click "Load unpacked" button</li>
+            <li>Select the <span class="code">build/</span> directory from this project</li>
+            <li>Refresh this page</li>
+            <li>Open Chrome DevTools (F12 or right-click → Inspect)</li>
+            <li>Look for the "KALXJS" tab in DevTools</li>
+        </ol>
+    </div>
+
+    <div id="kalxjs-status" class="status warning">
+        <strong>Status:</strong> Checking for KALXJS framework detection...
+    </div>
+
+    <div class="demo-component">
+        <h3>Demo Component</h3>
+        <p>Component State: <span id="state-value">initial</span></p>
+        <button onclick="updateState()">Update State</button>
+        <button onclick="triggerEvent()">Trigger Event</button>
+        <button onclick="simulateError()">Simulate Error</button>
+    </div>
+
+    <div class="demo-component">
+        <h3>Performance Test</h3>
+        <p>Render Count: <span id="render-count">0</span></p>
+        <button onclick="heavyRender()">Heavy Render</button>
+        <button onclick="memoryTest()">Memory Test</button>
+    </div>
+
+    <script>
+        // Simulate KALXJS framework presence
+        window.__KALXJS_DEVTOOLS_HOOK__ = {
+            version: '1.0.0',
+            components: new Map(),
+            events: [],
+            performance: {
+                renderTimes: [],
+                memoryUsage: []
+            }
+        };
+
+        let stateValue = 'initial';
+        let renderCount = 0;
+
+        function updateStatus() {
+            const statusEl = document.getElementById('kalxjs-status');
+            if (window.__KALXJS_DEVTOOLS_HOOK__) {
+                statusEl.className = 'status success';
+                statusEl.innerHTML = '<strong>Status:</strong> ✅ KALXJS framework detected! Extension should be active in DevTools.';
+            } else {
+                statusEl.className = 'status warning';
+                statusEl.innerHTML = '<strong>Status:</strong> ⚠️ KALXJS framework not detected.';
+            }
+        }
+
+        function updateState() {
+            stateValue = `updated-${Date.now()}`;
+            document.getElementById('state-value').textContent = stateValue;
+
+            // Notify devtools of state change
+            if (window.__KALXJS_DEVTOOLS_HOOK__) {
+                window.__KALXJS_DEVTOOLS_HOOK__.events.push({
+                    type: 'state-update',
+                    component: 'demo-component',
+                    data: { value: stateValue },
+                    timestamp: Date.now()
+                });
+
+                // Trigger devtools update event
+                window.dispatchEvent(new CustomEvent('kalxjs-state-update', {
+                    detail: { component: 'demo-component', state: { value: stateValue } }
+                }));
+            }
+        }
+
+        function triggerEvent() {
+            renderCount++;
+            document.getElementById('render-count').textContent = renderCount;
+
+            if (window.__KALXJS_DEVTOOLS_HOOK__) {
+                window.__KALXJS_DEVTOOLS_HOOK__.events.push({
+                    type: 'component-render',
+                    component: 'demo-component',
+                    renderTime: Math.random() * 10 + 1,
+                    timestamp: Date.now()
+                });
+
+                window.dispatchEvent(new CustomEvent('kalxjs-render', {
+                    detail: { component: 'demo-component', renderTime: Math.random() * 10 + 1 }
+                }));
+            }
+        }
+
+        function simulateError() {
+            if (window.__KALXJS_DEVTOOLS_HOOK__) {
+                window.__KALXJS_DEVTOOLS_HOOK__.events.push({
+                    type: 'error',
+                    component: 'demo-component',
+                    error: 'Simulated error for testing',
+                    timestamp: Date.now()
+                });
+
+                window.dispatchEvent(new CustomEvent('kalxjs-error', {
+                    detail: { component: 'demo-component', error: 'Simulated error for testing' }
+                }));
+            }
+            console.error('KALXJS Test Error: This is a simulated error for DevTools testing');
+        }
+
+        function heavyRender() {
+            const start = performance.now();
+
+            // Simulate heavy computation
+            let result = 0;
+            for (let i = 0; i < 100000; i++) {
+                result += Math.random() * i;
+            }
+
+            const renderTime = performance.now() - start;
+            renderCount++;
+            document.getElementById('render-count').textContent = renderCount;
+
+            if (window.__KALXJS_DEVTOOLS_HOOK__) {
+                window.__KALXJS_DEVTOOLS_HOOK__.performance.renderTimes.push({
+                    component: 'demo-component',
+                    duration: renderTime,
+                    timestamp: Date.now()
+                });
+
+                window.dispatchEvent(new CustomEvent('kalxjs-performance', {
+                    detail: { component: 'demo-component', renderTime, type: 'heavy-render' }
+                }));
+            }
+        }
+
+        function memoryTest() {
+            const memoryInfo = performance.memory ? {
+                used: performance.memory.usedJSHeapSize,
+                total: performance.memory.totalJSHeapSize,
+                limit: performance.memory.jsHeapSizeLimit
+            } : { used: 'N/A', total: 'N/A', limit: 'N/A' };
+
+            if (window.__KALXJS_DEVTOOLS_HOOK__) {
+                window.__KALXJS_DEVTOOLS_HOOK__.performance.memoryUsage.push({
+                    ...memoryInfo,
+                    timestamp: Date.now()
+                });
+
+                window.dispatchEvent(new CustomEvent('kalxjs-memory', {
+                    detail: { memoryInfo }
+                }));
+            }
+
+            console.log('Memory Usage:', memoryInfo);
+        }
+
+        // Initialize
+        updateStatus();
+
+        // Register a demo component
+        if (window.__KALXJS_DEVTOOLS_HOOK__) {
+            window.__KALXJS_DEVTOOLS_HOOK__.components.set('demo-component', {
+                id: 'demo-component',
+                name: 'DemoComponent',
+                type: 'component',
+                props: {},
+                state: { value: stateValue },
+                children: [],
+                parent: null,
+                renderCount: 0
+            });
+        }
+
+        // Simulate periodic updates
+        setInterval(() => {
+            if (window.__KALXJS_DEVTOOLS_HOOK__ && Math.random() < 0.1) {
+                window.__KALXJS_DEVTOOLS_HOOK__.events.push({
+                    type: 'background-update',
+                    component: 'system',
+                    data: { timestamp: Date.now(), value: Math.random() },
+                    timestamp: Date.now()
+                });
+            }
+        }, 2000);
+
+        console.log('🔧 KALXJS DevTools Test Page loaded');
+        console.log('📊 Framework hook available:', !!window.__KALXJS_DEVTOOLS_HOOK__);
+    </script>
+</body>
+
+</html>

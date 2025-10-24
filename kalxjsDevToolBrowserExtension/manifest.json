@@ -1,0 +1,64 @@
+{
+    "manifest_version": 3,
+    "name": "KALXJS DevTools",
+    "version": "1.0.0",
+    "description": "Browser developer tools for KALXJS framework - component inspector, state debugger, and performance profiler",
+    "author": "KALXJS Team",
+    "icons": {
+        "16": "icons/icon-16.svg",
+        "32": "icons/icon-32.svg",
+        "48": "icons/icon-48.svg",
+        "128": "icons/icon-128.svg"
+    },
+    "background": {
+        "service_worker": "background/service-worker.js",
+        "type": "module"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "http://localhost:*/*",
+                "https://localhost:*/*",
+                "http://127.0.0.1:*/*",
+                "https://127.0.0.1:*/*",
+                "file:///*",
+                "http://*:3000/*",
+                "http://*:3001/*",
+                "http://*:5173/*",
+                "http://*:8080/*"
+            ],
+            "js": [
+                "content-script/content.js"
+            ],
+            "run_at": "document_start",
+            "all_frames": true
+        }
+    ],
+    "devtools_page": "devtools/devtools.html",
+    "permissions": [
+        "activeTab",
+        "scripting",
+        "storage"
+    ],
+    "host_permissions": [
+        "http://localhost:*/*",
+        "https://localhost:*/*",
+        "http://127.0.0.1:*/*",
+        "https://127.0.0.1:*/*",
+        "file:///*"
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "content-script/injected.js",
+                "icons/*"
+            ],
+            "matches": [
+                "<all_urls>"
+            ]
+        }
+    ],
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self'"
+    }
+}
