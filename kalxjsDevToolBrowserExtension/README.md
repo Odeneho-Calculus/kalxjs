@@ -72,22 +72,26 @@ A professional-grade browser extension that provides comprehensive debugging and
 ### Build Scripts
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Development build with watch mode
-npm run dev
+pnpm run dev
 
 # Production build
-npm run build:prod
+pnpm run build:prod
 
 # Create distributable package
-npm run package
+pnpm run package
 
 # Run tests
-npm test
+pnpm test
 
 # Lint code
-npm run lint
+pnpm run lint
+
+#Extra
+rm -r build dist 2>/dev/null; echo "Cleaned build and dist directories"
+
 ```
 
 ### Project Structure

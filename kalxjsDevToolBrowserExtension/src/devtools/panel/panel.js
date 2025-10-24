@@ -105,53 +105,53 @@ class KalxjsDevToolsPanel {
      * Setup communication with DevTools
      */
     _setupCommunication() {
-        // Connect bridge
-        this.bridge.connect();
+        logger.debug('Setting up panel communication...');
 
-        // Listen for messages from DevTools page
+        // Listen for messages from DevTools page (parent window)
         window.addEventListener('message', (event) => {
-            if (event.source === window.parent && event.data.source === 'kalxjs-devtools') {
-                this._handleDevToolsMessage(event.data);
+            if (event.source === window.parent) {
+                if (event.data.source === 'kalxjs-devtools') {
+                    this._handleDevToolsMessage(event.data);
+                } else if (event.data.source === 'kalxjs-devtools-panel') {
+                    // Relay messages from panel bridge
+                    this._handleBridgeMessage(event.data);
+                }
             }
         });
 
-        // Setup bridge message handlers
-        this._setupMessageHandlers();
-
-        logger.debug('Communication setup complete');
+        // Don't connect bridge directly - communicate via parent window
+        logger.debug('Panel communication setup complete (using postMessage)');
     }
 
     /**
      * Setup message handlers
      */
     _setupMessageHandlers() {
-        this.bridge.on(MESSAGE_TYPES.FRAMEWORK_DETECTED, (data) => {
+        // Messages are now handled via _handleBridgeMessage
+        logger.debug('Bridge message handlers registered (via postMessage relay)');
+    }
+
+    /**
+     * Handle bridge messages relayed from DevTools page
+     */
+    _handleBridgeMessage(message) {
+        const { type, data } = message;
+
+        if (type === MESSAGE_TYPES.FRAMEWORK_DETECTED) {
             this._handleFrameworkDetected(data);
-        });
-
-        this.bridge.on(MESSAGE_TYPES.FRAMEWORK_UNDETECTED, (data) => {
+        } else if (type === MESSAGE_TYPES.FRAMEWORK_UNDETECTED) {
             this._handleFrameworkUndetected(data);
-        });
-
-        this.bridge.on(MESSAGE_TYPES.COMPONENT_REGISTERED, (data) => {
+        } else if (type === MESSAGE_TYPES.COMPONENT_REGISTERED) {
             this._handleComponentRegistered(data);
-        });
-
-        this.bridge.on(MESSAGE_TYPES.COMPONENT_UPDATED, (data) => {
+        } else if (type === MESSAGE_TYPES.COMPONENT_UPDATED) {
             this._handleComponentUpdated(data);
-        });
-
-        this.bridge.on(MESSAGE_TYPES.STATE_CHANGED, (data) => {
+        } else if (type === MESSAGE_TYPES.STATE_CHANGED) {
             this._handleStateChanged(data);
-        });
-
-        this.bridge.on(MESSAGE_TYPES.EVENT_EMITTED, (data) => {
+        } else if (type === MESSAGE_TYPES.EVENT_EMITTED) {
             this._handleEventEmitted(data);
-        });
-
-        this.bridge.on(MESSAGE_TYPES.PERFORMANCE_MARK, (data) => {
+        } else if (type === MESSAGE_TYPES.PERFORMANCE_MARK) {
             this._handlePerformanceMark(data);
-        });
+        }
     }
 
     /**

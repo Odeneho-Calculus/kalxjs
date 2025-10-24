@@ -34,13 +34,20 @@ export class MessageBridge {
      * Setup message handlers based on context
      */
     _setupMessageHandlers() {
+        // Check if we're in a DevTools panel context (iframe inside devtools page)
+        const isDevToolsPanel = typeof window !== 'undefined' && 
+                               window.location.href.includes('devtools://') && 
+                               this.origin === MESSAGE_ORIGINS.PANEL;
+
         if (typeof chrome !== 'undefined' && chrome.runtime) {
-            // Extension context
-            chrome.runtime.onMessage.addListener(this._handleRuntimeMessage.bind(this));
+            // Extension context (but not DevTools panel)
+            if (!isDevToolsPanel) {
+                chrome.runtime.onMessage.addListener(this._handleRuntimeMessage.bind(this));
+            }
         }
 
         if (typeof window !== 'undefined') {
-            // Window context (content script/injected script)
+            // Window context (content script/injected script/DevTools panel)
             window.addEventListener('message', this._handleWindowMessage.bind(this));
         }
     }

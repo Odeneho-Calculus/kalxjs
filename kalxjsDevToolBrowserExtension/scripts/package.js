@@ -6,8 +6,11 @@
 import archiver from 'archiver';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const PROJECT_ROOT = path.dirname(path.dirname(import.meta.url.replace('file://', '')));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const PROJECT_ROOT = path.dirname(__dirname);
 
 class ExtensionPackager {
     constructor() {
@@ -49,14 +52,25 @@ class ExtensionPackager {
      */
     async validateBuild() {
         console.log('✅ Validating build...');
+        console.log('   Build dir:', this.buildDir);
 
         if (!fs.existsSync(this.buildDir)) {
             throw new Error('Build directory not found. Run "npm run build" first.');
         }
 
-        const manifestPath = path.join(PROJECT_ROOT, 'manifest.json');
-        if (!fs.existsSync(manifestPath)) {
-            throw new Error('manifest.json not found');
+        const buildContents = fs.readdirSync(this.buildDir);
+        console.log('   Build contains:', buildContents.join(', '));
+
+        // Check for manifest in build directory
+        const manifestInBuild = path.join(this.buildDir, 'manifest.json');
+        if (fs.existsSync(manifestInBuild)) {
+            console.log('   ✓ manifest.json found in build/');
+        } else {
+            console.log('   ⚠ manifest.json NOT found in build/');
+            const manifestPath = path.join(PROJECT_ROOT, 'manifest.json');
+            if (!fs.existsSync(manifestPath)) {
+                throw new Error('manifest.json not found');
+            }
         }
 
         // Check required build files
@@ -84,20 +98,27 @@ class ExtensionPackager {
      */
     async prepareDistribution() {
         console.log('📁 Preparing distribution directory...');
+        console.log('   Dist dir:', this.distDir);
 
         // Create dist directory
         if (!fs.existsSync(this.distDir)) {
             fs.mkdirSync(this.distDir, { recursive: true });
+            console.log('   ✓ Created dist directory');
+        } else {
+            console.log('   ✓ Dist directory exists');
         }
 
         // Clean previous packages
-        const existingPackages = fs.readdirSync(this.distDir)
+        const distContents = fs.readdirSync(this.distDir);
+        console.log('   Dist contains:', distContents.join(', '));
+
+        const existingPackages = distContents
             .filter(file => file.startsWith(this.packageName) && file.endsWith('.zip'));
 
         existingPackages.forEach(pkg => {
             const pkgPath = path.join(this.distDir, pkg);
             fs.unlinkSync(pkgPath);
-            console.log(`   Removed old package: ${pkg}`);
+            console.log(`   ✓ Removed old package: ${pkg}`);
         });
 
         console.log('   Distribution directory prepared');
@@ -117,35 +138,44 @@ class ExtensionPackager {
         const zipName = `${this.packageName}-v${version}.zip`;
         const zipPath = path.join(this.distDir, zipName);
 
+        console.log('   ZIP name:', zipName);
+        console.log('   ZIP path:', zipPath);
+
         return new Promise((resolve, reject) => {
             const output = fs.createWriteStream(zipPath);
             const archive = archiver('zip', {
-                zlib: { level: 9 } // Maximum compression
+                zlib: { level: 9 }
             });
 
             output.on('close', () => {
                 const sizeKB = Math.round(archive.pointer() / 1024 * 100) / 100;
-                console.log(`   ZIP package created: ${zipName} (${sizeKB} KB)`);
+                console.log(`   ✓ ZIP package created: ${zipName} (${sizeKB} KB)`);
                 resolve(zipPath);
             });
 
-            output.on('error', reject);
-            archive.on('error', reject);
+            output.on('error', (err) => {
+                console.error('   ✗ Output stream error:', err);
+                reject(err);
+            });
+            archive.on('error', (err) => {
+                console.error('   ✗ Archive error:', err);
+                reject(err);
+            });
 
             archive.pipe(output);
 
-            // Add manifest.json from root
-            const manifestPath = path.join(PROJECT_ROOT, 'manifest.json');
-            archive.file(manifestPath, { name: 'manifest.json' });
-
-            // Add all build files
-            archive.directory(this.buildDir, false);
-
-            // Add assets if they exist
-            const assetsPath = path.join(PROJECT_ROOT, 'src/assets');
-            if (fs.existsSync(assetsPath)) {
-                archive.directory(assetsPath, 'src/assets');
-            }
+            // Add all build files to root - manifest.json is already in build dir from rollup
+            const files = fs.readdirSync(this.buildDir);
+            console.log('   Adding files to ZIP:', files.join(', '));
+            files.forEach(file => {
+                const filePath = path.join(this.buildDir, file);
+                const stats = fs.statSync(filePath);
+                if (stats.isDirectory()) {
+                    archive.directory(filePath, file);
+                } else {
+                    archive.file(filePath, { name: file });
+                }
+            });
 
             // Add documentation files
             const docsToInclude = ['README.md', 'LICENSE', 'CHANGELOG.md'];
@@ -309,9 +339,18 @@ Built with ❤️ by the KALXJS Team
 }
 
 // Run packaging if script is executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-    const packager = new ExtensionPackager();
-    packager.package();
-}
+(async () => {
+    try {
+        console.log('Starting package script...');
+        console.log('import.meta.url:', import.meta.url);
+        console.log('process.argv[1]:', process.argv[1]);
+        
+        const packager = new ExtensionPackager();
+        await packager.package();
+    } catch (err) {
+        console.error('Fatal error:', err);
+        process.exit(1);
+    }
+})();
 
 export default ExtensionPackager;

@@ -3,7 +3,7 @@
  * Entry point for DevTools integration and panel creation
  */
 
-import { MESSAGE_ORIGINS, PANEL_CONFIG } from '../shared/constants.js';
+import { MESSAGE_ORIGINS, MESSAGE_TYPES, PANEL_CONFIG } from '../shared/constants.js';
 import { createLogger, generateId } from '../shared/utils.js';
 import { createBridge } from '../shared/bridge.js';
 
@@ -27,28 +27,33 @@ class KalxjsDevTools {
         logger.info('KALXJS DevTools initializing...');
 
         try {
+            // Verify chrome.devtools API is available
+            if (!chrome.devtools || !chrome.devtools.panels) {
+                throw new Error('chrome.devtools API not available - extension may not be properly loaded');
+            }
+
+            logger.debug('Chrome DevTools API verified');
+
             // Setup bridge communication
             this.bridge.connect();
 
             // Setup message handlers
             this._setupMessageHandlers();
 
-            // Check if KALXJS is already detected
+            // Always create panel - it will show appropriate state based on framework detection
+            await this._createPanel();
+
+            // Check if KALXJS is already detected after panel creation
             await this._checkFrameworkPresence();
 
-            // Create DevTools panel conditionally
-            if (this.isFrameworkDetected) {
-                await this._createPanel();
-            } else {
-                // Wait for framework detection
-                this._waitForFrameworkDetection();
-            }
+            // Setup framework detection listener
+            this._waitForFrameworkDetection();
 
             logger.info(`DevTools initialized for tab ${this.tabId}`);
 
         } catch (error) {
             logger.error('DevTools initialization failed:', error);
-            this._showError('Failed to initialize KALXJS DevTools');
+            this._showError('Failed to initialize KALXJS DevTools: ' + error.message);
         }
     }
 
@@ -57,14 +62,18 @@ class KalxjsDevTools {
      */
     _setupMessageHandlers() {
         // Framework detection
-        this.bridge.on('framework-detected', (data) => {
+        this.bridge.on(MESSAGE_TYPES.FRAMEWORK_DETECTED, (data) => {
             logger.info('Framework detected:', data);
             this._handleFrameworkDetected(data);
+            // Relay to panel
+            this._relayToPanel(MESSAGE_TYPES.FRAMEWORK_DETECTED, data);
         });
 
-        this.bridge.on('framework-undetected', (data) => {
+        this.bridge.on(MESSAGE_TYPES.FRAMEWORK_UNDETECTED, (data) => {
             logger.info('Framework undetected:', data);
             this._handleFrameworkUndetected(data);
+            // Relay to panel
+            this._relayToPanel(MESSAGE_TYPES.FRAMEWORK_UNDETECTED, data);
         });
 
         // Bridge connection
@@ -72,7 +81,54 @@ class KalxjsDevTools {
             logger.debug('Bridge connected:', data);
         });
 
+        // Component messages
+        this.bridge.on(MESSAGE_TYPES.COMPONENT_REGISTERED, (data) => {
+            logger.debug('Component registered:', data);
+            this._relayToPanel(MESSAGE_TYPES.COMPONENT_REGISTERED, data);
+        });
+
+        this.bridge.on(MESSAGE_TYPES.COMPONENT_UPDATED, (data) => {
+            logger.debug('Component updated:', data);
+            this._relayToPanel(MESSAGE_TYPES.COMPONENT_UPDATED, data);
+        });
+
+        this.bridge.on(MESSAGE_TYPES.STATE_CHANGED, (data) => {
+            logger.debug('State changed:', data);
+            this._relayToPanel(MESSAGE_TYPES.STATE_CHANGED, data);
+        });
+
+        this.bridge.on(MESSAGE_TYPES.EVENT_EMITTED, (data) => {
+            logger.debug('Event emitted:', data);
+            this._relayToPanel(MESSAGE_TYPES.EVENT_EMITTED, data);
+        });
+
+        this.bridge.on(MESSAGE_TYPES.PERFORMANCE_MARK, (data) => {
+            logger.debug('Performance mark:', data);
+            this._relayToPanel(MESSAGE_TYPES.PERFORMANCE_MARK, data);
+        });
+
         logger.debug('Message handlers setup complete');
+    }
+
+    /**
+     * Relay message to panel
+     */
+    _relayToPanel(type, data) {
+        if (!this.panelWindow) {
+            logger.debug('Cannot relay message to panel - panel not shown yet');
+            return;
+        }
+
+        try {
+            this.panelWindow.postMessage({
+                source: 'kalxjs-devtools-panel',
+                type,
+                data,
+                timestamp: Date.now()
+            }, '*');
+        } catch (error) {
+            logger.warn('Failed to relay message to panel:', error);
+        }
     }
 
     /**
@@ -109,7 +165,7 @@ class KalxjsDevTools {
                 logger.info('KALXJS framework already present:', result);
 
                 // Notify framework detection
-                await this.bridge.send('background', 'framework-detected', {
+                await this.bridge.send('background', MESSAGE_TYPES.FRAMEWORK_DETECTED, {
                     framework: {
                         name: 'KALXJS',
                         version: result.hookData?.version || 'unknown',
@@ -131,19 +187,15 @@ class KalxjsDevTools {
      * Wait for framework detection with timeout
      */
     _waitForFrameworkDetection() {
-        logger.info('Waiting for KALXJS framework detection...');
+        logger.info('Setting up framework detection listener...');
 
-        // Set a timeout for detection
-        const detectionTimeout = setTimeout(() => {
+        // Just setup the listener - no timeout since panel is already created
+        // The panel will update its UI based on framework detection status
+        this.bridge.on(MESSAGE_TYPES.FRAMEWORK_DETECTED, (data) => {
             if (!this.isFrameworkDetected) {
-                logger.warn('Framework detection timeout - creating panel anyway');
-                this._createPanel();
+                logger.info('Framework detected after panel creation:', data);
+                this._handleFrameworkDetected(data);
             }
-        }, 10000); // 10 second timeout
-
-        // Clear timeout when framework is detected
-        this.bridge.on('framework-detected', () => {
-            clearTimeout(detectionTimeout);
         });
     }
 
@@ -154,11 +206,9 @@ class KalxjsDevTools {
         if (this.isFrameworkDetected) return;
 
         this.isFrameworkDetected = true;
+        logger.info('KALXJS framework detected, updating panel...');
 
-        // Create DevTools panel
-        await this._createPanel();
-
-        // Update panel with framework data
+        // Update panel with framework data (panel already exists)
         if (this.panelWindow) {
             this._sendToPanelWindow('framework-detected', data);
         }
@@ -185,44 +235,62 @@ class KalxjsDevTools {
         logger.info('Creating KALXJS DevTools panel...');
 
         try {
+            // Verify chrome.devtools.panels is available
+            if (!chrome.devtools.panels || typeof chrome.devtools.panels.create !== 'function') {
+                throw new Error('chrome.devtools.panels.create is not available');
+            }
+
             const panel = await new Promise((resolve, reject) => {
-                // Try to create panel with icon first, fallback without icon if needed
-                chrome.devtools.panels.create(
-                    PANEL_CONFIG.NAME,
-                    PANEL_CONFIG.ICON_PATH,
-                    'panel/panel.html',
-                    (panel) => {
-                        if (chrome.runtime.lastError) {
-                            // Retry without icon if icon loading fails
-                            chrome.devtools.panels.create(
-                                PANEL_CONFIG.NAME,
-                                '', // No icon
-                                'panel/panel.html',
-                                (retryPanel) => {
-                                    if (chrome.runtime.lastError) {
-                                        reject(new Error(chrome.runtime.lastError.message));
-                                    } else {
-                                        logger.warn('Panel created without icon due to icon loading failure');
-                                        resolve(retryPanel);
-                                    }
-                                }
-                            );
-                        } else {
-                            resolve(panel);
+                try {
+                    // Create panel without icon to avoid issues
+                    chrome.devtools.panels.create(
+                        PANEL_CONFIG.NAME,
+                        '', // No icon to avoid loading issues
+                        'panel/panel.html',
+                        (createdPanel) => {
+                            // Check for runtime errors
+                            if (chrome.runtime.lastError) {
+                                logger.error('Panel creation error from callback:', chrome.runtime.lastError);
+                                reject(new Error(chrome.runtime.lastError.message));
+                                return;
+                            }
+
+                            if (!createdPanel) {
+                                logger.error('Panel creation callback received null panel');
+                                reject(new Error('Panel creation returned null'));
+                                return;
+                            }
+
+                            logger.info('DevTools panel created successfully');
+                            resolve(createdPanel);
                         }
-                    }
-                );
+                    );
+                } catch (syncError) {
+                    logger.error('Synchronous error during panel creation:', syncError);
+                    reject(syncError);
+                }
             });
 
-            // Setup panel event handlers
-            panel.onShown.addListener(this._handlePanelShown.bind(this));
-            panel.onHidden.addListener(this._handlePanelHidden.bind(this));
+            // Setup panel event handlers with error handling
+            panel.onShown.addListener((panelWindow) => {
+                try {
+                    this._handlePanelShown(panelWindow);
+                } catch (error) {
+                    logger.error('Panel shown handler error:', error);
+                }
+            });
 
-            logger.info('DevTools panel created successfully');
+            panel.onHidden.addListener(() => {
+                try {
+                    this._handlePanelHidden();
+                } catch (error) {
+                    logger.error('Panel hidden handler error:', error);
+                }
+            });
 
         } catch (error) {
             logger.error('Failed to create DevTools panel:', error);
-            this._showError('Failed to create KALXJS DevTools panel');
+            throw error; // Re-throw to be handled by caller
         }
     }
 
@@ -252,57 +320,51 @@ class KalxjsDevTools {
      * Initialize communication with panel window
      */
     _initializePanelCommunication() {
-        if (!this.panelWindow) return;
+        if (!this.panelWindow) {
+            logger.warn('Cannot initialize panel communication - no panel window');
+            return;
+        }
 
         logger.debug('Initializing panel communication...');
 
-        // Setup message listener for panel readiness (avoid cross-origin access)
-        const messageListener = (event) => {
-            try {
-                // Validate message source and format
-                if (!event.data ||
-                    event.data.source !== 'kalxjs-devtools-panel' ||
-                    event.data.type !== 'panel-ready') {
-                    return;
-                }
-
-                logger.debug('Panel is ready for communication');
-
-                // Send DevTools ready message
-                this._sendToPanelWindow('devtools-ready', {
-                    panelId: this.panelId,
-                    tabId: this.tabId,
-                    frameworkDetected: this.isFrameworkDetected
-                });
-
-                // Send initial data to panel
+        try {
+            // Use simple communication approach that avoids cross-origin issues
+            // Send initial data immediately when panel is shown
+            setTimeout(() => {
                 this._sendInitialDataToPanel();
+            }, 100);
 
-                // Remove listener after first ready message
-                window.removeEventListener('message', messageListener);
+            // Setup periodic communication check
+            let communicationRetries = 0;
+            const maxRetries = 5;
 
-            } catch (error) {
-                logger.error('Error handling panel ready message:', error);
-            }
-        };
+            const establishCommunication = () => {
+                try {
+                    this._sendToPanelWindow('devtools-ready', {
+                        panelId: this.panelId,
+                        tabId: this.tabId,
+                        frameworkDetected: this.isFrameworkDetected,
+                        timestamp: Date.now()
+                    });
 
-        // Add listener with error handling
-        window.addEventListener('message', messageListener);
+                    logger.debug('DevTools ready message sent to panel');
 
-        // Send initial ping to establish communication with retry logic
-        const sendPing = () => {
-            try {
-                this._sendToPanelWindow('devtools-ping', {
-                    timestamp: Date.now()
-                });
-            } catch (error) {
-                logger.warn('Failed to send ping to panel:', error);
-                // Retry after a short delay
-                setTimeout(sendPing, 500);
-            }
-        };
+                } catch (error) {
+                    communicationRetries++;
+                    if (communicationRetries < maxRetries) {
+                        logger.warn(`Panel communication retry ${communicationRetries}/${maxRetries}:`, error);
+                        setTimeout(establishCommunication, 1000 * communicationRetries);
+                    } else {
+                        logger.error('Failed to establish panel communication after retries:', error);
+                    }
+                }
+            };
 
-        sendPing();
+            establishCommunication();
+
+        } catch (error) {
+            logger.error('Panel communication initialization failed:', error);
+        }
     }
 
     /**
@@ -353,18 +415,35 @@ class KalxjsDevTools {
     _sendToPanelWindow(type, data) {
         if (!this.panelWindow) {
             logger.warn('Cannot send message to panel - panel window not available');
-            return;
+            return false;
         }
 
         try {
+            // Check if panel window is still valid
+            if (this.panelWindow.closed) {
+                logger.warn('Panel window is closed, cannot send message');
+                this.panelWindow = null;
+                return false;
+            }
+
             this.panelWindow.postMessage({
                 source: 'kalxjs-devtools',
                 type,
                 data,
                 timestamp: Date.now()
             }, '*');
+
+            return true;
+
         } catch (error) {
             logger.error('Failed to send message to panel window:', error);
+
+            // If it's a security or closed window error, clear the reference
+            if (error.name === 'SecurityError' || error.message.includes('closed')) {
+                this.panelWindow = null;
+            }
+
+            return false;
         }
     }
 
@@ -414,19 +493,49 @@ class KalxjsDevTools {
     }
 }
 
-// Initialize DevTools
+// Initialize DevTools with retry logic
 let kalxjsDevTools;
+let initializationRetries = 0;
+const maxRetries = 10;
 
-try {
-    kalxjsDevTools = new KalxjsDevTools();
+function initializeDevTools() {
+    try {
+        // Verify chrome.devtools is available
+        if (!chrome || !chrome.devtools) {
+            throw new Error('chrome.devtools not yet available');
+        }
 
-    // Expose for debugging
-    if (process.env.NODE_ENV === 'development') {
-        window.__KALXJS_DEVTOOLS_INSTANCE__ = kalxjsDevTools;
+        logger.debug('Initializing KALXJS DevTools...');
+        kalxjsDevTools = new KalxjsDevTools();
+
+        // Expose for debugging
+        if (process.env.NODE_ENV === 'development') {
+            window.__KALXJS_DEVTOOLS_INSTANCE__ = kalxjsDevTools;
+        }
+
+        logger.info('KALXJS DevTools initialized successfully');
+        return true;
+
+    } catch (error) {
+        initializationRetries++;
+
+        if (initializationRetries < maxRetries) {
+            logger.debug(`DevTools initialization retry ${initializationRetries}/${maxRetries}:`, error.message);
+            setTimeout(initializeDevTools, 100 * initializationRetries);
+            return false;
+        } else {
+            console.error('KALXJS DevTools failed to initialize after retries:', error);
+            logger.error('Initialization failed:', error);
+            return false;
+        }
     }
-
-} catch (error) {
-    console.error('KALXJS DevTools failed to initialize:', error);
 }
 
-logger.info('KALXJS DevTools page loaded');
+// Start initialization
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeDevTools);
+} else {
+    initializeDevTools();
+}
+
+logger.info('KALXJS DevTools page loader initialized');

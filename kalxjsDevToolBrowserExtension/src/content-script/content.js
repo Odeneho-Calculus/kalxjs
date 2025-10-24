@@ -3,7 +3,7 @@
  * Bridge between web page and extension contexts
  */
 
-import { MESSAGE_ORIGINS } from '../shared/constants.js';
+import { MESSAGE_ORIGINS, MESSAGE_TYPES } from '../shared/constants.js';
 import { createLogger } from '../shared/utils.js';
 import { createBridge } from '../shared/bridge.js';
 import { FrameworkDetector } from './detector.js';
@@ -114,17 +114,37 @@ class KalxjsContentScript {
      * Setup message handlers
      */
     _setupMessageHandlers() {
-        // Handle messages from injected script
-        window.addEventListener('message', (event) => {
-            // Validate message origin
-            if (event.source !== window) return;
+        // Register injected script message handlers with bridge
+        this.bridge.on('framework-hook-ready', (data, sender) => {
+            this._handleInjectedMessage({ type: 'framework-hook-ready', data });
+        });
 
-            const message = event.data;
-            if (!message || !message.source || !message.source.startsWith('kalxjs-devtools-injected')) {
-                return;
-            }
+        this.bridge.on('framework-detected', (data, sender) => {
+            this._handleInjectedMessage({ type: 'framework-detected', data });
+        });
 
-            this._handleInjectedMessage(message);
+        this.bridge.on('component-registered', (data, sender) => {
+            this._handleInjectedMessage({ type: 'component-registered', data });
+        });
+
+        this.bridge.on('component-updated', (data, sender) => {
+            this._handleInjectedMessage({ type: 'component-updated', data });
+        });
+
+        this.bridge.on('component-unmounted', (data, sender) => {
+            this._handleInjectedMessage({ type: 'component-unmounted', data });
+        });
+
+        this.bridge.on('state-changed', (data, sender) => {
+            this._handleInjectedMessage({ type: 'state-changed', data });
+        });
+
+        this.bridge.on('event-emitted', (data, sender) => {
+            this._handleInjectedMessage({ type: 'event-emitted', data });
+        });
+
+        this.bridge.on('performance-mark', (data, sender) => {
+            this._handleInjectedMessage({ type: 'performance-mark', data });
         });
 
         // Handle messages from extension
@@ -221,7 +241,7 @@ class KalxjsContentScript {
                 case 'framework-detected':
                     logger.info('Framework detected by injected script:', data);
                     // Forward to background script for DevTools panel creation
-                    this.bridge.send('background', 'framework-detected', {
+                    this.bridge.send('background', MESSAGE_TYPES.FRAMEWORK_DETECTED, {
                         ...data,
                         source: 'injected-script',
                         url: window.location.href,
