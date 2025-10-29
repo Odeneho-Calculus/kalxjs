@@ -1,5 +1,22 @@
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import terser from '@rollup/plugin-terser';
+import { readFileSync } from 'fs';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+
+// Get __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Read package.json
+const pkg = JSON.parse(readFileSync(join(__dirname, 'package.json'), 'utf-8'));
+
+// Node.js built-in modules to mark as external for browser builds
+const nodeBuiltins = [
+    'fs', 'path', 'stream', 'util', 'os', 'events',
+    'crypto', 'buffer', 'url', 'querystring', 'http',
+    'https', 'net', 'tls', 'zlib', 'child_process'
+];
 
 // Define environment
 const isDev = process.env.NODE_ENV === 'development';
@@ -10,8 +27,8 @@ const devBanner = `/**
  * KalxJS Core - Development Build
  * WARNING: This is a development build with extra debugging.
  * Do not use in production.
- * 
- * Version: ${require('./package.json').version}
+ *
+ * Version: ${pkg.version}
  * Build date: ${new Date().toISOString()}
  */`;
 
@@ -112,8 +129,11 @@ export default [
             sourcemap: true,
             exports: 'named'
         },
+        external: nodeBuiltins,
         plugins: [
-            nodeResolve()
+            nodeResolve({
+                preferBuiltins: false
+            })
         ]
     },
     // ESM production build (minified)

@@ -6,6 +6,17 @@ import { getCurrentInstance, setCurrentInstance } from './instance.js';
 // Re-export instance management functions
 export { getCurrentInstance, setCurrentInstance };
 
+// Re-export all lifecycle hooks from lifecycle.js
+export {
+    onCreated,
+    onBeforeMount,
+    onBeforeUpdate,
+    onUpdated,
+    onBeforeUnmount,
+    onUnmounted,
+    onErrorCaptured
+} from './lifecycle.js';
+
 /**
  * Creates a reactive object that can be used in the setup function
  * @param {Object} target - Object to make reactive
@@ -79,35 +90,5 @@ export function watch(source, callback, options = {}) {
     };
 }
 
-/**
- * Runs a callback once when the component is mounted
- * @param {Function} callback - Callback function
- */
-export function onMounted(callback) {
-    getCurrentInstance().mounted.push(callback);
-}
 
-/**
- * Runs a callback before the component is unmounted
- * @param {Function} callback - Callback function
- */
-export function onUnmounted(callback) {
-    getCurrentInstance().unmounted.push(callback);
-}
-
-/**
- * Runs a callback before the component is updated
- * @param {Function} callback - Callback function
- */
-export function onBeforeUpdate(callback) {
-    getCurrentInstance().beforeUpdate.push(callback);
-}
-
-/**
- * Runs a callback after the component is updated
- * @param {Function} callback - Callback function
- */
-export function onUpdated(callback) {
-    getCurrentInstance().updated.push(callback);
-}
 

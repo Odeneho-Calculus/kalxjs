@@ -4,11 +4,7 @@ import {
     useReactive,
     useRef,
     useComputed,
-    watch,
-    onMounted,
-    onUnmounted,
-    onBeforeUpdate,
-    onUpdated
+    watch
 } from './composition/index.js';
 
 import {
@@ -19,7 +15,11 @@ import {
 import {
     onCreated,
     onBeforeMount,
+    onMounted,
+    onBeforeUpdate,
+    onUpdated,
     onBeforeUnmount,
+    onUnmounted,
     onErrorCaptured
 } from './composition/lifecycle.js';
 

@@ -1,0 +1,6 @@
+npm warn Unknown project config "lockfile". This will stop working in the next major version of npm.
+
+> @kalxjs/cli@2.0.27 build
+> node scripts/build.js
+
+Build completed successfully!
