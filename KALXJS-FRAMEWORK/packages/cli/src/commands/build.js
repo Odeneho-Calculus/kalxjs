@@ -1,17 +1,19 @@
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
-const chalk = require('chalk');
 const ora = require('ora');
 const gradient = require('gradient-string');
-const boxen = require('boxen');
 const cliProgress = require('cli-progress');
 
 /**
  * Build project for production
  * @param {Object} options - Command options
  */
-function build(options = {}) {
+async function build(options = {}) {
+    // Import ESM modules dynamically for compatibility
+    const chalk = await import('chalk').then(m => m.default);
+    const boxen = await import('boxen').then(m => m.default);
+
     // Set default options
     options = {
         verbose: false,
