@@ -1,3 +1,13 @@
+## all at once
+git add .
+git commit -m "feat: new feature"
+git push
+
+
+## pub
+
+npx lerna publish from-package --yes 2>&1 | tee publish.log
+
 # 1. Navigate to framework directory
 cd KALXJS-FRAMEWORK
 
