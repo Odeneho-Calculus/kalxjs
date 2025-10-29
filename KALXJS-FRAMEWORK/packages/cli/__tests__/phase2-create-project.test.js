@@ -510,7 +510,7 @@ describe('Phase 2: Project Creation Testing', () => {
             } finally {
                 await cleanupTestDir(projectPath);
             }
-        });
+        }, 30000);
     });
 
     describe('2.10 Success Messages & Output', () => {

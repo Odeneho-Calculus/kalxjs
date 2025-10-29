@@ -99,7 +99,14 @@ program
     .option('-o, --open', 'Open browser automatically', false)
     .option('-s, --https', 'Use HTTPS protocol', false)
     .option('-m, --mode <mode>', 'Server mode (development/production)', 'development')
-    .action((options) => serve(options));
+    .action(async (options) => {
+        try {
+            await serve(options);
+        } catch (err) {
+            console.error('Error:', err.message);
+            process.exit(1);
+        }
+    });
 
 // Build command
 program
@@ -110,6 +117,13 @@ program
     .option('-o, --output <dir>', 'Output directory', 'dist')
     .option('--no-minify', 'Disable minification')
     .option('--analyze', 'Analyze bundle size')
-    .action((options) => build(options));
+    .action(async (options) => {
+        try {
+            await build(options);
+        } catch (err) {
+            console.error('Error:', err.message);
+            process.exit(1);
+        }
+    });
 
 program.parse(process.argv);

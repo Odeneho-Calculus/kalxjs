@@ -1,9 +1,7 @@
 const path = require('path');
-const chalk = require('chalk');
 const detectPort = require('detect-port');
 const ora = require('ora');
 const gradient = require('gradient-string');
-const boxen = require('boxen');
 const fs = require('fs');
 
 /**
@@ -11,6 +9,10 @@ const fs = require('fs');
  * @param {Object} options - Command options
  */
 async function serve(options = {}) {
+    // Import ESM modules dynamically for compatibility
+    const chalk = await import('chalk').then(m => m.default);
+    const boxen = await import('boxen').then(m => m.default);
+
     // Set default options
     options = {
         port: 3000,
