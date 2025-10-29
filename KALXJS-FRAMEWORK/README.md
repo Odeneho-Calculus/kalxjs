@@ -29,13 +29,13 @@ A modern, lightweight JavaScript framework for building reactive web application
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Build all packages
-npm run build
+pnpm run build
 
 # Run tests
-npm test
+pnpm test
 ```
 
 ## Examples
