@@ -1,0 +1,40 @@
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+    [0m [90m 396 |[39m         })[33m;[39m
+     [90m 397 |[39m
+    [31m[1m>[22m[39m[90m 398 |[39m         test([32m'package.json should be created even with --skip-install'[39m[33m,[39m [36masync[39m () [33m=>[39m {
+     [90m     |[39m         [31m[1m^[22m[39m
+     [90m 399 |[39m             [36mconst[39m projectName [33m=[39m [32m'test-app-pkg-skip'[39m[33m;[39m
+     [90m 400 |[39m             [36mconst[39m projectPath [33m=[39m path[33m.[39mjoin(testTempDir[33m,[39m projectName)[33m;[39m
+     [90m 401 |[39m             [36mconst[39m packageJsonPath [33m=[39m path[33m.[39mjoin(projectPath[33m,[39m [32m'package.json'[39m)[33m;[39m[0m
+
+      at test (__tests__/phase2-create-project.test.js:398:9)
+      at describe (__tests__/phase2-create-project.test.js:377:5)
+      at Object.describe (__tests__/phase2-create-project.test.js:40:1)
+
+  ● Phase 2: Project Creation Testing › 2.8 Skip Prompts Mode › should work with combined flags (skip-install + skip-prompts)
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+    [0m [90m 436 |[39m         })[33m;[39m
+     [90m 437 |[39m
+    [31m[1m>[22m[39m[90m 438 |[39m         test([32m'should work with combined flags (skip-install + skip-prompts)'[39m[33m,[39m [36masync[39m () [33m=>[39m {
+     [90m     |[39m         [31m[1m^[22m[39m
+     [90m 439 |[39m             [36mconst[39m projectName [33m=[39m [32m'test-app-combined-skip'[39m[33m;[39m
+     [90m 440 |[39m             [36mconst[39m projectPath [33m=[39m path[33m.[39mjoin(testTempDir[33m,[39m projectName)[33m;[39m
+     [90m 441 |[39m[0m
+
+      at test (__tests__/phase2-create-project.test.js:438:9)
+      at describe (__tests__/phase2-create-project.test.js:418:5)
+      at Object.describe (__tests__/phase2-create-project.test.js:40:1)
+
+PASS __tests__/phase4-code-generators.test.js (101.492 s)
+PASS __tests__/phase3-component-generation.test.js (127.423 s)
+
+Test Suites: 1 failed, 5 passed, 6 total
+Tests:       5 failed, 170 passed, 175 total
+Snapshots:   0 total
+Time:        127.78 s
+Ran all test suites.
+ ELIFECYCLE  Test failed. See above for more details.
