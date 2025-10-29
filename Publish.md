@@ -11,6 +11,9 @@ npx lerna publish from-package --yes 2>&1 | tee publish.log
 # with patch
 npx lerna version patch --yes 2>&1 | head -200
 
+# with otp
+npx lerna publish from-package --otp xxxx --yes 2>&1
+
 # 1. Navigate to framework directory
 cd KALXJS-FRAMEWORK
 
