@@ -25,12 +25,6 @@ Install globally to use the CLI from any directory:
 npm install -g @kalxjs/cli
 ```
 
-Or use without global installation:
-
-```bash
-npx @kalxjs/cli@latest create my-app
-```
-
 ## Quick Start
 
 Create a new project:

@@ -3,6 +3,8 @@ git add .
 git commit -m "feat: new feature"
 git push
 
+### set token
+npm config set //registry.npmjs.org/:_authToken="nmp_token_here" && npm whoami 2>&1
 
 ## pub
 

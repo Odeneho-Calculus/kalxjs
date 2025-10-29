@@ -12,6 +12,7 @@ build/
 # IDE specific files
 .vscode/
 .idea/
+.env
 
 # OS specific files
 .DS_Store
