@@ -1,0 +1,61 @@
+<template>
+  <div class="testbtn">
+    <h1>{{ title }}</h1>
+    <p>{{ message }}</p>
+    <button @click="increment">Count: {{ count }}</button>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'TestBtn',
+  props: {
+    title: {
+      type: String,
+      default: 'TestBtn Component'
+    }
+  },
+  data() {
+    return {
+      message: 'Welcome to KalxJS!',
+      count: 0
+    };
+  },
+  methods: {
+    increment() {
+      this.count++;
+    }
+  },
+  mounted() {
+    console.log('TestBtn component mounted');
+  }
+};
+</script>
+
+<style scoped>
+.testbtn {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+h1 {
+  color: #42b883;
+}
+
+button {
+  background-color: #42b883;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #33a06f;
+}
+</style>

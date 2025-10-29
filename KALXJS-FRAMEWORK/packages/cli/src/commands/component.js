@@ -1,10 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-const chalk = require('chalk');
 const { promisify } = require('util');
 const ora = require('ora');
 const gradient = require('gradient-string');
-const boxen = require('boxen');
 const cliProgress = require('cli-progress');
 
 const mkdir = promisify(fs.mkdir);
@@ -18,6 +16,10 @@ const access = promisify(fs.access);
  * @param {Object} options - Command options
  */
 async function component(componentName, options = {}) {
+  // Import ESM modules dynamically for compatibility
+  const chalk = await import('chalk').then(m => m.default);
+  const boxen = await import('boxen').then(m => m.default);
+
   // Display a fancy header
   console.log('\n');
   console.log(gradient.pastel.multiline('╔═════════════════════════════════════╗'));
@@ -91,8 +93,17 @@ async function component(componentName, options = {}) {
     // Format component name (PascalCase)
     spinner.text = chalk.cyan('Formatting component name...');
     const formattedName = componentName
-      .split(/[-_\s]/)
-      .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+      .split(/[-_\s]+/)
+      .filter(part => part.length > 0)
+      .map(part => {
+        if (part.length === 1) return part.toUpperCase();
+        // Preserve case if part contains mixed case (already formatted)
+        const hasUppercaseInside = /[A-Z]/.test(part.slice(1));
+        if (hasUppercaseInside) {
+          return part.charAt(0).toUpperCase() + part.slice(1);
+        }
+        return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+      })
       .join('');
 
     if (formattedName !== componentName) {
@@ -293,21 +304,21 @@ class ${componentName} {\n`;
       beforeMount() {
         // Called before component is mounted
       },
-      
+
       mounted() {
         console.log('${componentName} mounted');
       },
-      
+
       beforeUpdate() {
         // Called before component updates
       },
-      
+
       updated() {
         // Called after component updates
       },` : ''}
       render: this.render.bind(this)
     });
-    
+
     // Copy component properties to this instance
     Object.assign(this, component);
   }\n`;
@@ -342,14 +353,14 @@ describe('${componentName}', () => {
     // Create a test container
     const container = document.createElement('div');
     document.body.appendChild(container);
-    
+
     // Create an instance of the component
     const component = new ${componentName}();
     component.$mount(container);
-    
+
     // Check that the component renders correctly
     expect(container.querySelector('h2').textContent).toBe('${componentName}');
-    
+
     // Clean up
     document.body.removeChild(container);
   });

@@ -1,14 +1,12 @@
 const fs = require('fs-extra');
 const path = require('path');
 const validateProjectName = require('validate-npm-package-name');
-const chalk = require('chalk');
 const ora = require('ora');
 const inquirer = require('inquirer');
 const deepmerge = require('deepmerge');
 const execa = require('execa');
 const gradient = require('gradient-string');
 const figlet = require('figlet');
-const boxen = require('boxen');
 const processTemplates = require('../utils/processTemplates');
 const https = require('https');
 
@@ -18,7 +16,41 @@ const https = require('https');
  * @param {Object} options - Configuration options
  */
 async function create(projectName, options = {}) {
-  // Display welcome banner
+  // Import ESM modules dynamically for compatibility
+  const chalk = await import('chalk').then(m => m.default);
+  const boxen = await import('boxen').then(m => m.default);
+
+  // Validate project name BEFORE creating directory or showing banner
+
+  // Custom validation: reject names starting with numbers
+  if (/^\d/.test(projectName)) {
+    console.error(chalk.red.bold(`❌ Invalid project name: "${projectName}"`));
+    console.error(chalk.red('  ✖ Error: Project name cannot start with a number'));
+    process.exit(1);
+  }
+
+  const result = validateProjectName(projectName);
+  if (!result.validForNewPackages) {
+    console.error(chalk.red.bold(`❌ Invalid project name: "${projectName}"`));
+    result.errors && result.errors.forEach(err => {
+      console.error(chalk.red('  ✖ Error: ' + err));
+    });
+    result.warnings && result.warnings.forEach(warn => {
+      console.error(chalk.yellow('  ⚠ Warning: ' + warn));
+    });
+    process.exit(1);
+  }
+
+  const cwd = options.cwd || process.cwd();
+  const targetDir = path.resolve(cwd, projectName);
+
+  // Check if directory exists BEFORE creating it or showing banner
+  if (fs.existsSync(targetDir)) {
+    console.error(chalk.red.bold(`❌ Directory ${chalk.cyan(projectName)} already exists.`));
+    process.exit(1);
+  }
+
+  // Display welcome banner (only after validation passes)
   console.log('\n');
   figlet.textSync('KALXJS', {
     font: 'Big',
@@ -42,27 +74,6 @@ async function create(projectName, options = {}) {
     }
   ));
   console.log('\n');
-
-  // Validate project name
-  const result = validateProjectName(projectName);
-  if (!result.validForNewPackages) {
-    console.error(chalk.red.bold(`❌ Invalid project name: "${projectName}"`));
-    result.errors && result.errors.forEach(err => {
-      console.error(chalk.red('  ✖ Error: ' + err));
-    });
-    result.warnings && result.warnings.forEach(warn => {
-      console.error(chalk.yellow('  ⚠ Warning: ' + warn));
-    });
-    process.exit(1);
-  }
-
-  const cwd = options.cwd || process.cwd();
-  const targetDir = path.resolve(cwd, projectName);
-
-  if (fs.existsSync(targetDir)) {
-    console.error(chalk.red.bold(`❌ Directory ${chalk.cyan(projectName)} already exists.`));
-    process.exit(1);
-  }
 
   const spinner = ora({
     text: `Creating project in ${chalk.cyan(targetDir)}...`,
@@ -317,20 +328,20 @@ import { h, defineComponent } from '@kalxjs/core';
 
 export default defineComponent({
   name: 'HelloWorld',
-  
+
   data() {
     return {
       message: 'Hello, KalxJS!'
     };
   },
-  
+
   methods: {
     updateMessage() {
       this.message = 'Updated message!';
       this.$update(); // Trigger re-render
     }
   },
-  
+
   render() {
     return h('div', {}, [
       h('h1', {}, [this.message]),
@@ -413,7 +424,7 @@ const config = {
   name: '${config.projectName}',
   version: '0.1.0',
   description: 'A powerful KALXJS application',
-  
+
   // Environment settings
   env: {
     development: {
@@ -425,7 +436,7 @@ const config = {
       debug: false
     }
   },
-  
+
   // Feature flags
   features: ${JSON.stringify(config.features, null, 2)}
 };
@@ -457,24 +468,24 @@ if (typeof module !== 'undefined') {
     .primary { fill: #4f46e5; }
     .secondary { fill: #10b981; }
     .accent { fill: #f59e0b; }
-    
+
     @media (prefers-color-scheme: dark) {
       .primary { fill: #818cf8; }
       .secondary { fill: #34d399; }
       .accent { fill: #fbbf24; }
     }
   </style>
-  
+
   <!-- Background Circle -->
   <circle cx="100" cy="100" r="90" fill="white" stroke="#e5e7eb" stroke-width="2"/>
-  
+
   <!-- K Letter -->
   <path class="primary" d="M60 40V160H80V110L120 160H145L95 100L145 40H120L80 90V40H60Z"/>
-  
+
   <!-- Decorative Elements -->
   <circle class="secondary" cx="160" cy="70" r="15"/>
   <circle class="accent" cx="160" cy="130" r="15"/>
-  
+
   <!-- Connecting Lines -->
   <path d="M80 100H140" stroke="#e5e7eb" stroke-width="4" stroke-linecap="round"/>
   <path d="M145 55L120 80" stroke="#e5e7eb" stroke-width="4" stroke-linecap="round"/>
@@ -486,24 +497,24 @@ if (typeof module !== 'undefined') {
     files['app/extensions/index.js'] = `// Register all plugins here
 export function registerPlugins(app) {
   // Example: app.use(somePlugin)
-  
+
   // You can also register global components
   // app.component('GlobalComponent', YourComponent)
-  
+
   // Add global properties
   // In KalxJS, we need to use a different approach since app.config.globalProperties is not available
   // We can use app.provide to make values available to all components
   app.provide('formatDate', (date) => {
     return new Date(date).toLocaleDateString();
   });
-  
+
   // Alternatively, we can add methods directly to the app instance
   app._context = app._context || {};
   app._context.helpers = app._context.helpers || {};
   app._context.helpers.formatDate = (date) => {
     return new Date(date).toLocaleDateString();
   };
-  
+
   console.log('Plugins registered successfully');
 }
 `;
@@ -569,40 +580,40 @@ export function createRouter() {
   // Custom rendering logic for router views
   router.afterEach((to, from) => {
     console.log(\`Router navigation complete: \${from.path} -> \${to.path}\`);
-    
+
     // Get the matched component
     const matchedRoute = to.matched[0];
     if (!matchedRoute) {
       console.error('No matching route found');
       return;
     }
-    
+
     const component = matchedRoute.component;
     if (!component) {
       console.error('No component defined for route');
       return;
     }
-    
+
     // Get the router view container
     const routerViewContainer = document.getElementById('router-view');
     if (!routerViewContainer) {
       console.error('Router view container not found');
       return;
     }
-    
+
     // Clear the container
     routerViewContainer.innerHTML = '';
-    
+
     // Render the component
     try {
       console.log('Rendering component:', component.name || 'Unnamed Component');
-      
+
       // Create a new app instance with the component
       const app = createApp(component);
-      
+
       // Mount it to the container
       app.mount(routerViewContainer);
-      
+
       console.log('Component rendered successfully');
     } catch (error) {
       console.error('Error rendering component:', error);
@@ -973,13 +984,13 @@ export default defineComponent({
 
 export default defineComponent({
   name: 'HelloWorld',
-  
+
   data() {
     return {
       message: 'Hello, KalxJS!'
     };
   },
-  
+
   render() {
     return h('div', {}, [
       h('h1', {}, [this.message])
@@ -1295,25 +1306,25 @@ a {
   cursor: pointer;
   transition: all $transition-speed ease;
   font-weight: 500;
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
-  
+
   &:active {
     transform: translateY(0);
   }
-  
+
   &.btn-secondary {
     background-color: var(--secondary-color);
   }
-  
+
   &.btn-outline {
     background-color: transparent;
     border: 2px solid var(--primary-color);
     color: var(--primary-color);
-    
+
     &:hover {
       background-color: var(--primary-color);
       color: white;
@@ -1330,12 +1341,12 @@ a {
   margin-bottom: 1.5rem;
   transition: transform $transition-speed ease, box-shadow $transition-speed ease;
   border: 1px solid var(--border-color);
-  
+
   &:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
   }
-  
+
   .card-title {
     margin-top: 0;
     color: var(--primary-color);
@@ -1353,7 +1364,7 @@ input, textarea, select {
   background-color: var(--input-bg);
   color: var(--text-color);
   transition: border-color $transition-speed ease, box-shadow $transition-speed ease;
-  
+
   &:focus {
     outline: none;
     border-color: var(--primary-color);
@@ -1480,11 +1491,11 @@ html.dark-theme .text-secondary {
   color: #aaaaaa !important;
 }
 
-html.dark-theme h1, 
-html.dark-theme h2, 
-html.dark-theme h3, 
-html.dark-theme h4, 
-html.dark-theme h5, 
+html.dark-theme h1,
+html.dark-theme h2,
+html.dark-theme h3,
+html.dark-theme h4,
+html.dark-theme h5,
 html.dark-theme h6 {
   color: #f0f0f0 !important;
 }
@@ -1494,11 +1505,11 @@ html.dark-theme .counter-value {
 }
 
 /* Ensure theme transition is smooth */
-html, 
-body, 
-.app-header, 
-.card, 
-.welcome-banner, 
+html,
+body,
+.app-header,
+.card,
+.welcome-banner,
 .features-section {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
 }
@@ -1518,7 +1529,7 @@ body,
   .hide-mobile {
     display: none !important;
   }
-  
+
   .container {
     padding: 0 10px;
   }
@@ -1707,16 +1718,16 @@ body,
   border: 1px solid var(--border-color);
   cursor: pointer;
   transition: all 0.3s ease;
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
-  
+
   &:active {
     transform: translateY(0);
   }
-  
+
   &:disabled {
     opacity: 0.7;
     cursor: not-allowed;
@@ -1757,7 +1768,7 @@ html.dark-theme .theme-switcher {
 @media (max-width: 768px) {
   .theme-switcher {
     padding: 8px;
-    
+
     .theme-text {
       display: none;
     }
@@ -1798,49 +1809,49 @@ $box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background-color: var(--bg-secondary, $secondary-color);
   color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  
+
   .logo-container {
     display: flex;
     align-items: center;
-    
+
     .logo {
       height: 40px;
       margin-right: 10px;
       cursor: pointer;
     }
-    
+
     .app-title {
       font-size: 1.5rem;
       margin: 0;
     }
   }
-  
+
   .app-nav {
     display: flex;
     gap: 20px;
-    
+
     .nav-link {
       color: white;
       text-decoration: none;
       padding: 5px 10px;
       border-radius: 4px;
       transition: background-color 0.2s;
-      
+
       &:hover {
         background-color: rgba(255, 255, 255, 0.1);
       }
-      
+
       &.active {
         background-color: rgba(255, 255, 255, 0.2);
         font-weight: bold;
       }
     }
-    
+
     .theme-switcher-container {
       display: flex;
       align-items: center;
     }
-    
+
     .theme-switcher {
       background: none;
       border: 1px solid rgba(255, 255, 255, 0.2);
@@ -1851,21 +1862,21 @@ $box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       display: flex;
       align-items: center;
       transition: all 0.2s ease;
-      
+
       &:hover {
         background-color: rgba(255, 255, 255, 0.1);
       }
-      
+
       .theme-icon {
         margin-right: 8px;
         font-size: 1.2rem;
       }
-      
+
       .theme-text {
         font-size: 0.9rem;
       }
     }
-    
+
     .theme-toggle {
       background: none;
       border: none;
@@ -1874,7 +1885,7 @@ $box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       cursor: pointer;
       padding: 5px 10px;
       border-radius: 4px;
-      
+
       &:hover {
         background-color: rgba(255, 255, 255, 0.1);
       }
@@ -1896,7 +1907,7 @@ $box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   height: $footer-height;
   background-color: var(--bg-secondary, $secondary-color);
   color: white;
-  
+
   .footer-content {
     display: flex;
     justify-content: space-between;
@@ -1906,19 +1917,19 @@ $box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     max-width: 1200px;
     margin: 0 auto;
   }
-  
+
   .copyright {
     margin: 0;
   }
-  
+
   .footer-links {
     display: flex;
     gap: 20px;
-    
+
     a {
       color: white;
       text-decoration: none;
-      
+
       &:hover {
         text-decoration: underline;
       }
@@ -1936,20 +1947,20 @@ $box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   --input-bg: #333333;
   --input-border: #555555;
   --code-bg: #333333;
-  
+
   .app-header, .app-footer {
     background-color: #2a2a2a;
   }
-  
+
   .theme-switcher {
     border-color: rgba(255, 255, 255, 0.3);
   }
-  
+
   button, .button {
     &.primary {
       background-color: $primary-color-dark;
     }
-    
+
     &.secondary {
       background-color: darken($secondary-color, 10%);
     }
@@ -1962,34 +1973,34 @@ $box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     flex-direction: column;
     height: auto;
     padding: 10px;
-    
+
     .logo-container {
       margin-bottom: 10px;
     }
-    
+
     .app-nav {
       width: 100%;
       justify-content: center;
       flex-wrap: wrap;
-      
+
       .theme-switcher {
         .theme-text {
           display: none;
         }
-        
+
         .theme-icon {
           margin-right: 0;
         }
       }
     }
   }
-  
+
   .app-footer {
     .footer-content {
       flex-direction: column;
       padding: 10px;
       height: auto;
-      
+
       .copyright {
         margin-bottom: 10px;
       }
@@ -2171,7 +2182,7 @@ import { initVersionCheck } from './utils/version-helper';
 // Function to dynamically get package versions at runtime
 async function getPackageVersions() {
   const versions = {};
-  
+
   // Helper function to safely fetch a package version
   async function getVersion(packageName) {
     try {
@@ -2184,7 +2195,7 @@ async function getPackageVersions() {
       } catch (importErr) {
         console.debug(\`Could not import \${packageName} directly: \`, importErr);
       }
-      
+
       // If direct import fails, try to fetch from package.json
       try {
         // This works in development environments where node_modules is accessible
@@ -2257,7 +2268,7 @@ getPackageVersions().then(versions => {
 // Global error handling function
 function handleError(err, source = 'Application') {
   console.error(\`[\${source} Error]\`, err);
-  
+
   // Display error in UI if possible
   const appElement = document.getElementById('app');
   if (appElement) {
@@ -2266,7 +2277,7 @@ function handleError(err, source = 'Application') {
     if (loadingElement) {
       loadingElement.style.display = 'none';
     }
-    
+
     // Create error container if it doesn't exist
     let errorContainer = document.querySelector('.error-container');
     if (!errorContainer) {
@@ -2274,14 +2285,14 @@ function handleError(err, source = 'Application') {
       errorContainer.className = 'error-container';
       appElement.appendChild(errorContainer);
     }
-    
+
     errorContainer.innerHTML = \`
       <h2>\${source} Error</h2>
       <p>\${err.message || 'An unknown error occurred'}</p>
       <button onclick="location.reload()">Reload Application</button>
     \`;
   }
-  
+
   // You could also send errors to a monitoring service here
 }
 
@@ -2329,14 +2340,14 @@ try {
   ${config.features.router ? `
   // Initialize router
   const router = createRouter();
-  
+
   // Add error handling for router
   router.onError((err, to, from) => {
     console.error('Router Error:', err);
     console.log('Failed navigation from', from?.path || 'initial route', 'to', to.path);
     handleError(err, 'Router');
   });
-  
+
   app.use(router);
 
   // Expose router globally for direct access
@@ -2381,11 +2392,11 @@ try {
       if (loadingElement) {
         loadingElement.style.display = 'none';
       }
-      
+
       // Mount the app to the DOM
       app.mount('#app');
       console.log('🎉 KALXJS application successfully mounted');
-      
+
       // Initialize router view if needed
       if (${config.features.router ? 'true' : 'false'} && window.router) {
         const routerViewElement = document.getElementById('router-view');
@@ -2413,25 +2424,25 @@ try {
   // Add fallback rendering in case the main mounting fails
   setTimeout(() => {
     const appElement = document.getElementById('app');
-    if (appElement && 
-        (appElement.innerHTML.includes('<!--empty node-->') || 
+    if (appElement &&
+        (appElement.innerHTML.includes('<!--empty node-->') ||
          (appElement.innerHTML.trim() === '') ||
          (appElement.querySelector('.loading') && !appElement.querySelector('.loading').style.display === 'none'))) {
       console.log('Fallback rendering activated');
-      
+
       // Hide loading indicator if it exists
       const loadingElement = document.querySelector('.loading');
       if (loadingElement) {
         loadingElement.style.display = 'none';
       }
-      
+
       // Create fallback UI
       const fallbackElement = document.createElement('div');
       fallbackElement.style.maxWidth = '800px';
       fallbackElement.style.margin = '0 auto';
       fallbackElement.style.padding = '2rem';
       fallbackElement.style.textAlign = 'center';
-      
+
       fallbackElement.innerHTML = \`
         <h1 style="color: #42b883;">Welcome to KalxJS</h1>
         <p>This is a simple counter example:</p>
@@ -2443,27 +2454,27 @@ try {
         <p style="margin-top: 2rem; color: #666;">Note: The application is running in fallback mode. Some features may be limited.</p>
         <button id="reload-btn" style="margin-top: 1rem; background-color: #35495e; color: white; border: none; border-radius: 4px; padding: 0.5rem 1rem; cursor: pointer;">Reload Application</button>
       \`;
-      
+
       appElement.appendChild(fallbackElement);
-      
+
       // Add minimal interactivity
       const counterValue = document.getElementById('counter-value');
       const decrementBtn = document.getElementById('decrement-btn');
       const incrementBtn = document.getElementById('increment-btn');
       const reloadBtn = document.getElementById('reload-btn');
-      
+
       let count = 0;
-      
+
       decrementBtn.addEventListener('click', () => {
         count--;
         counterValue.textContent = count;
       });
-      
+
       incrementBtn.addEventListener('click', () => {
         count++;
         counterValue.textContent = count;
       });
-      
+
       reloadBtn.addEventListener('click', () => {
         location.reload();
       });
@@ -2493,7 +2504,7 @@ try {
       --border-color: #eaeaea;
       --shadow-color: rgba(0, 0, 0, 0.1);
     }
-    
+
     /* Dark theme variables - applied by default */
     .dark-theme {
       --primary-color: #4ecca3;
@@ -2504,7 +2515,7 @@ try {
       --border-color: #333333;
       --shadow-color: rgba(0, 0, 0, 0.5);
     }
-    
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
@@ -2513,11 +2524,11 @@ try {
       color: var(--text-color);
       transition: background-color 0.3s, color 0.3s;
     }
-    
+
     #app {
       min-height: 100vh;
     }
-    
+
     .loading {
       display: flex;
       flex-direction: column;
@@ -2526,18 +2537,18 @@ try {
       height: 100vh;
       text-align: center;
     }
-    
+
     .loading h1 {
       color: var(--primary-color);
       font-size: 2rem;
       margin-bottom: 1rem;
     }
-    
+
     .loading p {
       color: var(--secondary-color);
       margin-bottom: 2rem;
     }
-    
+
     .spinner {
       width: 50px;
       height: 50px;
@@ -2546,17 +2557,17 @@ try {
       border-top-color: var(--primary-color);
       animation: spin 1s ease-in-out infinite;
     }
-    
+
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
-    
+
     /* Router view container */
     #router-view {
       min-height: calc(100vh - 120px);
       padding: 20px;
     }
-    
+
     /* Dark mode support */
     .dark-theme {
       --bg-color: #1a1a1a;
@@ -2564,7 +2575,7 @@ try {
       --border-color: #333;
       --shadow-color: rgba(0, 0, 0, 0.3);
     }
-    
+
     @media (prefers-color-scheme: dark) {
       :root {
         --bg-color: #1a1a1a;
@@ -2573,7 +2584,7 @@ try {
         --shadow-color: rgba(0, 0, 0, 0.3);
       }
     }
-    
+
     /* Error message styling */
     .error-container {
       background-color: #fff1f0;
@@ -2583,7 +2594,7 @@ try {
       margin: 16px 0;
       color: #cf1322;
     }
-    
+
     .dark-theme .error-container {
       background-color: #2a1215;
       border-color: #5c2223;
@@ -2601,7 +2612,7 @@ try {
     <!-- Router view container -->
     <div id="router-view"></div>
   </div>
-  
+
   <!-- Error handling for script loading -->
   <script>
     window.addEventListener('error', function(event) {
@@ -2620,7 +2631,7 @@ try {
       }
     }, true);
   </script>
-  
+
   <script type="module" src="/app/main.js"></script>
 </body>
 </html>`;
@@ -2746,7 +2757,7 @@ const colors = {
   blink: '\\x1b[5m',
   reverse: '\\x1b[7m',
   hidden: '\\x1b[8m',
-  
+
   black: '\\x1b[30m',
   red: '\\x1b[31m',
   green: '\\x1b[32m',
@@ -2755,7 +2766,7 @@ const colors = {
   magenta: '\\x1b[35m',
   cyan: '\\x1b[36m',
   white: '\\x1b[37m',
-  
+
   bgBlack: '\\x1b[40m',
   bgRed: '\\x1b[41m',
   bgGreen: '\\x1b[42m',
@@ -2793,10 +2804,10 @@ function ensureDir(dirPath) {
 function checkIndexHtml() {
   const rootIndexPath = path.join(process.cwd(), 'index.html');
   const publicIndexPath = path.join(process.cwd(), 'public', 'index.html');
-  
+
   if (!fileExists(rootIndexPath) && !fileExists(publicIndexPath)) {
     log('⚠️ No index.html found in root or public directory', colors.yellow);
-    
+
     // Create a basic index.html file
     const indexHtml = \`<!DOCTYPE html>
 <html lang="en">
@@ -2813,7 +2824,7 @@ function checkIndexHtml() {
       --bg-color: white;
       --text-color: #333;
     }
-    
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       margin: 0;
@@ -2821,11 +2832,11 @@ function checkIndexHtml() {
       background-color: var(--bg-color);
       color: var(--text-color);
     }
-    
+
     #app {
       min-height: 100vh;
     }
-    
+
     .loading {
       display: flex;
       flex-direction: column;
@@ -2834,18 +2845,18 @@ function checkIndexHtml() {
       height: 100vh;
       text-align: center;
     }
-    
+
     .loading h1 {
       color: var(--primary-color);
       font-size: 2rem;
       margin-bottom: 1rem;
     }
-    
+
     .loading p {
       color: var(--secondary-color);
       margin-bottom: 2rem;
     }
-    
+
     .spinner {
       width: 50px;
       height: 50px;
@@ -2854,11 +2865,11 @@ function checkIndexHtml() {
       border-top-color: var(--primary-color);
       animation: spin 1s ease-in-out infinite;
     }
-    
+
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
-    
+
     #router-view {
       min-height: calc(100vh - 120px);
       padding: 20px;
@@ -2877,12 +2888,12 @@ function checkIndexHtml() {
   <script type="module" src="/app/main.js"></script>
 </body>
 </html>\`;
-    
+
     // Create in both locations to be safe
     ensureDir(path.join(process.cwd(), 'public'));
     fs.writeFileSync(rootIndexPath, indexHtml);
     fs.writeFileSync(publicIndexPath, indexHtml);
-    
+
     log('✅ Created index.html files', colors.green);
   }
 }
@@ -2890,10 +2901,10 @@ function checkIndexHtml() {
 // Check if vite.config.js exists and has proper configuration
 function checkViteConfig() {
   const viteConfigPath = path.join(process.cwd(), 'vite.config.js');
-  
+
   if (!fileExists(viteConfigPath)) {
     log('⚠️ No vite.config.js found', colors.yellow);
-    
+
     // Create a basic vite.config.js file
     const viteConfig = \`import { defineConfig } from 'vite';
 import path from 'path';
@@ -2928,7 +2939,7 @@ export default defineConfig({
   }
 });
 \`;
-    
+
     fs.writeFileSync(viteConfigPath, viteConfig);
     log('✅ Created vite.config.js', colors.green);
   } else {
@@ -2945,11 +2956,11 @@ export default defineConfig({
 async function startApp() {
   try {
     log('🚀 Starting KalxJS Application...', colors.cyan + colors.bright);
-    
+
     // Check for required files and fix if needed
     checkIndexHtml();
     checkViteConfig();
-    
+
     // Check if node_modules exists
     if (!fileExists(path.join(process.cwd(), 'node_modules'))) {
       log('📦 Installing dependencies...', colors.magenta);
@@ -2960,11 +2971,11 @@ async function startApp() {
         execSync('npm install --force', { stdio: 'inherit' });
       }
     }
-    
+
     // Start the development server
     log('🌐 Starting development server...', colors.green);
     execSync('npm run dev', { stdio: 'inherit' });
-    
+
   } catch (error) {
     log('❌ Error starting application:', colors.red);
     console.error(error);
@@ -3087,20 +3098,20 @@ async function createTestComponent(targetDir, config) {
 
 export default defineComponent({
   name: 'TestComponent',
-  
+
   setup() {
     const counter = ref(0);
-    
+
     const incrementCounter = () => {
       counter.value++;
     };
-    
+
     return {
       counter,
       incrementCounter
     };
   },
-  
+
   render() {
     return h('div', { class: 'test-component' }, [
       h('h3', {}, ['Test Component']),
@@ -3187,16 +3198,16 @@ export default defineComponent({
         class: 'theme-button',
         onClick: this.toggleTheme,
         style: \`
-          width: 50px; 
-          height: 50px; 
-          border-radius: 50%; 
-          display: flex; 
-          align-items: center; 
-          justify-content: center; 
-          font-size: 1.5rem; 
-          background-color: var(--primary-color); 
-          color: white; 
-          cursor: pointer; 
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.5rem;
+          background-color: var(--primary-color);
+          color: white;
+          cursor: pointer;
           transition: all 0.3s ease;
           border: none;
           outline: none;
@@ -3294,18 +3305,18 @@ export default defineComponent({
 
     render() {
         console.log('Rendering AnimatedCounter with value:', this.value, 'displayValue:', this.displayValue);
-        
+
         // Force the display value to match the actual value if they're different
         // This ensures the counter always shows the correct value
         if (this.value !== this.displayValue && !this.animationId) {
             this.displayValue = this.value;
         }
-        
-        return h('div', { 
+
+        return h('div', {
             class: 'animated-counter',
             style: 'font-size: 3.5rem; font-weight: bold; color: var(--primary-color); min-width: 100px; text-align: center; background-color: var(--bg-color); padding: 1rem; border-radius: 12px; box-shadow: 0 4px 10px var(--shadow-color);'
         }, [
-            h('span', { 
+            h('span', {
                 class: 'counter-value',
                 style: 'display: inline-block; transition: transform 0.2s ease;'
             }, [String(this.displayValue)])
@@ -3428,7 +3439,7 @@ html.dark-theme .theme-switcher {
 @media (max-width: 768px) {
     .theme-switcher {
         padding: 8px;
-        
+
         .theme-text {
             display: none;
         }
@@ -3613,12 +3624,12 @@ html.dark-theme .theme-switcher {
 // Button hover effects
 .btn {
     transition: all 0.3s ease;
-    
+
     &:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     }
-    
+
     &:active {
         transform: translateY(1px);
     }
@@ -3755,7 +3766,7 @@ html.dark-theme .theme-switcher {
 // Theme switcher animation
 .theme-button {
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    
+
     &:hover {
         transform: scale(1.1) rotate(15deg);
         box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
@@ -4004,7 +4015,7 @@ a {
   color: var(--primary-color);
   text-decoration: none;
   transition: color 0.3s ease;
-  
+
   &:hover {
     text-decoration: underline;
   }
@@ -4018,42 +4029,42 @@ button, .btn {
   font-size: 1rem;
   transition: all 0.3s ease;
   box-shadow: 0 2px 4px var(--shadow-color);
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px var(--shadow-color);
   }
-  
+
   &:focus {
     outline: none;
   }
-  
+
   &.btn-primary {
     background-color: var(--primary-color);
     color: white;
     font-weight: 600;
-    
+
     &:hover {
       background-color: #389f6e; /* Darker shade green */
     }
   }
-  
+
   &.btn-secondary {
     background-color: var(--secondary-color);
     color: white;
     font-weight: 600;
-    
+
     &:hover {
       background-color: #2c3c4f; /* Darker shade blue */
     }
   }
-  
+
   &.btn-pulse {
     color: white;
     background-color: var(--primary-color);
     box-shadow: 0 4px 10px var(--shadow-color);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    
+
     &:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 12px var(--shadow-color);
@@ -4095,7 +4106,7 @@ button, .btn {
   padding: 1.75rem;
   margin-bottom: 1rem;
   transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-  
+
   &:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 15px var(--shadow-color);
@@ -4112,12 +4123,12 @@ button, .btn {
   margin-bottom: 2rem;
   box-shadow: 0 6px 15px var(--shadow-color);
   text-align: center;
-  
+
   h1 {
     color: var(--primary-color);
     margin-bottom: 1rem;
   }
-  
+
   p {
     color: var(--text-secondary);
     margin-bottom: 1.5rem;
@@ -4135,12 +4146,12 @@ button, .btn {
   cursor: pointer;
   transition: all 0.3s ease;
   border: 1px solid transparent;
-  
+
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px var(--shadow-color);
   }
-  
+
   &:active {
     transform: translateY(1px);
   }
@@ -4149,7 +4160,7 @@ button, .btn {
 .btn-primary {
   background-color: var(--primary-color);
   color: white;
-  
+
   &:hover {
     background-color: var(--primary-color-dark);
   }
@@ -4159,7 +4170,7 @@ button, .btn {
   background-color: var(--bg-secondary);
   color: var(--text-color);
   border: 1px solid var(--border-color);
-  
+
   &:hover {
     background-color: var(--bg-tertiary);
   }
@@ -4170,7 +4181,7 @@ button, .btn {
   position: relative;
   background-color: var(--primary-color);
   color: white;
-  
+
   &:hover {
     animation: none;
     background-color: var(--primary-color-dark);
@@ -4448,28 +4459,28 @@ $z-index-tooltip: 1070;`;
   background-color: var(--bg-secondary);
   border-radius: 10px;
   box-shadow: 0 3px 10px var(--shadow-color);
-  
+
   .logo {
     display: flex;
     flex-direction: column;
-    
+
     .logo-text {
       margin: 0;
       color: var(--primary-color);
       font-size: 2.2rem;
     }
-    
+
     .logo-tagline {
       color: var(--text-secondary);
       font-size: 1rem;
     }
   }
-  
+
   @media (max-width: 768px) {
     flex-direction: column;
     text-align: center;
     gap: 1rem;
-    
+
     .logo {
       align-items: center;
     }
@@ -4622,7 +4633,7 @@ $z-index-tooltip: 1070;`;
       box-shadow: 0 5px 10px var(--shadow-color);
     }
   }
-  
+
   &.btn-circle {
     width: 48px;
     height: 48px;
@@ -4634,13 +4645,13 @@ $z-index-tooltip: 1070;`;
     padding: 0;
     background-color: var(--primary-color);
     color: white;
-    
+
     &:hover {
       background-color: vars.$primary-color-dark;
       transform: scale(1.1);
     }
   }
-  
+
   &.btn-pulse {
     background-color: var(--primary-color);
     color: white !important; /* Always keep text white */
@@ -4648,13 +4659,13 @@ $z-index-tooltip: 1070;`;
     font-size: 1.1rem;
     position: relative;
     overflow: hidden;
-    
+
     &:hover {
       background-color: vars.$primary-color-dark;
       transform: translateY(-3px);
       box-shadow: 0 6px 12px var(--shadow-color);
       color: white !important;
-      
+
       &:after {
         content: '';
         position: absolute;
@@ -4668,7 +4679,7 @@ $z-index-tooltip: 1070;`;
         animation: pulse 0.8s ease-out;
       }
     }
-    
+
     /* Ensure text is always white in all states */
     &:active, &:focus, &:visited {
       color: white !important;
@@ -4687,12 +4698,12 @@ $z-index-tooltip: 1070;`;
   transition: all 0.3s ease;
   margin: 0 0.5rem 1rem 0.5rem;
   box-shadow: 0 2px 5px var(--shadow-color);
-  
+
   &.active {
     background-color: var(--primary-color);
     color: white;
   }
-  
+
   &:hover:not(.active) {
     background-color: var(--bg-color);
     transform: translateY(-2px);
@@ -4707,7 +4718,7 @@ $z-index-tooltip: 1070;`;
   border-radius: 12px;
   box-shadow: 0 4px 12px var(--shadow-color);
   margin-bottom: 1.5rem;
-  
+
   .counter {
     margin: 2rem 0;
     gap: 1.5rem;
@@ -4720,14 +4731,14 @@ $z-index-tooltip: 1070;`;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
   margin-bottom: 1.5rem;
-  
+
   .feature-card {
     background-color: var(--bg-secondary);
     padding: 1.5rem;
     border-radius: 10px;
     box-shadow: 0 4px 10px var(--shadow-color);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    
+
     &:hover {
       transform: translateY(-5px);
       box-shadow: 0 8px 16px var(--shadow-color);
@@ -5007,3 +5018,4 @@ async function getLatestVersions(config) {
 }
 
 module.exports = create;
+//end of file

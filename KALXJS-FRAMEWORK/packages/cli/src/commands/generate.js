@@ -1,17 +1,14 @@
-// @kalxjs/cli - Generate command
-
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const fs = require('fs');
+const path = require('path');
+const ora = require('ora');
 
 /**
  * Generates a new KLX component
  * @param {string} name - Component name
  * @param {Object} options - Generation options
+ * @param {Object} chalk - chalk instance for colors
  */
-export function generateComponent(name, options = {}) {
+function generateComponent(name, options = {}, chalk) {
   const { dir = '.', composition = false } = options;
 
   // Create component directory if it doesn't exist
@@ -25,7 +22,7 @@ export function generateComponent(name, options = {}) {
 
   // Check if file already exists
   if (fs.existsSync(componentPath)) {
-    console.error(`Component ${name} already exists at ${componentPath}`);
+    console.error(chalk.red(`✗ Component ${name} already exists at ${componentPath}`));
     return;
   }
 
@@ -37,7 +34,7 @@ export function generateComponent(name, options = {}) {
   // Write component file
   fs.writeFileSync(componentPath, content);
 
-  console.log(`Component ${name} created at ${componentPath}`);
+  console.log(chalk.green(`✓ Component ${name} created at ${componentPath}`));
 }
 
 /**
@@ -141,17 +138,17 @@ export default {
     // Reactive state
     const count = useRef(0);
     const message = useRef('Welcome to KalxJS!');
-    
+
     // Methods
     function increment() {
       count.value++;
     }
-    
+
     // Lifecycle hooks
     onMounted(() => {
       console.log('${name} component mounted');
     });
-    
+
     // Expose to template
     return {
       count,
@@ -192,29 +189,39 @@ button:hover {
 }
 
 /**
- * Command handler for generating components
+ * Main generate command handler
  */
-export default {
-  name: 'generate',
-  alias: 'g',
-  description: 'Generate a new component',
-  run: (args) => {
-    const [type, name] = args._;
+async function generate(type, name, options = {}) {
+  // Import chalk dynamically for ESM compatibility
+  const chalk = await import('chalk').then(m => m.default);
 
-    if (!type || !name) {
-      console.error('Please specify a type and name');
-      console.log('Usage: kalxjs generate component MyComponent');
-      return;
-    }
+  if (!type || !name) {
+    console.error(chalk.red('✗ Please specify a type and name'));
+    console.log('Usage: kalxjs generate <type> <name> [options]');
+    console.log('Available types: component');
+    return;
+  }
 
+  const spinner = ora({
+    text: chalk.cyan(`Generating ${type} ${chalk.bold(name)}...`),
+    spinner: 'dots'
+  }).start();
+
+  try {
     if (type === 'component' || type === 'c') {
+      spinner.succeed(chalk.green(`Generated ${type}: ${name}`));
       generateComponent(name, {
-        dir: args.dir || '.',
-        composition: args.composition || false
-      });
+        dir: options.dir || '.',
+        composition: options.composition || false
+      }, chalk);
     } else {
-      console.error(`Unknown generation type: ${type}`);
+      spinner.fail(chalk.red(`Unknown generation type: ${type}`));
       console.log('Available types: component');
     }
+  } catch (error) {
+    spinner.fail(chalk.red(`Error generating ${type}: ${error.message}`));
+    process.exit(1);
   }
-};
+}
+
+module.exports = generate;

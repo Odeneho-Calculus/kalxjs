@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const { program } = require('commander');
-const { create, component, serve, build } = require('../src/commands');
+const { create, component, serve, build, generate } = require('../src/commands');
 const path = require('path');
 const fs = require('fs');
 
@@ -40,7 +40,15 @@ program
     .option('--linting', 'Add ESLint setup')
     .option('--skip-install', 'Skip installing dependencies')
     .option('--skip-prompts', 'Skip feature selection prompts')
-    .action((name, options) => create(name, options));
+    .option('--cwd <directory>', 'Working directory for project creation')
+    .action(async (name, options) => {
+        try {
+            await create(name, options);
+        } catch (err) {
+            console.error('Error:', err.message);
+            process.exit(1);
+        }
+    });
 
 // Generate component
 program
@@ -54,7 +62,32 @@ program
     .option('--state', 'Add state')
     .option('--methods', 'Add methods')
     .option('--lifecycle', 'Add lifecycle hooks')
-    .action((name, options) => component(name, options));
+    .action(async (name, options) => {
+        try {
+            await component(name, options);
+        } catch (err) {
+            console.error('Error:', err.message);
+            process.exit(1);
+        }
+    });
+
+// Generate command for multiple artifact types
+program
+    .command('generate <type> <name>')
+    .alias('g')
+    .description('Generate code artifacts (components, pages, stores, routes)')
+    .option('-d, --dir <directory>', 'Target directory')
+    .option('--composition', 'Use composition API (for components)')
+    .option('-s, --style [type]', 'Add stylesheet (css/scss)')
+    .option('-t, --test', 'Add test file')
+    .action(async (type, name, options) => {
+        try {
+            await generate(type, name, options);
+        } catch (err) {
+            console.error('Error:', err.message);
+            process.exit(1);
+        }
+    });
 
 // Serve command
 program
