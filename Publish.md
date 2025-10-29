@@ -20,3 +20,6 @@ pnpm publish
 
 cd ../cli
 pnpm publish
+
+## 1. Clear npm Cache
+npm cache clean --force
