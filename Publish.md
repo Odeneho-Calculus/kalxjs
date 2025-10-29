@@ -8,6 +8,9 @@ git push
 
 npx lerna publish from-package --yes 2>&1 | tee publish.log
 
+# with patch
+npx lerna version patch --yes 2>&1 | head -200
+
 # 1. Navigate to framework directory
 cd KALXJS-FRAMEWORK
 
