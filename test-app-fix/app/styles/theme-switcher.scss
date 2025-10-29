@@ -1,0 +1,117 @@
+// Theme Switcher Styles
+@use 'sass:color';
+@use './variables' as vars;
+
+.theme-switcher {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 20px;
+    background-color: var(--bg-secondary);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 10; /* Ensure it's above other elements */
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    outline: none;
+
+    /* Make it more noticeable */
+    &::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        border-radius: 22px;
+        background: transparent;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        pointer-events: none;
+    }
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+        &::before {
+            border-color: var(--primary-color);
+        }
+    }
+
+    &:active {
+        transform: translateY(0);
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    &:focus {
+        outline: none;
+
+        &::before {
+            border-color: var(--primary-color);
+        }
+    }
+
+    &:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+}
+
+.theme-icon {
+    font-size: 1.2rem;
+    transition: transform 0.5s ease;
+}
+
+.theme-text {
+    font-weight: 500;
+}
+
+// Animation for theme icon
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.rotate {
+    animation: rotate 0.5s ease-in-out;
+}
+
+// Dark theme specific styles for the switcher - enhanced
+html.dark-theme .theme-switcher {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border-color: #333333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+    &:hover {
+        background-color: #252525;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    &:active {
+        transform: translateY(0);
+        background-color: #2a2a2a;
+    }
+}
+
+// Responsive styles
+@media (max-width: 768px) {
+    .theme-switcher {
+        padding: 8px;
+
+        .theme-text {
+            display: none;
+        }
+    }
+}

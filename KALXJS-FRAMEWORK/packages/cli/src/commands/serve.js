@@ -74,8 +74,21 @@ async function serve(options = {}) {
 
         // Read package.json to verify it's a kalxjs project
         const packageJson = require(path.join(projectRoot, 'package.json'));
-        if (!packageJson.dependencies || !packageJson.dependencies.kalxjs) {
+
+        // Check for KalxJS dependencies (both legacy 'kalxjs' and scoped '@kalxjs/*' packages)
+        const isKalxJSProject = packageJson.dependencies && (
+            packageJson.dependencies.kalxjs ||
+            packageJson.dependencies['@kalxjs/core'] ||
+            Object.keys(packageJson.dependencies).some(dep => dep.startsWith('@kalxjs/'))
+        );
+
+        // Also check for app directory structure (typical KalxJS project structure)
+        const hasAppDirectory = fs.existsSync(path.join(projectRoot, 'app'));
+
+        if (!isKalxJSProject && !hasAppDirectory) {
             spinner.warn(chalk.yellow('This does not appear to be a kalxjs project, but proceeding anyway...'));
+        } else {
+            spinner.succeed(chalk.green('Valid KalxJS project detected'));
         }
 
         // Check for Vite and install if needed
