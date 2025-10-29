@@ -8,9 +8,15 @@ pnpm run build:cli
 # 3. Publish only those packages
 lerna publish --filter=@kalxjs/core --filter=@kalxjs/cli
 
+
+
+# Bump core version (patch, minor, or major)
+pnpm version patch
+
+
 ### Most Conservative Single-Package Approach:
 cd KALXJS-FRAMEWORK/packages/core
-npm publish
+pnpm publish
 
 cd ../cli
-npm publish
+pnpm publish
