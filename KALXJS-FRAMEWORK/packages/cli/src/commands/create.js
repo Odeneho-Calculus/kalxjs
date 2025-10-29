@@ -10,15 +10,24 @@ const figlet = require('figlet');
 const processTemplates = require('../utils/processTemplates');
 const https = require('https');
 
+// Import ESM modules dynamically for compatibility - available to all functions
+let chalk, boxen;
+
+async function initializeESModules() {
+  if (!chalk || !boxen) {
+    chalk = await import('chalk').then(m => m.default);
+    boxen = await import('boxen').then(m => m.default);
+  }
+}
+
 /**
  * Creates a new KalxJS project
  * @param {string} projectName - Name of the project
  * @param {Object} options - Configuration options
  */
 async function create(projectName, options = {}) {
-  // Import ESM modules dynamically for compatibility
-  const chalk = await import('chalk').then(m => m.default);
-  const boxen = await import('boxen').then(m => m.default);
+  // Initialize ESM modules
+  await initializeESModules();
 
   // Validate project name BEFORE creating directory or showing banner
 
@@ -4806,6 +4815,9 @@ $z-index-tooltip: 1070;`;
  * @param {Object} config - Project configuration
  */
 async function installDependencies(targetDir, config) {
+  // Initialize ESM modules
+  await initializeESModules();
+
   // Create a .npmrc file to always use legacy-peer-deps
   await fs.writeFile(
     path.join(targetDir, '.npmrc'),

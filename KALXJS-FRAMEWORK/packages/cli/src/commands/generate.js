@@ -2,6 +2,15 @@ const fs = require('fs');
 const path = require('path');
 const ora = require('ora');
 
+// Import ESM modules dynamically for compatibility - available to all functions
+let chalk;
+
+async function initializeESModules() {
+  if (!chalk) {
+    chalk = await import('chalk').then(m => m.default);
+  }
+}
+
 /**
  * Generates a new KLX component
  * @param {string} name - Component name
@@ -192,8 +201,8 @@ button:hover {
  * Main generate command handler
  */
 async function generate(type, name, options = {}) {
-  // Import chalk dynamically for ESM compatibility
-  const chalk = await import('chalk').then(m => m.default);
+  // Initialize ESM modules
+  await initializeESModules();
 
   if (!type || !name) {
     console.error(chalk.red('✗ Please specify a type and name'));

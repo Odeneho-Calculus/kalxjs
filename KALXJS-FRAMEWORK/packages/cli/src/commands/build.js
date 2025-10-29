@@ -5,14 +5,23 @@ const ora = require('ora');
 const gradient = require('gradient-string');
 const cliProgress = require('cli-progress');
 
+// Import ESM modules dynamically for compatibility - available to all functions
+let chalk, boxen;
+
+async function initializeESModules() {
+    if (!chalk || !boxen) {
+        chalk = await import('chalk').then(m => m.default);
+        boxen = await import('boxen').then(m => m.default);
+    }
+}
+
 /**
  * Build project for production
  * @param {Object} options - Command options
  */
 async function build(options = {}) {
-    // Import ESM modules dynamically for compatibility
-    const chalk = await import('chalk').then(m => m.default);
-    const boxen = await import('boxen').then(m => m.default);
+    // Initialize ESM modules
+    await initializeESModules();
 
     // Set default options
     options = {

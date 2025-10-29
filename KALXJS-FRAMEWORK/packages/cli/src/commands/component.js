@@ -5,6 +5,16 @@ const ora = require('ora');
 const gradient = require('gradient-string');
 const cliProgress = require('cli-progress');
 
+// Import ESM modules dynamically for compatibility - available to all functions
+let chalk, boxen;
+
+async function initializeESModules() {
+  if (!chalk || !boxen) {
+    chalk = await import('chalk').then(m => m.default);
+    boxen = await import('boxen').then(m => m.default);
+  }
+}
+
 const mkdir = promisify(fs.mkdir);
 const writeFile = promisify(fs.writeFile);
 const readFile = promisify(fs.readFile);
@@ -16,9 +26,8 @@ const access = promisify(fs.access);
  * @param {Object} options - Command options
  */
 async function component(componentName, options = {}) {
-  // Import ESM modules dynamically for compatibility
-  const chalk = await import('chalk').then(m => m.default);
-  const boxen = await import('boxen').then(m => m.default);
+  // Initialize ESM modules
+  await initializeESModules();
 
   // Display a fancy header
   console.log('\n');
