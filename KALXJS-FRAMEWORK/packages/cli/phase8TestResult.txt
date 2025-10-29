@@ -1,0 +1,67 @@
+
+> @kalxjs/cli@2.0.27 test C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs\KALXJS-FRAMEWORK\packages\cli
+> jest "--" "packages/cli/__tests__/phase8-advanced-features.test.js"
+
+PASS __tests__/phase8-advanced-features.test.js
+  Phase 8: Advanced Features & Quality
+    8.1 Config File Support
+      √ should detect kalxjs.config.js in project root (250 ms)
+      √ should load config with correct structure (13 ms)
+      √ should handle missing config gracefully (2 ms)
+      √ should accept environment-based config overrides (13 ms)
+    8.2 Plugin System & Extensibility
+      √ should accept plugin configuration (10 ms)
+      √ should handle plugin loading errors gracefully (3 ms)
+      √ should support plugin hooks (2 ms)
+      √ should not crash when plugin fails (11 ms)
+    8.3 Migration Tools & Upgrade Paths
+      √ should detect legacy project structure (5 ms)
+      √ should suggest migration when needed (2 ms)
+      √ should validate migration steps (2 ms)
+      √ should provide migration documentation links (2 ms)
+    8.4 Performance Metrics & Timing
+      √ should measure command execution time (3 ms)
+      √ should track build duration
+      √ should report performance warnings for slow operations (1 ms)
+      √ should provide performance summary (1 ms)
+    8.5 Accessibility & User Experience
+      √ should respect NO_COLOR environment variable
+      √ should disable colored output when --no-color flag used
+      √ should provide plain text output for accessibility (1 ms)
+      √ should use semantic terminology for screen readers
+      √ should support simple language in messages (1 ms)
+    8.6 Debug Mode & Verbose Logging
+      √ should enable verbose output with --debug flag
+      √ should enable verbose output with --verbose flag
+      √ should include timestamps in debug output (1 ms)
+      √ should not impact performance in normal mode
+      √ should provide detailed stack traces in debug mode (21 ms)
+      √ should hide stack traces in normal mode
+    8.7 Update Checking & Notifications
+      √ should check for CLI updates (1 ms)
+      √ should display update message when new version available
+      √ should provide update instructions
+      √ should not block CLI execution for update check
+      √ should cache update check results (1 ms)
+    8.8 Telemetry & Privacy
+      √ should respect telemetry opt-out via KALXJS_NO_TELEMETRY
+      √ should have telemetry opt-out via config file (3 ms)
+      √ should not send data without explicit consent
+      √ should allow telemetry to be disabled per command
+      √ should provide privacy policy information (1 ms)
+    8.9 Command Integration & Consistency
+      √ should have consistent command structure
+      √ should support --help for all commands (1 ms)
+      √ should provide consistent exit codes
+      √ should handle signal interruptions gracefully
+    8.10 Advanced Error Recovery
+      √ should suggest recovery steps for common errors
+      √ should provide rollback capabilities (1 ms)
+      √ should log errors for diagnostics
+      √ should support crash reporting (opt-in)
+
+Test Suites: 1 passed, 1 total
+Tests:       45 passed, 45 total
+Snapshots:   0 total
+Time:        0.854 s, estimated 1 s
+Ran all test suites matching /packages\\cli\\__tests__\\phase8-advanced-features.test.js/i.
