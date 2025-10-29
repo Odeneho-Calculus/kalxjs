@@ -1,6 +1,6 @@
 {
   "name": "@kalxjs/pwa",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Progressive Web App features for KALXJS",
   "main": "src/index.js",
   "module": "src/index.js",
