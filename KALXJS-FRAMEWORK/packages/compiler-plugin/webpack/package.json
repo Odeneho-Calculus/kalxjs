@@ -14,7 +14,7 @@
     "author": "KALXJS Team",
     "license": "MIT",
     "peerDependencies": {
-        "webpack": "^5.0.0"
+        "webpack": "*"
     },
     "dependencies": {
         "@kalxjs/compiler": "^1.0.0",

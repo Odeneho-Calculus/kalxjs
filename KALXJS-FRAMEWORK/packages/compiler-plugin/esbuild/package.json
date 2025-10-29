@@ -14,7 +14,7 @@
     "author": "KALXJS Team",
     "license": "MIT",
     "peerDependencies": {
-        "esbuild": "^0.18.0 || ^0.19.0 || ^0.20.0"
+        "esbuild": "*"
     },
     "dependencies": {
         "@kalxjs/compiler": "^1.0.0"

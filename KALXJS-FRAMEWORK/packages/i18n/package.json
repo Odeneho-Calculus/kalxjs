@@ -27,7 +27,7 @@
   "author": "KALXJS Team",
   "license": "MIT",
   "peerDependencies": {
-    "@kalxjs/core": "^2.0.0"
+    "@kalxjs/core": "*"
   },
   "gitHead": "13e16c8e24d110351a3a2fb5314d5904ae35784e"
 }

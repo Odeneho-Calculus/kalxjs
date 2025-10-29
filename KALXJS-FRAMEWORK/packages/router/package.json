@@ -47,7 +47,7 @@
     "@kalxjs/core": "^2.2.11"
   },
   "peerDependencies": {
-    "@kalxjs/core": "^2.1.0"
+    "@kalxjs/core": "*"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.0.0",
