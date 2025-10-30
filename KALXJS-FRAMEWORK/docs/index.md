@@ -46,7 +46,20 @@ app.mount('#app');
 - [Router API](./api/router.md)
 - [State API](./api/state.md)
 - [Composition API](./api/composition.md)
+- **[CLI API](./cli/API_REFERENCE.md)** - Programmatic CLI access
 - **[DevTools API](./devtools/README.md)** - Developer tools and debugging
+
+## Command-Line Interface (CLI)
+
+- **[CLI Documentation](./cli/README.md)** - Complete CLI reference
+  - [Quick Start](./cli/QUICK_START.md) - Get started in 5 minutes
+  - [Installation](./cli/INSTALLATION.md) - Setup and installation
+  - [Commands Reference](./cli/COMMANDS.md) - All CLI commands
+  - [Code Generation](./cli/GENERATION.md) - Generate components, routes, stores
+  - [Project Structure](./cli/PROJECT_STRUCTURE.md) - Understand project layout
+  - [Advanced Usage](./cli/ADVANCED_USAGE.md) - Custom templates and integrations
+  - [API Reference](./cli/API_REFERENCE.md) - Programmatic API
+  - [Troubleshooting](./cli/TROUBLESHOOTING.md) - Common issues
 
 ## Developer Tools
 

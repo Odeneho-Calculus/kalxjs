@@ -40,10 +40,15 @@ Core runtime features:
 
 ## CLI Tools
 
-- [CLI API](./cli.md) - Command-line interface for project scaffolding
-  - `create` - Create a new project
-  - `generate:component` - Generate a component
-  - `generate:view` - Generate a view
+- **[CLI Documentation](../cli/README.md)** - Complete CLI reference and tools
+  - [Quick Start](../cli/QUICK_START.md) - Get started in 5 minutes
+  - [Installation](../cli/INSTALLATION.md) - Setup and installation
+  - [Commands Reference](../cli/COMMANDS.md) - All CLI commands (create, generate, serve, build)
+  - [Code Generation](../cli/GENERATION.md) - Generate components, routes, stores, pages
+  - [Project Structure](../cli/PROJECT_STRUCTURE.md) - Project layout and templates
+  - [Advanced Usage](../cli/ADVANCED_USAGE.md) - Custom templates, CI/CD integration
+  - [API Reference](../cli/API_REFERENCE.md) - Programmatic API for automation
+  - [Troubleshooting](../cli/TROUBLESHOOTING.md) - Common issues and solutions
 
 ## Single File Components
 
