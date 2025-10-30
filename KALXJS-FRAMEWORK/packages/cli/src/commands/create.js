@@ -531,7 +531,7 @@ export function registerPlugins(app) {
 
   // Add router files if router feature is enabled
   if (config.features.router) {
-    files['app/navigation/index.js'] = `import { createRouter as createKalRouter } from '@kalxjs/router';
+    files['app/navigation/index.js'] = `import { createRouter as createKalRouter, createWebHistory } from '@kalxjs/router';
 import Home from '../pages/Home.js';
 import About from '../pages/About.js';
 import NotFound from '../pages/NotFound.js';
@@ -558,8 +558,7 @@ function handleRouteError(err, route) {
 
 export function createRouter() {
   const router = createKalRouter({
-    history: 'hash', // Use hash history instead of createHistory()
-    mode: 'hash', // Fallback mode for compatibility
+    history: createWebHistory(),
     base: '/', // Base URL for all routes
     routes: [
       {

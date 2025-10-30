@@ -1,0 +1,38 @@
+{
+  "name": "core-test",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite",
+    "start": "node start.js",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix"
+  },
+  "dependencies": {
+    "@kalxjs/core": "file:../KALXJS-FRAMEWORK/packages/core",
+    "@kalxjs/cli": "file:../KALXJS-FRAMEWORK/packages/cli",
+    "@kalxjs/router": "file:../KALXJS-FRAMEWORK/packages/router",
+    "@kalxjs/store": "file:../KALXJS-FRAMEWORK/packages/store",
+    "@kalxjs/state": "file:../KALXJS-FRAMEWORK/packages/state",
+    "@kalxjs/ai": "file:../KALXJS-FRAMEWORK/packages/ai",
+    "@kalxjs/api": "file:../KALXJS-FRAMEWORK/packages/api",
+    "@kalxjs/performance": "file:../KALXJS-FRAMEWORK/packages/performance",
+    "@kalxjs/plugins": "file:../KALXJS-FRAMEWORK/packages/plugins",
+    "@kalxjs/composition": "file:../KALXJS-FRAMEWORK/packages/composition",
+    "@kalxjs/devtools": "file:../KALXJS-FRAMEWORK/packages/devtools",
+    "@kalxjs/compiler": "file:../KALXJS-FRAMEWORK/packages/compiler",
+    "@kalxjs/compiler-plugin": "file:../KALXJS-FRAMEWORK/packages/compiler-plugin",
+    "@kalxjs/utils": "file:../KALXJS-FRAMEWORK/packages/utils"
+  },
+  "devDependencies": {
+    "vite": "^4.3.9",
+    "sass": "^1.62.1",
+    "vitest": "^0.31.1",
+    "@testing-library/dom": "^9.3.0",
+    "eslint": "^8.41.0"
+  }
+}

@@ -128,7 +128,6 @@ export function createMemoryHistory(initialPath = '/') {
  */
 export function createRouter(options = {}) {
     const routes = options.routes || [];
-    let mode = options.mode || 'hash'; // Changed from const to let to allow reassignment
     const base = options.base || '';
     const scrollBehavior = options.scrollBehavior;
     const caseSensitive = options.caseSensitive || false;
@@ -136,8 +135,11 @@ export function createRouter(options = {}) {
     const parseQuery = options.parseQuery;
     const stringifyQuery = options.stringifyQuery;
 
-    // Set history based on mode
-    const history = options.history || (mode === 'hash' ? createWebHashHistory(base) : createWebHistory(base));
+    // Set history based on options
+    const history = options.history || createWebHashHistory(base);
+
+    // Derive mode from history object type or options.mode
+    const mode = options.mode || history.type || 'hash';
 
     // Map of route paths to route objects for quick lookup
     const routeMap = routes.reduce((map, route) => {
@@ -939,6 +941,10 @@ export function createRouter(options = {}) {
             let path;
             if (mode === 'hash') {
                 path = window.location.hash.slice(1) || '/';
+                // Normalize path to always start with / for consistent matching
+                if (path && !path.startsWith('/')) {
+                    path = '/' + path;
+                }
                 console.log('Current hash path:', path);
             } else {
                 path = window.location.pathname.slice(base.length) || '/';
@@ -1006,6 +1012,11 @@ export function createRouter(options = {}) {
          * @returns {Object} Matched route info
          */
         _matchRoute(path) {
+            // Normalize path to always start with / for consistent matching
+            if (path && !path.startsWith('/')) {
+                path = '/' + path;
+            }
+
             console.log('_matchRoute called with path:', path);
             console.log('Available routes:', this.routes.map(r => r.path));
 
@@ -1052,12 +1063,28 @@ export function createRouter(options = {}) {
             // Check nested routes first (most specific to least specific)
             console.log('Sorting routes for matching, routes count:', this.routes.length);
             const sortedRoutes = [...this.routes].sort((a, b) => {
+                // Sort catch-all/pathMatch routes LAST
+                const aIsPathMatch = a.path.includes(':pathMatch(') || a.path === '/:pathMatch(.*)*';
+                const bIsPathMatch = b.path.includes(':pathMatch(') || b.path === '/:pathMatch(.*)*';
+
+                if (aIsPathMatch && !bIsPathMatch) return 1;
+                if (!aIsPathMatch && bIsPathMatch) return -1;
+                if (aIsPathMatch && bIsPathMatch) return 0; // Both are pathMatch, keep order
+
                 // Sort by path segments count (more segments first)
                 const aSegments = a.path.split('/').filter(Boolean).length;
                 const bSegments = b.path.split('/').filter(Boolean).length;
 
                 if (aSegments !== bSegments) {
                     return bSegments - aSegments;
+                }
+
+                // If same number of segments, prioritize exact matches over dynamic
+                const aExact = !a.path.includes(':');
+                const bExact = !b.path.includes(':');
+
+                if (aExact !== bExact) {
+                    return aExact ? -1 : 1; // Exact matches first
                 }
 
                 // If same number of segments, prioritize dynamic routes less

@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import path from 'path';
 
 export default defineConfig({
+    appType: 'spa',
     root: './',
     publicDir: 'public',
     resolve: {
