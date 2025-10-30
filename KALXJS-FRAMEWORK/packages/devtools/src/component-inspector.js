@@ -75,7 +75,8 @@ export class ComponentInspector {
             serialized[key] = {
                 type: this.getValueType(value),
                 value: this.formatValue(value),
-                editable: this.isEditable(value)
+                editable: this.isEditable(value),
+                raw: value
             };
         }
 

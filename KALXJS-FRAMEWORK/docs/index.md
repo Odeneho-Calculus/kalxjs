@@ -46,6 +46,17 @@ app.mount('#app');
 - [Router API](./api/router.md)
 - [State API](./api/state.md)
 - [Composition API](./api/composition.md)
+- **[DevTools API](./devtools/README.md)** - Developer tools and debugging
+
+## Developer Tools
+
+- **[DevTools Documentation](./devtools/README.md)** - Complete DevTools guide
+  - [Quick Start](./devtools/QUICK_START.md) - Get started in 5 minutes
+  - [Installation Guide](./devtools/INSTALLATION.md) - Setup instructions
+  - [API Reference](./devtools/API.md) - Complete API specification
+  - [Usage Guide](./devtools/USAGE_GUIDE.md) - Practical patterns
+  - [Browser Extension](./devtools/BROWSER_EXTENSION.md) - Extension guide
+  - [Troubleshooting](./devtools/TROUBLESHOOTING.md) - Common issues
 
 ## Examples
 

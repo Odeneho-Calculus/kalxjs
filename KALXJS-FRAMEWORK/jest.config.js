@@ -13,12 +13,14 @@ export default {
         '@kalxjs/core/(.*)$': '<rootDir>/packages/core/src/$1',
         '@kalxjs/router/(.*)$': '<rootDir>/packages/router/src/$1',
         '@kalxjs/state/(.*)$': '<rootDir>/packages/state/src/$1',
-        
+        '@kalxjs/devtools/(.*)$': '<rootDir>/packages/devtools/src/$1',
+
 
         // Also add entries for direct module imports
         '@kalxjs/core': '<rootDir>/packages/core/src/index',
         '@kalxjs/router': '<rootDir>/packages/router/src/index',
-        '@kalxjs/state': '<rootDir>/packages/state/src/index'
+        '@kalxjs/state': '<rootDir>/packages/state/src/index',
+        '@kalxjs/devtools': '<rootDir>/packages/devtools/src/index'
     },
 
     // Configure test environment

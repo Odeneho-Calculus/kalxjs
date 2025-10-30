@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KALXJS DevTools Test App - Simple</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .counter {
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        #app {
+            min-height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <h1>KALXJS DevTools Test App</h1>
+        <div class="counter">
+            <p>Count: <span id="count">0</span></p>
+            <button id="increment">Increment</button>
+            <button id="decrement">Decrement</button>
+        </div>
+    </div>
+
+    <script>
+        // Simple KALXJS-like component for testing
+        window.__KALXJS__ = {
+            version: '2.2.8',
+            ready: true,
+            components: new Map(),
+            hooks: new Map(),
+            state: new Map()
+        };
+
+        // Simulate a basic component
+        class Counter {
+            constructor() {
+                this.state = { count: 0 };
+                this.id = 'counter-1';
+                this.name = 'Counter';
+                window.__KALXJS__.components.set(this.id, this);
+            }
+
+            render() {
+                document.getElementById('count').textContent = this.state.count;
+            }
+
+            increment() {
+                this.state.count++;
+                this.render();
+                window.dispatchEvent(new CustomEvent('kalxjs:stateChange', {
+                    detail: { componentId: this.id, state: this.state }
+                }));
+            }
+
+            decrement() {
+                this.state.count--;
+                this.render();
+                window.dispatchEvent(new CustomEvent('kalxjs:stateChange', {
+                    detail: { componentId: this.id, state: this.state }
+                }));
+            }
+        }
+
+        const counter = new Counter();
+        counter.render();
+
+        document.getElementById('increment').addEventListener('click', () => counter.increment());
+        document.getElementById('decrement').addEventListener('click', () => counter.decrement());
+
+        // Signal to DevTools that framework is ready
+        window.dispatchEvent(new CustomEvent('kalxjs:init', {
+            detail: { version: '2.2.8', framework: 'KALXJS' }
+        }));
+    </script>
+</body>
+
+</html>

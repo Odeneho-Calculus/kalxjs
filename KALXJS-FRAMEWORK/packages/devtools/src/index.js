@@ -24,6 +24,11 @@ export {
     createProfiler
 } from './performance-profiler.js';
 
+// Import for use in createDevTools
+import { initDevTools } from './devtools-api.js';
+import { createInspector } from './component-inspector.js';
+import { createProfiler } from './performance-profiler.js';
+
 /**
  * Initialize all devtools features
  *

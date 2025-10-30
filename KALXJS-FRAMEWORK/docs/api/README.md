@@ -52,6 +52,14 @@ Core runtime features:
   - Script setup syntax
   - Style scoping
 
+## Developer Tools
+
+- [DevTools API](../devtools/API.md) - Complete DevTools specification
+  - Component inspection and state editing
+  - Performance profiling and analysis
+  - Event system and lifecycle monitoring
+  - Browser extension integration
+
 ## Advanced Features
 
 ### AI Integration
@@ -81,3 +89,16 @@ Core runtime features:
 ## TypeScript Support
 
 kalxjs includes TypeScript type definitions for all APIs. See the [TypeScript Support Guide](../guides/typescript.md) for details on using TypeScript with kalxjs.
+
+## Debugging & Developer Experience
+
+### DevTools Integration
+
+The official DevTools package provides:
+- **Component Inspection** - Visual component tree and state debugging
+- **Performance Profiling** - Render time analysis and optimization
+- **Event Monitoring** - Track component lifecycle events
+- **Browser Extension** - Chrome DevTools integration
+- **State Editing** - Real-time state modifications during development
+
+See the [DevTools Documentation](../devtools/README.md) for complete information.

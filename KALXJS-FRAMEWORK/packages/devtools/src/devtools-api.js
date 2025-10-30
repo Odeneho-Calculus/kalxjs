@@ -60,7 +60,7 @@ export class DevToolsHook {
             appId,
             name: instance.$options?.name || 'Anonymous',
             type: instance.$options?.type || 'component',
-            parent: instance.$parent?._uid,
+            parent: instance.$parent?._uid || null,
             children: [],
             state: this.extractState(instance),
             props: instance.$props,
@@ -214,8 +214,8 @@ export class DevToolsHook {
      * Disconnect devtools
      */
     disconnect() {
-        this.connected = false;
         this.emit('devtools:disconnected', { timestamp: Date.now() });
+        this.connected = false;
     }
 
     /**
@@ -266,7 +266,7 @@ export function initDevTools() {
  */
 export function getDevToolsHook() {
     return typeof window !== 'undefined'
-        ? window.__KALXJS_DEVTOOLS_HOOK__
+        ? (window.__KALXJS_DEVTOOLS_HOOK__ || null)
         : null;
 }
 
