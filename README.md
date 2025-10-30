@@ -96,24 +96,6 @@ npm run dev
 ### Tutorials (4 step-by-step tutorials)
 - Getting Started, Component Lifecycle, Reactivity Deep Dive, Building a Todo App
 
-## 🛠️ Development Scripts
-
-From the root directory:
-
-```bash
-# Create a new project
-node create-kalxjs-app.js my-app
-
-# Start an existing project
-node start-kalxjs.js my-app
-
-# Fix/patch an existing project
-node framework-patch.js
-
-# Check syntax
-node check-syntax.js
-```
-
 ## 🔗 Building & Working with the Framework
 
 ```bash
