@@ -1027,9 +1027,6 @@ hook.connect(); // Manually connect if needed
 
 MIT © [KalxJS Team](https://github.com/Odeneho-Calculus/kalxjs)
 
-## Contributing
-
-Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## Support
 
