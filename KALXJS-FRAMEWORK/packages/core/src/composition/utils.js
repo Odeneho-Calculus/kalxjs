@@ -78,15 +78,48 @@ export function writableComputed(options) {
 }
 
 /**
+ * Internal utility to safely test localStorage availability
+ * @private
+ * @returns {boolean} Whether localStorage is safely accessible
+ */
+function isLocalStorageAccessible() {
+    if (typeof window === 'undefined' || !window.localStorage) {
+        return false;
+    }
+
+    try {
+        // Test if localStorage is actually accessible by attempting a write/read/delete cycle
+        const testKey = '__localStorage_access_test__';
+        window.localStorage.setItem(testKey, 'test');
+        window.localStorage.removeItem(testKey);
+        return true;
+    } catch (error) {
+        // Catches DOMException and other security-related errors
+        if (error instanceof DOMException || error.name === 'DOMException') {
+            console.debug('localStorage access blocked by security policy:', error.message);
+        } else {
+            console.debug('localStorage is not accessible:', error);
+        }
+        return false;
+    }
+}
+
+/**
  * Creates a reactive reference that is synchronized with localStorage
+ * Gracefully handles insecure contexts where localStorage is not available
  * @param {string} key - localStorage key
  * @param {any} defaultValue - Default value if key doesn't exist
- * @returns {Object} Reactive reference
+ * @returns {Object} Reactive reference (works even if localStorage is unavailable)
  */
 export function useLocalStorage(key, defaultValue) {
+    // Check if localStorage is accessible at setup time
+    const storageAccessible = isLocalStorageAccessible();
+
     // Get initial value from localStorage or use default
     const initialValue = (() => {
-        if (typeof window === 'undefined') return defaultValue;
+        if (!storageAccessible) {
+            return defaultValue;
+        }
 
         try {
             const item = window.localStorage.getItem(key);
@@ -100,13 +133,19 @@ export function useLocalStorage(key, defaultValue) {
     // Create a ref with the initial value
     const valueRef = ref(initialValue);
 
-    // Watch for changes and update localStorage
-    if (typeof window !== 'undefined') {
+    // Watch for changes and update localStorage (only if accessible)
+    if (storageAccessible) {
         effect(() => {
             try {
                 window.localStorage.setItem(key, JSON.stringify(valueRef.value));
             } catch (error) {
-                console.warn(`Error setting localStorage key "${key}":`, error);
+                // Handle both DOMException and other errors gracefully
+                if (error instanceof DOMException || error.name === 'DOMException') {
+                    console.debug(`localStorage access blocked for key "${key}":`, error.message);
+                } else {
+                    console.warn(`Error setting localStorage key "${key}":`, error);
+                }
+                // Continue without storage - reactive updates still work in memory
             }
         });
     }

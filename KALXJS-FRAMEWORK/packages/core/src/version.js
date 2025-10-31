@@ -5,7 +5,7 @@
  */
 
 // Export the current version of the core package
-export const version = '2.2.1';
+export const version = '2.2.22';
 
 /**
  * Get version information for a KALXJS package
@@ -16,7 +16,7 @@ export async function getPackageVersion(packageName) {
     try {
         // Try to dynamically import the package to get its version
         try {
-            const module = await import(packageName);
+            const module = await import(/* @vite-ignore */ packageName);
             if (module.version) {
                 return module.version;
             }

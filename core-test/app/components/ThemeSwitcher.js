@@ -1,11 +1,50 @@
 import { h, defineComponent } from '@kalxjs/core';
 
+/**
+ * Safe localStorage utility to handle insecure context errors
+ * @param {string} operation - 'get' or 'set'
+ * @param {string} key - localStorage key
+ * @param {any} value - value to set (only for 'set' operation)
+ * @returns {any} Retrieved value or null on error
+ */
+function safeLocalStorage(operation, key, value = null) {
+  try {
+    // Check if localStorage is available and accessible
+    if (typeof window === 'undefined' || !window.localStorage) {
+      console.debug('localStorage is not available in this context');
+      return null;
+    }
+
+    // Test if localStorage is actually accessible
+    const testKey = '__localStorage_test__';
+    window.localStorage.setItem(testKey, 'test');
+    window.localStorage.removeItem(testKey);
+
+    // Perform the actual operation
+    if (operation === 'get') {
+      return window.localStorage.getItem(key);
+    } else if (operation === 'set') {
+      window.localStorage.setItem(key, value);
+      return true;
+    }
+  } catch (error) {
+    // Handle DOMException and other storage-related errors gracefully
+    if (error instanceof DOMException || error.name === 'DOMException') {
+      console.debug(`localStorage operation "${operation}" failed due to security restrictions:`, error.message);
+    } else {
+      console.debug(`localStorage operation "${operation}" failed:`, error);
+    }
+    return null;
+  }
+}
+
 export default defineComponent({
   name: 'ThemeSwitcher',
 
   data() {
     return {
       isDarkTheme: true, // Set default to true for dark theme
+      storageAvailable: true // Track if localStorage is available
     };
   },
 
@@ -13,7 +52,7 @@ export default defineComponent({
     console.log('ThemeSwitcher mounting...');
 
     // Check if user has a theme preference stored
-    const storedTheme = localStorage.getItem('theme');
+    const storedTheme = safeLocalStorage('get', 'theme');
     if (storedTheme) {
       console.log('Found stored theme preference:', storedTheme);
       this.isDarkTheme = storedTheme === 'dark';
@@ -21,14 +60,15 @@ export default defineComponent({
       // Set dark theme as default
       console.log('No stored theme, setting dark theme as default.');
       this.isDarkTheme = true;
-      localStorage.setItem('theme', 'dark');
+      const saved = safeLocalStorage('set', 'theme', 'dark');
+      this.storageAvailable = saved !== null;
     }
 
     // Apply theme immediately
     this.applyTheme();
     this.$update();
 
-    console.log('ThemeSwitcher mounted, dark theme:', this.isDarkTheme);
+    console.log('ThemeSwitcher mounted, dark theme:', this.isDarkTheme, 'Storage available:', this.storageAvailable);
   },
 
   methods: {
@@ -38,12 +78,12 @@ export default defineComponent({
 
       if (this.isDarkTheme) {
         document.documentElement.classList.add('dark-theme');
-        localStorage.setItem('theme', 'dark');
+        safeLocalStorage('set', 'theme', 'dark');
         document.body.style.backgroundColor = '#121212';
         document.body.style.color = '#ffffff';
       } else {
         document.documentElement.classList.remove('dark-theme');
-        localStorage.setItem('theme', 'light');
+        safeLocalStorage('set', 'theme', 'light');
         document.body.style.backgroundColor = '#ffffff';
         document.body.style.color = '#333333';
       }

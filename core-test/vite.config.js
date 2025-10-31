@@ -9,7 +9,8 @@ export default defineConfig({
       '@core': path.resolve(__dirname, './app/core'),
       '@components': path.resolve(__dirname, './app/components'),
       '@assets': path.resolve(__dirname, './app/assets'),
-      '@config': path.resolve(__dirname, './config')
+      '@config': path.resolve(__dirname, './config'),
+      '@kalxjs/core': path.resolve(__dirname, '../KALXJS-FRAMEWORK/packages/core/dist/browser.esm.js')
     }
   },
   server: {

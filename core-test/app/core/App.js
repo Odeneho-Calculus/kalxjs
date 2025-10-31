@@ -1,56 +1,67 @@
-import { h, defineComponent, onMounted, ref } from '@kalxjs/core';
-    // Import the app styles
-    import '../styles/app.scss';
-    // Import ThemeSwitcher component
-    import ThemeSwitcher from '../components/ThemeSwitcher.js';
+import { h, defineComponent } from '@kalxjs/core';
+import { RouterView } from '@kalxjs/router';
+// Import the app styles
+import '../styles/app.scss';
+// Import ThemeSwitcher component
+import ThemeSwitcher from '../components/ThemeSwitcher.js';
 
-    export default defineComponent({
-      name: 'App',
+export default defineComponent({
+  name: 'App',
 
-      // Component setup with composition API
-      setup() {
-        console.log('App component setup called');
+  components: {
+    RouterView
+  },
 
-        // Active route tracking for navigation highlighting
-        const activeRoute = ref('/');
-
-        // Function to navigate programmatically
-        const navigateTo = (path) => {
-          console.log(`Navigating to: ${path}`);
-      activeRoute.value = path;
-
-      if (window.router) {
-        window.router.push(path);
-      } else {
-        console.warn('Router not available');
-        window.location.hash = path;
-      }
-    };
-
-    // Lifecycle hooks
-    onMounted(() => {
-      console.log('App component mounted');
-
-      // Make sure the router view container is available
-      const routerViewContainer = document.getElementById('router-view');
-      if (routerViewContainer && window.router) {
-        console.log('Router view container found, initializing router view');
-
-        // Force an initial navigation to the current route
-        const currentPath = window.location.hash.slice(1) || '/';
-        activeRoute.value = currentPath;
-        window.router.push(currentPath);
-      }
-    });
-
+  data() {
     return {
-      navigateTo,
-      activeRoute
+      activeRoute: '/'
     };
   },
 
-  // Add render function to ensure it works properly
+  mounted() {
+    console.log('App component mounted');
+
+    // Get initial route
+    let currentPath = '/';
+    if (window.router) {
+      if (window.router.mode === 'hash') {
+        currentPath = window.location.hash.slice(1) || '/';
+      } else {
+        currentPath = window.location.pathname || '/';
+      }
+      this.activeRoute = currentPath;
+
+      // Listen to route changes
+      if (window.router.afterEach) {
+        window.router.afterEach((to, from) => {
+          console.log('Route changed from', from?.path, 'to', to.path);
+          this.activeRoute = to.path || '/';
+          this.$update();
+        });
+      }
+    }
+  },
+
+  methods: {
+    navigateTo(path) {
+      // Ensure path is not empty
+      const targetPath = path || '/';
+      console.log(`Navigating to: ${targetPath}`);
+      this.activeRoute = targetPath;
+
+      if (window.router) {
+        window.router.push(targetPath).catch(err => {
+          console.error('Navigation failed:', err);
+        });
+      } else {
+        console.warn('Router not available');
+      }
+    }
+  },
+
   render() {
+    console.log('App render called, activeRoute:', this.activeRoute);
+
     return h('div', {
       class: 'app'
     }, [
@@ -100,42 +111,45 @@ import { h, defineComponent, onMounted, ref } from '@kalxjs/core';
 
       // Main content area
       h('main', { class: 'app-main' }, [
-        // Welcome banner
-        h('section', { class: 'welcome-banner' }, [
-          h('h1', { class: 'welcome-title' }, ['Welcome to KalxJS']),
-          h('p', { class: 'welcome-subtitle' }, ['A modern JavaScript framework for building powerful applications']),
-          h('div', { class: 'action-buttons' }, [
-            h('button', {
-              class: 'btn btn-primary',
-              onClick: () => window.open('https://github.com/Odeneho-Calculus/kalxjs', '_blank')
-            }, ['GitHub']),
-            h('button', {
-              class: 'btn btn-secondary',
-              onClick: () => this.navigateTo('/features')
-            }, ['Explore Features'])
-          ])
-        ]),
+        // Conditionally render welcome banner and features section only on home route
+        ...(this.activeRoute === '/' ? [
+          // Welcome banner (home page only)
+          h('section', { class: 'welcome-banner' }, [
+            h('h1', { class: 'welcome-title' }, ['Welcome to KalxJS']),
+            h('p', { class: 'welcome-subtitle' }, ['A modern JavaScript framework for building powerful applications']),
+            h('div', { class: 'action-buttons' }, [
+              h('button', {
+                class: 'btn btn-primary',
+                onClick: () => window.open('https://github.com/Odeneho-Calculus/kalxjs', '_blank')
+              }, ['GitHub']),
+              h('button', {
+                class: 'btn btn-secondary',
+                onClick: () => this.navigateTo('/features')
+              }, ['Explore Features'])
+            ])
+          ]),
 
-        // Feature information section
-        h('section', { class: 'features-section' }, [
-          h('h2', null, ['Enabled Features']),
-          h('ul', { class: 'features-list' }, [
-            h('li', { class: 'feature-item router' }, ['✓ Router']),
-            h('li', { class: 'feature-item state' }, ['✓ State Management']),
-            h('li', { class: 'feature-item scss' }, ['✓ SCSS Support']),
-            h('li', { class: 'feature-item sfc' }, ['✓ Single File Components']),
-            h('li', { class: 'feature-item api' }, ['✓ API Integration']),
-            h('li', { class: 'feature-item composition' }, ['✓ Composition API']),
-            h('li', { class: 'feature-item performance' }, ['✓ Performance Utilities']),
-            h('li', { class: 'feature-item plugins' }, ['✓ Plugin System']),
-            h('li', { class: 'feature-item testing' }, ['✓ Testing']),
-            h('li', { class: 'feature-item linting' }, ['✓ Linting']),
+          // Feature information section (home page only)
+          h('section', { class: 'features-section' }, [
+            h('h2', null, ['Enabled Features']),
+            h('ul', { class: 'features-list' }, [
+              h('li', { class: 'feature-item router' }, ['✓ Router']),
+              h('li', { class: 'feature-item state' }, ['✓ State Management']),
+              h('li', { class: 'feature-item scss' }, ['✓ SCSS Support']),
+              h('li', { class: 'feature-item sfc' }, ['✓ Single File Components']),
+              h('li', { class: 'feature-item api' }, ['✓ API Integration']),
+              h('li', { class: 'feature-item composition' }, ['✓ Composition API']),
+              h('li', { class: 'feature-item performance' }, ['✓ Performance Utilities']),
+              h('li', { class: 'feature-item plugins' }, ['✓ Plugin System']),
+              h('li', { class: 'feature-item testing' }, ['✓ Testing']),
+              h('li', { class: 'feature-item linting' }, ['✓ Linting']),
+            ])
           ])
-        ]),
+        ] : []),
 
-        // Router view container
-        h('section', { class: 'router-view-container' }, [
-          h('div', { id: 'router-view' })
+        // Router view container (always visible)
+        h('section', { id: 'router-view', class: 'router-view-container' }, [
+          h(RouterView)
         ])
       ]),
 

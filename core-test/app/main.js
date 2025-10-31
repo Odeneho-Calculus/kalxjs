@@ -228,16 +228,7 @@ try {
       app.mount('#app');
       console.log('🎉 KALXJS application successfully mounted');
 
-      // Initialize router view if needed
-      if (true && window.router) {
-        const routerViewElement = document.getElementById('router-view');
-        if (routerViewElement) {
-          console.log('Router view container found');
-          // Force initial navigation using pathname (clean URL support)
-          const currentPath = window.location.pathname || '/';
-          window.router.push(currentPath);
-        }
-      }
+      // Router initialization is handled by RouterView component, no manual initialization needed
     } catch (err) {
       handleError(err, 'Mount');
     }

@@ -12,20 +12,61 @@ import { createElement } from '@kalxjs/core';
  * @returns {Object} History object
  */
 export function createWebHistory(base = '') {
+    let currentLocation = typeof window !== 'undefined' ? window.location.pathname : '/';
+    let currentState = typeof window !== 'undefined' ? window.history.state : null;
+
+    const updateLocationState = () => {
+        if (typeof window === 'undefined') {
+            return;
+        }
+        currentLocation = window.location.pathname;
+        currentState = window.history.state;
+    };
+
+    const handleHistoryFailure = (url, replace) => {
+        if (!isFileProtocol()) {
+            return false;
+        }
+        console.warn('KalxJS router history mode requires serving over HTTP(S). Falling back to hash navigation in file:// environments.');
+        navigateWithHash(url, replace);
+        updateLocationState();
+        return true;
+    };
+
     return {
         type: 'history',
         base,
-        location: typeof window !== 'undefined' ? window.location.pathname : '/',
-        state: typeof window !== 'undefined' ? window.history.state : null,
+        get location() {
+            return currentLocation;
+        },
+        get state() {
+            return currentState;
+        },
         push: (url, replace = false) => {
-            if (typeof window !== 'undefined') {
-                const method = replace ? 'replaceState' : 'pushState';
+            if (typeof window === 'undefined') {
+                return;
+            }
+            const method = replace ? 'replaceState' : 'pushState';
+            try {
                 window.history[method](null, '', url);
+                updateLocationState();
+            } catch (error) {
+                if (!handleHistoryFailure(url, replace)) {
+                    throw error;
+                }
             }
         },
         replace: (url) => {
-            if (typeof window !== 'undefined') {
+            if (typeof window === 'undefined') {
+                return;
+            }
+            try {
                 window.history.replaceState(null, '', url);
+                updateLocationState();
+            } catch (error) {
+                if (!handleHistoryFailure(url, true)) {
+                    throw error;
+                }
             }
         },
         listen: (callback) => {
@@ -41,6 +82,28 @@ export function createWebHistory(base = '') {
             return () => { };
         }
     };
+}
+
+function isFileProtocol() {
+    if (typeof window === 'undefined') {
+        return false;
+    }
+    return window.location.protocol === 'file:';
+}
+
+function navigateWithHash(url, replace = false) {
+    if (typeof window === 'undefined') {
+        return;
+    }
+    const normalized = url.startsWith('#') ? url.slice(1) : url;
+    if (replace) {
+        const href = window.location.href;
+        const index = href.indexOf('#');
+        const baseHref = index >= 0 ? href.slice(0, index) : href;
+        window.location.replace(baseHref + '#' + normalized);
+    } else {
+        window.location.hash = normalized;
+    }
 }
 
 /**
@@ -136,10 +199,47 @@ export function createRouter(options = {}) {
     const stringifyQuery = options.stringifyQuery;
 
     // Set history based on options
-    const history = options.history || createWebHashHistory(base);
+    let history = options.history || createWebHashHistory(base);
 
     // Derive mode from history object type or options.mode
-    const mode = options.mode || history.type || 'hash';
+    let mode = options.mode || history.type || 'hash';
+
+    if (typeof window !== 'undefined' && window.location.protocol === 'file:' && mode === 'history') {
+        console.warn('KalxJS router history mode requires an HTTP(S) origin. Switching to hash mode because the app is running from file://.');
+        history = createWebHashHistory(base);
+        mode = 'hash';
+    }
+
+    // Test if History API is available and not blocked by security policy
+    // This prevents falling back to hash mode during navigation, which can corrupt URLs
+    if (typeof window !== 'undefined' && mode === 'history') {
+        try {
+            // Test if we can use history.pushState with a different URL
+            // This is more reliable than replaceState with the same URL
+            const testUrl = window.location.href;
+            const testPath = base + '/test-history-api';
+            window.history.pushState(null, '', testPath);
+            // If successful, restore the original URL
+            window.history.replaceState(null, '', testUrl);
+        } catch (error) {
+            if (error.name === 'SecurityError' || error.message.includes('insecure')) {
+                console.warn('History API is blocked by security policy. Switching to hash mode:', error.message);
+                history = createWebHashHistory(base);
+                mode = 'hash';
+
+                // If we're at a non-root path like /about, redirect to hash mode URL
+                // e.g., /about -> /#/about
+                const currentPath = window.location.pathname.slice(base.length);
+                if (currentPath && currentPath !== '/') {
+                    // Redirect to hash mode URL
+                    const hashUrl = window.location.origin + base + '#' + currentPath;
+                    window.location.replace(hashUrl);
+                }
+            } else {
+                throw error;
+            }
+        }
+    }
 
     // Map of route paths to route objects for quick lookup
     const routeMap = routes.reduce((map, route) => {
@@ -456,22 +556,45 @@ export function createRouter(options = {}) {
                             return;
                         }
 
-                        // Perform the actual navigation
-                        if (navigationMethod === 'replace') {
-                            if (mode === 'hash') {
-                                const href = window.location.href;
-                                const i = href.indexOf('#');
-                                window.location.replace(href.slice(0, i >= 0 ? i : 0) + '#' + path);
+                        // Perform the actual navigation with proper error handling
+                        try {
+                            if (navigationMethod === 'replace') {
+                                if (mode === 'hash') {
+                                    const href = window.location.href;
+                                    const i = href.indexOf('#');
+                                    window.location.replace(href.slice(0, i >= 0 ? i : 0) + '#' + path);
+                                } else {
+                                    window.history.replaceState({ path }, '', base + path);
+                                    this._onRouteChange();
+                                }
                             } else {
-                                window.history.replaceState({ path }, '', base + path);
-                                this._onRouteChange();
+                                if (mode === 'hash') {
+                                    window.location.hash = path;
+                                } else {
+                                    window.history.pushState({ path }, '', base + path);
+                                    this._onRouteChange();
+                                }
                             }
-                        } else {
-                            if (mode === 'hash') {
-                                window.location.hash = path;
-                            } else {
-                                window.history.pushState({ path }, '', base + path);
+                        } catch (error) {
+                            // Handle SecurityError: The operation is insecure
+                            // This can occur in sandboxed contexts, cross-origin situations, or certain browser policies
+                            // Note: SecurityError is not constructable, so we check error.name instead
+                            if (error.name === 'SecurityError' || error.message.includes('insecure')) {
+                                console.warn('History API operation blocked by security policy. Falling back to hash mode for navigation:', error.message);
+                                // Fallback to hash-based navigation
+                                if (navigationMethod === 'replace') {
+                                    const href = window.location.href;
+                                    const i = href.indexOf('#');
+                                    window.location.replace(href.slice(0, i >= 0 ? i : 0) + '#' + path);
+                                } else {
+                                    window.location.hash = path;
+                                }
                                 this._onRouteChange();
+                            } else {
+                                // For unexpected errors, reject the promise with the error
+                                reject(error);
+                                pendingNavigation = null;
+                                return;
                             }
                         }
 
@@ -838,15 +961,27 @@ export function createRouter(options = {}) {
                     });
                 });
 
-                // Handle initial state
-                if (!window.history.state) {
-                    window.history.replaceState(
-                        { position: this._historyState.position },
-                        '',
-                        window.location.href
-                    );
-                } else if (window.history.state.position) {
-                    this._historyState.position = window.history.state.position;
+                // Handle initial state with proper error handling for SecurityError
+                try {
+                    if (!window.history.state) {
+                        window.history.replaceState(
+                            { position: this._historyState.position },
+                            '',
+                            window.location.href
+                        );
+                    } else if (window.history.state.position) {
+                        this._historyState.position = window.history.state.position;
+                    }
+                } catch (error) {
+                    // Handle SecurityError: The operation is insecure
+                    // This can happen in certain browser contexts (sandboxed, cross-origin, etc.)
+                    // Note: SecurityError is not constructable, so we check error.name instead
+                    if (error.name === 'SecurityError' || error.message.includes('insecure')) {
+                        console.warn('History API is blocked by security policy. Routing will continue without state management:', error.message);
+                    } else {
+                        console.error('Error initializing history state:', error);
+                    }
+                    // Continue without setting initial state - routing will still work
                 }
             }
 
@@ -1621,9 +1756,14 @@ export function createRouter(options = {}) {
                     // Scroll to hash element if present
                     if (route.hash && route.hash.length > 1) {
                         try {
-                            const element = document.querySelector(route.hash);
-                            if (element) {
-                                element.scrollIntoView({ behavior: 'smooth' });
+                            // Properly escape the hash selector - remove # and escape special characters
+                            const selector = route.hash.startsWith('#') ? route.hash.slice(1) : route.hash;
+                            // Only try to scroll if the selector is a valid ID (no slashes or other invalid characters)
+                            if (/^[a-zA-Z0-9_-]+$/.test(selector)) {
+                                const element = document.querySelector('#' + selector);
+                                if (element) {
+                                    element.scrollIntoView({ behavior: 'smooth' });
+                                }
                             }
                         } catch (error) {
                             console.warn('Failed to scroll to hash element:', error);
@@ -1678,9 +1818,14 @@ export function createRouter(options = {}) {
                     } else if (route.hash && route.hash.length > 1) {
                         // Default hash scrolling behavior
                         try {
-                            const element = document.querySelector(route.hash);
-                            if (element) {
-                                element.scrollIntoView({ behavior: 'smooth' });
+                            // Properly escape the hash selector - remove # and escape special characters
+                            const selector = route.hash.startsWith('#') ? route.hash.slice(1) : route.hash;
+                            // Only try to scroll if the selector is a valid ID (no slashes or other invalid characters)
+                            if (/^[a-zA-Z0-9_-]+$/.test(selector)) {
+                                const element = document.querySelector('#' + selector);
+                                if (element) {
+                                    element.scrollIntoView({ behavior: 'smooth' });
+                                }
                             }
                         } catch (error) {
                             console.warn('Failed to scroll to hash element:', error);

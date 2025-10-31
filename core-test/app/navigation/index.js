@@ -1,6 +1,7 @@
 import { createRouter as createKalRouter, createWebHistory } from '@kalxjs/router';
 import Home from '../pages/Home.js';
 import About from '../pages/About.js';
+import Features from '../pages/Features.js';
 import NotFound from '../pages/NotFound.js';
 import { h, createApp } from '@kalxjs/core';
 
@@ -25,8 +26,8 @@ function handleRouteError(err, route) {
 
 export function createRouter() {
   const router = createKalRouter({
-    history: createWebHistory(), // Use HTML5 History API for clean URLs
-    base: '/', // Base URL for all routes
+    history: createWebHistory(),
+    base: '/',
     routes: [
       {
         path: '/',
@@ -37,6 +38,11 @@ export function createRouter() {
         path: '/about',
         component: About,
         name: 'about'
+      },
+      {
+        path: '/features',
+        component: Features,
+        name: 'features'
       },
       {
         path: '/:pathMatch(.*)*',
@@ -52,49 +58,38 @@ export function createRouter() {
     return router;
   };
 
-  // Custom rendering logic for router views
+  // RouterView component handles rendering, so we just log for debugging
   router.afterEach((to, from) => {
     console.log(`Router navigation complete: ${from.path} -> ${to.path}`);
-
-    // Get the matched component
-    const matchedRoute = to.matched[0];
-    if (!matchedRoute) {
-      console.error('No matching route found');
-      return;
-    }
-
-    const component = matchedRoute.component;
-    if (!component) {
-      console.error('No component defined for route');
-      return;
-    }
-
-    // Get the router view container
-    const routerViewContainer = document.getElementById('router-view');
-    if (!routerViewContainer) {
-      console.error('Router view container not found');
-      return;
-    }
-
-    // Clear the container
-    routerViewContainer.innerHTML = '';
-
-    // Render the component
-    try {
-      console.log('Rendering component:', component.name || 'Unnamed Component');
-
-      // Create a new app instance with the component
-      const app = createApp(component);
-
-      // Mount it to the container
-      app.mount(routerViewContainer);
-
-      console.log('Component rendered successfully');
-    } catch (error) {
-      console.error('Error rendering component:', error);
-      routerViewContainer.innerHTML = `<div class="error">Error rendering view: ${error.message}</div>`;
-    }
   });
+
+  // Get the current path from the URL and match it immediately
+  // This ensures router.currentRoute has matched routes before RouterView renders
+  const getCurrentPath = () => {
+    if (typeof window === 'undefined') return '/';
+
+    if (router.mode === 'hash') {
+      const hashValue = window.location.hash.slice(1);
+      const fragmentIndex = hashValue.indexOf('#');
+      if (fragmentIndex !== -1) {
+        return hashValue.slice(0, fragmentIndex).split('?')[0];
+      }
+      return hashValue.split('?')[0] || '/';
+    } else {
+      const base = router.base || '';
+      return window.location.pathname.slice(base.length) || '/';
+    }
+  };
+
+  // Manually match and set the current route immediately
+  const currentPath = getCurrentPath();
+  console.log('Router creation: Current path is', currentPath);
+
+  // Match the path and update currentRoute
+  if (router._matchRoute && typeof router._matchRoute === 'function') {
+    router.currentRoute = router._matchRoute(currentPath);
+    console.log('Router creation: Initial currentRoute.matched:', router.currentRoute.matched?.length || 0);
+  }
 
   return router;
 }

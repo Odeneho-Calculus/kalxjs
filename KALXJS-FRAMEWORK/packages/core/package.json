@@ -33,11 +33,10 @@
   "browser": "dist/browser.esm.js",
   "exports": {
     ".": {
-      "import": {
-        "browser": "./dist/browser.esm.js",
-        "default": "./dist/kalxjs.esm.js"
-      },
-      "require": "./dist/kalxjs.umd.js"
+      "browser": "./dist/browser.esm.js",
+      "import": "./dist/browser.esm.js",
+      "require": "./dist/kalxjs.umd.js",
+      "default": "./dist/browser.esm.js"
     },
     "./composition": {
       "import": "./dist/composition.esm.js",
