@@ -4,6 +4,39 @@ import { processSetup } from './setup.js';
 import { createDefaultAppComponent } from './default-app.js';
 
 /**
+ * Queue for batching component updates via render effects
+ * This prevents multiple updates in the same tick
+ * This is how Vue batches updates - multiple reactive changes in the same
+ * event cycle only cause one DOM update
+ */
+let updateQueue = [];
+let isFlushingQueue = false;
+
+function queueUpdate(instance) {
+    if (updateQueue.indexOf(instance) === -1) {
+        updateQueue.push(instance);
+    }
+    flushUpdateQueue();
+}
+
+function flushUpdateQueue() {
+    if (isFlushingQueue) return;
+    isFlushingQueue = true;
+
+    Promise.resolve().then(() => {
+        const queue = updateQueue.slice();
+        updateQueue = [];
+        queue.forEach(instance => {
+            if (instance.$isMounted && instance._renderEffect) {
+                // Re-run the render effect to track new deps and update DOM
+                instance._renderEffect();
+            }
+        });
+        isFlushingQueue = false;
+    });
+}
+
+/**
  * Helper function to create DOM elements from virtual DOM
  */
 function createDOMElement(vnode) {
@@ -292,6 +325,50 @@ function createComponent(options, parent = null, appContext = null) {
         // Set mounted flag before calling mounted hooks
         this.$isMounted = true;
 
+        // ===== CRITICAL: Setup Render Effect =====
+        // This is what Vue and React do internally - create a render effect that:
+        // 1. Tracks all reactive dependencies used in the render function
+        // 2. Automatically re-runs (via scheduler) when any of those dependencies change
+        // 3. This solves the external state update problem (like router onChange callbacks)
+        //
+        // Architecture:
+        // - The effect function calls render(), establishing dependencies on reactive values
+        // - When any dependency changes, the scheduler runs (not the effect function)
+        // - Scheduler queues an update using the existing $update mechanism
+        // - $update calls render() again within the effect context to track new deps
+        let isInitialMount = true;
+        instance._renderEffect = effect(() => {
+            // Call render to establish tracking of reactive dependencies
+            // This registers which reactive values the component depends on
+            const vnode = instance.render();
+
+            // Only update DOM if we're past the initial mount (which already rendered)
+            if (!isInitialMount && instance.$el && instance.$isMounted) {
+                // Perform the DOM update
+                instance.$el.innerHTML = '';
+                const newElement = createElement(vnode);
+                instance.$el.appendChild(newElement);
+                instance._vnode = vnode;
+
+                // Call updated lifecycle hooks
+                if (options.updated) {
+                    options.updated.call(instance);
+                }
+                if (instance.updated && Array.isArray(instance.updated)) {
+                    instance.updated.forEach(hook => hook());
+                }
+            }
+
+            isInitialMount = false;
+        }, {
+            scheduler: () => {
+                // When a reactive dependency changes, the scheduler runs instead of the effect
+                // Queue the update to batch with other updates from the same event cycle
+                // This is similar to Vue's async update scheduling
+                queueUpdate(instance);
+            }
+        });
+
         // Call mounted hooks
         if (options.mounted) {
             options.mounted.call(instance);
@@ -374,6 +451,11 @@ function createComponent(options, parent = null, appContext = null) {
         // Call beforeUnmount hook
         if (options.beforeUnmount) {
             options.beforeUnmount.call(instance);
+        }
+
+        // Clean up render effect (stop tracking reactive changes)
+        if (instance._renderEffect) {
+            instance._renderEffect.active = false;
         }
 
         // Remove element from DOM

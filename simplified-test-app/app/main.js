@@ -1,6 +1,6 @@
 import { createApp } from '@kalxjs/core';
 import App from './core/App.js';
-import { createRouter } from './navigation';
+import { createRouter, useRouter } from './navigation';
 import { createStore } from './state';
 import { registerPlugins } from './extensions';
 // Import global styles
@@ -31,43 +31,43 @@ async function getPackageVersions() {
       try {
         // This works in development environments where node_modules is accessible
         const response = await fetch(`/node_modules/${packageName}/package.json`);
-  if (response.ok) {
-    const packageInfo = await response.json();
-    return packageInfo.version;
-  }
-} catch (fetchErr) {
-  console.debug(`Could not fetch package.json for ${packageName}: `, fetchErr);
-}
+        if (response.ok) {
+          const packageInfo = await response.json();
+          return packageInfo.version;
+        }
+      } catch (fetchErr) {
+        console.debug(`Could not fetch package.json for ${packageName}: `, fetchErr);
+      }
 
-// If all else fails, try to get from window.__KALXJS_VERSIONS__ if available
-if (window.__KALXJS_VERSIONS__ && window.__KALXJS_VERSIONS__[packageName]) {
-  return window.__KALXJS_VERSIONS__[packageName];
-}
+      // If all else fails, try to get from window.__KALXJS_VERSIONS__ if available
+      if (window.__KALXJS_VERSIONS__ && window.__KALXJS_VERSIONS__[packageName]) {
+        return window.__KALXJS_VERSIONS__[packageName];
+      }
 
-// Last resort: use a fallback version based on the package
-const fallbacks = {
-  '@kalxjs/core': '2.2.22',
-  '@kalxjs/router': '2.0.32',
-  '@kalxjs/state': '1.2.59',
-  '@kalxjs/utils': '1.0.8',
-  '@kalxjs/devtools': '1.2.32'
-};
+      // Last resort: use a fallback version based on the package
+      const fallbacks = {
+        '@kalxjs/core': '2.2.22',
+        '@kalxjs/router': '2.0.32',
+        '@kalxjs/state': '1.2.59',
+        '@kalxjs/utils': '1.0.8',
+        '@kalxjs/devtools': '1.2.32'
+      };
 
-return fallbacks[packageName] || '1.0.0';
+      return fallbacks[packageName] || '1.0.0';
     } catch (err) {
-  console.warn(`Error getting version for ${packageName}: `, err);
-  return '1.0.0';
-}
+      console.warn(`Error getting version for ${packageName}: `, err);
+      return '1.0.0';
+    }
   }
 
-// Get versions for all packages
-versions['@kalxjs/core'] = await getVersion('@kalxjs/core');
+  // Get versions for all packages
+  versions['@kalxjs/core'] = await getVersion('@kalxjs/core');
   versions['@kalxjs/router'] = await getVersion('@kalxjs/router');
   versions['@kalxjs/state'] = await getVersion('@kalxjs/state');
-versions['@kalxjs/utils'] = await getVersion('@kalxjs/utils');
-versions['@kalxjs/devtools'] = await getVersion('@kalxjs/devtools');
+  versions['@kalxjs/utils'] = await getVersion('@kalxjs/utils');
+  versions['@kalxjs/devtools'] = await getVersion('@kalxjs/devtools');
 
-return versions;
+  return versions;
 }
 
 // Initialize with fallback versions first
@@ -163,12 +163,15 @@ try {
     version: appConfig.version
   });
 
+  // Expose app globally (TEST PHASE 1 FIX)
+  window.app = app;
+
   // Register global error handler
   app.config.errorHandler = (err, instance, info) => {
     handleError(err, 'Component');
   };
 
-  
+
   // Initialize router
   const router = createRouter();
 
@@ -183,15 +186,23 @@ try {
 
   // Expose router globally for direct access
   window.router = router;
-  
 
-  
+  // Attach router to app instance (ISSUE 3 FIX)
+  app.router = router;
+
+  // Expose useRouter composable globally (ISSUE 4 FIX)
+  window.useRouter = useRouter;
+  window.__KAL_ROUTER_INSTANCE__ = router;
+  window.__KAL_APP__ = app;
+
+
+
   // Initialize store
   const store = createStore();
   app.use(store);
-  
 
-  
+
+
   // Register plugins
   try {
     registerPlugins(app);
@@ -199,7 +210,7 @@ try {
     console.warn('Plugin registration error:', err);
     // Continue without plugins
   }
-  
+
 
   // Enable development tools in development mode
   if (appConfig.env.development.debug) {
@@ -256,9 +267,9 @@ try {
   setTimeout(() => {
     const appElement = document.getElementById('app');
     if (appElement &&
-        (appElement.innerHTML.includes('<!--empty node-->') ||
-         (appElement.innerHTML.trim() === '') ||
-         (appElement.querySelector('.loading') && !appElement.querySelector('.loading').style.display === 'none'))) {
+      (appElement.innerHTML.includes('<!--empty node-->') ||
+        (appElement.innerHTML.trim() === '') ||
+        (appElement.querySelector('.loading') && !appElement.querySelector('.loading').style.display === 'none'))) {
       console.log('Fallback rendering activated');
 
       // Hide loading indicator if it exists

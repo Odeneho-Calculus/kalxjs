@@ -198,8 +198,15 @@ export function createRouter(options = {}) {
     const parseQuery = options.parseQuery;
     const stringifyQuery = options.stringifyQuery;
 
-    // Set history based on options
-    let history = options.history || createWebHashHistory(base);
+    // ISSUE 2 FIX: Support memory mode explicitly
+    let history = options.history;
+    if (!history) {
+        if (options.mode === 'memory') {
+            history = createMemoryHistory(options.initialPath || '/');
+        } else {
+            history = createWebHashHistory(base);
+        }
+    }
 
     // Derive mode from history object type or options.mode
     let mode = options.mode || history.type || 'hash';
@@ -241,8 +248,14 @@ export function createRouter(options = {}) {
         }
     }
 
+    // Normalize routes to ensure meta is always present
+    const normalizedRoutes = routes.map(route => ({
+        ...route,
+        meta: route.meta || {}  // Ensure meta is always an object, never null
+    }));
+
     // Map of route paths to route objects for quick lookup
-    const routeMap = routes.reduce((map, route) => {
+    const routeMap = normalizedRoutes.reduce((map, route) => {
         console.log('Registering route:', route.path);
         map[route.path] = route;
         return map;
@@ -251,15 +264,18 @@ export function createRouter(options = {}) {
     // Log all registered routes
     console.log('Registered routes:', Object.keys(routeMap));
 
-    // Current route
-    let currentRoute = {
+    // Current route - MAKE IT REACTIVE so KalxJS can properly track changes
+    const currentRouteRef = ref({
         path: '/',
         name: null,
         params: {},
         query: {},
         matched: [],
         meta: {}
-    };
+    });
+
+    // Expose both the ref and a getter for backward compatibility
+    let currentRoute = currentRouteRef.value;
 
     // Previous route for navigation guards
     let previousRoute = null;
@@ -291,10 +307,13 @@ export function createRouter(options = {}) {
     // Create the router object with direct references to all properties
     const router = {
         // Router properties
-        routes, // Direct reference to the routes array
+        routes: normalizedRoutes, // Direct reference to the normalized routes array with meta
         mode,
         base,
-        currentRoute,
+        get currentRoute() {
+            // Return the ref value, but ensure we're accessing it properly for KalxJS reactivity
+            return currentRouteRef.value;
+        },
         history,
         get isReady() {
             return isReady;
@@ -310,9 +329,14 @@ export function createRouter(options = {}) {
             // Make router available to all components
             app._router = this;
 
+            // ISSUE 3 FIX: Attach router to app instance for dependency injection
+            app.router = this;
+
             // Make router available globally for debugging
             if (typeof window !== 'undefined') {
                 window.__KAL_ROUTER__ = this;
+                // ISSUE 4 FIX: Expose useRouter globally
+                window.__KAL_ROUTER_INSTANCE__ = this;
             }
 
             // Initialize router with enhanced options
@@ -448,6 +472,12 @@ export function createRouter(options = {}) {
          */
         push(location) {
             console.log('Router.push called with location:', location);
+
+            // Save current scroll position before navigation
+            if (typeof window !== 'undefined') {
+                this._savedPosition = { x: window.scrollX, y: window.scrollY };
+            }
+
             const result = this._navigate(location, 'push');
 
             // Force a route change event after a short delay to ensure the DOM has updated
@@ -462,6 +492,11 @@ export function createRouter(options = {}) {
                     });
                     window.dispatchEvent(event);
                 }
+
+                // Reset scroll to top after navigation (unless scrollBehavior is defined)
+                if (!scrollBehavior && typeof window !== 'undefined') {
+                    window.scrollTo(0, 0);
+                }
             }, 50);
 
             return result;
@@ -474,6 +509,12 @@ export function createRouter(options = {}) {
          */
         replace(location) {
             console.log('Router.replace called with location:', location);
+
+            // Save current scroll position before navigation
+            if (typeof window !== 'undefined') {
+                this._savedPosition = { x: window.scrollX, y: window.scrollY };
+            }
+
             const result = this._navigate(location, 'replace');
 
             // Force a route change event after a short delay to ensure the DOM has updated
@@ -487,6 +528,11 @@ export function createRouter(options = {}) {
                         detail: { route: { ...this.currentRoute } }
                     });
                     window.dispatchEvent(event);
+                }
+
+                // Reset scroll to top after navigation (unless scrollBehavior is defined)
+                if (!scrollBehavior && typeof window !== 'undefined') {
+                    window.scrollTo(0, 0);
                 }
             }, 50);
 
@@ -1071,22 +1117,6 @@ export function createRouter(options = {}) {
         },
 
         /**
-         * Add a route change listener
-         * @param {Function} callback - Listener function
-         * @returns {Function} Function to remove the listener
-         */
-        onChange(callback) {
-            listeners.push(callback);
-
-            return () => {
-                const index = listeners.indexOf(callback);
-                if (index !== -1) {
-                    listeners.splice(index, 1);
-                }
-            };
-        },
-
-        /**
          * Handle route changes
          * @private
          */
@@ -1123,8 +1153,10 @@ export function createRouter(options = {}) {
             console.log('Matched route result:', matchedRoute);
 
             // Update current route - create a new object to ensure reactivity
-            this.currentRoute = { ...matchedRoute };
-            console.log('Updated currentRoute:', this.currentRoute);
+            // Update the reactive ref, not the plain object
+            currentRouteRef.value = { ...matchedRoute };
+            currentRoute = currentRouteRef.value;
+            console.log('Updated currentRoute:', currentRoute);
 
             // Force a re-render of all router-view components
             if (typeof document !== 'undefined') {
@@ -1840,8 +1872,9 @@ export function createRouter(options = {}) {
                         return Promise.reject(new Error('Navigation aborted by guard'));
                     }
 
-                    // Update current route
-                    this.currentRoute = route;
+                    // Update current route - use reactive ref
+                    currentRouteRef.value = route;
+                    currentRoute = currentRouteRef.value;
 
                     // Log route change for debugging
                     console.log(
@@ -1888,6 +1921,15 @@ export function createRouter(options = {}) {
                         }
                     });
 
+                    // Notify route change callbacks (from onChange method)
+                    routeChangeCallbacks.forEach(callback => {
+                        try {
+                            callback(route);
+                        } catch (error) {
+                            console.error('Error in route change callback:', error);
+                        }
+                    });
+
                     return route;
                 })
                 .catch(error => {
@@ -1927,15 +1969,23 @@ export function useRouter() {
 
     // Check if we're in a browser environment
     if (typeof window !== 'undefined') {
-        // Option 1: Check the global KalxJS app instance
-        if (window.__KAL_APP__ && window.__KAL_APP__._context && window.__KAL_APP__._context.$router) {
+        // Option 1: Check the newly exposed router instance (ISSUE 4 FIX)
+        if (window.__KAL_ROUTER_INSTANCE__) {
+            router = window.__KAL_ROUTER_INSTANCE__;
+        }
+        // Option 2: Check for global router (window.router exposed in main.js)
+        else if (window.router) {
+            router = window.router;
+        }
+        // Option 3: Check the global KalxJS app instance
+        else if (window.__KAL_APP__ && window.__KAL_APP__._context && window.__KAL_APP__._context.$router) {
             router = window.__KAL_APP__._context.$router;
         }
-        // Option 2: Check for a globally registered router instance
+        // Option 4: Check for a globally registered router instance
         else if (window.__KAL_ROUTER__) {
             router = window.__KAL_ROUTER__;
         }
-        // Option 3: Check for router in current component context (if available)
+        // Option 5: Check for router in current component context (if available)
         else if (window.__KAL_CURRENT_INSTANCE__ && window.__KAL_CURRENT_INSTANCE__.$router) {
             router = window.__KAL_CURRENT_INSTANCE__.$router;
         }
@@ -1944,7 +1994,7 @@ export function useRouter() {
     // If no router is found, provide a fallback implementation
     if (!router) {
         // Only show warning in development mode or if explicitly enabled
-        if (process.env.NODE_ENV !== 'production' || window.__KAL_DEBUG__) {
+        if (typeof process !== 'undefined' && process.env && process.env.NODE_ENV !== 'production' || (typeof window !== 'undefined' && window.__KAL_DEBUG__)) {
             console.warn('useRouter() was called with no active router on the page. Make sure to call app.use(router) before mounting your application.');
         }
 
@@ -2511,7 +2561,7 @@ export function RouterView(props = {}) {
  */
 export function RouterLink(props = {}) {
     // Get the router instance and helpers
-    const { router, isActive, isExactActive, resolve } = useRouter();
+    const { router, route, resolve } = useRouter();
 
     // Default props
     const {
@@ -2525,11 +2575,10 @@ export function RouterLink(props = {}) {
     } = props;
 
     // Resolve the link target
-    const { href, route } = resolve(to);
+    const { href } = resolve(to);
 
-    // Check if the link is active
-    const isRouteActive = isActive(to);
-    const isRouteExactActive = isExactActive(to);
+    // Normalize the target route location
+    const targetLocation = typeof to === 'string' ? { path: to } : to;
 
     // Handle navigation
     const navigate = (e) => {
@@ -2557,58 +2606,70 @@ export function RouterLink(props = {}) {
         }
     };
 
-    // Compute classes based on active state
-    const classes = {};
-    if (isRouteExactActive) {
-        classes[exactActiveClass] = true;
-    }
-    if (isRouteActive && !isRouteExactActive) {
-        classes[activeClass] = true;
-    }
+    // Return a component factory function that re-evaluates on each render
+    // This allows reactive updates when the route changes
+    return () => {
+        // Read the current route path directly - this creates a reactive dependency
+        const currentPath = route.value ? route.value.path : '/';
 
-    // Combine with any classes from props
-    if (props.class) {
-        if (typeof props.class === 'string') {
-            props.class.split(' ').forEach(cls => {
-                if (cls) classes[cls] = true;
-            });
-        } else if (Array.isArray(props.class)) {
-            props.class.forEach(cls => {
-                if (cls) classes[cls] = true;
-            });
-        } else if (typeof props.class === 'object') {
-            Object.assign(classes, props.class);
+        // Compute active states by directly checking against current path
+        const targetPath = targetLocation.path;
+        const isRouteExactActive = targetPath === currentPath;
+        const isRouteActive = currentPath.startsWith(targetPath);
+
+        // Compute classes based on active state
+        const classes = {};
+        if (isRouteExactActive) {
+            classes[exactActiveClass] = true;
         }
-    }
+        if (isRouteActive && !isRouteExactActive) {
+            classes[activeClass] = true;
+        }
 
-    // Convert classes object to string
-    const classString = Object.keys(classes)
-        .filter(key => classes[key])
-        .join(' ');
+        // Combine with any classes from props
+        if (props.class) {
+            if (typeof props.class === 'string') {
+                props.class.split(' ').forEach(cls => {
+                    if (cls) classes[cls] = true;
+                });
+            } else if (Array.isArray(props.class)) {
+                props.class.forEach(cls => {
+                    if (cls) classes[cls] = true;
+                });
+            } else if (typeof props.class === 'object') {
+                Object.assign(classes, props.class);
+            }
+        }
 
-    // If custom rendering is requested, return a slot function
-    if (custom) {
+        // Convert classes object to string
+        const classString = Object.keys(classes)
+            .filter(key => classes[key])
+            .join(' ');
+
+        // If custom rendering is requested, return a slot function
+        if (custom) {
+            return {
+                tag: props.tag || 'span',
+                props: {
+                    ...restProps,
+                    class: classString || undefined,
+                    onClick: navigate
+                },
+                children: props.children || []
+            };
+        }
+
+        // Default rendering as an anchor
         return {
-            tag: props.tag || 'span',
+            tag: 'a',
             props: {
                 ...restProps,
+                href,
                 class: classString || undefined,
-                onClick: navigate
+                onClick: navigate,
+                'aria-current': isRouteExactActive ? ariaCurrentValue : null
             },
             children: props.children || []
         };
-    }
-
-    // Default rendering as an anchor
-    return {
-        tag: 'a',
-        props: {
-            ...restProps,
-            href,
-            class: classString || undefined,
-            onClick: navigate,
-            'aria-current': isRouteExactActive ? ariaCurrentValue : null
-        },
-        children: props.children || []
     };
 }

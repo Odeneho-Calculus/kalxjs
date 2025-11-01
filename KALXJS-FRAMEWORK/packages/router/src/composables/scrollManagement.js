@@ -74,8 +74,8 @@ export function createScrollManager(config = {}) {
                 behavior: 'smooth'
             });
         } else {
-            window.scrollX = x;
-            window.scrollY = y;
+            // Use window.scrollTo() for setting scroll position (scrollX/scrollY are read-only)
+            window.scrollTo(x, y);
         }
     }
 

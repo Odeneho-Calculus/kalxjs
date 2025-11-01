@@ -158,6 +158,10 @@ function createReactiveEffect(fn, options) {
     effect.active = true;
     effect.deps = [];
     effect.options = options;
+    // Attach scheduler directly to effect object so it can be called by trigger()
+    if (options.scheduler) {
+        effect.scheduler = options.scheduler;
+    }
     return effect;
 }
 

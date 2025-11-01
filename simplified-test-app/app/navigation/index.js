@@ -1,4 +1,4 @@
-import { createRouter as createKalRouter, createWebHistory } from '@kalxjs/router';
+import { createRouter as createKalRouter, createWebHistory, useRouter as kalUseRouter } from '@kalxjs/router';
 import Home from '../pages/Home.js';
 import About from '../pages/About.js';
 import Product from '../pages/Product.js';
@@ -35,37 +35,44 @@ export function createRouter() {
       {
         path: '/',
         component: Home,
-        name: 'home'
+        name: 'home',
+        meta: { title: 'Home', description: 'Home page' }
       },
       {
         path: '/about',
         component: About,
-        name: 'about'
+        name: 'about',
+        meta: { title: 'About', description: 'About page' }
       },
       {
         path: '/product/:id',
         component: Product,
-        name: 'product'
+        name: 'product',
+        meta: { title: 'Product', description: 'Product detail page' }
       },
       {
         path: '/user/:username',
         component: UserProfile,
-        name: 'user-profile'
+        name: 'user-profile',
+        meta: { title: 'User Profile', description: 'User profile page' }
       },
       {
         path: '/search',
         component: Search,
-        name: 'search'
+        name: 'search',
+        meta: { title: 'Search', description: 'Search page' }
       },
       {
         path: '/category/:categoryId/item/:itemId',
         component: CategoryItem,
-        name: 'category-item'
+        name: 'category-item',
+        meta: { title: 'Category Item', description: 'Category item detail page' }
       },
       {
         path: '/:pathMatch(.*)*',
         component: NotFound,
-        name: 'not-found'
+        name: 'not-found',
+        meta: { title: '404 Not Found', description: 'Page not found' }
       }
     ]
   });
@@ -122,3 +129,6 @@ export function createRouter() {
 
   return router;
 }
+
+// Re-export useRouter composable (ISSUE 4 FIX)
+export const useRouter = kalUseRouter;
