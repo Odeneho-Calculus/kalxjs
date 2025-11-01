@@ -1025,9 +1025,14 @@ export function createRouter(options = {}) {
                         // Get the path
                         let path = url.pathname + url.search + url.hash;
 
-                        // Remove base path if present
-                        if (base && path.startsWith(base)) {
+                        // Remove base path if present, but ensure we don't end up with an empty string
+                        if (base && base !== '/' && path.startsWith(base)) {
                             path = path.slice(base.length);
+                        }
+
+                        // Ensure path is never empty; default to '/' if needed
+                        if (!path) {
+                            path = '/';
                         }
 
                         // Handle the navigation

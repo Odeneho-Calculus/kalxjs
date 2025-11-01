@@ -13,26 +13,26 @@
     "lint:fix": "eslint . --ext .js --fix"
   },
   "dependencies": {
-    "@kalxjs/core": "^2.2.22",
-    "@kalxjs/cli": "^2.0.32",
-    "@kalxjs/router": "^2.0.32",
-    "@kalxjs/store": "^1.0.14",
-    "@kalxjs/state": "^1.2.59",
-    "@kalxjs/ai": "^1.2.26",
-    "@kalxjs/api": "^1.2.13",
-    "@kalxjs/performance": "^1.2.17",
-    "@kalxjs/plugins": "^1.2.15",
-    "@kalxjs/composition": "^1.2.16",
-    "@kalxjs/devtools": "^1.2.32",
-    "@kalxjs/compiler": "^1.2.39",
-    "@kalxjs/compiler-plugin": "^1.2.39",
-    "@kalxjs/utils": "^1.0.8"
+    "@kalxjs/ai": "file:../KALXJS-FRAMEWORK/packages/ai",
+    "@kalxjs/api": "file:../KALXJS-FRAMEWORK/packages/api",
+    "@kalxjs/cli": "file:../KALXJS-FRAMEWORK/packages/cli",
+    "@kalxjs/compiler": "file:../KALXJS-FRAMEWORK/packages/compiler",
+    "@kalxjs/compiler-plugin": "file:../KALXJS-FRAMEWORK/packages/compiler-plugin",
+    "@kalxjs/composition": "file:../KALXJS-FRAMEWORK/packages/composition",
+    "@kalxjs/core": "file:../KALXJS-FRAMEWORK/packages/core",
+    "@kalxjs/devtools": "file:../KALXJS-FRAMEWORK/packages/devtools",
+    "@kalxjs/performance": "file:../KALXJS-FRAMEWORK/packages/performance",
+    "@kalxjs/plugins": "file:../KALXJS-FRAMEWORK/packages/plugins",
+    "@kalxjs/router": "file:../KALXJS-FRAMEWORK/packages/router",
+    "@kalxjs/state": "file:../KALXJS-FRAMEWORK/packages/state",
+    "@kalxjs/store": "file:../KALXJS-FRAMEWORK/packages/store",
+    "@kalxjs/utils": "file:../KALXJS-FRAMEWORK/packages/utils"
   },
   "devDependencies": {
-    "vite": "^4.3.9",
-    "sass": "^1.62.1",
-    "vitest": "^0.31.1",
     "@testing-library/dom": "^9.3.0",
-    "eslint": "^8.41.0"
+    "eslint": "^8.41.0",
+    "sass": "^1.62.1",
+    "vite": "^7.1.12",
+    "vitest": "^4.0.6"
   }
 }
