@@ -43,6 +43,10 @@ export default defineComponent({
     },
     navigateToItem(categoryId, itemId) {
       window.router.push(`/category/${categoryId}/item/${itemId}`);
+    },
+    navigateToPhase5(e) {
+      e.preventDefault();
+      window.router.push('/phase5');
     }
   },
 
@@ -102,6 +106,19 @@ export default defineComponent({
               h('button', { onclick: () => this.navigateToItem('electronics', '2') }, 'Electronics - Item 2'),
               h('button', { onclick: () => this.navigateToItem('clothing', '1') }, 'Clothing - Item 1'),
               h('button', { onclick: () => this.navigateToItem('books', '2') }, 'Books - Item 2')
+            ])
+          ]),
+
+          // Phase 5: Navigation Methods Testing
+          h('section', { class: 'testing-section phase5-section' }, [
+            h('h2', {}, ['Phase 5: Navigation Methods & Programmatic Control Testing']),
+            h('p', {}, ['Test router.push(), router.replace(), router.go(), router.back(), router.forward()']),
+            h('div', { class: 'test-group' }, [
+              h('a', {
+                class: 'btn btn-large btn-success',
+                href: '/phase5',
+                onclick: this.navigateToPhase5
+              }, ['Start Phase 5 Testing →'])
             ])
           ])
         ])

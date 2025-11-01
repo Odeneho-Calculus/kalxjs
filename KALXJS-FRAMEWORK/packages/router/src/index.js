@@ -625,16 +625,20 @@ export function createRouter(options = {}) {
 
                         // Perform the actual navigation with proper error handling
                         try {
+                            // Stringify query parameters for inclusion in URL
+                            const queryString = this._stringifyQuery(query);
+
                             if (navigationMethod === 'replace') {
                                 if (mode === 'hash') {
                                     const href = window.location.href;
                                     const i = href.indexOf('#');
-                                    window.location.replace(href.slice(0, i >= 0 ? i : 0) + '#' + path);
+                                    window.location.replace(href.slice(0, i >= 0 ? i : 0) + '#' + path + queryString);
                                 } else {
                                     try {
                                         // Properly construct URL: avoid double slashes by normalizing base
-                                        const url = (base === '/' ? '' : base.replace(/\/$/, '')) + path;
-                                        window.history.replaceState({ path }, '', url);
+                                        // Include query string in the URL
+                                        const url = (base === '/' ? '' : base.replace(/\/$/, '')) + path + queryString;
+                                        window.history.replaceState({ path, query }, '', url);
                                     } catch (historyError) {
                                         // In Playwright/sandboxed contexts, replaceState might also throw
                                         // but the router can continue working
@@ -648,12 +652,13 @@ export function createRouter(options = {}) {
                                 }
                             } else {
                                 if (mode === 'hash') {
-                                    window.location.hash = path;
+                                    window.location.hash = path + queryString;
                                 } else {
                                     try {
                                         // Properly construct URL: avoid double slashes by normalizing base
-                                        const url = (base === '/' ? '' : base.replace(/\/$/, '')) + path;
-                                        window.history.pushState({ path }, '', url);
+                                        // Include query string in the URL
+                                        const url = (base === '/' ? '' : base.replace(/\/$/, '')) + path + queryString;
+                                        window.history.pushState({ path, query }, '', url);
                                     } catch (historyError) {
                                         // In Playwright/sandboxed contexts, pushState throws SecurityError
                                         // but the router can still work internally - just log it
@@ -722,7 +727,30 @@ export function createRouter(options = {}) {
         go(n) {
             this._savedPosition = { x: window.scrollX, y: window.scrollY };
             window.history.go(n);
-            return Promise.resolve();
+
+            // Return a promise that resolves after the popstate event has been processed
+            // and the router has had time to update the currentRoute
+            return new Promise((resolve) => {
+                // Store the current route path to detect when it changes
+                const previousPath = this.currentRoute?.path;
+
+                // Check if route has changed every 10ms, up to 1 second
+                let attempts = 0;
+                const maxAttempts = 100;
+                const checkInterval = setInterval(() => {
+                    attempts++;
+
+                    // Check if the route has changed or if we've waited long enough
+                    const routeChanged = this.currentRoute?.path !== previousPath;
+                    if (routeChanged || attempts >= maxAttempts) {
+                        clearInterval(checkInterval);
+                        // Give a bit more time for DOM updates
+                        setTimeout(() => {
+                            resolve();
+                        }, 50);
+                    }
+                }, 10);
+            });
         },
 
         /**

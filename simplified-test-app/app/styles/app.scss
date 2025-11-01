@@ -85,7 +85,8 @@
         transition: width 0.3s ease;
       }
 
-      &:hover, &.active {
+      &:hover,
+      &.active {
         color: var(--primary-color);
         background-color: var(--bg-color);
 
@@ -334,7 +335,8 @@
 
   &.btn-pulse {
     background-color: var(--primary-color);
-    color: white !important; /* Always keep text white */
+    color: white !important;
+    /* Always keep text white */
     padding: 1rem 2rem;
     font-size: 1.1rem;
     position: relative;
@@ -361,7 +363,9 @@
     }
 
     /* Ensure text is always white in all states */
-    &:active, &:focus, &:visited {
+    &:active,
+    &:focus,
+    &:visited {
       color: white !important;
     }
   }
@@ -431,6 +435,7 @@
     transform: translate(-50%, -50%) scale(0);
     opacity: 1;
   }
+
   100% {
     transform: translate(-50%, -50%) scale(1);
     opacity: 0;
@@ -472,6 +477,247 @@
 
     .footer-links {
       justify-content: center;
+    }
+  }
+}
+
+// Phase 5 Testing Styles
+.phase5-testing {
+  padding: 1.5rem;
+  background-color: var(--bg-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  margin-bottom: 2rem;
+
+  h1 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+  }
+
+  .testing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .test-card {
+    background-color: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px var(--shadow-color);
+    border-left: 4px solid var(--primary-color);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px var(--shadow-color);
+    }
+
+    h2 {
+      color: var(--primary-color);
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 0.5rem;
+    }
+
+    p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      font-style: italic;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+
+      button {
+        padding: 0.75rem 1.25rem;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 6px var(--shadow-color);
+        font-size: 0.95rem;
+        text-align: left;
+
+        &:hover {
+          background-color: vars.$primary-color-dark;
+          transform: translateX(3px);
+          box-shadow: 0 4px 10px var(--shadow-color);
+        }
+
+        &:active {
+          transform: translateX(1px);
+        }
+      }
+    }
+  }
+
+  .log-section {
+    background-color: var(--bg-secondary);
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px var(--shadow-color);
+    border-top: 4px solid var(--primary-color);
+    margin-top: 2rem;
+
+    h3 {
+      color: var(--primary-color);
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 0.5rem;
+    }
+
+    .log-container {
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      min-height: 150px;
+
+      .current-url {
+        background-color: var(--bg-secondary);
+        padding: 0.75rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        border-left: 3px solid var(--primary-color);
+
+        strong {
+          color: var(--primary-color);
+        }
+
+        code {
+          display: block;
+          margin-top: 0.5rem;
+          background-color: var(--bg-color);
+          padding: 0.5rem;
+          border-radius: 4px;
+          font-family: 'Courier New', monospace;
+          font-size: 0.9rem;
+          color: var(--text-color);
+          word-break: break-all;
+        }
+      }
+
+      .log-entries {
+        max-height: 300px;
+        overflow-y: auto;
+        font-size: 0.85rem;
+        font-family: 'Courier New', monospace;
+
+        .log-entry {
+          display: flex;
+          gap: 0.5rem;
+          padding: 0.5rem;
+          border-bottom: 1px solid var(--border-color);
+          transition: background-color 0.2s ease;
+
+          &:hover {
+            background-color: var(--bg-secondary);
+          }
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          .log-time {
+            color: var(--primary-color);
+            font-weight: bold;
+            min-width: 100px;
+          }
+
+          .log-message {
+            color: var(--text-color);
+            flex: 1;
+            word-break: break-word;
+          }
+        }
+      }
+    }
+  }
+}
+
+.phase5-section {
+  background-color: var(--bg-secondary);
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px var(--shadow-color);
+  border-top: 4px solid var(--primary-color);
+  margin-top: 2rem;
+  text-align: center;
+
+  h2 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    font-style: italic;
+  }
+
+  .test-group {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+
+    .btn-large {
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      background-color: var(--primary-color);
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 8px var(--shadow-color);
+      border: none;
+      cursor: pointer;
+
+      &:hover {
+        background-color: vars.$primary-color-dark;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px var(--shadow-color);
+      }
+    }
+
+    .btn-success {
+      background-color: #27ae60;
+
+      &:hover {
+        background-color: #229954;
+      }
+    }
+  }
+}
+
+// Scrollbar styling for log entries
+.log-entries {
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 10px;
+
+    &:hover {
+      background: vars.$primary-color-dark;
     }
   }
 }

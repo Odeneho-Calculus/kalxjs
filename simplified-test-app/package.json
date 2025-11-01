@@ -9,6 +9,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
     "lint": "eslint . --ext .js",
     "lint:fix": "eslint . --ext .js --fix"
   },
@@ -29,6 +32,7 @@
     "@kalxjs/utils": "file:../KALXJS-FRAMEWORK/packages/utils"
   },
   "devDependencies": {
+    "@playwright/test": "^1.40.0",
     "@testing-library/dom": "^9.3.0",
     "eslint": "^8.41.0",
     "sass": "^1.62.1",

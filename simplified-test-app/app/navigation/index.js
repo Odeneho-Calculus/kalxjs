@@ -5,6 +5,7 @@ import Product from '../pages/Product.js';
 import UserProfile from '../pages/UserProfile.js';
 import Search from '../pages/Search.js';
 import CategoryItem from '../pages/CategoryItem.js';
+import Phase5ProgrammaticNav from '../pages/Phase5ProgrammaticNav.js';
 import NotFound from '../pages/NotFound.js';
 import { h, createApp } from '@kalxjs/core';
 
@@ -68,6 +69,12 @@ export function createRouter() {
         component: CategoryItem,
         name: 'category-item',
         meta: { title: 'Category Item', description: 'Category item detail page' }
+      },
+      {
+        path: '/phase5',
+        component: Phase5ProgrammaticNav,
+        name: 'phase5',
+        meta: { title: 'Phase 5: Navigation Methods', description: 'Phase 5 Programmatic Navigation Testing' }
       },
       {
         path: '/:pathMatch(.*)*',

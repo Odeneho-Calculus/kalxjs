@@ -1,0 +1,311 @@
+
+Running 25 tests using 1 worker
+
+  ✓   1 [chromium] › tests\phase3-route-modes.spec.js:28:13 › Phase 3: Route Modes Testing › 1. History Mode URLs › 1.1 - Navigation creates clean URLs without hash (2.5s)
+  ✓   2 [chromium] › tests\phase3-route-modes.spec.js:43:13 › Phase 3: Route Modes Testing › 1. History Mode URLs › 1.2 - URL format matches clean pattern (no hash) (855ms)
+  ✓   3 [chromium] › tests\phase3-route-modes.spec.js:52:13 › Phase 3: Route Modes Testing › 1. History Mode URLs › 1.3 - Direct navigation to clean URL loads correct page (5.6s)
+  ✘   4 [chromium] › tests\phase3-route-modes.spec.js:60:13 › Phase 3: Route Modes Testing › 1. History Mode URLs › 1.4 - Back and forward navigation with clean URLs (2.2s)
+  ✘   5 [chromium] › tests\phase3-route-modes.spec.js:80:13 › Phase 3: Route Modes Testing › 1. History Mode URLs › 1.5 - Multiple navigation steps with clean URLs (2.4s)
+  ✘   6 [chromium] › tests\phase3-route-modes.spec.js:104:13 › Phase 3: Route Modes Testing › 1. History Mode URLs › 1.6 - Browser history shows clean URLs (31.9s)
+  ✘   7 [chromium] › tests\phase3-route-modes.spec.js:131:13 › Phase 3: Route Modes Testing › 2. History Mode with Parameters › 2.1 - Single parameter in clean URL (2.3s)
+  ✓   8 [chromium] › tests\phase3-route-modes.spec.js:144:13 › Phase 3: Route Modes Testing › 2. History Mode with Parameters › 2.2 - Multiple parameters in clean URL (1.3s)
+  ✓   9 [chromium] › tests\phase3-route-modes.spec.js:155:13 › Phase 3: Route Modes Testing › 2. History Mode with Parameters › 2.3 - Query parameters preserved in clean URL (1.8s)
+  ✓  10 [chromium] › tests\phase3-route-modes.spec.js:173:13 › Phase 3: Route Modes Testing › 2. History Mode with Parameters › 2.4 - Complex nested parameters with query strings (1.7s)
+  ✓  11 [chromium] › tests\phase3-route-modes.spec.js:186:13 › Phase 3: Route Modes Testing › 2. History Mode with Parameters › 2.5 - Parameter changes reflected in URL (2.2s)
+  ✓  12 [chromium] › tests\phase3-route-modes.spec.js:204:13 › Phase 3: Route Modes Testing › 2. History Mode with Parameters › 2.6 - Deep linking with parameters loads correct content (1.8s)
+  ✘  13 [chromium] › tests\phase3-route-modes.spec.js:225:13 › Phase 3: Route Modes Testing › 3. Query String Handling › 3.1 - Query parameters preserved during navigation (2.8s)
+  ✓  14 [chromium] › tests\phase3-route-modes.spec.js:250:13 › Phase 3: Route Modes Testing › 3. Query String Handling › 3.2 - Multiple query parameters handled correctly (2.4s)
+  ✘  15 [chromium] › tests\phase3-route-modes.spec.js:265:13 › Phase 3: Route Modes Testing › 3. Query String Handling › 3.3 - Query strings update on new navigation (31.5s)
+  ✓  16 [chromium] › tests\phase3-route-modes.spec.js:292:13 › Phase 3: Route Modes Testing › 4. Base Path Handling › 4.1 - Root base path "/" handled correctly (1.6s)
+  ✓  17 [chromium] › tests\phase3-route-modes.spec.js:303:13 › Phase 3: Route Modes Testing › 4. Base Path Handling › 4.2 - Route paths correctly stripped (2.1s)
+  ✘  18 [chromium] › tests\phase3-route-modes.spec.js:318:13 › Phase 3: Route Modes Testing › 4. Base Path Handling › 4.3 - Routes respect base path in URL construction (3.8s)
+  ✓  19 [chromium] › tests\phase3-route-modes.spec.js:343:13 › Phase 3: Route Modes Testing › 5. Deep Linking and Direct Access › 5.1 - Deep linking to nested route works (1.9s)
+  ✓  20 [chromium] › tests\phase3-route-modes.spec.js:352:13 › Phase 3: Route Modes Testing › 5. Deep Linking and Direct Access › 5.2 - Deep linking with parameters loads correct content (2.5s)
+  ✓  21 [chromium] › tests\phase3-route-modes.spec.js:361:13 › Phase 3: Route Modes Testing › 5. Deep Linking and Direct Access › 5.3 - Refresh on clean URL maintains page (2.6s)
+  ✓  22 [chromium] › tests\phase3-route-modes.spec.js:385:13 › Phase 3: Route Modes Testing › 6. URL Encoding and Special Characters › 6.1 - Special characters handled correctly (3.1s)
+  ✘  23 [chromium] › tests\phase3-route-modes.spec.js:394:13 › Phase 3: Route Modes Testing › 6. URL Encoding and Special Characters › 6.2 - Query parameters with special characters encoded (6.8s)
+  ✘  24 [chromium] › tests\phase3-route-modes.spec.js:413:13 › Phase 3: Route Modes Testing › 7. Error Monitoring › 7.1 - No SecurityError exceptions during History API calls (31.3s)
+  ✘  25 [chromium] › tests\phase3-route-modes.spec.js:441:13 › Phase 3: Route Modes Testing › 7. Error Monitoring › 7.2 - Navigation completes without errors (31.3s)
+
+
+  1) [chromium] › tests\phase3-route-modes.spec.js:60:13 › Phase 3: Route Modes Testing › 1. History Mode URLs › 1.4 - Back and forward navigation with clean URLs 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m"http://localhost:3000/"[39m
+    Received: [31m"http://localhost:3000/[7mabout[27m"[39m
+
+      70 |             await page.goBack();
+      71 |             await page.waitForTimeout(500); // Wait for navigation
+    > 72 |             expect(page.url()).toBe(`${BASE_URL}/`);
+         |                                ^
+      73 |
+      74 |             // Go forward
+      75 |             await page.goForward();
+        at C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs\simplified-test-app\tests\phase3-route-modes.spec.js:72:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\phase3-route-modes-Phase-3-196f8--navigation-with-clean-URLs-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\phase3-route-modes-Phase-3-196f8--navigation-with-clean-URLs-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\phase3-route-modes-Phase-3-196f8--navigation-with-clean-URLs-chromium\error-context.md
+
+  2) [chromium] › tests\phase3-route-modes.spec.js:80:13 › Phase 3: Route Modes Testing › 1. History Mode URLs › 1.5 - Multiple navigation steps with clean URLs 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m"http://localhost:3000/product/1"[39m
+    Received: [31m"http://localhost:3000/product/1[7m?discount=0%25&color=blue&size=large[27m"[39m
+
+      88 |             await page.getByRole('button', { name: 'Go to Product 1', exact: true }).click();
+      89 |             await page.waitForTimeout(500);
+    > 90 |             expect(page.url()).toBe(`${BASE_URL}/product/1`);
+         |                                ^
+      91 |             expect(page.url()).not.toContain('#');
+      92 |
+      93 |             // To About
+        at C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs\simplified-test-app\tests\phase3-route-modes.spec.js:90:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\phase3-route-modes-Phase-3-1104a-ation-steps-with-clean-URLs-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\phase3-route-modes-Phase-3-1104a-ation-steps-with-clean-URLs-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\phase3-route-modes-Phase-3-1104a-ation-steps-with-clean-URLs-chromium\error-context.md
+
+  3) [chromium] › tests\phase3-route-modes.spec.js:104:13 › Phase 3: Route Modes Testing › 1. History Mode URLs › 1.6 - Browser history shows clean URLs 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Go to Product 1', exact: true })[22m
+
+
+      109 |             await page.waitForTimeout(500);
+      110 |
+    > 111 |             await page.getByRole('button', { name: 'Go to Product 1', exact: true }).click();
+          |                                                                                      ^
+      112 |             await page.waitForTimeout(500);
+      113 |
+      114 |             // Navigate back twice
+        at C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs\simplified-test-app\tests\phase3-route-modes.spec.js:111:86
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\phase3-route-modes-Phase-3-30a9c-er-history-shows-clean-URLs-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\phase3-route-modes-Phase-3-30a9c-er-history-shows-clean-URLs-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\phase3-route-modes-Phase-3-30a9c-er-history-shows-clean-URLs-chromium\error-context.md
+
+  4) [chromium] › tests\phase3-route-modes.spec.js:131:13 › Phase 3: Route Modes Testing › 2. History Mode with Parameters › 2.1 - Single parameter in clean URL 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m"http://localhost:3000/product/1"[39m
+    Received: [31m"http://localhost:3000/product/1[7m?discount=0%25&color=blue&size=large[27m"[39m
+
+      138 |
+      139 |             // URL should be clean with parameter
+    > 140 |             expect(page.url()).toBe(`${BASE_URL}/product/1`);
+          |                                ^
+      141 |             expect(page.url()).not.toContain('#');
+      142 |         });
+      143 |
+        at C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs\simplified-test-app\tests\phase3-route-modes.spec.js:140:32
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\phase3-route-modes-Phase-3-0711f-ngle-parameter-in-clean-URL-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\phase3-route-modes-Phase-3-0711f-ngle-parameter-in-clean-URL-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\phase3-route-modes-Phase-3-0711f-ngle-parameter-in-clean-URL-chromium\error-context.md
+
+  5) [chromium] › tests\phase3-route-modes.spec.js:225:13 › Phase 3: Route Modes Testing › 3. Query String Handling › 3.1 - Query parameters preserved during navigation 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m"10%"[39m
+    Received: [31mundefined[39m
+
+      245 |             // Query should still be preserved in route
+      246 |             const route2 = await page.evaluate(() => window.router.currentRoute);
+    > 247 |             expect(route2.query.discount).toBe('10%');
+          |                                           ^
+      248 |         });
+      249 |
+      250 |         test('3.2 - Multiple query parameters handled correctly', async ({ page }) => {
+        at C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs\simplified-test-app\tests\phase3-route-modes.spec.js:247:43
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\phase3-route-modes-Phase-3-45416-preserved-during-navigation-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\phase3-route-modes-Phase-3-45416-preserved-during-navigation-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\phase3-route-modes-Phase-3-45416-preserved-during-navigation-chromium\error-context.md
+
+  6) [chromium] › tests\phase3-route-modes.spec.js:265:13 › Phase 3: Route Modes Testing › 3. Query String Handling › 3.3 - Query strings update on new navigation 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Product 2 - 20% discount' })[22m
+
+
+      275 |
+      276 |             // Navigate to product 2 with different discount
+    > 277 |             await page.getByRole('button', { name: 'Product 2 - 20% discount' }).click();
+          |                                                                                  ^
+      278 |             await page.waitForTimeout(500);
+      279 |
+      280 |             const route2 = await page.evaluate(() => window.router.currentRoute);
+        at C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs\simplified-test-app\tests\phase3-route-modes.spec.js:277:82
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\phase3-route-modes-Phase-3-fe365-gs-update-on-new-navigation-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\phase3-route-modes-Phase-3-fe365-gs-update-on-new-navigation-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\phase3-route-modes-Phase-3-fe365-gs-update-on-new-navigation-chromium\error-context.md
+
+  7) [chromium] › tests\phase3-route-modes.spec.js:318:13 › Phase 3: Route Modes Testing › 4. Base Path Handling › 4.3 - Routes respect base path in URL construction 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mnot[2m.[22mtoContain[2m([22m[32mexpected[39m[2m) // indexOf[22m
+
+    Expected substring: not [32m"//localhost"[39m
+    Received string:        [31m"http:[7m//localhost[27m:3000/"[39m
+
+      329 |                 await page.waitForTimeout(300);
+      330 |                 // Should not have double slashes in the path (after domain)
+    > 331 |                 expect(page.url()).not.toContain('//localhost');
+          |                                        ^
+      332 |                 expect(page.url()).toBe(url);
+      333 |             }
+      334 |         });
+        at C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs\simplified-test-app\tests\phase3-route-modes.spec.js:331:40
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\phase3-route-modes-Phase-3-beb79-se-path-in-URL-construction-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\phase3-route-modes-Phase-3-beb79-se-path-in-URL-construction-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\phase3-route-modes-Phase-3-beb79-se-path-in-URL-construction-chromium\error-context.md
+
+  8) [chromium] › tests\phase3-route-modes.spec.js:394:13 › Phase 3: Route Modes Testing › 6. URL Encoding and Special Characters › 6.2 - Query parameters with special characters encoded 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeDefined[2m()[22m
+
+    Received: [31mundefined[39m
+
+      401 |             // Query params should be in the URL (may be encoded)
+      402 |             const currentRoute = await page.evaluate(() => window.router.currentRoute);
+    > 403 |             expect(currentRoute.query.q).toBeDefined();
+          |                                          ^
+      404 |         });
+      405 |     });
+      406 |
+        at C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs\simplified-test-app\tests\phase3-route-modes.spec.js:403:42
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\phase3-route-modes-Phase-3-d2c53--special-characters-encoded-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\phase3-route-modes-Phase-3-d2c53--special-characters-encoded-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\phase3-route-modes-Phase-3-d2c53--special-characters-encoded-chromium\error-context.md
+
+  9) [chromium] › tests\phase3-route-modes.spec.js:413:13 › Phase 3: Route Modes Testing › 7. Error Monitoring › 7.1 - No SecurityError exceptions during History API calls 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Go to Product 1', exact: true })[22m
+
+
+      426 |             await page.waitForTimeout(300);
+      427 |
+    > 428 |             await page.getByRole('button', { name: 'Go to Product 1', exact: true }).click();
+          |                                                                                      ^
+      429 |             await page.waitForTimeout(300);
+      430 |
+      431 |             await page.goBack();
+        at C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs\simplified-test-app\tests\phase3-route-modes.spec.js:428:86
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\phase3-route-modes-Phase-3-0ac50-ns-during-History-API-calls-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\phase3-route-modes-Phase-3-0ac50-ns-during-History-API-calls-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\phase3-route-modes-Phase-3-0ac50-ns-during-History-API-calls-chromium\error-context.md
+
+  10) [chromium] › tests\phase3-route-modes.spec.js:441:13 › Phase 3: Route Modes Testing › 7. Error Monitoring › 7.2 - Navigation completes without errors 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Go to Product 2' })[22m
+
+
+      454 |             await page.waitForTimeout(300);
+      455 |
+    > 456 |             await page.getByRole('button', { name: 'Go to Product 2' }).click();
+          |                                                                         ^
+      457 |             await page.waitForTimeout(300);
+      458 |
+      459 |             // Should have no error responses
+        at C:\Users\kalculusGuy\Desktop\projectEra\nodejs\kalxjs\simplified-test-app\tests\phase3-route-modes.spec.js:456:73
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results\phase3-route-modes-Phase-3-6358e-on-completes-without-errors-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results\phase3-route-modes-Phase-3-6358e-on-completes-without-errors-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\phase3-route-modes-Phase-3-6358e-on-completes-without-errors-chromium\error-context.md
+
+  10 failed
+    [chromium] › tests\phase3-route-modes.spec.js:60:13 › Phase 3: Route Modes Testing › 1. History Mode URLs › 1.4 - Back and forward navigation with clean URLs 
+    [chromium] › tests\phase3-route-modes.spec.js:80:13 › Phase 3: Route Modes Testing › 1. History Mode URLs › 1.5 - Multiple navigation steps with clean URLs 
+    [chromium] › tests\phase3-route-modes.spec.js:104:13 › Phase 3: Route Modes Testing › 1. History Mode URLs › 1.6 - Browser history shows clean URLs 
+    [chromium] › tests\phase3-route-modes.spec.js:131:13 › Phase 3: Route Modes Testing › 2. History Mode with Parameters › 2.1 - Single parameter in clean URL 
+    [chromium] › tests\phase3-route-modes.spec.js:225:13 › Phase 3: Route Modes Testing › 3. Query String Handling › 3.1 - Query parameters preserved during navigation 
+    [chromium] › tests\phase3-route-modes.spec.js:265:13 › Phase 3: Route Modes Testing › 3. Query String Handling › 3.3 - Query strings update on new navigation 
+    [chromium] › tests\phase3-route-modes.spec.js:318:13 › Phase 3: Route Modes Testing › 4. Base Path Handling › 4.3 - Routes respect base path in URL construction 
+    [chromium] › tests\phase3-route-modes.spec.js:394:13 › Phase 3: Route Modes Testing › 6. URL Encoding and Special Characters › 6.2 - Query parameters with special characters encoded 
+    [chromium] › tests\phase3-route-modes.spec.js:413:13 › Phase 3: Route Modes Testing › 7. Error Monitoring › 7.1 - No SecurityError exceptions during History API calls 
+    [chromium] › tests\phase3-route-modes.spec.js:441:13 › Phase 3: Route Modes Testing › 7. Error Monitoring › 7.2 - Navigation completes without errors 
+  15 passed (4.2m)
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
