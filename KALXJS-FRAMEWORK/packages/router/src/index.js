@@ -254,6 +254,7 @@ export function createRouter(options = {}) {
     // Current route
     let currentRoute = {
         path: '/',
+        name: null,
         params: {},
         query: {},
         matched: [],
@@ -284,6 +285,9 @@ export function createRouter(options = {}) {
     let navigationRedirectCount = 0;
     const MAX_REDIRECT_COUNT = 10;
 
+    // Router initialization state
+    let isReady = false;
+
     // Create the router object with direct references to all properties
     const router = {
         // Router properties
@@ -292,6 +296,9 @@ export function createRouter(options = {}) {
         base,
         currentRoute,
         history,
+        get isReady() {
+            return isReady;
+        },
 
         /**
          * Install the router on a KalxJS application
@@ -365,6 +372,10 @@ export function createRouter(options = {}) {
             // Initial route matching
             console.log('Performing initial route matching');
             this._onRouteChange();
+
+            // Mark router as ready
+            isReady = true;
+            console.log('Router is now ready');
 
             return this;
         },
@@ -1049,6 +1060,10 @@ export function createRouter(options = {}) {
                 console.error('Error during initial navigation:', error);
             });
 
+            // Mark router as ready
+            isReady = true;
+            console.log('Router is now ready');
+
             // Mark as initialized
             this._initialized = true;
 
@@ -1205,14 +1220,16 @@ export function createRouter(options = {}) {
 
             // First check for exact match
             if (routeMap[cleanPath]) {
+                const matchedRoute = routeMap[cleanPath];
                 return {
                     path: cleanPath,
                     fullPath: path,
-                    matched: [routeMap[cleanPath]],
+                    name: matchedRoute.name || null,
+                    matched: [matchedRoute],
                     params: {},
                     query: this._parseQuery(queryString),
                     hash: hash,
-                    meta: routeMap[cleanPath].meta || {}
+                    meta: matchedRoute.meta || {}
                 };
             }
 
@@ -1303,6 +1320,7 @@ export function createRouter(options = {}) {
                     return {
                         path: cleanPath,
                         fullPath: path,
+                        name: matched[0].name || null,
                         matched,
                         params: match.params,
                         query: this._parseQuery(queryString),
@@ -1325,6 +1343,7 @@ export function createRouter(options = {}) {
                     return {
                         path: cleanPath,
                         fullPath: path,
+                        name: route.name || null,
                         matched: [route],
                         params: { pathMatch: cleanPath },
                         query: this._parseQuery(queryString),
@@ -1350,6 +1369,7 @@ export function createRouter(options = {}) {
             return {
                 path: cleanPath,
                 fullPath: path,
+                name: null,
                 matched: [],
                 params: {},
                 query: this._parseQuery(queryString),

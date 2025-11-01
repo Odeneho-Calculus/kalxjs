@@ -1,6 +1,10 @@
 import { createRouter as createKalRouter, createWebHistory } from '@kalxjs/router';
 import Home from '../pages/Home.js';
 import About from '../pages/About.js';
+import Product from '../pages/Product.js';
+import UserProfile from '../pages/UserProfile.js';
+import Search from '../pages/Search.js';
+import CategoryItem from '../pages/CategoryItem.js';
 import NotFound from '../pages/NotFound.js';
 import { h, createApp } from '@kalxjs/core';
 
@@ -39,6 +43,26 @@ export function createRouter() {
         name: 'about'
       },
       {
+        path: '/product/:id',
+        component: Product,
+        name: 'product'
+      },
+      {
+        path: '/user/:username',
+        component: UserProfile,
+        name: 'user-profile'
+      },
+      {
+        path: '/search',
+        component: Search,
+        name: 'search'
+      },
+      {
+        path: '/category/:categoryId/item/:itemId',
+        component: CategoryItem,
+        name: 'category-item'
+      },
+      {
         path: '/:pathMatch(.*)*',
         component: NotFound,
         name: 'not-found'
@@ -47,7 +71,7 @@ export function createRouter() {
   });
 
   // Add onError method to the router
-  router.onError = function(callback) {
+  router.onError = function (callback) {
     router.errorHandler = callback;
     return router;
   };
