@@ -39,9 +39,9 @@ export function createWebHistory(base = '') {
             window.history[method](null, '', url);
             return true;
         } catch (error) {
-            // In Playwright/sandboxed contexts, pushState may throw SecurityError even with HTTP protocol
+            // In Playwright/sandboxed contexts, pushState/replaceState may throw SecurityError even with HTTP protocol
             // This is safe to ignore - just update our internal state
-            if (error.name === 'SecurityError' && method === 'pushState') {
+            if (error.name === 'SecurityError' && (method === 'pushState' || method === 'replaceState')) {
                 console.debug('History API SecurityError in sandboxed context - updating internal state only');
                 // Update internal tracking even though the browser history wasn't updated
                 currentLocation = new URL(url, window.location.origin).pathname;
@@ -67,7 +67,11 @@ export function createWebHistory(base = '') {
             const method = replace ? 'replaceState' : 'pushState';
             try {
                 const success = safeHistoryCall(method, url, replace);
-                updateLocationState();
+                // Only update location state from window if the History API call succeeded
+                // If it failed (sandboxed context), keep the manually updated currentLocation
+                if (success) {
+                    updateLocationState();
+                }
             } catch (error) {
                 if (!handleHistoryFailure(url, replace)) {
                     throw error;
@@ -79,8 +83,12 @@ export function createWebHistory(base = '') {
                 return;
             }
             try {
-                safeHistoryCall('replaceState', url, true);
-                updateLocationState();
+                const success = safeHistoryCall('replaceState', url, true);
+                // Only update location state from window if the History API call succeeded
+                // If it failed (sandboxed context), keep the manually updated currentLocation
+                if (success) {
+                    updateLocationState();
+                }
             } catch (error) {
                 if (!handleHistoryFailure(url, true)) {
                     throw error;
@@ -619,7 +627,9 @@ export function createRouter(options = {}) {
                                     window.location.replace(href.slice(0, i >= 0 ? i : 0) + '#' + path);
                                 } else {
                                     try {
-                                        window.history.replaceState({ path }, '', base + path);
+                                        // Properly construct URL: avoid double slashes by normalizing base
+                                        const url = (base === '/' ? '' : base.replace(/\/$/, '')) + path;
+                                        window.history.replaceState({ path }, '', url);
                                     } catch (historyError) {
                                         // In Playwright/sandboxed contexts, replaceState might also throw
                                         // but the router can continue working
@@ -636,7 +646,9 @@ export function createRouter(options = {}) {
                                     window.location.hash = path;
                                 } else {
                                     try {
-                                        window.history.pushState({ path }, '', base + path);
+                                        // Properly construct URL: avoid double slashes by normalizing base
+                                        const url = (base === '/' ? '' : base.replace(/\/$/, '')) + path;
+                                        window.history.pushState({ path }, '', url);
                                     } catch (historyError) {
                                         // In Playwright/sandboxed contexts, pushState throws SecurityError
                                         // but the router can still work internally - just log it
