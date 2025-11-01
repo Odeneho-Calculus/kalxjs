@@ -592,6 +592,11 @@ export function createRouter(options = {}) {
                 // Store the previous route
                 previousRoute = { ...this.currentRoute };
 
+                // UPDATE: Set currentRoute BEFORE running guards so afterEach hooks have access to the new route
+                // This is critical for components that read window.router.currentRoute in afterEach handlers
+                currentRouteRef.value = targetRoute;
+                currentRoute = currentRouteRef.value;
+
                 // Run navigation guards
                 this._runGuards(targetRoute, previousRoute)
                     .then(guardResult => {

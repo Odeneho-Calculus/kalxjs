@@ -1,0 +1,41 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - heading "simplified-test-app" [level=1] [ref=e6] [cursor=pointer]
+    - navigation [ref=e7]:
+      - link "Home" [ref=e8] [cursor=pointer]:
+        - /url: /
+      - link "About" [ref=e9] [cursor=pointer]:
+        - /url: /about
+      - link "🐙 GitHub" [ref=e10] [cursor=pointer]:
+        - /url: https://github.com/Odeneho-Calculus/kalxjs
+  - main [ref=e11]:
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]: "Category:"
+        - strong [ref=e16]: Unknown
+        - generic [ref=e17]: "> Item:"
+        - strong [ref=e18]: Item undefined
+      - heading "Item undefined" [level=1] [ref=e19]
+      - generic [ref=e20]:
+        - paragraph [ref=e21]: "Category ID: undefined"
+        - paragraph [ref=e22]: "Item ID: undefined"
+        - paragraph [ref=e23]: "Category: Unknown"
+        - paragraph [ref=e24]: "Description: Item not found"
+        - paragraph [ref=e25]: "Price: N/A"
+      - generic [ref=e26]:
+        - heading "Other Items in This Category" [level=3] [ref=e27]
+        - button "Item 1" [ref=e28] [cursor=pointer]
+        - button "Item 2" [ref=e29] [cursor=pointer]
+        - button "Item 3" [ref=e30] [cursor=pointer]
+      - generic [ref=e31]:
+        - heading "Other Categories" [level=3] [ref=e32]
+        - button "Electronics" [ref=e33] [cursor=pointer]
+        - button "Clothing" [ref=e34] [cursor=pointer]
+        - button "Books" [ref=e35] [cursor=pointer]
+        - button "Home" [ref=e36] [cursor=pointer]
+  - contentinfo [ref=e37]:
+    - paragraph [ref=e38]: © 2024 Powered by KalxJS
+```

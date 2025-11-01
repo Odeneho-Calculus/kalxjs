@@ -1,0 +1,51 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - heading "simplified-test-app" [level=1] [ref=e6] [cursor=pointer]
+    - navigation [ref=e7]:
+      - link "Home" [ref=e8] [cursor=pointer]:
+        - /url: /
+      - link "About" [ref=e9] [cursor=pointer]:
+        - /url: /about
+      - link "🐙 GitHub" [ref=e10] [cursor=pointer]:
+        - /url: https://github.com/Odeneho-Calculus/kalxjs
+  - main [ref=e11]:
+    - generic [ref=e15]:
+      - heading "Welcome to KalxJS" [level=1] [ref=e16]
+      - paragraph [ref=e17]: A modern JavaScript framework for building user interfaces
+      - link "Learn More" [ref=e19] [cursor=pointer]:
+        - /url: /about
+      - generic [ref=e20]:
+        - 'heading "Phase 4: Dynamic Routes & Parameters Testing" [level=2] [ref=e21]'
+        - generic [ref=e22]:
+          - 'heading "Test 1: Single Parameter (:id)" [level=3] [ref=e23]'
+          - button "Go to Product 1" [ref=e24] [cursor=pointer]
+          - button "Go to Product 2" [ref=e25] [cursor=pointer]
+          - button "Go to Product 101" [ref=e26] [cursor=pointer]
+          - button "Go to Product 999 (Mock)" [ref=e27] [cursor=pointer]
+        - generic [ref=e28]:
+          - 'heading "Test 2: Parameter + Query String" [level=3] [ref=e29]'
+          - button "Product 1 - 10% discount" [ref=e30] [cursor=pointer]
+          - button "Product 2 - 20% discount" [ref=e31] [cursor=pointer]
+        - generic [ref=e32]:
+          - 'heading "Test 3: String Parameter (:username)" [level=3] [ref=e33]'
+          - button "Go to @john" [ref=e34] [cursor=pointer]
+          - button "Go to @jane" [ref=e35] [cursor=pointer]
+          - button "Go to @bob" [ref=e36] [cursor=pointer]
+          - button "Go to @alice" [ref=e37] [cursor=pointer]
+        - generic [ref=e38]:
+          - 'heading "Test 4: Multiple Query Parameters" [level=3] [ref=e39]'
+          - 'button "Search: laptop" [ref=e40] [cursor=pointer]'
+          - 'button "Search: phone" [ref=e41] [cursor=pointer]'
+          - 'button "Search: tablet" [ref=e42] [cursor=pointer]'
+        - generic [ref=e43]:
+          - 'heading "Test 5: Nested Parameters (:categoryId/item/:itemId)" [level=3] [ref=e44]'
+          - button "Electronics - Item 1" [ref=e45] [cursor=pointer]
+          - button "Electronics - Item 2" [ref=e46] [cursor=pointer]
+          - button "Clothing - Item 1" [ref=e47] [cursor=pointer]
+          - button "Books - Item 2" [ref=e48] [cursor=pointer]
+  - contentinfo [ref=e49]:
+    - paragraph [ref=e50]: © 2024 Powered by KalxJS
+```
