@@ -626,7 +626,8 @@ export function createRouter(options = {}) {
          */
         _normalizeLocation(location) {
             if (typeof location === 'string') {
-                return { path: location };
+                // Ensure empty strings are converted to root path
+                return { path: location || '/' };
             }
 
             return {
@@ -1076,6 +1077,11 @@ export function createRouter(options = {}) {
             let path;
             if (mode === 'hash') {
                 path = window.location.hash.slice(1) || '/';
+                // Additional safety check: ensure path is never empty
+                // This prevents the catchall route from being matched unintentionally
+                if (!path || path.trim() === '') {
+                    path = '/';
+                }
                 // Normalize path to always start with / for consistent matching
                 if (path && !path.startsWith('/')) {
                     path = '/' + path;
@@ -1083,6 +1089,11 @@ export function createRouter(options = {}) {
                 console.log('Current hash path:', path);
             } else {
                 path = window.location.pathname.slice(base.length) || '/';
+                // Additional safety check: ensure path is never empty
+                // This prevents the catchall route from being matched unintentionally
+                if (!path || path.trim() === '') {
+                    path = '/';
+                }
                 console.log('Current history path:', path);
             }
 
@@ -1147,6 +1158,11 @@ export function createRouter(options = {}) {
          * @returns {Object} Matched route info
          */
         _matchRoute(path) {
+            // Ensure path is never empty or undefined
+            if (!path || path.trim() === '') {
+                path = '/';
+            }
+
             // Normalize path to always start with / for consistent matching
             if (path && !path.startsWith('/')) {
                 path = '/' + path;

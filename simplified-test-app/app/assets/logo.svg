@@ -1,0 +1,7 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="200" rx="40" fill="#1E293B"/>
+  <path d="M40 60H160L100 160L40 60Z" fill="#38BDF8"/>
+  <path d="M70 80H130L100 130L70 80Z" fill="#0EA5E9"/>
+  <circle cx="100" cy="50" r="15" fill="#F472B6"/>
+  <text x="100" y="105" font-family="Arial" font-size="24" font-weight="bold" fill="white" text-anchor="middle">KALXJS</text>
+</svg>

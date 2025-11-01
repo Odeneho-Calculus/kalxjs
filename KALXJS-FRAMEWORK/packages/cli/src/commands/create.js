@@ -634,173 +634,39 @@ export function createRouter() {
 `;
 
     files['app/pages/Home.js'] = `import { h, defineComponent } from '@kalxjs/core';
-import ThemeSwitcher from '../components/ThemeSwitcher.js';
-import AnimatedCounter from '../components/AnimatedCounter.js';
 
 export default defineComponent({
   name: 'HomeView',
 
-  components: {
-    ThemeSwitcher,
-    AnimatedCounter
-  },
-
   data() {
     return {
-      count: 0,
-      features: [
-        { id: 1, title: 'Virtual DOM', description: 'Efficient DOM updates with virtual DOM diffing' },
-        { id: 2, title: 'Component System', description: 'Modular, reusable component architecture' },
-        { id: 3, title: 'Reactive Data', description: 'Automatic UI updates when data changes' },
-        { id: 4, title: 'Routing', description: 'Built-in client-side routing system' }
-      ],
-      showFeatures: false,
-      activeTab: 'counter'
+      message: 'Welcome to KalxJS'
     };
   },
 
-  mounted() {
-    // Animate features in after a short delay
-    setTimeout(() => {
-      this.showFeatures = true;
-      this.$update();
-    }, 500);
-  },
-
   methods: {
-    increment() {
-      console.log('Incrementing count');
-      this.count++;
-      this.$update();
-    },
-
-    decrement() {
-      console.log('Decrementing count');
-      this.count--;
-      this.$update();
-    },
-
-    resetCount() {
-      console.log('Resetting count');
-      this.count = 0;
-      this.$update();
-    },
-
-    setActiveTab(tab) {
-      this.activeTab = tab;
-      this.$update();
-    },
-
     navigateToAbout(e) {
       e.preventDefault();
-
-      // Add a small animation before navigation
-      const homeView = document.querySelector('.home-view');
-      if (homeView) {
-        homeView.classList.add('fade-out');
-
-        setTimeout(() => {
-          window.router.push('/about');
-        }, 300);
-      } else {
-        window.router.push('/about');
-      }
+      window.router.push('/about');
     }
   },
 
   render() {
-    return h('div', { class: 'home-view fade-in' }, [
+    return h('div', { class: 'home-view' }, [
       h('div', { class: 'container' }, [
-        // Header section
-        h('header', { class: 'page-header flex flex-between' }, [
-          h('div', { class: 'logo' }, [
-            h('h1', { class: 'logo-text' }, ['KalxJS']),
-            h('span', { class: 'logo-tagline' }, ['Modern JavaScript Framework'])
-          ]),
-
-          // Theme switcher component
-          h(ThemeSwitcher)
-        ]),
-
-        // Hero section
         h('section', { class: 'hero text-center' }, [
-          h('h2', { class: 'hero-title' }, ['Welcome to KalxJS']),
+          h('h1', {}, ['Welcome to KalxJS']),
           h('p', { class: 'hero-subtitle' }, [
-            'A lightweight, modern JavaScript framework for building user interfaces'
+            'A modern JavaScript framework for building user interfaces'
           ]),
 
-          // Tabs navigation
-          h('div', { class: 'tabs mt-4' }, [
-            h('div', { class: 'tab-nav' }, [
-              h('button', {
-                class: \`tab-btn \${this.activeTab === 'counter' ? 'active' : ''}\`,
-                onClick: () => this.setActiveTab('counter')
-              }, ['Counter Demo']),
-
-              h('button', {
-                class: \`tab-btn \${this.activeTab === 'features' ? 'active' : ''}\`,
-                onClick: () => this.setActiveTab('features')
-              }, ['Features'])
-            ]),
-
-            // Tab content
-            h('div', { class: 'tab-content' }, [
-              // Counter tab
-              this.activeTab === 'counter' ? h('div', { class: 'tab-pane fade-in' }, [
-                h('div', { class: 'card counter-demo' }, [
-                  h('h3', { class: 'card-title' }, ['Interactive Counter']),
-
-                  h('div', { class: 'counter flex flex-center' }, [
-                    h('button', {
-                      class: 'btn btn-circle',
-                      onClick: this.decrement
-                    }, ['-']),
-
-                    h(AnimatedCounter, {
-                      value: this.count,
-                      duration: 500
-                    }),
-
-                    h('button', {
-                      class: 'btn btn-circle',
-                      onClick: this.increment
-                    }, ['+'])
-                  ]),
-
-                  h('div', { class: 'text-center mt-3' }, [
-                    h('button', {
-                      class: 'btn btn-secondary',
-                      onClick: this.resetCount
-                    }, ['Reset'])
-                  ])
-                ])
-              ]) : null,
-
-              // Features tab
-              this.activeTab === 'features' ? h('div', { class: 'tab-pane fade-in' }, [
-                h('div', { class: 'features-grid' },
-                  this.features.map((feature, index) =>
-                    h('div', {
-                      class: \`card feature-card \${this.showFeatures ? 'slide-in-right' : ''}\`,
-                      style: \`animation-delay: \${index * 100}ms\`
-                    }, [
-                      h('h3', { class: 'card-title' }, [feature.title]),
-                      h('p', {}, [feature.description])
-                    ])
-                  )
-                )
-              ]) : null
-            ])
+          h('div', { class: 'cta-container mt-4' }, [
+            h('a', {
+              class: 'btn btn-primary',
+              href: '/about',
+              onClick: this.navigateToAbout
+            }, ['Learn More'])
           ])
-        ]),
-
-        // Call to action
-        h('div', { class: 'cta-container text-center mt-4' }, [
-          h('a', {
-            class: 'btn btn-pulse',
-            href: '/about',
-            onClick: this.navigateToAbout
-          }, ['Explore More Features'])
         ])
       ])
     ]);
@@ -808,323 +674,78 @@ export default defineComponent({
 });`;
 
     files['app/pages/About.js'] = `import { h, defineComponent } from '@kalxjs/core';
-import ThemeSwitcher from '../components/ThemeSwitcher.js';
 
 export default defineComponent({
   name: 'AboutView',
 
-  components: {
-    ThemeSwitcher
-  },
-
-  data() {
-    return {
-      features: [
-        {
-          title: 'Virtual DOM',
-          description: 'Efficiently updates the UI by comparing virtual DOM representations and applying only the necessary changes to the real DOM.',
-          icon: '🔄'
-        },
-        {
-          title: 'Component System',
-          description: 'Build encapsulated, reusable components that manage their own state and can be composed to create complex UIs.',
-          icon: '🧩'
-        },
-        {
-          title: 'Reactive Data',
-          description: 'Automatically updates the UI when the underlying data changes, making state management simple and intuitive.',
-          icon: '⚡'
-        },
-        {
-          title: 'Routing',
-          description: 'Built-in client-side routing with support for nested routes, route parameters, and navigation guards.',
-          icon: '🧭'
-        },
-        {
-          title: 'State Management',
-          description: 'Centralized state management for complex applications with predictable state mutations.',
-          icon: '📦'
-        },
-        {
-          title: 'Developer Tools',
-          description: 'Comprehensive developer tools for debugging, performance monitoring, and state inspection.',
-          icon: '🛠️'
-        }
-      ],
-      activeFeature: null,
-      showBackToTop: false
-    };
-  },
-
-  mounted() {
-    // Add scroll listener for back-to-top button
-    window.addEventListener('scroll', this.handleScroll);
-
-    // Animate features in sequence
-    this.animateFeaturesSequentially();
-  },
-
-  beforeUnmount() {
-    window.removeEventListener('scroll', this.handleScroll);
-  },
-
   methods: {
-    handleScroll() {
-      this.showBackToTop = window.scrollY > 300;
-      this.$update();
-    },
-
-    scrollToTop() {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-    },
-
-    setActiveFeature(index) {
-      this.activeFeature = this.activeFeature === index ? null : index;
-      this.$update();
-    },
-
-    animateFeaturesSequentially() {
-      const featureElements = document.querySelectorAll('.feature-card');
-
-      featureElements.forEach((el, index) => {
-        setTimeout(() => {
-          el.classList.add('fade-in');
-        }, 100 * index);
-      });
-    },
-
     navigateToHome(e) {
       e.preventDefault();
-
-      // Add a small animation before navigation
-      const aboutView = document.querySelector('.about-view');
-      if (aboutView) {
-        aboutView.classList.add('fade-out');
-
-        setTimeout(() => {
-          window.router.push('/');
-        }, 300);
-      } else {
-        window.router.push('/');
-      }
+      window.router.push('/');
     }
   },
 
   render() {
-    return h('div', { class: 'about-view fade-in' }, [
+    return h('div', { class: 'about-view' }, [
       h('div', { class: 'container' }, [
-        // Header section
-        h('header', { class: 'page-header flex flex-between' }, [
-          h('div', { class: 'logo' }, [
-            h('h1', { class: 'logo-text' }, ['KalxJS']),
-            h('span', { class: 'logo-tagline' }, ['Modern JavaScript Framework'])
-          ]),
-
-          // Theme switcher component
-          h(ThemeSwitcher)
-        ]),
-
-        // About section
         h('section', { class: 'about-section' }, [
-          h('h2', { class: 'section-title' }, ['About KalxJS']),
+          h('h2', {}, ['About KalxJS']),
 
           h('div', { class: 'about-content' }, [
-            h('p', { class: 'lead-text' }, [
-              'KalxJS is a modern JavaScript framework designed for building fast, interactive user interfaces with a focus on simplicity and performance.'
-            ]),
-
             h('p', {}, [
-              'Built with a virtual DOM implementation and a reactive component system, KalxJS makes it easy to create complex applications that respond instantly to data changes.'
-            ]),
-
-            h('div', { class: 'tech-stack mt-4' }, [
-              h('h3', {}, ['Technology Stack']),
-
-              h('div', { class: 'tech-badges' }, [
-                h('span', { class: 'badge' }, ['JavaScript']),
-                h('span', { class: 'badge' }, ['Virtual DOM']),
-                h('span', { class: 'badge' }, ['Reactive']),
-                h('span', { class: 'badge' }, ['Component-Based']),
-                h('span', { class: 'badge' }, ['Router']),
-                h('span', { class: 'badge' }, ['State Management'])
-              ])
-            ])
-          ])
-        ]),
-
-        // Features section
-        h('section', { class: 'features-section mt-4' }, [
-          h('h2', { class: 'section-title' }, ['Key Features']),
-
-          h('div', { class: 'features-grid' },
-            this.features.map((feature, index) =>
-              h('div', {
-                class: \`feature-card \${this.activeFeature === index ? 'active' : ''}\`,
-                onClick: () => this.setActiveFeature(index)
-              }, [
-                h('div', { class: 'feature-icon' }, [feature.icon]),
-                h('h3', { class: 'feature-title' }, [feature.title]),
-                h('p', { class: 'feature-description' }, [feature.description])
-              ])
-            )
-          )
-        ]),
-
-        // Getting started section
-        h('section', { class: 'getting-started-section mt-4' }, [
-          h('h2', { class: 'section-title' }, ['Getting Started']),
-
-          h('div', { class: 'card code-card' }, [
-            h('h3', { class: 'card-title' }, ['Installation']),
-
-            h('pre', { class: 'code-block' }, [
-              h('code', {}, ['npm install @kalxjs/core @kalxjs/router @kalxjs/state'])
-            ]),
-
-            h('h3', { class: 'card-title mt-4' }, ['Create Your First Component']),
-
-            h('pre', { class: 'code-block' }, [
-              h('code', {}, [
-                \`import { h, defineComponent } from '@kalxjs/core';
-
-export default defineComponent({
-  name: 'HelloWorld',
-
-  data() {
-    return {
-      message: 'Hello, KalxJS!'
-    };
-  },
-
-  render() {
-    return h('div', {}, [
-      h('h1', {}, [this.message])
-    ]);
-  }
-});\`
-              ])
-            ])
-          ])
-        ]),
-
-        // Navigation
-        h('div', { class: 'navigation-container text-center mt-4' }, [
-          h('a', {
-            class: 'btn btn-outline',
-            href: '/',
-            onClick: this.navigateToHome
-          }, ['Back to Home'])
-        ]),
-
-        // Back to top button
-        this.showBackToTop ? h('button', {
-          class: 'back-to-top-btn',
-          onClick: this.scrollToTop
-        }, ['↑']) : null
-      ])
-    ]);
-  }
-});`;
-
-    files['app/pages/NotFound.js'] = `import { h, defineComponent } from '@kalxjs/core';
-import ThemeSwitcher from '../components/ThemeSwitcher.js';
-
-export default defineComponent({
-  name: 'NotFoundView',
-
-  components: {
-    ThemeSwitcher
-  },
-
-  data() {
-    return {
-      animationActive: false
-    };
-  },
-
-  mounted() {
-    // Start animation after a short delay
-    setTimeout(() => {
-      this.animationActive = true;
-      this.$update();
-    }, 100);
-  },
-
-  methods: {
-    navigateToHome(e) {
-      e.preventDefault();
-
-      // Add a small animation before navigation
-      const notFoundView = document.querySelector('.not-found-view');
-      if (notFoundView) {
-        notFoundView.classList.add('fade-out');
-
-        setTimeout(() => {
-          window.router.push('/');
-        }, 300);
-      } else {
-        window.router.push('/');
-      }
-    }
-  },
-
-  render() {
-    return h('div', { class: 'not-found-view fade-in' }, [
-      h('div', { class: 'container' }, [
-        // Header with theme switcher
-        h('header', { class: 'page-header flex flex-between' }, [
-          h('div', { class: 'logo' }, [
-            h('h1', { class: 'logo-text' }, ['KalxJS']),
-            h('span', { class: 'logo-tagline' }, ['Modern JavaScript Framework'])
-          ]),
-
-          h(ThemeSwitcher)
-        ]),
-
-        // 404 content
-        h('div', { class: 'not-found-content text-center' }, [
-          h('div', {
-            class: \`error-code \${this.animationActive ? 'animate' : ''}\`
-          }, ['404']),
-
-          h('h1', { class: 'error-title' }, ['Page Not Found']),
-
-          h('p', { class: 'error-message' }, [
-            'The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.'
-          ]),
-
-          h('div', { class: 'error-illustration' }, [
-            h('div', { class: 'planet' }, []),
-            h('div', { class: 'astronaut' }, []),
-            h('div', { class: 'stars' }, [
-              ...[...Array(20)].map((_, i) =>
-                h('div', {
-                  class: 'star',
-                  style: \`
-                    top: \${Math.random() * 100}%;
-                    left: \${Math.random() * 100}%;
-                    animation-delay: \${Math.random() * 2}s;
-                  \`
-                }, [])
-              )
+              'KalxJS is a modern JavaScript framework designed for building fast, interactive user interfaces with a focus on simplicity and performance.'
             ])
           ]),
 
           h('div', { class: 'navigation-container mt-4' }, [
             h('a', {
-              class: 'btn btn-pulse',
+              class: 'btn btn-primary',
               href: '/',
               onClick: this.navigateToHome
-            }, ['Return to Home Page'])
+            }, ['Back to Home'])
           ])
         ])
       ])
     ]);
   }
-}); `;
+});`;
+
+
+    files['app/pages/NotFound.js'] = `import { h, defineComponent } from '@kalxjs/core';
+
+export default defineComponent({
+  name: 'NotFoundView',
+
+  methods: {
+    navigateToHome(e) {
+      e.preventDefault();
+      window.router.push('/');
+    }
+  },
+
+  render() {
+    return h('div', { class: 'not-found-view' }, [
+      h('div', { class: 'container' }, [
+        h('div', { class: 'not-found-content text-center' }, [
+          h('h1', {}, ['404 - Page Not Found']),
+
+          h('p', {}, [
+            'The page you are looking for does not exist.'
+          ]),
+
+          h('div', { class: 'navigation-container mt-4' }, [
+            h('a', {
+              class: 'btn btn-primary',
+              href: '/',
+              onClick: this.navigateToHome
+            }, ['Return to Home'])
+          ])
+        ])
+      ])
+    ]);
+  }
+});`;
+
   }
 
   // Add state management files if state feature is enabled
@@ -1307,7 +928,7 @@ a {
 .btn {
   display: inline-block;
   background-color: var(--primary-color);
-  color: white;
+  color: black;
   padding: 0.5rem 1.5rem;
   border: none;
   border-radius: $border-radius;
@@ -1455,72 +1076,6 @@ input, textarea, select {
   }
 }
 
-/* Dark theme styles - applied directly and aggressively */
-html.dark-theme {
-  background-color: #1a1a1a !important;
-}
-
-html.dark-theme body {
-  background-color: #1a1a1a !important;
-  color: #f0f0f0 !important;
-}
-
-html.dark-theme .app-header,
-html.dark-theme header,
-html.dark-theme nav {
-  background-color: #2a2a2a !important;
-  border-bottom: 1px solid #444444 !important;
-  color: #f0f0f0 !important;
-}
-
-html.dark-theme .welcome-banner,
-html.dark-theme .features-section,
-html.dark-theme .card,
-html.dark-theme .tab-content,
-html.dark-theme .counter-demo {
-  background-color: #2a2a2a !important;
-  color: #f0f0f0 !important;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3) !important;
-}
-
-html.dark-theme .btn-primary {
-  background-color: #42d392 !important;
-}
-
-html.dark-theme .btn-secondary {
-  background-color: #2c3e50 !important;
-}
-
-html.dark-theme a {
-  color: #42d392 !important;
-}
-
-html.dark-theme .text-secondary {
-  color: #aaaaaa !important;
-}
-
-html.dark-theme h1,
-html.dark-theme h2,
-html.dark-theme h3,
-html.dark-theme h4,
-html.dark-theme h5,
-html.dark-theme h6 {
-  color: #f0f0f0 !important;
-}
-
-html.dark-theme .counter-value {
-  color: #42d392 !important;
-}
-
-/* Ensure theme transition is smooth */
-html,
-body,
-.app-header,
-.card,
-.welcome-banner,
-.features-section {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
-}
 
 // Generate theme color variables
 @each $theme-name, $theme-colors in $themes {
@@ -1543,526 +1098,137 @@ body,
   }
 }`;
 
-    files['app/styles/animations.scss'] = `// Animation styles
 
-// Animated Counter
-.animated-counter {
-    display: inline-block;
+    files['app/styles/app.scss'] = `// Global app styles
 
-    .counter-value {
-        font-size: 3rem;
-        font-weight: bold;
-        color: var(--primary-color);
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        transition: color 0.3s ease;
-    }
+:root {
+  --primary-color: #007bff;
+  --bg-color: #fff;
+  --text-color: #333;
 }
 
-// Page transitions
-.page-enter {
-    opacity: 0;
-    transform: translateY(20px);
-}
-
-.page-enter-active {
-    transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.page-enter-to {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.page-leave {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.page-leave-active {
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.page-leave-to {
-    opacity: 0;
-    transform: translateY(-20px);
-}
-
-// Button animations
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
-    }
-
-    70% {
-        transform: scale(1.05);
-        box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
-    }
-
-    100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-    }
-}
-
-.btn-pulse {
-    animation: pulse 1.5s infinite;
-}
-
-// Loading spinner
-.spinner {
-    width: 40px;
-    height: 40px;
-    margin: 20px auto;
-    border: 4px solid rgba(0, 0, 0, 0.3);
-    border-radius: 50%;
-    border-top-color: var(--primary-color);
-    animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-// Fade animations
-.fade-in {
-    animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-.fade-out {
-    animation: fadeOut 0.5s ease-out;
-}
-
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-    }
-
-    to {
-        opacity: 0;
-    }
-}
-
-// Slide animations
-.slide-in-right {
-    animation: slideInRight 0.5s ease-out;
-}
-
-@keyframes slideInRight {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-.slide-in-left {
-    animation: slideInLeft 0.5s ease-out;
-}
-
-@keyframes slideInLeft {
-    from {
-        transform: translateX(-100%);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-// Bounce animation
-.bounce {
-    animation: bounce 0.5s;
-}
-
-@keyframes bounce {
-    0%,
-    20%,
-    50%,
-    80%,
-    100% {
-        transform: translateY(0);
-    }
-
-    40% {
-        transform: translateY(-20px);
-    }
-
-    60% {
-        transform: translateY(-10px);
-    }
-}`;
-
-    files['app/styles/theme-switcher.scss'] = `// Theme Switcher Component Styles
-@use 'sass:color';
-@use './variables' as vars;
-
-.theme-switcher {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 20px;
-  background-color: var(--bg-secondary);
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--bg-color);
   color: var(--text-color);
-  border: 1px solid var(--border-color);
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-
-  &:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-  }
+  transition: background-color 0.3s, color 0.3s;
 }
 
-.theme-icon {
-  font-size: 1.2rem;
-  transition: transform 0.5s ease;
-}
-
-.theme-text {
-  font-weight: 500;
-}
-
-// Animation for theme icon
-@keyframes rotate {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.rotate {
-  animation: rotate 0.5s ease-in-out;
-}
-
-// Dark theme specific styles for the switcher
-html.dark-theme .theme-switcher {
-  background-color: #2a2a2a;
-  color: #f0f0f0;
-  border-color: #444444;
-}
-
-// Responsive styles
-@media (max-width: 768px) {
-  .theme-switcher {
-    padding: 8px;
-
-    .theme-text {
-      display: none;
-    }
-  }
-}`;
-
-    files['app/styles/app.scss'] = `// App-specific styles
-
-// Variables
-$header-height: 60px;
-$footer-height: 60px;
-$primary-color: #42b883;
-$secondary-color: #35495e;
-$light-bg: #ffffff;
-$dark-bg: #1a1a1a;
-$light-text: #333333;
-$dark-text: #f0f0f0;
-$border-radius: 4px;
-$box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-// App container
 .app {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background-color: var(--bg-color, $light-bg);
-  color: var(--text-color, $light-text);
-  transition: background-color 0.3s, color 0.3s;
 }
 
-// Header styles
 .app-header {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: $header-height;
-  padding: 0 20px;
-  background-color: var(--bg-secondary, $secondary-color);
-  color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-  .logo-container {
-    display: flex;
-    align-items: center;
-
-    .logo {
-      height: 40px;
-      margin-right: 10px;
-      cursor: pointer;
-    }
-
-    .app-title {
-      font-size: 1.5rem;
-      margin: 0;
-    }
-  }
-
-  .app-nav {
-    display: flex;
-    gap: 20px;
-
-    .nav-link {
-      color: white;
-      text-decoration: none;
-      padding: 5px 10px;
-      border-radius: 4px;
-      transition: background-color 0.2s;
-
-      &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-      }
-
-      &.active {
-        background-color: rgba(255, 255, 255, 0.2);
-        font-weight: bold;
-      }
-    }
-
-    .theme-switcher-container {
-      display: flex;
-      align-items: center;
-    }
-
-    .theme-switcher {
-      background: none;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: white;
-      cursor: pointer;
-      padding: 5px 10px;
-      border-radius: $border-radius;
-      display: flex;
-      align-items: center;
-      transition: all 0.2s ease;
-
-      &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-      }
-
-      .theme-icon {
-        margin-right: 8px;
-        font-size: 1.2rem;
-      }
-
-      .theme-text {
-        font-size: 0.9rem;
-      }
-    }
-
-    .theme-toggle {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 1.2rem;
-      cursor: pointer;
-      padding: 5px 10px;
-      border-radius: 4px;
-
-      &:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-      }
-    }
-  }
 }
 
-// Main content area
+.app-nav {
+  display: flex;
+  gap: 2rem;
+}
+
+
 .app-main {
   flex: 1;
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
+  padding: 2rem;
 }
 
-// Footer styles
 .app-footer {
-  height: $footer-height;
-  background-color: var(--bg-secondary, $secondary-color);
+  background-color: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+  padding: 1.5rem;
+  text-align: center;
+  color: #666;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.hero {
+  text-align: center;
+  padding: 3rem 0;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.3s;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
   color: white;
-
-  .footer-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 100%;
-    padding: 0 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .copyright {
-    margin: 0;
-  }
-
-  .footer-links {
-    display: flex;
-    gap: 20px;
-
-    a {
-      color: white;
-      text-decoration: none;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-  }
 }
 
-// Dark theme
-.dark-theme {
-  --bg-color: #{$dark-bg};
-  --text-color: #{$dark-text};
-  --bg-secondary: #2a2a2a;
-  --border-color: #444444;
-  --card-bg: #2a2a2a;
-  --input-bg: #333333;
-  --input-border: #555555;
-  --code-bg: #333333;
-
-  .app-header, .app-footer {
-    background-color: #2a2a2a;
-  }
-
-  .theme-switcher {
-    border-color: rgba(255, 255, 255, 0.3);
-  }
-
-  button, .button {
-    &.primary {
-      background-color: $primary-color-dark;
-    }
-
-    &.secondary {
-      background-color: darken($secondary-color, 10%);
-    }
-  }
+.btn-primary:hover {
+  opacity: 0.9;
 }
 
-// Responsive adjustments
-@media (max-width: 768px) {
-  .app-header {
-    flex-direction: column;
-    height: auto;
-    padding: 10px;
+.btn-outline {
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+  background-color: transparent;
+}
 
-    .logo-container {
-      margin-bottom: 10px;
-    }
+.btn-outline:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
 
-    .app-nav {
-      width: 100%;
-      justify-content: center;
-      flex-wrap: wrap;
+.text-center {
+  text-align: center;
+}
 
-      .theme-switcher {
-        .theme-text {
-          display: none;
-        }
+.mt-4 {
+  margin-top: 2rem;
+}
+`;
 
-        .theme-icon {
-          margin-right: 0;
-        }
-      }
-    }
-  }
-
-  .app-footer {
-    .footer-content {
-      flex-direction: column;
-      padding: 10px;
-      height: auto;
-
-      .copyright {
-        margin-bottom: 10px;
-      }
-    }
-  }
-}`;
 
   }
 
   // Create App.js file
-  files['app/core/App.js'] = `import { h, defineComponent, onMounted, ref } from '@kalxjs/core';
-    // Import the app styles
-    import '../styles/app.scss';
-    // Import ThemeSwitcher component
-    import ThemeSwitcher from '../components/ThemeSwitcher.js';
+  files['app/core/App.js'] = `import { h, defineComponent, ref } from '@kalxjs/core';
+import '../styles/app.scss';
 
-    export default defineComponent({
-      name: 'App',
+export default defineComponent({
+  name: 'App',
 
-      // Component setup with composition API
-      setup() {
-        console.log('App component setup called');
+  setup() {
+    const activeRoute = ref('/');
 
-        // Active route tracking for navigation highlighting
-        const activeRoute = ref('/');
-
-        // Function to navigate programmatically
-        const navigateTo = (path) => {
-          console.log(\`Navigating to: \${path}\`);
+    const navigateTo = (path) => {
       activeRoute.value = path;
-
       if (window.router) {
         window.router.push(path);
-      } else {
-        console.warn('Router not available');
-        window.location.hash = path;
       }
     };
-
-    // Lifecycle hooks
-    onMounted(() => {
-      console.log('App component mounted');
-
-      // Make sure the router view container is available
-      const routerViewContainer = document.getElementById('router-view');
-      if (routerViewContainer && window.router) {
-        console.log('Router view container found, initializing router view');
-
-        // Force an initial navigation to the current route
-        const currentPath = window.location.hash.slice(1) || '/';
-        activeRoute.value = currentPath;
-        window.router.push(currentPath);
-      }
-    });
 
     return {
       navigateTo,
@@ -2070,28 +1236,15 @@ $box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     };
   },
 
-  // Add render function to ensure it works properly
   render() {
-    return h('div', {
-      class: 'app'
-    }, [
-      // Header with navigation
+    return h('div', { class: 'app' }, [
+      // Header
       h('header', { class: 'app-header' }, [
         h('div', { class: 'logo-container' }, [
-          h('img', {
-            src: '/assets/logo.svg',
-            alt: 'KalxJS Logo',
-            class: 'logo',
-            onClick: () => this.navigateTo('/')
-          }),
           h('h1', { class: 'app-title' }, ['${config.projectName}'])
         ]),
 
         h('nav', { class: 'app-nav' }, [
-          // Import and use ThemeSwitcher component
-          h('div', { class: 'theme-switcher-container' }, [
-            h(ThemeSwitcher)
-          ]),
           h('a', {
             href: '/',
             class: ['nav-link', { 'active': this.activeRoute === '/' }],
@@ -2109,71 +1262,29 @@ $box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
           }, ['About']),
           h('a', {
-            href: '/features',
-            class: ['nav-link', { 'active': this.activeRoute === '/features' }],
-            onClick: (e) => {
-              e.preventDefault();
-              this.navigateTo('/features');
-            }
-          }, ['Features'])
+            href: 'https://github.com/Odeneho-Calculus/kalxjs',
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            class: 'github-link',
+            title: 'View on GitHub'
+          }, ['🐙 GitHub'])
         ])
       ]),
 
-      // Main content area
+      // Main content
       h('main', { class: 'app-main' }, [
-        // Welcome banner
-        h('section', { class: 'welcome-banner' }, [
-          h('h1', { class: 'welcome-title' }, ['Welcome to KalxJS']),
-          h('p', { class: 'welcome-subtitle' }, ['A modern JavaScript framework for building powerful applications']),
-          h('div', { class: 'action-buttons' }, [
-            h('button', {
-              class: 'btn btn-primary',
-              onClick: () => window.open('https://github.com/Odeneho-Calculus/kalxjs', '_blank')
-            }, ['GitHub']),
-            h('button', {
-              class: 'btn btn-secondary',
-              onClick: () => this.navigateTo('/features')
-            }, ['Explore Features'])
-          ])
-        ]),
-
-        // Feature information section
-        h('section', { class: 'features-section' }, [
-          h('h2', null, ['Enabled Features']),
-          h('ul', { class: 'features-list' }, [
-            ${config.features.router ? "h('li', { class: 'feature-item router' }, ['✓ Router'])," : ''}
-            ${config.features.state ? "h('li', { class: 'feature-item state' }, ['✓ State Management'])," : ''}
-            ${config.features.scss ? "h('li', { class: 'feature-item scss' }, ['✓ SCSS Support'])," : ''}
-            ${config.features.sfc ? "h('li', { class: 'feature-item sfc' }, ['✓ Single File Components'])," : ''}
-            ${config.features.api ? "h('li', { class: 'feature-item api' }, ['✓ API Integration'])," : ''}
-            ${config.features.composition ? "h('li', { class: 'feature-item composition' }, ['✓ Composition API'])," : ''}
-            ${config.features.performance ? "h('li', { class: 'feature-item performance' }, ['✓ Performance Utilities'])," : ''}
-            ${config.features.plugins ? "h('li', { class: 'feature-item plugins' }, ['✓ Plugin System'])," : ''}
-            ${config.features.testing ? "h('li', { class: 'feature-item testing' }, ['✓ Testing'])," : ''}
-            ${config.features.linting ? "h('li', { class: 'feature-item linting' }, ['✓ Linting'])," : ''}
-          ])
-        ]),
-
-        // Router view container
-        h('section', { class: 'router-view-container' }, [
-          h('div', { id: 'router-view' })
-        ])
+        h('section', { id: 'router-view' })
       ]),
 
       // Footer
       h('footer', { class: 'app-footer' }, [
-        h('div', { class: 'footer-content' }, [
-          h('p', { class: 'copyright' }, ['© 2023 Powered by KalxJS']),
-          h('div', { class: 'footer-links' }, [
-            h('a', { href: 'https://github.com/Odeneho-Calculus/kalxjs', target: '_blank' }, ['GitHub']),
-            h('a', { href: '#', onClick: (e) => { e.preventDefault(); this.navigateTo('/about'); } }, ['About']),
-            h('a', { href: '#', onClick: (e) => { e.preventDefault(); this.navigateTo('/features'); } }, ['Features'])
-          ])
-        ])
+        h('p', {}, ['© 2024 Powered by KalxJS'])
       ])
     ]);
   }
 });`;
+
+
 
   // Create main.js file
   files['app/main.js'] = `import { createApp } from '@kalxjs/core';
@@ -2513,16 +1624,6 @@ try {
       --shadow-color: rgba(0, 0, 0, 0.1);
     }
 
-    /* Dark theme variables - applied by default */
-    .dark-theme {
-      --primary-color: #4ecca3;
-      --primary-color-dark: #3db892;
-      --secondary-color: #30475e;
-      --bg-color: #121212;
-      --text-color: #ffffff;
-      --border-color: #333333;
-      --shadow-color: rgba(0, 0, 0, 0.5);
-    }
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -2576,13 +1677,6 @@ try {
       padding: 20px;
     }
 
-    /* Dark mode support */
-    .dark-theme {
-      --bg-color: #1a1a1a;
-      --text-color: #f0f0f0;
-      --border-color: #333;
-      --shadow-color: rgba(0, 0, 0, 0.3);
-    }
 
     @media (prefers-color-scheme: dark) {
       :root {
@@ -2601,12 +1695,6 @@ try {
       padding: 16px;
       margin: 16px 0;
       color: #cf1322;
-    }
-
-    .dark-theme .error-container {
-      background-color: #2a1215;
-      border-color: #5c2223;
-      color: #ff7875;
     }
   </style>
 </head>
@@ -3078,7 +2166,7 @@ For more information, please refer to the [KalxJS documentation](https://github.
   }
 
   // Copy favicon.ico from templates
-  const faviconSourcePath = path.join(__dirname, '../templates/favicon.ico');
+  const faviconSourcePath = path.join(__dirname, '../../../../src/favicon.ico');
   const faviconTargetPath = path.join(targetDir, 'public/assets/favicon.ico');
 
   try {
@@ -3087,7 +2175,7 @@ For more information, please refer to the [KalxJS documentation](https://github.
 
     // Copy the favicon file
     await fs.copyFile(faviconSourcePath, faviconTargetPath);
-    console.log('✅ Copied favicon.ico from templates');
+    console.log('✅ Copied favicon.ico to public/assets/favicon.ico');
   } catch (error) {
     console.error('⚠️ Error copying favicon.ico:', error.message);
   }
@@ -3131,657 +2219,6 @@ export default defineComponent({
 
   await fs.writeFile(testComponentPath, testComponentContent);
 
-  // Create a ThemeSwitcher component
-  const themeSwitcherPath = path.join(targetDir, 'app/components/ThemeSwitcher.js');
-  const themeSwitcherContent = `import { h, defineComponent } from '@kalxjs/core';
-
-export default defineComponent({
-  name: 'ThemeSwitcher',
-
-  data() {
-    return {
-      isDarkTheme: true, // Set default to true for dark theme
-    };
-  },
-
-  mounted() {
-    console.log('ThemeSwitcher mounting...');
-
-    // Check if user has a theme preference stored
-    const storedTheme = localStorage.getItem('theme');
-    if (storedTheme) {
-      console.log('Found stored theme preference:', storedTheme);
-      this.isDarkTheme = storedTheme === 'dark';
-    } else {
-      // Set dark theme as default
-      console.log('No stored theme, setting dark theme as default.');
-      this.isDarkTheme = true;
-      localStorage.setItem('theme', 'dark');
-    }
-
-    // Apply theme immediately
-    this.applyTheme();
-    this.$update();
-
-    console.log('ThemeSwitcher mounted, dark theme:', this.isDarkTheme);
-  },
-
-  methods: {
-    // Apply theme to document
-    applyTheme() {
-      console.log('Applying theme:', this.isDarkTheme ? 'dark' : 'light');
-
-      if (this.isDarkTheme) {
-        document.documentElement.classList.add('dark-theme');
-        localStorage.setItem('theme', 'dark');
-        document.body.style.backgroundColor = '#121212';
-        document.body.style.color = '#ffffff';
-      } else {
-        document.documentElement.classList.remove('dark-theme');
-        localStorage.setItem('theme', 'light');
-        document.body.style.backgroundColor = '#ffffff';
-        document.body.style.color = '#333333';
-      }
-
-      // Force a repaint to ensure styles are applied
-      const repaint = document.body.offsetHeight;
-    },
-
-    // Toggle theme function - simplified to match counter pattern
-    toggleTheme() {
-      console.log('Toggle theme clicked, current:', this.isDarkTheme);
-      this.isDarkTheme = !this.isDarkTheme;
-      this.applyTheme();
-      this.$update();
-    }
-  },
-
-  render() {
-    // Create a simple button similar to the counter buttons
-    return h('div', {
-      class: 'theme-switcher-wrapper',
-      style: 'display: flex; align-items: center; justify-content: center;'
-    }, [
-      h('button', {
-        class: 'theme-button',
-        onClick: this.toggleTheme,
-        style: \`
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.5rem;
-          background-color: var(--primary-color);
-          color: white;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          border: none;
-          outline: none;
-          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        \`
-      }, [
-        this.isDarkTheme ? '☀️' : '🌙'
-      ]),
-
-      h('span', {
-        style: 'margin-left: 10px; font-weight: 500;'
-      }, [
-        this.isDarkTheme ? 'Light Mode' : 'Dark Mode'
-      ])
-    ]);
-  }
-});`;
-
-  await fs.writeFile(themeSwitcherPath, themeSwitcherContent);
-
-  // Create an AnimatedCounter component
-  const animatedCounterPath = path.join(targetDir, 'app/components/AnimatedCounter.js');
-  const animatedCounterContent = `import { h, defineComponent } from '@kalxjs/core';
-
-export default defineComponent({
-    name: 'AnimatedCounter',
-
-    props: {
-        value: {
-            type: Number,
-            default: 0
-        },
-        duration: {
-            type: Number,
-            default: 1000
-        }
-    },
-
-    data() {
-        return {
-            displayValue: 0,
-            animationId: null
-        };
-    },
-
-    mounted() {
-        this.animateToValue(this.value);
-    },
-
-    updated() {
-        console.log('AnimatedCounter updated, value:', this.value, 'displayValue:', this.displayValue);
-        // Always animate to the new value when updated
-        this.animateToValue(this.value);
-    },
-
-    beforeUnmount() {
-        if (this.animationId) {
-            cancelAnimationFrame(this.animationId);
-        }
-    },
-
-    methods: {
-        animateToValue(targetValue) {
-            // Cancel any ongoing animation
-            if (this.animationId) {
-                cancelAnimationFrame(this.animationId);
-            }
-
-            const startValue = this.displayValue;
-            const startTime = performance.now();
-            const changeInValue = targetValue - startValue;
-
-            const animate = (currentTime) => {
-                const elapsedTime = currentTime - startTime;
-                const progress = Math.min(elapsedTime / this.duration, 1);
-
-                // Easing function (ease-out-cubic)
-                const easedProgress = 1 - Math.pow(1 - progress, 3);
-
-                this.displayValue = Math.round(startValue + changeInValue * easedProgress);
-                this.$update();
-
-                if (progress < 1) {
-                    this.animationId = requestAnimationFrame(animate);
-                } else {
-                    this.displayValue = targetValue;
-                    this.animationId = null;
-                    this.$update();
-                }
-            };
-
-            this.animationId = requestAnimationFrame(animate);
-        }
-    },
-
-    render() {
-        console.log('Rendering AnimatedCounter with value:', this.value, 'displayValue:', this.displayValue);
-
-        // Force the display value to match the actual value if they're different
-        // This ensures the counter always shows the correct value
-        if (this.value !== this.displayValue && !this.animationId) {
-            this.displayValue = this.value;
-        }
-
-        return h('div', {
-            class: 'animated-counter',
-            style: 'font-size: 3.5rem; font-weight: bold; color: var(--primary-color); min-width: 100px; text-align: center; background-color: var(--bg-color); padding: 1rem; border-radius: 12px; box-shadow: 0 4px 10px var(--shadow-color);'
-        }, [
-            h('span', {
-                class: 'counter-value',
-                style: 'display: inline-block; transition: transform 0.2s ease;'
-            }, [String(this.displayValue)])
-        ]);
-    }
-});`;
-
-  await fs.writeFile(animatedCounterPath, animatedCounterContent);
-
-  // Create the theme-switcher.scss file
-  const themeSwitcherStylePath = path.join(targetDir, 'app/styles/theme-switcher.scss');
-  const themeSwitcherStyleContent = `// Theme Switcher Styles
-@use 'sass:color';
-@use './variables' as vars;
-
-.theme-switcher {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 18px;
-    border-radius: 20px;
-    background-color: var(--bg-secondary);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    z-index: 10; /* Ensure it's above other elements */
-    font-weight: 500;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-    outline: none;
-
-    /* Make it more noticeable */
-    &::before {
-        content: '';
-        position: absolute;
-        top: -2px;
-        left: -2px;
-        right: -2px;
-        bottom: -2px;
-        border-radius: 22px;
-        background: transparent;
-        border: 2px solid transparent;
-        transition: all 0.3s ease;
-        pointer-events: none;
-    }
-
-    &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-
-        &::before {
-            border-color: var(--primary-color);
-        }
-    }
-
-    &:active {
-        transform: translateY(0);
-        background-color: var(--primary-color);
-        color: white;
-    }
-
-    &:focus {
-        outline: none;
-
-        &::before {
-            border-color: var(--primary-color);
-        }
-    }
-
-    &:disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
-    }
-}
-
-.theme-icon {
-    font-size: 1.2rem;
-    transition: transform 0.5s ease;
-}
-
-.theme-text {
-    font-weight: 500;
-}
-
-// Animation for theme icon
-@keyframes rotate {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-.rotate {
-    animation: rotate 0.5s ease-in-out;
-}
-
-// Dark theme specific styles for the switcher - enhanced
-html.dark-theme .theme-switcher {
-    background-color: #1e1e1e;
-    color: #ffffff;
-    border-color: #333333;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-
-    &:hover {
-        background-color: #252525;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-    }
-
-    &:active {
-        transform: translateY(0);
-        background-color: #2a2a2a;
-    }
-}
-
-// Responsive styles
-@media (max-width: 768px) {
-    .theme-switcher {
-        padding: 8px;
-
-        .theme-text {
-            display: none;
-        }
-    }
-}`;
-
-  await fs.writeFile(themeSwitcherStylePath, themeSwitcherStyleContent);
-
-  // Create the animations.scss file
-  const animationsStylePath = path.join(targetDir, 'app/styles/animations.scss');
-  const animationsStyleContent = `// Animation styles
-@use 'sass:color';
-@use './variables' as vars;
-
-// Animated Counter
-.animated-counter {
-    display: inline-block;
-
-    .counter-value {
-        font-size: 3rem;
-        font-weight: bold;
-        color: var(--primary-color);
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        transition: color 0.3s ease;
-    }
-}
-
-// Page transitions
-.page-enter {
-    opacity: 0;
-    transform: translateY(20px);
-}
-
-.page-enter-active {
-    transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.page-enter-to {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.page-leave {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.page-leave-active {
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.page-leave-to {
-    opacity: 0;
-    transform: translateY(-20px);
-}
-
-// Button animations
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(var(--primary-color), 0.7);
-    }
-
-    70% {
-        transform: scale(1.05);
-        box-shadow: 0 0 0 10px rgba(var(--primary-color), 0);
-    }
-
-    100% {
-        transform: scale(1);
-        box-shadow: 0 0 0 0 rgba(var(--primary-color), 0);
-    }
-}
-
-.btn-pulse {
-    animation: pulse 1.5s infinite;
-}
-
-// Loading spinner
-.spinner {
-    width: 40px;
-    height: 40px;
-    margin: 20px auto;
-    border: 4px solid rgba(var(--primary-color), 0.3);
-    border-radius: 50%;
-    border-top-color: var(--primary-color);
-    animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-// Fade animations
-.fade-in {
-    animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-.fade-out {
-    animation: fadeOut 0.5s ease-out;
-}
-
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-    }
-
-    to {
-        opacity: 0;
-    }
-}
-
-// Slide animations
-.slide-in-right {
-    animation: slideInRight 0.5s ease-out;
-}
-
-@keyframes slideInRight {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-.slide-in-left {
-    animation: slideInLeft 0.5s ease-out;
-}
-
-@keyframes slideInLeft {
-    from {
-        transform: translateX(-100%);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-// Bounce animation
-.bounce {
-    animation: bounce 0.5s;
-}
-
-@keyframes bounce {
-
-    0%,
-    20%,
-    50%,
-    80%,
-    100% {
-        transform: translateY(0);
-    }
-
-    40% {
-        transform: translateY(-20px);
-    }
-
-    60% {
-        transform: translateY(-10px);
-    }
-}
-
-// Button hover effects
-.btn {
-    transition: all 0.3s ease;
-
-    &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    &:active {
-        transform: translateY(1px);
-    }
-}
-
-// Loading spinner
-.spinner {
-    width: 40px;
-    height: 40px;
-    margin: 20px auto;
-    border: 4px solid rgba(var(--primary-color), 0.3);
-    border-radius: 50%;
-    border-top-color: var(--primary-color);
-    animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-// Fade animations
-.fade-in {
-    animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
-}
-
-.fade-out {
-    animation: fadeOut 0.5s ease-out;
-}
-
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-    }
-
-    to {
-        opacity: 0;
-    }
-}
-
-// Slide animations
-.slide-in-right {
-    animation: slideInRight 0.5s ease-out;
-}
-
-@keyframes slideInRight {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-.slide-in-left {
-    animation: slideInLeft 0.5s ease-out;
-}
-
-@keyframes slideInLeft {
-    from {
-        transform: translateX(-100%);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-// Button pulse animation
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    50% {
-        transform: scale(1.05);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-    }
-
-    100% {
-        transform: scale(1);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-}
-
-.btn-pulse {
-    animation: pulse 2s infinite;
-    position: relative;
-}
-
-.btn-pulse::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 8px;
-    box-shadow: 0 0 0 0 rgba(66, 184, 131, 0.7);
-    animation: pulse-ring 2s infinite;
-}
-
-@keyframes pulse-ring {
-    0% {
-        box-shadow: 0 0 0 0 rgba(66, 184, 131, 0.7);
-    }
-
-    70% {
-        box-shadow: 0 0 0 10px rgba(66, 184, 131, 0);
-    }
-
-    100% {
-        box-shadow: 0 0 0 0 rgba(66, 184, 131, 0);
-    }
-}
-
-// Theme switcher animation
-.theme-button {
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-    &:hover {
-        transform: scale(1.1) rotate(15deg);
-        box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);
-    }
-}`;
-
-  await fs.writeFile(animationsStylePath, animationsStyleContent);
 
   // Update the main.scss file to import the new styles
   const mainScssPath = path.join(targetDir, 'app/styles/main.scss');
@@ -3791,11 +2228,9 @@ html.dark-theme .theme-switcher {
 @use './variables' as vars;
 
 // Import component styles
-@use './theme-switcher';
-@use './animations';
 @use 'sass:color';
 
-// Global styles
+// Global styles - Light Theme Only
 :root {
   --primary-color: #42b883;
   --primary-color-dark: #35a070;
@@ -3811,198 +2246,6 @@ html.dark-theme .theme-switcher {
   --warning-color: #ff9800;
   --error-color: #f44336;
   --info-color: #2196f3;
-}
-
-// Dark theme variables - enhanced for better visual appeal
-.dark-theme {
-  --primary-color: #4ecca3; // Brighter green for better visibility
-  --primary-color-dark: #3db892; // Darker shade of primary color
-  --secondary-color: #30475e; // Richer blue-gray
-  --accent-color: #ff7f50; // Coral accent for better contrast
-  --bg-color: #121212; // Deeper dark background (Material dark theme standard)
-  --bg-secondary: #1e1e1e; // Slightly lighter than main bg
-  --text-color: #ffffff; // Pure white text for better readability
-  --text-secondary: #b0b0b0; // Lighter secondary text
-  --border-color: #333333; // Subtle borders
-  --shadow-color: rgba(0, 0, 0, 0.5); // Stronger shadows for depth
-}
-
-/* Dark theme styles - applied directly and aggressively with enhanced colors */
-html.dark-theme {
-  background-color: #121212 !important;
-}
-
-html.dark-theme body {
-  background-color: #121212 !important;
-  color: #ffffff !important;
-}
-
-html.dark-theme .app-header,
-html.dark-theme header,
-html.dark-theme nav {
-  background-color: #1e1e1e !important;
-  border-bottom: 1px solid #333333 !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5) !important;
-}
-
-html.dark-theme .welcome-banner,
-html.dark-theme .features-section,
-html.dark-theme .card,
-html.dark-theme .tab-content,
-html.dark-theme .counter-demo {
-  background-color: #1e1e1e !important;
-  color: #ffffff !important;
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.5) !important;
-  border: 1px solid #333333 !important;
-}
-
-html.dark-theme .btn-primary {
-  background-color: #4ecca3 !important;
-  color: white !important;
-  font-weight: 600 !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
-}
-
-html.dark-theme .btn-primary:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4) !important;
-  text-decoration: none !important;
-}
-
-html.dark-theme .btn-secondary {
-  background-color: #30475e !important;
-  color: white !important;
-  font-weight: 600 !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
-}
-
-html.dark-theme .btn-secondary:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4) !important;
-  text-decoration: none !important;
-}
-
-html.dark-theme a {
-  color: #4ecca3 !important;
-  text-decoration: none !important;
-  transition: all 0.3s ease !important;
-}
-
-html.dark-theme a:hover {
-  text-decoration: underline !important;
-  color: #5fddB4 !important;
-}
-
-html.dark-theme .btn-pulse {
-  color: white !important;
-  background-color: #4ecca3 !important;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-html.dark-theme .btn-pulse:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5) !important;
-  background-color: #5fddB4 !important;
-  text-decoration: none !important;
-}
-
-html.dark-theme .text-secondary {
-  color: #b0b0b0 !important;
-}
-
-html.dark-theme h1,
-html.dark-theme h2,
-html.dark-theme h3,
-html.dark-theme h4,
-html.dark-theme h5,
-html.dark-theme h6 {
-  color: #ffffff !important;
-}
-
-html.dark-theme .counter-value {
-  color: #4ecca3 !important;
-}
-
-html.dark-theme .feature-item {
-  background-color: #252525 !important;
-  border: 1px solid #333333 !important;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease !important;
-  padding: 1.75rem !important;
-  margin-bottom: 1rem !important;
-}
-
-html.dark-theme .feature-item:hover {
-  transform: translateY(-5px) !important;
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5) !important;
-  border-color: #4ecca3 !important;
-}
-
-html.dark-theme .card {
-  padding: 2rem !important;
-  background-color: #1e1e1e !important;
-  border: 1px solid #333333 !important;
-}
-
-html.dark-theme .counter-value {
-  color: #4ecca3 !important;
-}
-
-html.dark-theme .welcome-banner {
-  background-color: #252525 !important;
-  border-color: #333333 !important;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3) !important;
-}
-
-html.dark-theme .feature-item {
-  background-color: #252525 !important;
-  border: 1px solid #333333 !important;
-  transition: transform 0.3s ease, box-shadow 0.3s ease !important;
-  padding: 1.75rem !important;
-}
-
-html.dark-theme .feature-item:hover {
-  transform: translateY(-5px) !important;
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5) !important;
-  border-color: #4ecca3 !important;
-}
-
-html.dark-theme .btn-pulse {
-  color: white !important;
-  background-color: #4ecca3 !important;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
-
-html.dark-theme .btn-pulse:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5) !important;
-  background-color: #5fddB4 !important;
-  text-decoration: none !important;
-}
-
-html.dark-theme .text-secondary {
-  color: #b0b0b0 !important;
-}
-
-html.dark-theme h1,
-html.dark-theme h2,
-html.dark-theme h3,
-html.dark-theme h4,
-html.dark-theme h5,
-html.dark-theme h6 {
-  color: #ffffff !important;
-}
-
-/* Ensure theme transition is smooth */
-html,
-body,
-.app-header,
-.card,
-.welcome-banner,
-.features-section {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
 }
 
 * {
@@ -4053,7 +2296,7 @@ button, .btn {
     font-weight: 600;
 
     &:hover {
-      background-color: #389f6e; /* Darker shade green */
+      background-color: #389f6e;
     }
   }
 
@@ -4063,7 +2306,7 @@ button, .btn {
     font-weight: 600;
 
     &:hover {
-      background-color: #2c3c4f; /* Darker shade blue */
+      background-color: #2c3c4f;
     }
   }
 
@@ -4076,7 +2319,7 @@ button, .btn {
     &:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 12px var(--shadow-color);
-      background-color: #4ac28e; /* Lighter shade green */
+      background-color: #4ac28e;
     }
   }
 }
@@ -4087,7 +2330,7 @@ button, .btn {
   padding: 0 1rem;
 }
 
-// Card styles with enhanced padding
+// Card styles
 .card {
   padding: 1.5rem;
   border-radius: 8px;
@@ -4180,60 +2423,234 @@ button, .btn {
   border: 1px solid var(--border-color);
 
   &:hover {
-    background-color: var(--bg-tertiary);
+    background-color: #ebebeb;
   }
 }
 
 .btn-pulse {
   animation: pulse 2s infinite;
   position: relative;
-  background-color: var(--primary-color);
-  color: white;
+  overflow: hidden;
+}
 
-  &:hover {
-    animation: none;
-    background-color: var(--primary-color-dark);
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
   }
 }
 
-// Utility classes
+// Text utility styles
 .text-center {
   text-align: center;
 }
 
-.mt-1 { margin-top: 0.5rem; }
-.mt-2 { margin-top: 1rem; }
-.mt-3 { margin-top: 1.5rem; }
-.mt-4 { margin-top: 2rem; }
+.text-secondary {
+  color: var(--text-secondary);
+}
 
-.mb-1 { margin-bottom: 0.5rem; }
-.mb-2 { margin-bottom: 1rem; }
-.mb-3 { margin-bottom: 1.5rem; }
-.mb-4 { margin-bottom: 2rem; }
+.mt-4 {
+  margin-top: 2rem;
+}
 
-.p-1 { padding: 0.5rem; }
-.p-2 { padding: 1rem; }
-.p-3 { padding: 1.5rem; }
-.p-4 { padding: 2rem; }
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
 
-// Responsive grid
-.grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
+// App Layout
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+}
+
+.app-header {
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px var(--shadow-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-container {
+  flex: 1;
+}
+
+.app-title {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+.app-nav {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav-link {
+  color: var(--text-color);
+  text-decoration: none;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+
+  &:hover {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+  }
+
+  &.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    font-weight: 600;
+  }
+}
+
+.github-link {
+  background-color: var(--primary-color);
+  color: white !important;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: var(--primary-color-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+    text-decoration: none !important;
+  }
+}
+
+.app-main {
+  flex: 1;
+  padding: 2rem;
+}
+
+.app-footer {
+  background-color: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+  margin-top: auto;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-color);
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.hero {
+  text-align: center;
+  padding: 2rem 0;
+
+  h1 {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+  }
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+.cta-container {
+  display: flex;
   gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
-@media (max-width: 768px) {
-  .grid {
-    grid-template-columns: repeat(6, 1fr);
+.about-section {
+  padding: 2rem 0;
+}
+
+.about-content {
+  background-color: var(--bg-secondary);
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+  border-left: 4px solid var(--primary-color);
+
+  p {
+    color: var(--text-color);
+    line-height: 1.8;
   }
 }
 
-@media (max-width: 480px) {
-  .grid {
-    grid-template-columns: repeat(4, 1fr);
+.not-found-content {
+  padding: 3rem 0;
+
+  h1 {
+    font-size: 3rem;
+    color: var(--error-color);
+    margin-bottom: 1rem;
   }
-}`;
+
+  p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+  }
+}
+
+.navigation-container {
+  margin-top: 2rem;
+
+  a {
+    text-decoration: none;
+    color: white;
+  }
+}
+
+.test-component {
+  background-color: var(--bg-secondary);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  margin: 1rem 0;
+
+  h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+  }
+
+  button {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: var(--primary-color-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px var(--shadow-color);
+    }
+  }
+}
+`;
+
 
   await fs.writeFile(mainScssPath, mainScssContent);
 
