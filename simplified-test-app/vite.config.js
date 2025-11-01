@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import path from 'path';
 
 export default defineConfig({
+  appType: 'spa',  // Enable SPA mode for History API routing
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './app'),
@@ -21,7 +22,8 @@ export default defineConfig({
     },
     watch: {
       usePolling: true // Improve file watching reliability
-    }
+    },
+    middlewareMode: false
   },
   build: {
     outDir: 'dist',

@@ -31,6 +31,7 @@ export function createRouter() {
   const router = createKalRouter({
     history: createWebHistory(),
     base: '/', // Base URL for all routes
+    forceHistoryMode: true, // Force history mode for SPA routing with proper Vite SPA config
     routes: [
       {
         path: '/',
@@ -98,6 +99,27 @@ export function createRouter() {
     if (!component) {
       console.error('No component defined for route');
       return;
+    }
+
+    // Update page title and meta tags based on route metadata
+    if (matchedRoute.meta) {
+      // Update page title
+      if (matchedRoute.meta.title) {
+        document.title = matchedRoute.meta.title + ' - simplified-test-app';
+        console.log('Page title updated to:', document.title);
+      }
+
+      // Update or create meta description tag
+      if (matchedRoute.meta.description) {
+        let metaDescription = document.querySelector('meta[name="description"]');
+        if (!metaDescription) {
+          metaDescription = document.createElement('meta');
+          metaDescription.setAttribute('name', 'description');
+          document.head.appendChild(metaDescription);
+        }
+        metaDescription.setAttribute('content', matchedRoute.meta.description);
+        console.log('Meta description updated:', matchedRoute.meta.description);
+      }
     }
 
     // Get the router view container

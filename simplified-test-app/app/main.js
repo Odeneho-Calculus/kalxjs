@@ -244,8 +244,8 @@ try {
         const routerViewElement = document.getElementById('router-view');
         if (routerViewElement) {
           console.log('Router view container found');
-          // Force initial navigation
-          const currentPath = window.location.hash.slice(1) || '/';
+          // Force initial navigation using pathname (works for both History and Hash modes)
+          const currentPath = window.location.hash.slice(1) || window.location.pathname || '/';
           window.router.push(currentPath);
         }
       }
