@@ -2214,7 +2214,16 @@ export function useRouter() {
         if (router.mode === 'hash') {
             href = window.location.origin + window.location.pathname + '#' + location.path;
         } else {
-            href = window.location.origin + base + location.path;
+            // Normalize base and path to avoid double slashes
+            let normalizedBase = base;
+            let normalizedPath = location.path;
+            
+            // Remove trailing slash from base if path starts with /
+            if (normalizedBase.endsWith('/') && normalizedPath.startsWith('/')) {
+                normalizedBase = normalizedBase.slice(0, -1);
+            }
+            
+            href = window.location.origin + normalizedBase + normalizedPath;
         }
 
         // Add query string if present
@@ -2621,7 +2630,9 @@ export function RouterLink(props = {}) {
     } = props;
 
     // Resolve the link target
-    const { href } = resolve(to);
+    const resolved = resolve(to);
+    // Extract just the path from the resolved href (remove origin)
+    const href = resolved.href.replace(window.location.origin, '');
 
     // Normalize the target route location
     const targetLocation = typeof to === 'string' ? { path: to } : to;

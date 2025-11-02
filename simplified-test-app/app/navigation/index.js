@@ -6,6 +6,7 @@ import UserProfile from '../pages/UserProfile.js';
 import Search from '../pages/Search.js';
 import CategoryItem from '../pages/CategoryItem.js';
 import Phase5ProgrammaticNav from '../pages/Phase5ProgrammaticNav.js';
+import Phase6RouterComponents from '../pages/Phase6RouterComponents.js';
 import NotFound from '../pages/NotFound.js';
 import { h, createApp } from '@kalxjs/core';
 
@@ -77,6 +78,12 @@ export function createRouter() {
         meta: { title: 'Phase 5: Navigation Methods', description: 'Phase 5 Programmatic Navigation Testing' }
       },
       {
+        path: '/phase6',
+        component: Phase6RouterComponents,
+        name: 'phase6',
+        meta: { title: 'Phase 6: Router Components', description: 'Phase 6 RouterLink & RouterView Testing' }
+      },
+      {
         path: '/:pathMatch(.*)*',
         component: NotFound,
         name: 'not-found',
@@ -90,6 +97,9 @@ export function createRouter() {
     router.errorHandler = callback;
     return router;
   };
+
+  // Store the currently mounted app instance for proper cleanup
+  let currentMountedInstance = null;
 
   // Custom rendering logic for router views
   router.afterEach((to, from) => {
@@ -136,7 +146,17 @@ export function createRouter() {
       return;
     }
 
-    // Clear the container
+    // Unmount the previous component instance if it exists
+    if (currentMountedInstance && typeof currentMountedInstance.$unmount === 'function') {
+      console.log('Unmounting previous component instance');
+      try {
+        currentMountedInstance.$unmount();
+      } catch (error) {
+        console.warn('Error unmounting previous component:', error);
+      }
+    }
+
+    // Clear the container completely to ensure no orphaned DOM elements remain
     routerViewContainer.innerHTML = '';
 
     // Render the component
@@ -149,10 +169,30 @@ export function createRouter() {
       // Mount it to the container
       app.mount(routerViewContainer);
 
+      // Store the mounted instance for next navigation cleanup
+      // The app object mounts a component, and we need to track it for cleanup
+      currentMountedInstance = routerViewContainer.firstChild?.__kalxjs_instance || 
+                               routerViewContainer.__kalxjs_instance;
+
+      // If we can't find the instance through the DOM, we'll store it from the container's internal reference
+      if (!currentMountedInstance && routerViewContainer.children.length > 0) {
+        // Store a reference to force cleanup on next navigation
+        currentMountedInstance = {
+          $el: routerViewContainer.children[0],
+          $unmount: function() {
+            // Ensure complete cleanup
+            while (routerViewContainer.children.length > 0) {
+              routerViewContainer.removeChild(routerViewContainer.children[0]);
+            }
+          }
+        };
+      }
+
       console.log('Component rendered successfully');
     } catch (error) {
       console.error('Error rendering component:', error);
       routerViewContainer.innerHTML = `<div class="error">Error rendering view: ${error.message}</div>`;
+      currentMountedInstance = null;
     }
   });
 

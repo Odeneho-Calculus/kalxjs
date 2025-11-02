@@ -47,6 +47,10 @@ export default defineComponent({
     navigateToPhase5(e) {
       e.preventDefault();
       window.router.push('/phase5');
+    },
+    navigateToPhase6(e) {
+      e.preventDefault();
+      window.router.push('/phase6');
     }
   },
 
@@ -119,6 +123,19 @@ export default defineComponent({
                 href: '/phase5',
                 onclick: this.navigateToPhase5
               }, ['Start Phase 5 Testing →'])
+            ])
+          ]),
+
+          // Phase 6: Router Components Testing
+          h('section', { class: 'testing-section phase6-section' }, [
+            h('h2', {}, ['Phase 6: Router Components & Advanced Linking']),
+            h('p', {}, ['Test RouterLink, RouterView, active classes, and component navigation']),
+            h('div', { class: 'test-group' }, [
+              h('a', {
+                class: 'btn btn-large btn-info',
+                href: '/phase6',
+                onclick: this.navigateToPhase6
+              }, ['Start Phase 6 Testing →'])
             ])
           ])
         ])
